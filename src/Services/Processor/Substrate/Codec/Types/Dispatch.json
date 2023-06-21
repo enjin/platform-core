@@ -1,0 +1,7 @@
+{
+  "Dispatch": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "ruleSetId": "u32"
+  }
+}

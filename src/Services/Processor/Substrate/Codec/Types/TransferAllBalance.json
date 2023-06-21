@@ -1,0 +1,7 @@
+{
+  "TransferAllBalance": {
+    "callIndex": "(u8, u8)",
+    "dest": "MultiAddress",
+    "keepAlive": "bool"
+  }
+}

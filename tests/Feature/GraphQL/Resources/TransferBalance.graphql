@@ -1,0 +1,26 @@
+mutation TransferBalance(
+    $recipient: String!
+    $amount: BigInt!
+    $keepAlive: Boolean
+    $signingAccount: String
+) {
+    TransferBalance(
+        recipient: $recipient
+        amount: $amount
+        keepAlive: $keepAlive
+        signingAccount: $signingAccount
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "CancelListing": {
+        "callIndex": "(u8, u8)",
+        "listingId": "h256"
+    }
+}

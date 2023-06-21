@@ -1,0 +1,9 @@
+diff:
+  annotations: true
+  failOnBreaking: true
+  experimental_merge: true
+  approveLabel: breaking-change
+  summaryLimit: 150
+
+branch: master
+schema: "schema/schema.gql"

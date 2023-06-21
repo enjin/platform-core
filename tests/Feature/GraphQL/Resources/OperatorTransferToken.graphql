@@ -1,0 +1,26 @@
+mutation OperatorTransferToken(
+    $collectionId: BigInt!
+    $recipient: String!
+    $params: OperatorTransferParams!
+    $signingAccount: String
+) {
+    OperatorTransferToken(
+        collectionId: $collectionId
+        recipient: $recipient
+        params: $params
+        signingAccount: $signingAccount
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

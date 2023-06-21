@@ -1,0 +1,16 @@
+mutation DestroyCollection($collectionId: BigInt!) {
+    DestroyCollection(collectionId: $collectionId) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

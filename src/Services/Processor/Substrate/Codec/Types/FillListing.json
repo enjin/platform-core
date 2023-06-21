@@ -1,0 +1,7 @@
+{
+    "FillListing": {
+        "callIndex": "(u8, u8)",
+        "listingId": "h256",
+        "amount": "Compact<u128>"
+    }
+}

@@ -1,0 +1,37 @@
+mutation MarkAndListPendingTransactions(
+    $accounts: [String]
+    $markAsProcessing: Boolean
+    $after: String
+    $first: Int
+) {
+    MarkAndListPendingTransactions(
+        accounts: $accounts
+        markAsProcessing: $markAsProcessing
+        after: $after
+        first: $first
+    ) {
+        edges {
+            cursor
+            node {
+                id
+                transactionId
+                transactionHash
+                state
+                encodedData
+                wallet {
+                    account {
+                        publicKey
+                        address
+                    }
+                }
+            }
+        }
+        totalCount
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }
+    }
+}

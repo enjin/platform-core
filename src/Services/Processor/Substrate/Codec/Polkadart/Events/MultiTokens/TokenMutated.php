@@ -1,0 +1,88 @@
+<?php
+
+namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
+
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Illuminate\Support\Arr;
+
+class TokenMutated implements PolkadartEvent
+{
+    public readonly string $extrinsicIndex;
+    public readonly string $module;
+    public readonly string $name;
+    public readonly string $collectionId;
+    public readonly string $tokenId;
+    public readonly ?bool $listingForbidden;
+    public readonly string $behaviorMutation;
+    public readonly bool $isCurrency;
+    public readonly ?string $beneficiary;
+    public readonly ?string $percentage;
+
+    public static function fromChain(array $data): self
+    {
+        $self = new self();
+        $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
+        $self->module = array_key_first(Arr::get($data, 'event'));
+        $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
+        $self->collectionId = Arr::get($data, 'event.MultiTokens.TokenMutated.collection_id');
+        $self->tokenId = Arr::get($data, 'event.MultiTokens.TokenMutated.token_id');
+        $self->listingForbidden = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.listing_forbidden.SomeMutation');
+        $self->behaviorMutation = is_string($behavior = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior')) ? $behavior : array_key_first($behavior);
+        $self->isCurrency = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior.SomeMutation.Some') === 'IsCurrency';
+        $self->beneficiary = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary');
+        $self->percentage = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior.SomeMutation.Some.HasRoyalty.percentage');
+
+        return $self;
+    }
+
+    public function getPallet(): string
+    {
+        return $this->module;
+    }
+
+    public function getParams(): array
+    {
+        return [
+            ['type' => 'collection_id', 'value' => $this->collectionId],
+            ['type' => 'token_id', 'value' => $this->tokenId],
+            ['type' => 'listing_forbidden', 'value' => $this->listingForbidden],
+            ['type' => 'behavior_mutation', 'value' => $this->behaviorMutation],
+            ['type' => 'is_currency', 'value' => $this->isCurrency],
+            ['type' => 'beneficiary', 'value' => $this->beneficiary],
+            ['type' => 'percentage', 'value' => $this->percentage],
+        ];
+    }
+}
+
+/* Example 1
+    [
+        "phase" => [
+            "ApplyExtrinsic" => 2,
+         ],
+        "event" => [
+            "MultiTokens" => [
+                "TokenMutated" => [
+                    "collection_id" => "10685",
+                    "token_id" => "1",
+                    "mutation" => [
+                        "behavior" => [
+                            "SomeMutation" => [
+                                "Some" => [
+                                    "HasRoyalty" => [
+                                        "beneficiary" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
+                                        "percentage" => 10000000,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        "listing_forbidden" => [
+                            "SomeMutation" => true,
+                        ],
+                        "metadata" => "NoMutation",
+                    ],
+                ],
+            ],
+        ],
+        "topics" => [],
+    ]
+ */

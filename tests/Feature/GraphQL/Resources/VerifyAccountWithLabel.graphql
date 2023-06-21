@@ -1,0 +1,13 @@
+mutation VerifyAccount(
+    $verificationId: String!
+    $signature: String!
+    $account: String!
+    $cryptoSignatureType: CryptoSignatureType
+) {
+    result: VerifyAccount(
+        verificationId: $verificationId
+        signature: $signature
+        account: $account
+        cryptoSignatureType: $cryptoSignatureType
+    )
+}

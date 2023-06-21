@@ -1,0 +1,28 @@
+mutation Freeze(
+  $freezeType: FreezeType!
+  $collectionId: BigInt!
+  $tokenId: EncodableTokenIdInput
+  $collectionAccount: String
+  $tokenAccount: String
+) {
+  Freeze(
+    freezeType: $freezeType
+    collectionId: $collectionId
+    tokenId: $tokenId
+    collectionAccount: $collectionAccount
+    tokenAccount: $tokenAccount
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+  }
+}

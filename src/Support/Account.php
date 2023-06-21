@@ -1,0 +1,54 @@
+<?php
+
+namespace Enjin\Platform\Support;
+
+use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Models\Laravel\Wallet;
+use Enjin\Platform\Services\Database\WalletService;
+use Illuminate\Support\Facades\Cache;
+
+class Account
+{
+    private static $account;
+
+    /**
+     * Get daemon account wallet.
+     */
+    public static function daemon(): Wallet
+    {
+        if (!static::$account) {
+            static::$account = resolve(WalletService::class)->firstOrStore(
+                ['public_key' => SS58Address::getPublicKey(config('enjin-platform.chains.daemon-account'))]
+            );
+        }
+
+        return static::$account;
+    }
+
+    /**
+     * Get managed wallets public keys.
+     */
+    public static function managedPublicKeys(): array
+    {
+        return Cache::rememberForever(
+            PlatformCache::MANAGED_ACCOUNTS->key(),
+            fn () => collect(Wallet::where('managed', '=', true)->get()->pluck('public_key'))
+                ->filter()
+                ->add(SS58Address::getPublicKey(config('enjin-platform.chains.daemon-account')))
+                ->unique()
+                ->toArray()
+        );
+    }
+
+    /**
+     * Parse account to public key.
+     */
+    public static function parseAccount(array|string|null $account): ?string
+    {
+        if (isset($account['Signed'])) {
+            return SS58Address::getPublicKey($account['Signed']);
+        }
+
+        return SS58Address::getPublicKey($account);
+    }
+}

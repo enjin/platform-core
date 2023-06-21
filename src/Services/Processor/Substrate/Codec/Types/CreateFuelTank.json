@@ -1,0 +1,53 @@
+{
+  "CreateFuelTank": {
+    "callIndex": "(u8, u8)",
+    "descriptor": "FuelTankDescriptor"
+  },
+  "FuelTankDescriptor": {
+    "name": "Bytes",
+    "userAccountManagement": "Option<UserAccountManagement>",
+    "ruleSets": "BTreeMap<u32, Vec<DispatchRule>>",
+    "providesDeposit": "bool",
+    "accountRules": "Vec<AccountRule>"
+  },
+  "UserAccountManagement": {
+    "tankReservesExistentialDeposit": "bool",
+    "tankReservesAccountCreationDeposit": "bool"
+  },
+  "AccountRule": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "RequireToken": "RequireTokenRule"
+    }
+  },
+  "RequireTokenRule": {
+    "collectionId": "u128",
+    "tokenId": "u128"
+  },
+  "DispatchRule": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "WhitelistedCollections": "Vec<u128>",
+      "MaxFuelBurnPerTransaction": "u128",
+      "UserFuelBudget": "UserFuelBudgetRule",
+      "TankFuelBudget": "TankFuelBudgetRule",
+      "RequireToken": "RequireTokenRule",
+      "PermittedCalls": "PermittedCallsRule",
+      "PermittedExtrinsics": "PermittedExtrinsicsRule"
+    }
+  },
+  "UserFuelBudgetRule": {
+    "amount": "Compact",
+    "resetPeriod": "u32"
+  },
+  "TankFuelBudgetRule": {
+    "amount": "Compact",
+    "resetPeriod": "u32"
+  },
+  "PermittedCallsRule": {
+    "calls": "Vec<Bytes>"
+  },
+  "PermittedExtrinsicsRule": {
+    "extrinsics": "Vec<Call>"
+  }
+}

@@ -1,0 +1,53 @@
+query GetTransaction(
+    $id: BigInt
+    $transactionId: String
+    $transactionHash: String
+    $idempotencyKey: String
+) {
+    GetTransaction(
+        id: $id
+        transactionId: $transactionId
+        transactionHash: $transactionHash
+        idempotencyKey: $idempotencyKey
+    ) {
+        id
+        idempotencyKey
+        transactionId
+        transactionHash
+        method
+        state
+        result
+        encodedData
+        signedAtBlock
+        createdAt
+        updatedAt
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+        events {
+            edges {
+                cursor
+                node {
+                    phase
+                    lookUp
+                    moduleId
+                    eventId
+                    params {
+                        type
+                        value
+                    }
+                }
+            }
+            totalCount
+            pageInfo {
+                hasPreviousPage
+                hasNextPage
+                startCursor
+                endCursor
+            }
+        }
+    }
+}

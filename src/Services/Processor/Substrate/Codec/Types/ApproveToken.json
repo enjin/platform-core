@@ -1,0 +1,11 @@
+{
+  "ApproveToken": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Compact<u128>",
+    "operator": "AccountId",
+    "amount": "Compact<u128>",
+    "expiration": "Option<u32>",
+    "currentAmount": "Compact<u128>"
+  }
+}

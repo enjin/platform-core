@@ -1,0 +1,6 @@
+{
+  "DestroyCollection": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>"
+  }
+}

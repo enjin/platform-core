@@ -1,0 +1,18 @@
+{
+  "MutateCollection": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "mutation": "CollectionMutation"
+  },
+  "CollectionMutation": {
+    "owner": "Option<AccountId>",
+    "royalty": "RoyaltyParamOf",
+    "explicitRoyaltyCurrencies": "Option<Vec<MultiTokensAssetId>>"
+  },
+  "RoyaltyParamOf": {
+    "_enum": {
+      "NoMutation": "Null",
+      "SomeMutation": "Option<RoyaltyPolicyDescriptor>"
+    }
+  }
+}

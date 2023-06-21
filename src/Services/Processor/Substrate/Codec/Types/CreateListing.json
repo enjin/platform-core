@@ -1,0 +1,15 @@
+{
+    "CreateListing": {
+        "callIndex": "(u8, u8)",
+        "makeAssetId": "MultiTokensAssetId",
+        "takeAssetId": "MultiTokensAssetId",
+        "amount": "Compact<u128>",
+        "price": "Compact<u128>",
+        "salt": "Bytes",
+        "auctionData": "Option<AuctionData>"
+    },
+    "AuctionData": {
+        "startBlock": "Compact<u32>",
+        "endBlock": "Compact<u32>"
+    }
+}

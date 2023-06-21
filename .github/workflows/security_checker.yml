@@ -1,0 +1,41 @@
+name: Dependencies Security Checker
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  security-checker:
+    runs-on: ubuntu-latest
+    name: Sensiolabs Security Checker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PHP_COMMONS }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          tools: composer:v2
+          coverage: none
+
+      - name: Checkout sensiolabs security-checker code
+        uses: actions/checkout@v3
+        with:
+          repository: 'sensiolabs/security-checker'
+          path: 'security-checker'
+
+      - name: Install dependencies
+        run: |
+          cd security-checker/
+          composer install
+
+      - name: Run
+        run: php security-checker security:check ../composer.lock

@@ -1,0 +1,89 @@
+{
+  "TankStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashTankAccount": "u128",
+    "tankAccount": "AccountId"
+  },
+  "TankStorageData": {
+    "owner": "AccountId",
+    "name": "Bytes",
+    "ruleSets": "BTreeMap<u32, DispatchRuleSet>",
+    "totalReserved": "Compact",
+    "accountCount": "Compact",
+    "userAccountManagement": "Option<UserAccountManagement>",
+    "isFrozen": "bool",
+    "providesDeposit": "bool",
+    "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
+  },
+  "AccountRuleKind": {
+    "_enum": [
+      "WhitelistedCallers",
+      "RequireToken"
+    ]
+  },
+  "AccountRuleStorage": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "RequireToken": "RequireTokenRuleStorage"
+    }
+  },
+  "DispatchRuleSet": {
+    "rules": "BTreeMap<DispatchRuleKind, DispatchRuleStorage>",
+    "isFrozen": "bool"
+  },
+  "DispatchRuleKind": {
+    "_enum": [
+      "WhitelistedCallers",
+      "WhitelistedCollections",
+      "MaxFuelBurnPerTransaction",
+      "UserFuelBudget",
+      "TankFuelBudget",
+      "RequireToken",
+      "PermittedCalls",
+      "PermittedExtrinsics"
+    ]
+  },
+  "DispatchRuleStorage": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "WhitelistedCollections": "Vec<u128>",
+      "MaxFuelBurnPerTransaction": "u128",
+      "UserFuelBudget": "UserFuelBudgetRuleStorage",
+      "TankFuelBudget": "TankFuelBudgetRuleStorage",
+      "RequireToken": "RequireTokenRuleStorage",
+      "PermittedCalls": "PermittedCallsRuleStorage",
+      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage"
+    }
+  },
+  "RequireTokenRuleStorage": {
+    "collectionId": "u128",
+    "tokenId": "u128"
+  },
+  "UserFuelBudgetRuleStorage": {
+    "budget": "BudgetRuleAccountStorage",
+    "userCount": "Compact"
+  },
+  "BudgetRuleAccountStorage": {
+    "amount": "Compact",
+    "resetPeriod": "u32"
+  },
+  "TankFuelBudgetRuleStorage": {
+    "budget": "BudgetRuleAccountStorage",
+    "consumption": "ConsumptionRuleAccountStorage"
+  },
+  "ConsumptionRuleAccountStorage": {
+    "totalConsumed": "Compact",
+    "lastResetBlock": "Option<u32>"
+  },
+  "PermittedCallsRuleStorage": {
+    "calls": "Vec<Bytes>"
+  },
+  "PermittedExtrinsicsRuleStorage": {
+    "extrinsics": "Vec<ExtrinsicInfo>"
+  },
+  "ExtrinsicInfo": {
+    "palletName": "Bytes",
+    "extrinsicName": "Bytes"
+  }
+}

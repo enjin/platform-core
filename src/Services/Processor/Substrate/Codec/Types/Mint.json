@@ -1,0 +1,42 @@
+{
+  "Mint": {
+    "callIndex": "(u8, u8)",
+    "recipient": "MultiAddress",
+    "collectionId": "Compact<u128>",
+    "params": "MintParamsOf"
+  },
+  "MintParamsOf": {
+    "_enum": {
+      "CreateToken": "CreateTokenParams",
+      "Mint": "MintParams",
+      "CreateForeignToken": "CreateForeignTokenParams"
+    }
+  },
+  "CreateTokenParams": {
+    "tokenId": "Compact<u128>",
+    "initialSupply": "Compact<u128>",
+    "unitPrice": "Compact<u128>",
+    "cap": "Option<TokenCap>",
+    "behavior": "Option<TokenMarketBehavior>",
+    "listingForbidden": "bool",
+    "attributes": "Vec<Attribute>"
+  },
+  "TokenCap": {
+    "_enum": {
+      "SingleMint": "Null",
+      "Supply": "Compact<u128>"
+    }
+  },
+  "MintParams": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>",
+    "unitPrice": "Option<u128>"
+  },
+  "CreateForeignTokenParams": {
+    "tokenId": "Compact<u128>",
+    "behavior": "Option<TokenMarketBehavior>",
+    "listingForbidden": "bool",
+    "metadata": "TokenMetadata",
+    "existentialDeposit": "Compact<u128>"
+  }
+}

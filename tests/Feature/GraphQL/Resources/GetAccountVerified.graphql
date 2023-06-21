@@ -1,0 +1,15 @@
+query GetAccountVerified(
+    $verificationId: String
+    $account: String
+) {
+    GetAccountVerified(
+        verificationId: $verificationId
+        account: $account
+    ) {
+        verified
+        account {
+            publicKey
+            address
+        }
+    }
+}

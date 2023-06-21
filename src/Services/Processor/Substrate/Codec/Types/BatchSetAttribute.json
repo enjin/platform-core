@@ -1,0 +1,12 @@
+{
+  "BatchSetAttribute": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Option<u128>",
+    "attributes": "Vec<Attribute>"
+  },
+  "Attribute": {
+    "key": "Bytes",
+    "value": "Bytes"
+  }
+}

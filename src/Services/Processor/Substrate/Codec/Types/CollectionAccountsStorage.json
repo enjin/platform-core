@@ -1,0 +1,15 @@
+{
+  "CollectionAccountsStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashCollectionId": "u128",
+    "collectionId": "u128",
+    "hashAccountId": "u128",
+    "accountId": "AccountId"
+  },
+  "CollectionAccountsStorageData": {
+    "isFrozen": "bool",
+    "approvals": "BTreeMap<AccountId,Option<BlockNumber>>",
+    "accountCount": "Compact"
+  }
+}

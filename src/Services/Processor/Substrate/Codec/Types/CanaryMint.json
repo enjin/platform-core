@@ -1,0 +1,31 @@
+{
+  "CanaryMint": {
+    "callIndex": "(u8, u8)",
+    "recipient": "MultiAddress",
+    "collectionId": "Compact<u128>",
+    "params": "CanaryMintParamsOf"
+  },
+  "CanaryMintParamsOf": {
+    "_enum": {
+      "CreateToken": "CanaryCreateTokenParams",
+      "Mint": "MintParams"
+    }
+  },
+  "CanaryCreateTokenParams": {
+    "tokenId": "Compact<u128>",
+    "initialSupply": "Compact<u128>",
+    "sufficiency": "SufficiencyParams",
+    "cap": "Option<TokenCap>",
+    "behavior": "Option<TokenMarketBehavior>",
+    "listingForbidden": "bool",
+    "freezeState": "Option<FreezeState>",
+    "attributes": "Vec<Attribute>",
+    "foreignParams": "Option<CreateForeignTokenParams>"
+  },
+  "SufficiencyParams": {
+    "_enum": {
+      "Insufficient": "Option<u128>",
+      "Sufficient": "u128"
+    }
+  }
+}

@@ -1,0 +1,125 @@
+<?php
+
+namespace Enjin\Platform\Providers\Faker;
+
+use Crypto\sr25519;
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Support\Blake2;
+use Enjin\Platform\Support\SS58Address;
+use Faker\Provider\Base;
+
+class SubstrateProvider extends Base
+{
+    /**
+     * Get a random substrate public key.
+     */
+    public function public_key(): string
+    {
+        $publicKey = null;
+
+        while ($publicKey === null) {
+            try {
+                $key = HexConverter::hexToBytes($hexKey = bin2hex(random_bytes(32)));
+
+                if (SS58Address::encode($key)) {
+                    $publicKey = HexConverter::prefix($hexKey);
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
+        return $publicKey;
+    }
+
+    /**
+     * Get a random substrate address.
+     */
+    public function chain_address(): string
+    {
+        $address = null;
+
+        while ($address === null) {
+            try {
+                $key = HexConverter::hexToBytes(bin2hex(random_bytes(32)));
+                $address = SS58Address::encode($key);
+            } catch (\Exception $e) {
+            }
+        }
+
+        return $address;
+    }
+
+    /**
+     * Get a random substrate address with signed message using ed25519.
+     */
+    public function ed25519_signature(string $message, ?bool $isCode = false): array
+    {
+        $address = null;
+
+        while ($address === null) {
+            try {
+                $keypair = sodium_crypto_sign_keypair();
+                $publicKey = sodium_crypto_sign_publickey($keypair);
+
+                $signature = $isCode ? $this->signWithCode($message, $keypair) : $this->signWithMessage($message, $keypair);
+                $address = SS58Address::encode(HexConverter::hexToBytes($publicKey = bin2hex($publicKey)));
+
+                return [
+                    'address' => $address,
+                    'publicKey' => HexConverter::prefix($publicKey),
+                    'signature' => $signature,
+                ];
+            } catch (\Exception $e) {
+            }
+        }
+    }
+
+    /**
+     * Get a random substrate address with signed message using sr25519.
+     */
+    public function sr25519_signature(string $message, ?bool $isCode = false): array
+    {
+        $sr = new sr25519();
+        $seed = sodium_crypto_sign_publickey(sodium_crypto_sign_keypair());
+        $pair = $sr->InitKeyPair(bin2hex($seed));
+
+        $message = $isCode ? Blake2::hash(HexConverter::stringToHex('Enjin Signed Message:' . $message)) : $message;
+
+        return [
+            'address' => SS58Address::encode($pair->publicKey),
+            'publicKey' => HexConverter::prefix($pair->publicKey),
+            'signature' => $sr->Sign($pair, HexConverter::prefix($message)),
+        ];
+    }
+
+    /**
+     * Sign a message using the provided keypair.
+     */
+    public function sign(string $message, string $keypair): string
+    {
+        $privateKey = sodium_crypto_sign_secretkey($keypair);
+
+        return HexConverter::prefix(bin2hex(sodium_crypto_sign_detached(sodium_hex2bin(HexConverter::unPrefix($message)), $privateKey)));
+    }
+
+    /**
+     * Sign a code using the provided keypair.
+     */
+    public function signWithCode(string $code, ?string $keypair = null): string
+    {
+        $keypair = $keypair ?? sodium_crypto_sign_keypair();
+        $message = Blake2::hash(HexConverter::stringToHex('Enjin Signed Message:' . $code));
+
+        return $this->sign($message, $keypair);
+    }
+
+    /**
+     * Sign a message using the provided keypair.
+     */
+    public function signWithMessage(string $message, ?string $keypair = null): string
+    {
+        $keypair = $keypair ?? sodium_crypto_sign_keypair();
+
+        return $this->sign($message, $keypair);
+    }
+}

@@ -1,0 +1,89 @@
+<?php
+
+namespace Enjin\Platform\Models\Laravel;
+
+use Enjin\Platform\Database\Factories\TransactionFactory;
+use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Models\BaseModel;
+use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
+use Enjin\Platform\Models\Laravel\Traits\Transaction as TransactionMethods;
+use Enjin\Platform\Support\SS58Address;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Transaction extends BaseModel
+{
+    use HasFactory;
+    use TransactionMethods;
+    use EagerLoadSelectFields;
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array<string>|bool
+     */
+    public $guarded = [];
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    public $fillable = [
+        'transaction_chain_id',
+        'wallet_public_key',
+        'transaction_chain_hash',
+        'method',
+        'state',
+        'result',
+        'events',
+        'encoded_data',
+        'idempotency_key',
+        'signed_at_block',
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['wallet_address'];
+
+    /**
+     * Create a new model instance.
+     */
+    public function __construct(array $attributes = [])
+    {
+        $attributes['state'] = $attributes['state'] ?? TransactionState::PENDING->name;
+
+        parent::__construct($attributes);
+    }
+
+    /**
+     * The wallet address attribute accessor.
+     */
+    protected function walletAddress(): Attribute
+    {
+        return new Attribute(
+            get: fn () => SS58Address::encode($this->wallet_public_key)
+        );
+    }
+
+    protected function pivotIdentifier(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->idempotency_key,
+        );
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): TransactionFactory
+    {
+        return TransactionFactory::new();
+    }
+}

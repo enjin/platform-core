@@ -1,0 +1,24 @@
+mutation BatchSetAttribute(
+    $collectionId: BigInt!
+    $tokenId: EncodableTokenIdInput
+    $attributes: [AttributeInput!]!
+) {
+    BatchSetAttribute(
+        collectionId: $collectionId
+        tokenId: $tokenId
+        attributes: $attributes
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        encodedData
+        state
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

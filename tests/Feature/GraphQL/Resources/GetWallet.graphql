@@ -1,0 +1,358 @@
+query GetWallet(
+    $id: Int
+    $externalId: String
+    $verificationId: String
+    $account: String
+    $collectionAccountsCollectionIds: [BigInt]
+    $collectionAccountsCursor: String
+    $collectionAccountsLimit: Int
+    $tokenAccountsCollectionIds: [BigInt]
+    $tokenAccountsTokenIds: [BigInt]
+    $tokenAccountsCursor: String
+    $tokenAccountsLimit: Int
+    $collectionAccountApprovalsCursor: String
+    $collectionAccountApprovalsLimit: Int
+    $tokenAccountApprovalsCursor: String
+    $tokenAccountApprovalsLimit: Int
+    $transactionsTransactionIds: [String]
+    $transactionsTransactionHashes: [String]
+    $transactionsMethods: [TransactionMethod]
+    $transactionsStates: [TransactionState]
+    $transactionsCursor: String
+    $transactionsLimit: Int
+    $ownedCollectionsCollectionIds: [BigInt]
+    $ownedCollectionsCursor: String
+    $ownedCollectionsLimit: Int
+    $tokenTokenAccountsCursor: String
+    $tokenTokenAccountsLimit: Int
+) {
+    GetWallet(
+        id: $id
+        externalId: $externalId
+        verificationId: $verificationId
+        account: $account
+    ) {
+        id
+        account {
+            publicKey
+            address
+        }
+        externalId
+        managed
+        network
+        nonce
+        balances {
+            free
+            reserved
+            miscFrozen
+            feeFrozen
+        }
+        collectionAccounts(
+            collectionIds: $collectionAccountsCollectionIds
+            after: $collectionAccountsCursor
+            first: $collectionAccountsLimit
+        ) {
+            totalCount
+            pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+                hasPreviousPage
+            }
+            edges {
+                cursor
+                node {
+                    accountCount
+                    isFrozen
+                    collection {
+                        collectionId
+                    }
+                    wallet {
+                        account {
+                            publicKey
+                            address
+                        }
+                    }
+                    approvals {
+                        expiration
+                        wallet {
+                            account {
+                                publicKey
+                                address
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        tokenAccounts(
+            collectionIds: $tokenAccountsCollectionIds
+            tokenIds: $tokenAccountsTokenIds
+            after: $tokenAccountsCursor
+            first: $tokenAccountsLimit
+        ) {
+            totalCount
+            pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+                hasPreviousPage
+            }
+            edges {
+                cursor
+                node {
+                    balance
+                    reservedBalance
+                    isFrozen
+                    collection {
+                        collectionId
+                    }
+                    wallet {
+                        account {
+                            publicKey
+                            address
+                        }
+                    }
+                    token {
+                        tokenId
+                    }
+                    approvals {
+                        amount
+                        expiration
+                        wallet {
+                            account {
+                                publicKey
+                                address
+                            }
+                        }
+                    }
+                    namedReserves {
+                        pallet
+                        amount
+                    }
+                }
+            }
+        }
+        collectionAccountApprovals(
+            after: $collectionAccountApprovalsCursor
+            first: $collectionAccountApprovalsLimit
+        ) {
+            totalCount
+            pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+                hasPreviousPage
+            }
+            edges {
+                cursor
+                node {
+                    expiration
+                    wallet {
+                        account {
+                            publicKey
+                            address
+                        }
+                    }
+                }
+            }
+        }
+        tokenAccountApprovals(
+            after: $tokenAccountApprovalsCursor
+            first: $tokenAccountApprovalsLimit
+        ) {
+            totalCount
+            pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+                hasPreviousPage
+            }
+            edges {
+                cursor
+                node {
+                    amount
+                    expiration
+                    wallet {
+                        account {
+                            publicKey
+                            address
+                        }
+                    }
+                }
+            }
+        }
+        transactions(
+            transactionIds: $transactionsTransactionIds
+            transactionHashes: $transactionsTransactionHashes
+            methods: $transactionsMethods
+            states: $transactionsStates
+            after: $transactionsCursor
+            first: $transactionsLimit
+        ) {
+            totalCount
+            pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+                hasPreviousPage
+            }
+            edges {
+                cursor
+                node {
+                    id
+                    transactionId
+                    transactionHash
+                    method
+                    state
+                    encodedData
+                    events {
+                        edges {
+                            cursor
+                            node {
+                                phase
+                                lookUp
+                                moduleId
+                                eventId
+                                params {
+                                    type
+                                    value
+                                }
+                            }
+                        }
+                        totalCount
+                        pageInfo {
+                            hasPreviousPage
+                            hasNextPage
+                            startCursor
+                            endCursor
+                        }
+                    }
+                    wallet {
+                        account {
+                            publicKey
+                            address
+                        }
+                    }
+                }
+            }
+        }
+        ownedCollections(
+            collectionIds: $ownedCollectionsCollectionIds
+            after: $ownedCollectionsCursor
+            first: $ownedCollectionsLimit
+        ) {
+            totalCount
+            pageInfo {
+                startCursor
+                endCursor
+                hasNextPage
+                hasPreviousPage
+            }
+            edges {
+                cursor
+                node {
+                    collectionId
+                    maxTokenCount
+                    maxTokenSupply
+                    forceSingleMint
+                    network
+                    owner {
+                        account {
+                            publicKey
+                            address
+                        }
+                    }
+                    attributes {
+                        key
+                        value
+                    }
+                    accounts {
+                        totalCount
+                        pageInfo {
+                            startCursor
+                            endCursor
+                            hasNextPage
+                            hasPreviousPage
+                        }
+                        edges {
+                            cursor
+                            node {
+                                accountCount
+                                isFrozen
+                                collection {
+                                    collectionId
+                                }
+                                wallet {
+                                    account {
+                                        publicKey
+                                        address
+                                    }
+                                }
+                                approvals {
+                                    expiration
+                                    wallet {
+                                        account {
+                                            publicKey
+                                            address
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    tokens {
+                        totalCount
+                        pageInfo {
+                            startCursor
+                            endCursor
+                            hasNextPage
+                            hasPreviousPage
+                        }
+                        edges {
+                            cursor
+                            node {
+                                tokenId
+                                supply
+                                cap
+                                capSupply
+                                isFrozen
+                                minimumBalance
+                                unitPrice
+                                mintDeposit
+                                attributeCount
+                                collection {
+                                    collectionId
+                                }
+                                attributes {
+                                    key
+                                    value
+                                }
+                                accounts(
+                                    after: $tokenTokenAccountsCursor,
+                                    first: $tokenTokenAccountsLimit
+                                ) {
+                                    totalCount
+                                    pageInfo {
+                                        startCursor
+                                        endCursor
+                                        hasNextPage
+                                        hasPreviousPage
+                                    }
+                                    edges {
+                                        cursor
+                                        node {
+                                            balance
+                                        }
+                                    }
+                                }
+                                metadata
+                                nonFungible
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

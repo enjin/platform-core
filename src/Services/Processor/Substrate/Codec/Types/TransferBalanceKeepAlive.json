@@ -1,0 +1,7 @@
+{
+  "TransferBalanceKeepAlive": {
+    "callIndex": "(u8, u8)",
+    "dest": "MultiAddress",
+    "value": "Compact<u128>"
+  }
+}

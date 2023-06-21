@@ -1,0 +1,24 @@
+mutation MintToken(
+    $recipient: String!
+    $collectionId: BigInt!
+    $params: MintTokenParams!
+) {
+    MintToken(
+        recipient: $recipient
+        collectionId: $collectionId
+        params: $params
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

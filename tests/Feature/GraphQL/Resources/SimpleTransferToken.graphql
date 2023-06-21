@@ -1,0 +1,26 @@
+mutation SimpleTransferToken(
+    $collectionId: BigInt!
+    $recipient: String!
+    $params: SimpleTransferParams!
+    $signingAccount: String
+) {
+    SimpleTransferToken(
+        collectionId: $collectionId
+        recipient: $recipient
+        params: $params
+        signingAccount: $signingAccount
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

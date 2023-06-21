@@ -1,0 +1,30 @@
+mutation ApproveToken(
+  $collectionId: BigInt!
+  $tokenId: EncodableTokenIdInput!
+  $operator: String!
+  $amount: BigInt!
+  $currentAmount: BigInt!
+  $expiration: Int
+) {
+  ApproveToken(
+    collectionId: $collectionId
+    tokenId: $tokenId
+    operator: $operator
+    amount: $amount
+    currentAmount: $currentAmount
+    expiration: $expiration
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+  }
+}

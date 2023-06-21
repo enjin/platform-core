@@ -1,0 +1,62 @@
+<?php
+
+namespace Enjin\Platform\Services\Processor\Substrate;
+
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Illuminate\Support\Facades\Log;
+
+class EventProcessor
+{
+    protected Block $block;
+    protected Codec $codec;
+
+    public function __construct(Block $block, Codec $codec)
+    {
+        $this->block = $block;
+        $this->codec = $codec;
+    }
+
+    public function run(): void
+    {
+        Log::info("Processing Events from block #{$this->block->number}");
+        $events = $this->block->events ?? [];
+
+        foreach ($events as $event) {
+            $this->processEvent($event);
+        }
+    }
+
+    protected function processEvent(PolkadartEvent $event): void
+    {
+        $pallet = $event->getPallet();
+
+        if (class_exists($enum = sprintf("\Enjin\Platform\Enums\Substrate\%sEventType", $pallet))) {
+            $this->callEvent($enum, $event);
+        } elseif (class_exists($enum = sprintf("\Enjin\Platform\%s\Enums\Substrate\%sEventType", $pallet, $pallet))) {
+            $this->callEvent($enum, $event);
+        }
+    }
+
+    protected function callEvent($enum, $event): void
+    {
+        $enum::tryFrom(class_basename($event))?->getProcessor()?->run($event, $this->block, $this->codec);
+    }
+
+    protected function shouldIndexCollection(?string $collectionId): bool
+    {
+        if (!$collectionId) {
+            return false;
+        }
+
+        return $this->shouldIndex('collections', $collectionId);
+    }
+
+    protected function shouldIndex(string $filter, string $value): bool
+    {
+        $indexFilters = collect(config("enjin-platform.indexing.filters.{$filter}", []));
+
+        return $indexFilters->isEmpty() || $indexFilters->contains($value);
+    }
+}

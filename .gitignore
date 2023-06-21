@@ -1,0 +1,11 @@
+/.idea
+/.vscode
+/temp
+/node_modules
+/vendor
+/build
+/tests/content/*
+.env
+.*.cache
+coverage.xml
+composer.lock

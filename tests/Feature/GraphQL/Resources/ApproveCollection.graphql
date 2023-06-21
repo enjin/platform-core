@@ -1,0 +1,24 @@
+mutation ApproveCollection(
+    $collectionId: BigInt!
+    $operator: String!
+    $expiration: Int
+) {
+    ApproveCollection(
+        collectionId: $collectionId
+        operator: $operator
+        expiration: $expiration
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

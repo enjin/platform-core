@@ -1,0 +1,9 @@
+{
+  "RemoveAccountRuleData": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "userId": "MultiAddress",
+    "ruleSetId": "u32",
+    "ruleKind": "DispatchRuleKind"
+  }
+}

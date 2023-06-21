@@ -1,0 +1,19 @@
+{
+  "CanaryFreeze": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "freezeType": "CanaryFreezeOf"
+  },
+  "CanaryFreezeOf": {
+    "_enum": {
+      "Collection": "null",
+      "Token": "TokenFreezeState",
+      "CollectionAccount": "AccountId",
+      "TokenAccount": "(Compact<u128>, AccountId)"
+    }
+  },
+  "TokenFreezeState": {
+    "tokenId": "u128",
+    "freezeState": "Option<FreezeState>"
+  }
+}

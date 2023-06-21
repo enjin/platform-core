@@ -1,0 +1,28 @@
+{
+  "CreateCollection": {
+    "callIndex": "(u8, u8)",
+    "descriptor": "CollectionDescriptor"
+  },
+  "CollectionDescriptor": {
+    "policy": "CollectionPolicyDescriptor",
+    "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
+    "attributes": "Vec<Attribute>"
+  },
+  "MultiTokensAssetId": {
+    "collectionId": "Compact<u128>",
+    "tokenId": "Compact<u128>"
+  },
+  "CollectionPolicyDescriptor": {
+    "mint": "MintPolicyDescriptor",
+    "market": "Option<RoyaltyPolicyDescriptor>"
+  },
+  "MintPolicyDescriptor": {
+    "maxTokenCount": "Option<u64>",
+    "maxTokenSupply": "Option<u128>",
+    "forceSingleMint": "bool"
+  },
+  "RoyaltyPolicyDescriptor": {
+    "beneficiary": "AccountId",
+    "percentage": "Compact<u32>"
+  }
+}

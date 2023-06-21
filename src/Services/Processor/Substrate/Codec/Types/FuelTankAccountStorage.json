@@ -1,0 +1,14 @@
+{
+  "FuelTankAccountStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashTankAccount": "u128",
+    "tankAccount": "AccountId",
+    "hashAccount": "u128",
+    "account": "AccountId"
+  },
+  "FuelTankAccountStorageData": {
+    "tankDeposit": "u128",
+    "userDeposit": "u128"
+  }
+}

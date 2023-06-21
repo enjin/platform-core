@@ -1,0 +1,50 @@
+{
+  "ListingStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "listingId": "h256"
+  },
+  "ListingStorageData": {
+    "seller": "AccountId",
+    "makeAssetId": "MultiTokensAssetId",
+    "takeAssetId": "MultiTokensAssetId",
+    "amount": "Compact",
+    "price": "Compact",
+    "minTakeValue": "Compact",
+    "feeSide": "ListingFeeSide",
+    "creationBlock": "Compact",
+    "deposit": "Compact",
+    "salt": "Bytes",
+    "data": "ListingData",
+    "state": "ListingState"
+  },
+  "ListingFeeSide": {
+    "_enum": [
+      "NoFee",
+      "Make",
+      "Take"
+    ]
+  },
+  "ListingData": {
+    "_enum": {
+      "FixedPrice": "Null",
+      "Auction": "AuctionData"
+    }
+  },
+  "ListingState": {
+    "_enum": {
+      "FixedPrice": "FixedPriceState",
+      "Auction": "AuctionState"
+    }
+  },
+  "FixedPriceState": {
+    "amountFilled": "Compact"
+  },
+  "AuctionState": {
+    "highBid": "Option<AuctionBid>"
+  },
+  "AuctionBid": {
+    "bidder": "AccountId",
+    "price": "Compact"
+  }
+}

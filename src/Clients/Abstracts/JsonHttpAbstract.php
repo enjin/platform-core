@@ -1,0 +1,33 @@
+<?php
+
+namespace Enjin\Platform\Clients\Abstracts;
+
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
+
+abstract class JsonHttpAbstract extends HttpAbstract
+{
+    /**
+     * Get the http client instance.
+     */
+    protected function getClient(): PendingRequest
+    {
+        return parent::getClient()
+            ->asJson()
+            ->acceptJson();
+    }
+
+    /**
+     * Get the response data.
+     *
+     * @throws RequestException
+     */
+    protected function getResponse(Response|PromiseInterface $response): mixed
+    {
+        return $response instanceof Response ?
+            $response->throw()->json() :
+            $response;
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "SetAttribute": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Option<u128>",
+    "key": "Bytes",
+    "value": "Bytes"
+  }
+}

@@ -1,0 +1,13 @@
+mutation UpdateWalletExternalId(
+    $id: Int
+    $externalId: String
+    $newExternalId: String!
+    $account: String
+) {
+    UpdateWalletExternalId(
+        id: $id
+        externalId: $externalId
+        newExternalId: $newExternalId
+        account: $account
+    )
+}

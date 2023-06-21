@@ -1,0 +1,34 @@
+{
+  "CollectionStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashCollectionId": "u128",
+    "collectionId": "u128"
+  },
+  "CollectionStorageData": {
+    "owner": "AccountId",
+    "policy": "CollectionPolicy",
+    "tokenCount": "Compact",
+    "attributeCount": "Compact",
+    "totalDeposit": "Compact",
+    "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>"
+  },
+  "CollectionPolicy": {
+    "mint": "MintPolicy",
+    "burn": "Null",
+    "transfer": "TransferPolicy",
+    "attribute": "Null",
+    "market": "RoyaltyPolicy"
+  },
+  "RoyaltyPolicy": {
+    "royalty": "Option<RoyaltyPolicyDescriptor>"
+  },
+  "MintPolicy": {
+    "maxTokenCount": "Option<u64>",
+    "maxTokenSupply": "Option<u128>",
+    "forceSingleMint": "bool"
+  },
+  "TransferPolicy": {
+    "isFrozen": "bool"
+  }
+}

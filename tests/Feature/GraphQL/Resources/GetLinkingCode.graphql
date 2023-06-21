@@ -1,0 +1,9 @@
+query GetLinkingCode(
+    $externalId: String!
+) {
+    GetLinkingCode(
+        externalId: $externalId
+    ) {
+        code
+    }
+}

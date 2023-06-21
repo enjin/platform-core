@@ -1,0 +1,12 @@
+{
+  "CanaryTokenAccountsStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashCollectionId": "u128",
+    "collectionId": "u128",
+    "hashTokenId": "u128",
+    "tokenId": "u128",
+    "hashAccountId": "u128",
+    "accountId": "AccountId"
+  }
+}

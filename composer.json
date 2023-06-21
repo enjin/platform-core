@@ -1,0 +1,109 @@
+{
+  "name": "enjin/platform-core",
+  "description": "The core package for the Enjin Platform.",
+  "keywords": [
+    "enjin",
+    "platform",
+    "enjin platform",
+    "enjin platform package",
+    "laravel"
+  ],
+  "homepage": "https://github.com/enjin/platform-core",
+  "license": "LGPL-3.0-only",
+  "authors": [
+    {
+      "name": "Enjin",
+      "email": "support@enjin.io"
+    }
+  ],
+  "require": {
+    "php": "^8.1|^8.2",
+    "ext-bcmath": "*",
+    "ext-ffi": "*",
+    "ext-gmp": "*",
+    "ext-json": "*",
+    "ext-redis": "*",
+    "ext-sodium": "*",
+    "amphp/amp": "^3.0",
+    "amphp/http": "2.x-dev#b9f04ee",
+    "amphp/http-client": "v5.x-dev#149cc0f",
+    "amphp/parallel": "^2.1.0",
+    "amphp/socket": "^2.0.0",
+    "amphp/websocket": "v2.x-dev#1bdf01a",
+    "amphp/websocket-client": "v2.x-dev#89f6a4a",
+    "composer/semver": "^3.0",
+    "doctrine/dbal": "^3.0",
+    "enjin/php-blockchain-tools": "^1.0",
+    "fakerphp/faker": "^1.0",
+    "gmajor/sr25519-bindings": "dev-main",
+    "gmajor/substrate-codec-php": "dev-master",
+    "guzzlehttp/guzzle": "7.6.1",
+    "illuminate/contracts": "^10.0",
+    "kevinrob/guzzle-cache-middleware": "^4.0",
+    "mll-lab/laravel-graphiql": "^3.0",
+    "phrity/websocket": "^1.0",
+    "rebing/graphql-laravel": "^9.0.0-rc1",
+    "revolt/event-loop": "^1.0",
+    "spatie/laravel-package-tools": "^1.0",
+    "spatie/laravel-ray": "^1.0",
+    "staudenmeir/eloquent-eager-limit": "^1.0",
+    "stechstudio/backoff": "^1.0",
+    "tuupola/base58": "^2.0"
+  },
+  "require-dev": {
+    "dms/phpunit-arraysubset-asserts": "dev-master",
+    "friendsofphp/php-cs-fixer": "^3.0",
+    "nunomaduro/collision": "^7.0",
+    "nunomaduro/larastan": "^2.0",
+    "orchestra/testbench": "^8.0",
+    "phpstan/extension-installer": "^1.0",
+    "phpstan/phpstan-deprecation-rules": "^1.0",
+    "phpstan/phpstan-phpunit": "^1.0",
+    "phpunit/php-code-coverage": "^10.0",
+    "phpunit/phpunit": "^10.0",
+    "roave/security-advisories": "dev-latest"
+  },
+  "repositories": [],
+  "autoload": {
+    "psr-4": {
+      "Enjin\\Platform\\": "src",
+      "Enjin\\Platform\\Database\\Factories\\": "database/factories"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Enjin\\Platform\\Tests\\": "tests"
+    },
+    "classmap": [
+      "src/GraphQL",
+      "src/Services"
+    ]
+  },
+  "scripts": {
+    "build-sr25519": "cd vendor/gmajor/sr25519-bindings/go && go build -buildmode=c-shared -o sr25519.so . && mv sr25519.so ../src/Crypto/sr25519.so",
+    "analyse": "vendor/bin/phpstan analyse",
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-html ../../temp/coverage",
+    "post-autoload-dump": [
+      "@php ./vendor/bin/testbench package:discover --ansi"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Enjin\\Platform\\CoreServiceProvider"
+      ],
+      "aliases": {
+        "Package": "Enjin\\Platform\\Facades\\Package"
+      }
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

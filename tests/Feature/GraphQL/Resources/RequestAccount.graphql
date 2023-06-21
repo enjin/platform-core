@@ -1,0 +1,10 @@
+query RequestAccount(
+    $callback: String!
+) {
+    RequestAccount(
+        callback: $callback
+    ) {
+        qrCode
+        verificationId
+    }
+}

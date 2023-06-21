@@ -1,0 +1,13 @@
+query VerifyMessage(
+    $message: String!
+    $signature: String!
+    $publicKey: String!
+    $cryptoSignatureType: CryptoSignatureType
+) {
+    VerifyMessage(
+        message: $message
+        signature: $signature
+        publicKey: $publicKey
+        cryptoSignatureType: $cryptoSignatureType
+    )
+}

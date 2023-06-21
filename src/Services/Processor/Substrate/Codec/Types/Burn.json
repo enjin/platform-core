@@ -1,0 +1,13 @@
+{
+  "Burn": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "params": "BurnParamsOf"
+  },
+  "BurnParamsOf": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>",
+    "keepAlive": "bool",
+    "removeTokenStorage": "bool"
+  }
+}

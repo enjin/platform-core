@@ -1,0 +1,67 @@
+query GetToken(
+  $collectionId: BigInt!
+  $tokenId: EncodableTokenIdInput!
+  $accountsCursor: String
+  $accountsLimit: Int
+) {
+  GetToken(
+    collectionId: $collectionId
+    tokenId: $tokenId
+  ) {
+    tokenId
+    supply
+    cap
+    capSupply
+    isFrozen
+    minimumBalance
+    unitPrice
+    mintDeposit
+    attributeCount
+    nonFungible
+    metadata
+    collection {
+      collectionId
+    }
+    attributes {
+      key
+      value
+    }
+    accounts(after: $accountsCursor, first: $accountsLimit) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          balance
+          reservedBalance
+          isFrozen
+          wallet {
+            account {
+              publicKey
+              address
+            }
+          }
+          approvals {
+            amount
+            expiration
+            wallet {
+              account {
+                publicKey
+                address
+              }
+            }
+          }
+          namedReserves {
+            pallet
+            amount
+          }
+        }
+      }
+    }
+  }
+}

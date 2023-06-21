@@ -1,0 +1,7 @@
+{
+  "AddAccount": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "userId": "MultiAddress"
+  }
+}

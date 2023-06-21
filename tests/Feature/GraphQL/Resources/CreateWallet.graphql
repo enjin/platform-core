@@ -1,0 +1,7 @@
+mutation CreateWallet(
+    $externalId: String!
+) {
+    CreateWallet(
+        externalId: $externalId
+    )
+}

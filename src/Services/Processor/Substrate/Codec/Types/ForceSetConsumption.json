@@ -1,0 +1,13 @@
+{
+  "ForceSetConsumption": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "userId": "Option<MultiAddress>",
+    "ruleSetId": "u32",
+    "consumption": "FuelTanksConsumption"
+  },
+  "FuelTanksConsumption": {
+    "totalConsumed": "Compact",
+    "lastResetBlock": "Option<u32>"
+  }
+}

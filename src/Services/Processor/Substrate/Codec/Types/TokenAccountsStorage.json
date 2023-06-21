@@ -1,0 +1,26 @@
+{
+  "TokenAccountsStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashAccountId": "u128",
+    "accountId": "AccountId",
+    "hashCollectionId": "u128",
+    "collectionId": "u128",
+    "hashTokenId": "u128",
+    "tokenId": "u128"
+  },
+  "TokenAccountsStorageData": {
+    "balance": "Compact",
+    "reservedBalance": "Compact",
+    "lockedBalance": "Compact",
+    "namedReserves": "BTreeMap<[u8;8],u128>",
+    "locks": "BTreeMap<[u8;8],u128>",
+    "approvals": "BTreeMap<AccountId,TokenApproval>",
+    "isFrozen": "bool"
+  },
+  "TokenApproval": {
+    "amount": "Compact",
+    "expiration": "Option<BlockNumber>"
+  }
+}
+

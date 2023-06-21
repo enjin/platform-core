@@ -1,0 +1,7 @@
+{
+  "Thaw": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "freezeType": "FreezeOf"
+  }
+}

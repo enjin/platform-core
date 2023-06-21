@@ -1,0 +1,12 @@
+{
+  "AttributeStorage": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashedCollection": "u128",
+    "collectionId": "u128",
+    "hashedToken": "u128",
+    "tokenId": "Option<u128>",
+    "hashedAttribute": "u128",
+    "attribute": "Bytes"
+  }
+}

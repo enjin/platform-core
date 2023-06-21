@@ -1,0 +1,7 @@
+mutation AcknowledgeEvents(
+    $uuids: [String!]!
+) {
+    AcknowledgeEvents(
+        uuids: $uuids
+    )
+}

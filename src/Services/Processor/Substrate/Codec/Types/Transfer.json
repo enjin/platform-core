@@ -1,0 +1,25 @@
+{
+  "Transfer": {
+    "callIndex": "(u8, u8)",
+    "recipient": "MultiAddress",
+    "collectionId": "Compact<u128>",
+    "params": "TransferParamsOf"
+  },
+  "TransferParamsOf": {
+    "_enum": {
+      "Simple": "SimpleTransferParams",
+      "Operator": "OperatorTransferParams"
+    }
+  },
+  "SimpleTransferParams": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>",
+    "keepAlive": "bool"
+  },
+  "OperatorTransferParams": {
+    "tokenId": "Compact<u128>",
+    "source": "AccountId",
+    "amount": "Compact<u128>",
+    "keepAlive": "bool"
+  }
+}

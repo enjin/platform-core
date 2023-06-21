@@ -1,0 +1,15 @@
+{
+  "Freeze": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "freezeType": "FreezeOf"
+  },
+  "FreezeOf": {
+    "_enum": {
+      "Collection": "null",
+      "Token": "u128",
+      "CollectionAccount": "AccountId",
+      "TokenAccount": "(Compact<u128>, AccountId)"
+    }
+  }
+}

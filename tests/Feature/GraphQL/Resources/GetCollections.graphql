@@ -1,0 +1,84 @@
+query GetCollections(
+  $collectionIds: [BigInt]
+  $tokensCursor: String
+  $tokensLimit: Int
+  $accountsCursor: String
+  $accountsLimit: Int
+) {
+  GetCollections(collectionIds: $collectionIds) {
+    edges {
+      cursor
+      node {
+        collectionId
+        maxTokenCount
+        maxTokenSupply
+        forceSingleMint
+        frozen
+        network
+        owner {
+          account {
+            publicKey
+            address
+          }
+        }
+        attributes {
+          key
+          value
+        }
+        tokens(after: $tokensCursor, first: $tokensLimit) {
+          edges {
+            cursor
+            node {
+              tokenId
+            }
+          }
+          totalCount
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+        }
+        accounts(after: $accountsCursor, first: $accountsLimit) {
+          edges {
+            cursor
+            node {
+              accountCount
+              isFrozen
+              wallet {
+                account {
+                  publicKey
+                  address
+                }
+              }
+              approvals {
+                expiration
+                wallet {
+                  account {
+                    publicKey
+                    address
+                  }
+                }
+              }
+            }
+          }
+          totalCount
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}

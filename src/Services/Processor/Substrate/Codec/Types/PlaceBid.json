@@ -1,0 +1,7 @@
+{
+    "PlaceBid": {
+        "callIndex": "(u8, u8)",
+        "listingId": "h256",
+        "price": "Compact<u128>"
+    }
+}

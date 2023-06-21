@@ -1,0 +1,30 @@
+query GetPendingWallets(
+    $after: String
+    $first: Int
+) {
+    GetPendingWallets(
+        after: $after
+        first: $first
+    ) {
+        totalCount
+        pageInfo {
+            startCursor
+            endCursor
+            hasNextPage
+            hasPreviousPage
+        }
+        edges {
+            cursor
+            node {
+                id
+                account {
+                    publicKey
+                    address
+                }
+                externalId
+                managed
+                network
+            }
+        }
+    }
+}

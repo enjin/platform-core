@@ -1,0 +1,18 @@
+{
+  "MutateFuelTank": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "mutation": "TankMutation"
+  },
+  "TankMutation": {
+    "userAccountManagement": "TankShouldMutate",
+    "providesDeposit": "Option<bool>",
+    "accountRules": "Option<Vec<AccountRule>>"
+  },
+  "TankShouldMutate": {
+    "_enum": {
+      "NoMutation": "Null",
+      "SomeMutation": "Option<UserAccountManagement>"
+    }
+  }
+}

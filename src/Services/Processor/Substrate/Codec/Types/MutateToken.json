@@ -1,0 +1,19 @@
+{
+  "MutateToken": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Compact<u128>",
+    "mutation": "TokenMutation"
+  },
+  "TokenMutation": {
+    "behavior": "BehaviorParamOf",
+    "listingForbidden": "Option<bool>",
+    "metadata": "Option<DefaultTokenMetadata>"
+  },
+  "BehaviorParamOf": {
+    "_enum": {
+      "NoMutation": "Null",
+      "SomeMutation": "Option<TokenMarketBehavior>"
+    }
+  }
+}

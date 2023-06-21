@@ -1,0 +1,31 @@
+<?php
+
+namespace Enjin\Platform\GraphQL\Enums;
+
+use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
+use Enjin\Platform\Interfaces\PlatformGraphQlEnum;
+use Rebing\GraphQL\Support\EnumType;
+
+class TransactionMethodEnum extends EnumType implements PlatformGraphQlEnum
+{
+    /**
+     * Get the enum's attributes.
+     */
+    public function attributes(): array
+    {
+        // TODO: Need to check the implications of removing:
+        // This '' causes an error on graphql
+        $mutationNames = collect([]);
+        foreach (get_declared_classes() as $className) {
+            if (in_array(PlatformBlockchainTransaction::class, class_implements($className))) {
+                $mutationNames->add((new $className())->getMutationName());
+            }
+        }
+
+        return [
+            'name' => 'TransactionMethod',
+            'values' => $mutationNames->toArray(),
+            'description' => __('enjin-platform::enum.transaction_method.description'),
+        ];
+    }
+}

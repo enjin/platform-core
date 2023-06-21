@@ -1,0 +1,22 @@
+mutation MutateCollection(
+    $collectionId: BigInt!
+    $mutation: CollectionMutationInput!
+) {
+    MutateCollection(
+        collectionId: $collectionId
+        mutation: $mutation
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

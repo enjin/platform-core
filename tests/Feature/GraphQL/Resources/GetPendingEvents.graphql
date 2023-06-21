@@ -1,0 +1,30 @@
+query GetPendingEvents(
+  $after: String
+  $first: Int
+  $acknowledgeEvents: Boolean
+) {
+  GetPendingEvents(
+    after: $after
+    first: $first
+    acknowledgeEvents: $acknowledgeEvents
+  ) {
+    totalCount
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+      hasPreviousPage
+    }
+    edges {
+      cursor
+      node {
+        id
+        uuid
+        name
+        sent
+        channels
+        data
+      }
+    }
+  }
+}

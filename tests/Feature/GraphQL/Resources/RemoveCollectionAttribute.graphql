@@ -1,0 +1,22 @@
+mutation RemoveCollectionAttribute(
+    $collectionId: BigInt!
+    $key: String!
+) {
+    RemoveCollectionAttribute(
+        collectionId: $collectionId
+        key: $key
+    ) {
+        id
+        transactionId
+        transactionHash
+        method
+        state
+        encodedData
+        wallet {
+            account {
+                publicKey
+                address
+            }
+        }
+    }
+}

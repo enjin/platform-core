@@ -1,0 +1,40 @@
+{
+  "TokenStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashCollectionId": "u128",
+    "collectionId": "u128",
+    "hashTokenId": "u128",
+    "tokenId": "u128"
+  },
+  "TokenStorageData": {
+    "supply": "Compact<u128>",
+    "cap": "Option<TokenCap>",
+    "isFrozen": "bool",
+    "minimumBalance": "Compact",
+    "unitPrice": "Compact",
+    "mintDeposit": "Compact",
+    "attributeCount": "Compact",
+    "marketBehavior": "Option<TokenMarketBehavior>",
+    "listingForbidden": "bool",
+    "metadata": "TokenMetadata"
+  },
+  "TokenMarketBehavior": {
+    "_enum": {
+      "HasRoyalty": "RoyaltyPolicyDescriptor",
+      "IsCurrency": "Null"
+    }
+  },
+  "TokenMetadata": {
+    "_enum": {
+      "Native": "Null",
+      "Foreign": "ForeignTokenMetadata"
+    }
+  },
+  "ForeignTokenMetadata": {
+    "decimalCount": "Compact<u32>",
+    "name": "Bytes",
+    "symbol": "Bytes",
+    "location": "Option<XcmV1MultiLocation>"
+  }
+}
