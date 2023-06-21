@@ -9,7 +9,6 @@ use Enjin\Platform\Models\Laravel\Traits\Verification as VerificationMethods;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class Verification extends BaseModel
 {

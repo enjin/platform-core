@@ -112,7 +112,6 @@ return (new PhpCsFixer\Config())
         'short_scalar_cast' => true,
         'simple_to_complex_string_variable' => true,
         'simplified_null_return' => true,
-        'single_blank_line_before_namespace' => true,
         'single_quote' => true,
         'space_after_semicolon' => true,
         'standardize_increment' => true,

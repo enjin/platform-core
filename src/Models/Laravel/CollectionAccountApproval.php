@@ -7,7 +7,6 @@ use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\CollectionAccountApproval as CollectionAccountApprovalMethods;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class CollectionAccountApproval extends BaseModel
 {
