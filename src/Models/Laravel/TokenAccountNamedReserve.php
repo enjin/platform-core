@@ -7,7 +7,6 @@ use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\TokenAccountNamedReserve as TokenAccountNamedReserveMethods;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class TokenAccountNamedReserve extends BaseModel
 {

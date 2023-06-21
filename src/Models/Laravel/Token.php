@@ -10,7 +10,6 @@ use Enjin\Platform\Models\Laravel\Traits\Token as TokenMethods;
 use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Token extends BaseModel

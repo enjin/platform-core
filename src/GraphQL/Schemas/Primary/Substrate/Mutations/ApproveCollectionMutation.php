@@ -71,35 +71,35 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
         ];
     }
 
-   /**
-    * Resolve the mutation's request.
-    */
-   public function resolve(
-       $root,
-       array $args,
-       $context,
-       ResolveInfo $resolveInfo,
-       Closure $getSelectFields,
-       SerializationServiceInterface $serializationService,
-       TransactionService $transactionService,
-       WalletService $walletService
-   ): mixed {
-       $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-       $encodedData = $serializationService->encode($this->getMethodName(), [
-           'collectionId' => $args['collectionId'],
-           'operator' => $operatorWallet->public_key,
-           'expiration' => $args['expiration'],
-       ]);
+    /**
+     * Resolve the mutation's request.
+     */
+    public function resolve(
+        $root,
+        array $args,
+        $context,
+        ResolveInfo $resolveInfo,
+        Closure $getSelectFields,
+        SerializationServiceInterface $serializationService,
+        TransactionService $transactionService,
+        WalletService $walletService
+    ): mixed {
+        $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
+        $encodedData = $serializationService->encode($this->getMethodName(), [
+            'collectionId' => $args['collectionId'],
+            'operator' => $operatorWallet->public_key,
+            'expiration' => $args['expiration'],
+        ]);
 
-       return Transaction::lazyLoadSelectFields(
-           $transactionService->store([
-               'method' => $this->getMutationName(),
-               'encoded_data' => $encodedData,
-               'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-           ]),
-           $resolveInfo
-       );
-   }
+        return Transaction::lazyLoadSelectFields(
+            $transactionService->store([
+                'method' => $this->getMutationName(),
+                'encoded_data' => $encodedData,
+                'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+            ]),
+            $resolveInfo
+        );
+    }
 
     /**
      * Get the mutation's validation rules.
