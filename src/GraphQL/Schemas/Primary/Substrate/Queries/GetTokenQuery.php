@@ -6,6 +6,7 @@ use Closure;
 use Enjin\Platform\GraphQL\Base\Query;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
@@ -21,6 +22,7 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
     use HasTokenIdFields;
     use HasTokenIdFieldRules;
     use HasEncodableTokenId;
+    use HasAdhocRules;
 
     /**
      * Get the query's attributes.

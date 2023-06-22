@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Collection;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -14,6 +15,7 @@ use Rebing\GraphQL\Support\Query;
 class GetCollectionQuery extends Query implements PlatformGraphQlQuery
 {
     use InPrimarySubstrateSchema;
+    use HasAdhocRules;
 
     /**
      * Get the query's attributes.
