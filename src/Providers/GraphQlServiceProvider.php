@@ -214,16 +214,18 @@ class GraphQlServiceProvider extends ServiceProvider
     protected function registerExternalResolverMiddleware()
     {
         $resolverMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlResolverMiddleware::class)
-            ->mapWithKeys(function ($resolverMiddleware) {
+            ->map(function ($resolverMiddleware) {
                 $excludeFrom = collect($resolverMiddleware::excludeFrom())->transform(fn ($class) => class_basename($class));
 
                 return collect($resolverMiddleware::registerOn())
                     ->map(fn ($model, $class) => ['operation' => class_basename($class), 'middleware' => $resolverMiddleware])
-                    ->whereNotIn('operation', $excludeFrom)
-                    ->all();
-            })
-            ->mapToGroups(fn ($class, $key) => [$class['operation'] => $class['middleware']])
-            ->toArray();
+                    ->filter(fn ($middleware, $operation) => $excludeFrom->doesntContain($middleware['operation']))
+                    ->toArray();
+            })->pipe(function (Collection $middlewares) {
+                return $middlewares->flatten(1)
+                    ->mapToGroups(fn ($operation) => [$operation['operation'] => $operation['middleware']])
+                    ->toArray();
+            });
 
         $graphQlResolverMiddleware = config('graphql.resolver_middleware') ?? [];
 
