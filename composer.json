@@ -63,7 +63,12 @@
     "phpunit/phpunit": "^10.0",
     "roave/security-advisories": "dev-latest"
   },
-  "repositories": [],
+  "repositories": [
+      {
+         "type": "vcs",
+         "url": "https://github.com/leonardocustodio/laravel-graphiql.git"
+      }
+  ],
   "autoload": {
     "psr-4": {
       "Enjin\\Platform\\": "src",
