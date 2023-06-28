@@ -25,7 +25,6 @@ class GetTransactionTest extends TestCaseGraphQL
 
         $this->defaultAccount = Account::daemonPublicKey();
         $this->transaction = Transaction::factory()->create();
-        Account::daemon();
     }
 
     // Happy path
