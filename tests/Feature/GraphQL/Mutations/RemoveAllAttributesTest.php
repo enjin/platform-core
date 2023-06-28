@@ -12,6 +12,7 @@ use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +24,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveAllAttributes';
     protected Codec $codec;
-    protected string $defaultWallet;
+    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
@@ -35,7 +36,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->wallet = (new WalletService())->firstOrStore(['public_key' => $this->defaultAccount]);
 
         $this->attribute = Attribute::factory()->create();

@@ -27,16 +27,6 @@ class SS58Address
     }
 
     /**
-     * Get the daemon account.
-     */
-    public static function getDaemonAccount(?bool $prefixed = false): ?string
-    {
-        $publicKey = self::getPublicKey(config('enjin-platform.chains.daemon-account'));
-
-        return $prefixed ? $publicKey : HexConverter::unPrefix($publicKey);
-    }
-
-    /**
      * Get the public key from the given address.
      */
     public static function getPublicKey(string|array|null $address): ?string

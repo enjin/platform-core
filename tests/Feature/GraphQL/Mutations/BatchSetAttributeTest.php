@@ -10,6 +10,7 @@ use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,7 +20,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'BatchSetAttribute';
     protected Codec $codec;
-    protected string $defaultWallet;
+    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
@@ -31,7 +32,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
         $this->codec = new Codec();
         $walletService = new WalletService();
 
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $owner = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
         $this->collection = Collection::factory()->create([
             'owner_wallet_id' => $owner->id,

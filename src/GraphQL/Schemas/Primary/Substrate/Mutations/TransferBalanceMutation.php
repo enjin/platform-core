@@ -18,6 +18,7 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -94,7 +95,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $signingWallet = $walletService->firstOrStore([
-            'account' => Arr::get($args, 'signingAccount') ?: config('enjin-platform.chains.daemon-account'),
+            'account' => Arr::get($args, 'signingAccount') ?: Account::daemonPublicKey(),
         ]);
 
         $method = $this->getMethodName() . ($args['keepAlive'] ? 'KeepAlive' : '');

@@ -4,6 +4,7 @@ namespace Enjin\Platform\Rules;
 
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Database\CollectionService;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -25,7 +26,7 @@ class IsCollectionOwnerOrApproved implements Rule
             return false;
         }
 
-        $daemonAccount = config('enjin-platform.chains.daemon-account');
+        $daemonAccount = Account::daemonPublicKey();
 
         if (SS58Address::isSameAddress($collection->owner->public_key, $daemonAccount)) {
             return true;

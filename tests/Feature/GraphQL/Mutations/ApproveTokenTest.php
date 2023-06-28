@@ -14,6 +14,7 @@ use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -28,8 +29,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     protected $method = 'ApproveToken';
 
     protected Codec $codec;
-    protected string $defaultWallet;
-
+    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $token;
@@ -42,7 +42,7 @@ class ApproveTokenTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $walletService = new WalletService();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
 
         $this->tokenAccount = TokenAccount::factory([
@@ -820,7 +820,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'amount' => $this->tokenAccount->balance,
             'currentAmount' => $this->tokenAccount->balance,
-            'operator' => SS58Address::getDaemonAccount(true),
+            'operator' => Account::daemonPublicKey(),
         ], true);
 
         $this->assertArraySubset(

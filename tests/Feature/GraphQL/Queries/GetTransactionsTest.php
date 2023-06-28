@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Collection;
@@ -15,14 +16,14 @@ class GetTransactionsTest extends TestCaseGraphQL
     use ArraySubsetAsserts;
 
     protected string $method = 'GetTransactions';
-    protected string $defaultPublicKey;
+    protected string $defaultAccount;
     protected Collection $transactions;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->transactions = $this->generateTransactions();
     }
 

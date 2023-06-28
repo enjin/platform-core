@@ -9,7 +9,16 @@ use Illuminate\Support\Facades\Cache;
 
 class Account
 {
+    public static $publicKey;
     private static $account;
+
+    /**
+     * Get daemon account public key.
+     */
+    public static function daemonPublicKey(): string
+    {
+        return SS58Address::getPublicKey(static::$publicKey ?? config('enjin-platform.chains.daemon-account'));
+    }
 
     /**
      * Get daemon account wallet.
@@ -18,7 +27,7 @@ class Account
     {
         if (!static::$account) {
             static::$account = resolve(WalletService::class)->firstOrStore(
-                ['public_key' => SS58Address::getPublicKey(config('enjin-platform.chains.daemon-account'))]
+                ['public_key' => static::daemonPublicKey()]
             );
         }
 
@@ -34,7 +43,7 @@ class Account
             PlatformCache::MANAGED_ACCOUNTS->key(),
             fn () => collect(Wallet::where('managed', '=', true)->get()->pluck('public_key'))
                 ->filter()
-                ->add(SS58Address::getPublicKey(config('enjin-platform.chains.daemon-account')))
+                ->add(static::daemonPublicKey())
                 ->unique()
                 ->toArray()
         );
