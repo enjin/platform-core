@@ -42,7 +42,7 @@
     "kevinrob/guzzle-cache-middleware": "^4.0",
     "mll-lab/laravel-graphiql": "3.0.0",
     "phrity/websocket": "^1.0",
-    "rebing/graphql-laravel": "^9.0.0-rc1",
+    "rebing/graphql-laravel": "^9.0.0",
     "revolt/event-loop": "^1.0",
     "spatie/laravel-package-tools": "^1.0",
     "spatie/laravel-ray": "^1.0",
