@@ -39,7 +39,7 @@ class PlatformController extends Controller
 
         $platformData = [
             'root' => 'enjin/platform-core',
-            'url' => config('app.url'),
+            'url' => trim(config('app.url'), '/'),
             'chain' => config('enjin-platform.chains.selected'),
             'network' => config('enjin-platform.chains.network'),
             'packages' => $packages,
