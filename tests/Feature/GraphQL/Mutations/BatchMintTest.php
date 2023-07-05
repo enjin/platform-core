@@ -19,6 +19,7 @@ use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -33,7 +34,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     protected string $method = 'BatchMint';
     protected Codec $codec;
-    protected string $defaultWallet;
+    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -47,7 +48,7 @@ class BatchMintTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->wallet = (new WalletService())->firstOrStore(['public_key' => $this->defaultAccount]);
 
         $this->recipient = Wallet::factory()->create();

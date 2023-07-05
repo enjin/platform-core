@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -33,7 +34,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->collection = Collection::factory()->create();
         $this->tokenIdEncoder = new Integer();
     }

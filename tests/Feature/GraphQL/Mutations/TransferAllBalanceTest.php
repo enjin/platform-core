@@ -7,6 +7,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Faker\Generator;
@@ -25,7 +26,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
     }
 
     // Happy Path

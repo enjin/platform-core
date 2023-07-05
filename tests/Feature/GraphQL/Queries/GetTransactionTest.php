@@ -16,16 +16,15 @@ class GetTransactionTest extends TestCaseGraphQL
     use ArraySubsetAsserts;
 
     protected string $method = 'GetTransaction';
-    protected string $defaultPublicKey;
+    protected string $defaultAccount;
     protected Model $transaction;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->transaction = Transaction::factory()->create();
-        Account::daemon();
     }
 
     // Happy path

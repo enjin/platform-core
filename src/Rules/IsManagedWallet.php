@@ -18,7 +18,7 @@ class IsManagedWallet implements Rule
      */
     public function passes($attribute, $value)
     {
-        if (SS58Address::isSameAddress($value, config('enjin-platform.chains.daemon-account'))) {
+        if (SS58Address::isSameAddress($value, Account::daemonPublicKey())) {
             return true;
         }
 

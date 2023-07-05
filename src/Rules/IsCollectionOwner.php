@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -20,7 +21,7 @@ class IsCollectionOwner implements Rule
     {
         $owner = Collection::firstWhere('collection_chain_id', '=', $value)?->owner->public_key;
 
-        return SS58Address::isSameAddress($owner, config('enjin-platform.chains.daemon-account'));
+        return SS58Address::isSameAddress($owner, Account::daemonPublicKey());
     }
 
     /**

@@ -10,6 +10,7 @@ use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -32,7 +33,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->collection = Collection::factory()->create();
         Token::factory(fake()->numberBetween(1, 10))->create([
             'collection_id' => $this->collection->id,
@@ -365,7 +366,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
-            'operator' => SS58Address::getDaemonAccount(true),
+            'operator' => Account::daemonPublicKey(),
         ], true);
 
         $this->assertArraySubset(

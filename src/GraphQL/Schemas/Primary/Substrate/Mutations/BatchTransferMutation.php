@@ -19,6 +19,7 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -92,7 +93,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         WalletService $walletService
     ): mixed {
         $signingWallet = $walletService->firstOrStore([
-            'account' => $args['signingAccount'] ?? config('enjin-platform.chains.daemon-account'),
+            'account' => $args['signingAccount'] ?? Account::daemonPublicKey(),
         ]);
 
         $recipients = collect($args['recipients'])->map(

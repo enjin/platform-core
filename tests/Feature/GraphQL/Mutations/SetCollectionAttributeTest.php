@@ -7,6 +7,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -25,7 +26,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->collection = Collection::factory()->create();
     }
 

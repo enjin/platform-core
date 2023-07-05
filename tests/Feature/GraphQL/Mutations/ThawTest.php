@@ -16,6 +16,7 @@ use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -42,7 +43,7 @@ class ThawTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $walletService = new WalletService();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
         $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
 
         $this->tokenAccount = TokenAccount::factory([

@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Token;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +34,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = config('enjin-platform.chains.daemon-account');
+        $this->defaultAccount = Account::daemonPublicKey();
 
         $this->attribute = Attribute::factory()->create();
         $this->collection = Collection::find($this->attribute->collection_id);
