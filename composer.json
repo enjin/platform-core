@@ -40,7 +40,7 @@
     "guzzlehttp/guzzle": "7.6.1",
     "illuminate/contracts": "^10.0",
     "kevinrob/guzzle-cache-middleware": "^4.0",
-    "mll-lab/laravel-graphiql": "3.0.0",
+    "mll-lab/laravel-graphiql": "^3.1.0",
     "phrity/websocket": "^1.0",
     "rebing/graphql-laravel": "^9.0",
     "revolt/event-loop": "^1.0",
@@ -63,12 +63,6 @@
     "phpunit/phpunit": "^10.0",
     "roave/security-advisories": "dev-latest"
   },
-  "repositories": [
-      {
-         "type": "vcs",
-         "url": "https://github.com/leonardocustodio/laravel-graphiql.git"
-      }
-  ],
   "autoload": {
     "psr-4": {
       "Enjin\\Platform\\": "src",
