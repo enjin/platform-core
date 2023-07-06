@@ -37,7 +37,7 @@
     "fakerphp/faker": "^1.0",
     "gmajor/sr25519-bindings": "dev-main",
     "gmajor/substrate-codec-php": "dev-master",
-    "guzzlehttp/guzzle": "7.6.1",
+    "guzzlehttp/guzzle": "7.7.0",
     "illuminate/contracts": "^10.0",
     "kevinrob/guzzle-cache-middleware": "^4.0",
     "mll-lab/laravel-graphiql": "^3.1.0",
