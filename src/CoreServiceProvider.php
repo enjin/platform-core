@@ -6,6 +6,7 @@ use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\Sync;
 use Enjin\Platform\Commands\Transactions;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
@@ -90,7 +91,7 @@ class CoreServiceProvider extends PackageServiceProvider
                 $totalCount = (int) Cache::remember(
                     $this->toSql(),
                     6,
-                    fn () => Cache::lock('enjin-platform.lock:' . $this->toSql())->get(fn () => $this->count())
+                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toSql()))->get(fn () => $this->count())
                 );
             }
 
@@ -105,7 +106,7 @@ class CoreServiceProvider extends PackageServiceProvider
                 $totalCount = (int) Cache::remember(
                     $this->toSql(),
                     6,
-                    fn () => Cache::lock('enjin-platform.lock:' . $this->toSql())->get(fn () => $this->count())
+                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toSql()))->get(fn () => $this->count())
                 );
             }
 
