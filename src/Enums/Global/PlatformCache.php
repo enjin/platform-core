@@ -19,6 +19,8 @@ enum PlatformCache: string implements PlatformCacheable
     case BLOCK_EVENTS = 'blockEvents';
     case BLOCK_EXTRINSICS = 'blockExtrinsics';
     case SYNCING_IN_PROGRESS = 'syncingInProgress';
+    case VERIFY_ACCOUNT = 'verifyAccount';
+    case PAGINATION = 'pagination';
 
     public function key(?string $suffix = null): string
     {

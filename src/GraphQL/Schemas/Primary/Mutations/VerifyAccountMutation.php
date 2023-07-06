@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
@@ -78,7 +79,7 @@ class VerifyAccountMutation extends Mutation implements PlatformGraphQlMutation,
         VerificationService $verificationService
     ): mixed {
         $key = "{$args['verificationId']}.{$args['account']}";
-        $lock = Cache::lock('enjin-platform:verify-account-cache.' . $key, 5);
+        $lock = Cache::lock(PlatformCache::VERIFY_ACCOUNT->key($key), 5);
         if (!$lock->get()) {
             throw new PlatformException(__('enjin-platform::error.unable_to_process'));
         }
