@@ -62,8 +62,8 @@ abstract class TestCase extends BaseTestCase
         $app->config->set('enjin-platform.chains.network', 'canary');
     }
 
-    protected function usesDeveloperNetwork($app)
+    protected function usesLocalNetwork($app)
     {
-        $app->config->set('enjin-platform.chains.network', 'developer');
+        $app->config->set('enjin-platform.chains.network', 'local');
     }
 }
