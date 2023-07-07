@@ -32,7 +32,7 @@ class CollectionFactory extends Factory
             'token_count' => '0',
             'attribute_count' => '0',
             'total_deposit' => '0',
-            'network' => 'developer',
+            'network' => 'local',
         ];
     }
 }

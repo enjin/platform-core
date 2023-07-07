@@ -145,6 +145,8 @@ class GetWalletsTest extends TestCaseGraphQL
 
     public function test_it_can_get_wallets(): void
     {
+        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+
         $response = $this->graphql($this->method, ['ids' => [$this->wallet->id]]);
         $this->assertNotEmpty($response['totalCount']);
 
@@ -266,5 +268,36 @@ class GetWalletsTest extends TestCaseGraphQL
         $this->assertArraySubset([
             'accounts.0' => ['The accounts.0 is not a valid substrate account.'],
         ], $response['error']);
+    }
+
+    protected function mockNonceAndBalancesFor(string $address): void
+    {
+        $this->mockWebsocketClient(
+            'state_getStorage',
+            [
+                $this->codec->encode()->systemAccountStorageKey($address),
+            ],
+            json_encode(
+                [
+                    'jsonrpc' => '2.0',
+                    'result' => '0x1d000000000000000100000000000000331f60a549ec45201cd30000000000000080ebc061752bf3a5000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                    'id' => 1,
+                ],
+                JSON_THROW_ON_ERROR
+            )
+        );
+    }
+
+    protected function mockedData(): array
+    {
+        return [
+            'nonce' => 29,
+            'balances' => [
+                'free' => '996938162244142665572147',
+                'reserved' => '3061235000000000000000',
+                'miscFrozen' => '0',
+                'feeFrozen' => '0',
+            ],
+        ];
     }
 }

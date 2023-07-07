@@ -32,7 +32,7 @@ class WalletFactory extends Factory
             'external_id' => fake()->unique()->uuid(),
             'managed' => fake()->boolean(),
             'verification_id' => fake()->unique()->uuid(),
-            'network' => 'developer',
+            'network' => 'local',
         ];
     }
 }

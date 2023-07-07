@@ -82,7 +82,7 @@ class AddressTest extends TestCase
 
     /**
      * @test
-     * @define-env usesDeveloperNetwork
+     * @define-env usesLocalNetwork
      */
     public function test_it_will_encode_rocfinity_address_if_developer_is_the_selected_chain()
     {
