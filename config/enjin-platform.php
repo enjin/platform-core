@@ -114,22 +114,6 @@ return [
                     'node' => env('EFINITY_POLKADOT_RPC', 'wss://rpc.efinity.io:443'),
                     'ss58-prefix' => env('EFINITY_POLKADOT_SS58_PREFIX', 1110),
                 ],
-                'rococo' => [
-                    'chain-id' => 0,
-                    'network-id' => 102,
-                    'testnet' => true,
-                    'platform-id' => env('EFINITY_ROCOCO_PLATFORM_ID', 0),
-                    'node' => env('EFINITY_ROCOCO_RPC', 'wss://rpc.rococo.efinity.io:443'),
-                    'ss58-prefix' => env('EFINITY_ROCOCO_SS58_PREFIX', 195),
-                ],
-                'westend' => [
-                    'chain-id' => 0,
-                    'network-id' => 103,
-                    'testnet' => true,
-                    'platform-id' => env('EFINITY_WESTEND_PLATFORM_ID', 0),
-                    'node' => env('EFINITY_WESTEND_RPC', 'http://localhost:2021'),
-                    'ss58-prefix' => env('EFINITY_WESTEND_SS58_PREFIX', 1110),
-                ],
                 'local' => [
                     'chain-id' => 0,
                     'network-id' => 104,
@@ -138,20 +122,12 @@ return [
                     'node' => env('EFINITY_LOCAL_RPC', 'ws://localhost:10010'),
                     'ss58-prefix' => env('EFINITY_LOCAL_SS58_PREFIX', 195),
                 ],
-                'developer' => [
-                    'chain-id' => 0,
-                    'network-id' => 105,
-                    'testnet' => true,
-                    'platform-id' => env('EFINITY_DEVELOPER_PLATFORM_ID', 0),
-                    'node' => env('EFINITY_DEVELOPER_RPC', 'wss://rpc.parachain.efinitystaging.com:443'),
-                    'ss58-prefix' => env('EFINITY_DEVELOPER_SS58_PREFIX', 195),
-                ],
             ],
         ],
 
         'selected' => env('CHAIN', 'substrate'),
 
-        'network' => env('NETWORK', 'developer'),
+        'network' => env('NETWORK', 'polkadot'),
 
         'daemon-account' => env('DAEMON_ACCOUNT') ?: '0x0000000000000000000000000000000000000000000000000000000000000000',
     ],

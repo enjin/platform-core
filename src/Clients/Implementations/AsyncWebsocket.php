@@ -43,7 +43,7 @@ class AsyncWebsocket
     /**
      * Send a request to the websocket server.
      */
-    public function send(string $method, array $params = [], bool $rawResponse = false): ?array
+    public function send(string $method, array $params = [], bool $rawResponse = false): mixed
     {
         $response = $this->sendRaw(Util::createJsonRpc($method, $params));
 
@@ -57,6 +57,7 @@ class AsyncWebsocket
     {
         $this->client->send($payload);
         $received = $this->client->receive();
+
         if (!$received) {
             return null;
         }
