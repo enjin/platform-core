@@ -31,7 +31,7 @@ class TokenMinted extends PlatformBroadcastEvent
             new Channel($token->collection->owner->address),
             new Channel("collection;{$this->broadcastData['collectionId']}"),
             new Channel("token;{$this->broadcastData['tokenId']}"),
-            new Channel($recipient),
+            new Channel($recipient->address),
             new PlatformAppChannel(),
         ];
     }
