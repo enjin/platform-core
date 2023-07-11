@@ -5,7 +5,6 @@ namespace Enjin\Platform\Services\Database;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Account;
@@ -37,7 +36,7 @@ class TransactionService
     /**
      * Create a new transaction.
      */
-    public function store(array $data, ?Wallet $signingWallet = null): Model
+    public function store(array $data, ?Model $signingWallet = null): Model
     {
         if ($transaction = Transaction::firstWhere(['idempotency_key' => $data['idempotency_key']])) {
             return $transaction;
