@@ -20,8 +20,8 @@ class TokenTransferred extends PlatformBroadcastEvent
             'idempotencyKey' => $transaction?->idempotency_key,
             'collectionId' => $token->collection->collection_chain_id,
             'tokenId' => $token->token_chain_id,
-            'from' => $from,
-            'recipient' => $recipient,
+            'from' => $from->address,
+            'recipient' => $recipient->address,
             'amount' => $amount,
         ];
 
@@ -29,8 +29,8 @@ class TokenTransferred extends PlatformBroadcastEvent
             new Channel($token->collection->owner->address),
             new Channel("collection;{$token->collection->collection_chain_id}"),
             new Channel("token;{$this->broadcastData['tokenId']}"),
-            new Channel($from),
-            new Channel($recipient),
+            new Channel($from->address),
+            new Channel($recipient->address),
             new PlatformAppChannel(),
         ];
     }
