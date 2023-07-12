@@ -8,6 +8,16 @@
       <directory>tests/Feature/GraphQL</directory>
     </testsuite>
   </testsuites>
+  <filter>
+    <blacklist>
+        <directory>./src/Commands</directory>
+        <directory>./src/Observers</directory>
+        <directory>./src/Enums</directory>
+        <directory>./src/Events</directory>
+        <directory>./src/Exceptions</directory>
+        <directory>./src/Traits</directory>
+    </blacklist>
+  </filter>
   <coverage>
     <report>
       <html outputDirectory="build/coverage"/>
