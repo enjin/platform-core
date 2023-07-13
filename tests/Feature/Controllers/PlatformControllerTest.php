@@ -10,7 +10,7 @@ class PlatformControllerTest extends TestCaseGraphQL
     public function test_it_can_get_platform_info(): void
     {
         $response = $this->json('GET', '/.well-known/enjin-platform.json');
-        $this->assertTrue($response->getStatusCode() === 200);
+        $this->assertTrue($response->isOk());
         $this->assertEquals(
             [
                 'root' => 'enjin/platform-core',
