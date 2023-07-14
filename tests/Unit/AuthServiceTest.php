@@ -20,6 +20,7 @@ class AuthServiceTest extends TestCase
         $auth = $manager->driver();
         $this->assertInstanceOf(BasicTokenAuth::class, $auth);
         $this->assertEquals($token, $auth->getToken());
+        $this->assertEquals(__('enjin-platform::error.unauthorized_header'), $auth->getError());
 
         $request = request();
         $request->initialize([], [], [], [], [], ['HTTP_AUTHORIZATION' => $token]);
@@ -31,6 +32,7 @@ class AuthServiceTest extends TestCase
         $auth = resolve(AuthManager::class)->driver();
         $this->assertInstanceOf(NullAuth::class, $auth);
         $this->assertEmpty($auth->getToken());
+        $this->assertEmpty($auth->getError());
         $this->assertTrue($auth->authenticate(request()));
     }
 }
