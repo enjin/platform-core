@@ -1,27 +1,29 @@
 mutation CreateCollection(
-    $mintPolicy: MintPolicy!
-    $marketPolicy: MarketPolicy
-    $explicitRoyaltyCurrencies: [MultiTokenIdInput]
-    $idempotencyKey: String
+  $mintPolicy: MintPolicy!
+  $marketPolicy: MarketPolicy
+  $explicitRoyaltyCurrencies: [MultiTokenIdInput]
+  $idempotencyKey: String
+  $skipValidation: Boolean
 ) {
-    CreateCollection(
-        mintPolicy: $mintPolicy
-        marketPolicy: $marketPolicy
-        explicitRoyaltyCurrencies: $explicitRoyaltyCurrencies
-        idempotencyKey: $idempotencyKey
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
-        idempotencyKey
+  CreateCollection(
+    mintPolicy: $mintPolicy
+    marketPolicy: $marketPolicy
+    explicitRoyaltyCurrencies: $explicitRoyaltyCurrencies
+    idempotencyKey: $idempotencyKey
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+    idempotencyKey
+  }
 }

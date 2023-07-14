@@ -1,24 +1,26 @@
 mutation BatchSetAttribute(
-    $collectionId: BigInt!
-    $tokenId: EncodableTokenIdInput
-    $attributes: [AttributeInput!]!
+  $collectionId: BigInt!
+  $tokenId: EncodableTokenIdInput
+  $attributes: [AttributeInput!]!
+  $skipValidation: Boolean
 ) {
-    BatchSetAttribute(
-        collectionId: $collectionId
-        tokenId: $tokenId
-        attributes: $attributes
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        encodedData
-        state
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  BatchSetAttribute(
+    collectionId: $collectionId
+    tokenId: $tokenId
+    attributes: $attributes
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    encodedData
+    state
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

@@ -52,6 +52,46 @@ class BurnTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->burn(
+            $collectionId = random_int(2000, 3000),
+            new BurnParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: $amount = 1,
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable(),
+                'amount' => $amount,
+            ],
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_burn_a_token_with_default_values_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->burn(

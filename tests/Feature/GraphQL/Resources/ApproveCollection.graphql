@@ -1,24 +1,26 @@
 mutation ApproveCollection(
-    $collectionId: BigInt!
-    $operator: String!
-    $expiration: Int
+  $collectionId: BigInt!
+  $operator: String!
+  $expiration: Int
+  $skipValidation: Boolean
 ) {
-    ApproveCollection(
-        collectionId: $collectionId
-        operator: $operator
-        expiration: $expiration
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  ApproveCollection(
+    collectionId: $collectionId
+    operator: $operator
+    expiration: $expiration
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

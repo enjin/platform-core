@@ -74,6 +74,58 @@ class BatchMintTest extends TestCaseGraphQL
     }
 
     // Happy Path
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->batchMint(
+            $collectionId = random_int(1, 1000),
+            [
+                [
+                    'accountId' => $recipient = $this->recipient->public_key,
+                    'params' => $createParams = new CreateTokenParams(
+                        tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
+                        initialSupply: $supply = fake()->numberBetween(1),
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
+                        cap: TokenMintCapType::INFINITE,
+                    ),
+                ],
+            ]
+        );
+
+        $params = $createParams->toArray()['CreateToken'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient),
+                    'createParams' => $params,
+                ],
+            ],
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_mint_create_single_token_with_cap_null_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->batchMint(

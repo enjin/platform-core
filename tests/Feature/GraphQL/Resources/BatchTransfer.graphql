@@ -1,24 +1,26 @@
 mutation BatchTransfer(
-    $collectionId: BigInt!
-    $recipients: [TransferRecipient!]!
-    $signingAccount: String
+  $collectionId: BigInt!
+  $recipients: [TransferRecipient!]!
+  $signingAccount: String
+  $skipValidation: Boolean
 ) {
-    BatchTransfer(
-        collectionId: $collectionId
-        recipients: $recipients
-        signingAccount: $signingAccount
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  BatchTransfer(
+    collectionId: $collectionId
+    recipients: $recipients
+    signingAccount: $signingAccount
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

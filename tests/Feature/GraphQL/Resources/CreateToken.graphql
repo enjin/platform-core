@@ -1,24 +1,26 @@
 mutation CreateToken(
-    $recipient: String!
-    $collectionId: BigInt!
-    $params: CreateTokenParams!
+  $recipient: String!
+  $collectionId: BigInt!
+  $params: CreateTokenParams!
+  $skipValidation: Boolean
 ) {
-    CreateToken(
-        recipient: $recipient
-        collectionId: $collectionId
-        params: $params
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  CreateToken(
+    recipient: $recipient
+    collectionId: $collectionId
+    params: $params
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

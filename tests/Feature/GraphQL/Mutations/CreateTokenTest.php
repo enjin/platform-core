@@ -45,6 +45,54 @@ class CreateTokenTest extends TestCaseGraphQL
         $this->tokenIdEncoder = new Integer(fake()->unique()->numberBetween());
     }
 
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->mint(
+            $recipient = $this->recipient->public_key,
+            $collectionId = random_int(1, 1000),
+            new CreateTokenParams(
+                tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
+                initialSupply: $initialSupply = fake()->numberBetween(1),
+                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                cap: $capType = TokenMintCapType::SINGLE_MINT
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'recipient' => $recipient,
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
+                'initialSupply' => $initialSupply,
+                'unitPrice' => $unitPrice,
+                'cap' => [
+                    'type' => $capType->name,
+                ],
+            ],
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_create_a_token_with_cap_equals_null_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->mint(
