@@ -41,6 +41,7 @@
         <directory>./src/Exceptions</directory>
         <directory>./src/Traits</directory>
         <directory>./src/Services/Processor/Substrate</directory>
+        <directory>./src/Clients/Implementations</directory>
     </exclude>
   </source>
 </phpunit>

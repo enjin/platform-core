@@ -5,7 +5,6 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
@@ -14,8 +13,6 @@ use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class Decoder
 {
@@ -287,16 +284,5 @@ class Decoder
             'approvals' => $approvals,
             'isFrozen' => Arr::get($decoded, 'isFrozen'),
         ];
-    }
-
-    public function getMethodFromEncoded(string $data)
-    {
-        $metadata = Cache::remember(PlatformCache::CALL_INDEXES->key(), 86400, function () {
-            return collect($this->codec->process('metadata', new ScaleBytes(metadata('metadata')))['metadata']['call_index']);
-        });
-
-        $callIndex = substr($data, 2, 4);
-
-        return Str::studly($metadata[$callIndex]['call']['name']);
     }
 }

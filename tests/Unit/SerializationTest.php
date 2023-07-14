@@ -27,10 +27,5 @@ class SerializationTest extends TestCase
             ],
             'marketPolicy' => null,
         ], $decoded);
-
-        // $this->assertEquals(
-        //     'createCollection',
-        //     $substrate->getMethodFromEncoded($encoded)
-        // );
     }
 }
