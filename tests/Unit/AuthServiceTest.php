@@ -19,6 +19,7 @@ class AuthServiceTest extends TestCase
         config(['enjin-platform.auth_drivers.basic_token.token' =>  $token = Str::random(20)]);
         $auth = $manager->driver();
         $this->assertInstanceOf(BasicTokenAuth::class, $auth);
+        $this->assertEquals($token, $auth->getToken());
 
         $request = request();
         $request->initialize([], [], [], [], [], ['HTTP_AUTHORIZATION' => $token]);
@@ -29,6 +30,7 @@ class AuthServiceTest extends TestCase
     {
         $auth = resolve(AuthManager::class)->driver();
         $this->assertInstanceOf(NullAuth::class, $auth);
+        $this->assertEmpty($auth->getToken());
         $this->assertTrue($auth->authenticate(request()));
     }
 }
