@@ -40,6 +40,7 @@
         <directory>./src/Events</directory>
         <directory>./src/Exceptions</directory>
         <directory>./src/Traits</directory>
+        <directory>./src/Services/Processor/Substrate</directory>
     </exclude>
   </source>
 </phpunit>
