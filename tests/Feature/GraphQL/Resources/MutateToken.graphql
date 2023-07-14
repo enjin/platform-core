@@ -2,11 +2,13 @@ mutation MutateToken(
   $collectionId: BigInt!
   $tokenId: EncodableTokenIdInput!
   $mutation: TokenMutationInput!
+  $skipValidation: Boolean
 ) {
   MutateToken(
     collectionId: $collectionId
     tokenId: $tokenId
     mutation: $mutation
+    skipValidation: $skipValidation
   ) {
     id
     transactionId

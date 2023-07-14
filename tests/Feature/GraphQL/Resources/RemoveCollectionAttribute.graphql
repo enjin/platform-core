@@ -1,22 +1,24 @@
 mutation RemoveCollectionAttribute(
-    $collectionId: BigInt!
-    $key: String!
+  $collectionId: BigInt!
+  $key: String!
+  $skipValidation: Boolean
 ) {
-    RemoveCollectionAttribute(
-        collectionId: $collectionId
-        key: $key
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  RemoveCollectionAttribute(
+    collectionId: $collectionId
+    key: $key
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

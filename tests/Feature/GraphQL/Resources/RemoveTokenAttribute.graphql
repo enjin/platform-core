@@ -2,11 +2,13 @@ mutation RemoveTokenAttribute(
   $collectionId: BigInt!
   $tokenId: EncodableTokenIdInput!
   $key: String!
+  $skipValidation: Boolean
 ) {
   RemoveTokenAttribute(
     collectionId: $collectionId
     tokenId: $tokenId
     key: $key
+    skipValidation: $skipValidation
   ) {
     id
     transactionId

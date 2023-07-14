@@ -69,6 +69,42 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->unapproveToken(
+            collectionId: $collectionId = random_int(1, 1000),
+            tokenId: $this->tokenIdEncoder->encode(),
+            operator: $operator = $this->operator->public_key,
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'operator' => SS58Address::encode($operator),
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_unapprove_a_token(): void
     {
         $encodedData = $this->codec->encode()->unapproveToken(

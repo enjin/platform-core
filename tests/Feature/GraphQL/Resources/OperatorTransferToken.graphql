@@ -1,26 +1,28 @@
 mutation OperatorTransferToken(
-    $collectionId: BigInt!
-    $recipient: String!
-    $params: OperatorTransferParams!
-    $signingAccount: String
+  $collectionId: BigInt!
+  $recipient: String!
+  $params: OperatorTransferParams!
+  $signingAccount: String
+  $skipValidation: Boolean
 ) {
-    OperatorTransferToken(
-        collectionId: $collectionId
-        recipient: $recipient
-        params: $params
-        signingAccount: $signingAccount
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  OperatorTransferToken(
+    collectionId: $collectionId
+    recipient: $recipient
+    params: $params
+    signingAccount: $signingAccount
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

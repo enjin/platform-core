@@ -43,6 +43,44 @@ class MutateTokenTest extends TestCaseGraphQL
     }
 
     // Happy Path
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->mutateToken(
+            $collectionId = random_int(1, 1000),
+            $this->tokenIdEncoder->encode(),
+            listingForbidden: $listingForbidden = fake()->boolean(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'mutation' => [
+                'listingForbidden' => $listingForbidden,
+            ],
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_mutate_a_token_with_listing_forbidden_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->mutateToken(

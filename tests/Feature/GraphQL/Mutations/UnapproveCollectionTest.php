@@ -59,6 +59,33 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = random_int(1, 100),
+            'operator' => SS58Address::encode($this->operator->public_key),
+            'skipValidation' => true,
+        ]);
+
+        $encodedData = $this->codec->encode()->unapproveCollection(
+            $collectionId,
+            $this->operator->public_key,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_unapprove_a_collection_with_string(): void
     {
         $response = $this->graphql($this->method, [

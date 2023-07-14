@@ -58,6 +58,56 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         ])->create();
     }
 
+    // Happy Path
+    public function test_it_can_skip_validation(): void
+    {
+        $signingWallet = Wallet::factory([
+            'managed' => false,
+        ])->create();
+
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new OperatorTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                source: $this->wallet->public_key,
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Operator'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => SS58Address::encode($signingWallet->public_key),
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingWallet->public_key,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_token_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->transferToken(
@@ -98,7 +148,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'encoded_data' => $encodedData,
         ]);
     }
-    // Happy Path
 
     public function test_it_can_transfer_token(): void
     {

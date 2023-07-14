@@ -1,26 +1,28 @@
 mutation TransferBalance(
-    $recipient: String!
-    $amount: BigInt!
-    $keepAlive: Boolean
-    $signingAccount: String
+  $recipient: String!
+  $amount: BigInt!
+  $keepAlive: Boolean
+  $signingAccount: String
+  $skipValidation: Boolean
 ) {
-    TransferBalance(
-        recipient: $recipient
-        amount: $amount
-        keepAlive: $keepAlive
-        signingAccount: $signingAccount
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  TransferBalance(
+    recipient: $recipient
+    amount: $amount
+    keepAlive: $keepAlive
+    signingAccount: $signingAccount
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

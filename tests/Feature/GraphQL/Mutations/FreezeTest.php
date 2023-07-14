@@ -62,6 +62,42 @@ class FreezeTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->freeze(
+            $collectionId = random_int(1, 1000),
+            new FreezeTypeParams(
+                type: $freezeType = FreezeType::COLLECTION
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'freezeType' => $freezeType->name,
+            'collectionId' => $collectionId,
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_freeze_a_collection(): void
     {
         $encodedData = $this->codec->encode()->freeze(

@@ -3,12 +3,14 @@ mutation SetTokenAttribute(
   $tokenId: EncodableTokenIdInput!
   $key: String!
   $value: String!
+  $skipValidation: Boolean
 ) {
   SetTokenAttribute(
     collectionId: $collectionId
     tokenId: $tokenId
     key: $key
     value: $value
+    skipValidation: $skipValidation
   ) {
     id
     transactionId
