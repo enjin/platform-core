@@ -2,6 +2,7 @@ mutation CreateCollection(
   $mintPolicy: MintPolicy!
   $marketPolicy: MarketPolicy
   $explicitRoyaltyCurrencies: [MultiTokenIdInput]
+  $attributes: [AttributeInput]
   $idempotencyKey: String
   $skipValidation: Boolean
 ) {
@@ -9,6 +10,7 @@ mutation CreateCollection(
     mintPolicy: $mintPolicy
     marketPolicy: $marketPolicy
     explicitRoyaltyCurrencies: $explicitRoyaltyCurrencies
+    attributes: $attributes
     idempotencyKey: $idempotencyKey
     skipValidation: $skipValidation
   ) {
