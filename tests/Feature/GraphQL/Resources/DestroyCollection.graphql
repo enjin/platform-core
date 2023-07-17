@@ -1,16 +1,19 @@
-mutation DestroyCollection($collectionId: BigInt!) {
-    DestroyCollection(collectionId: $collectionId) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+mutation DestroyCollection($collectionId: BigInt!, $skipValidation: Boolean) {
+  DestroyCollection(
+    collectionId: $collectionId
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

@@ -52,7 +52,7 @@ class AuthManager
      */
     public function setDefaultDriver(string $name): void
     {
-        $this->app['config']['enjin-platform.auth_driver'] = $name;
+        $this->app['config']['enjin-platform.auth'] = $name;
     }
 
     /**

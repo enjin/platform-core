@@ -1,22 +1,24 @@
 mutation UnapproveCollection(
-    $collectionId: BigInt!
-    $operator: String!
+  $collectionId: BigInt!
+  $operator: String!
+  $skipValidation: Boolean
 ) {
-    UnapproveCollection(
-        collectionId: $collectionId
-        operator: $operator
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  UnapproveCollection(
+    collectionId: $collectionId
+    operator: $operator
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

@@ -45,6 +45,48 @@ class MintTokenTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->mint(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new MintParams(
+                tokenId: $tokenId = random_int(1, 1000),
+                amount: fake()->numberBetween(),
+            ),
+        );
+
+        $params = $params->toArray()['Mint'];
+        $params['tokenId'] = ['integer' => $tokenId];
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($recipient),
+            'collectionId' => $collectionId,
+            'params' => $params,
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_mint_a_token_without_unit_price(): void
     {
         $encodedData = $this->codec->encode()->mint(

@@ -1,22 +1,24 @@
 mutation BatchMint(
-    $collectionId: BigInt!
-    $recipients: [MintRecipient!]!
+  $collectionId: BigInt!
+  $recipients: [MintRecipient!]!
+  $skipValidation: Boolean
 ) {
-    BatchMint(
-        collectionId: $collectionId
-        recipients: $recipients
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  BatchMint(
+    collectionId: $collectionId
+    recipients: $recipients
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

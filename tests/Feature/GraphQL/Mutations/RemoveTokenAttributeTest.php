@@ -45,6 +45,42 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = random_int(2000, 3000),
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'key' => $key = $this->attribute->key,
+            'skipValidation' => true,
+        ]);
+
+        $encodedData = $this->codec->encode()->removeAttribute(
+            $collectionId,
+            $this->tokenIdEncoder->encode(),
+            $key,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_remove_an_attribute(): void
     {
         $response = $this->graphql($this->method, [

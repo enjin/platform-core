@@ -7,6 +7,9 @@
     <testsuite name="GraphQL">
       <directory>tests/Feature/GraphQL</directory>
     </testsuite>
+    <testsuite name="Controllers">
+      <directory>tests/Feature/Controllers</directory>
+    </testsuite>
   </testsuites>
   <coverage>
     <report>
@@ -30,5 +33,15 @@
     <include>
       <directory suffix=".php">./src</directory>
     </include>
+    <exclude>
+        <directory>./src/Commands</directory>
+        <directory>./src/Observers</directory>
+        <directory>./src/Enums</directory>
+        <directory>./src/Events</directory>
+        <directory>./src/Exceptions</directory>
+        <directory>./src/Traits</directory>
+        <directory>./src/Services/Processor/Substrate</directory>
+        <directory>./src/Clients</directory>
+    </exclude>
   </source>
 </phpunit>

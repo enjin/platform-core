@@ -1,22 +1,24 @@
 mutation Burn(
-    $collectionId: BigInt!
-    $params: BurnParamsInput!
+  $collectionId: BigInt!
+  $params: BurnParamsInput!
+  $skipValidation: Boolean
 ) {
-    Burn(
-        collectionId: $collectionId
-        params: $params
-    ) {
-        id
-        transactionId
-        transactionHash
-        method
-        state
-        encodedData
-        wallet {
-            account {
-                publicKey
-                address
-            }
-        }
+  Burn(
+    collectionId: $collectionId
+    params: $params
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    wallet {
+      account {
+        publicKey
+        address
+      }
     }
+  }
 }

@@ -10,14 +10,14 @@ use Illuminate\Support\Str;
 class PlatformController extends Controller
 {
     /**
-     * Get platform information.
+     * Get platform packages.
      */
-    public function getPlatformInfo(): JsonResponse
+    public static function getPlatformPackages(): array
     {
         $installedPackages = collect(InstalledVersions::getInstalledPackages())
             ->filter(fn ($packageName) => preg_match("/^enjin\/platform-/", $packageName));
 
-        $packages = $installedPackages->mapWithKeys(function ($package) {
+        return $installedPackages->mapWithKeys(function ($package) {
             $packageName = Str::studly(Str::afterLast($package, '-'));
             if ($packageName == 'Core') {
                 $packageClass = 'Enjin\\Platform\\Package';
@@ -35,14 +35,20 @@ class PlatformController extends Controller
             }
 
             return [$package => $info];
-        });
+        })->all();
+    }
 
+    /**
+     * Get platform information.
+     */
+    public function getPlatformInfo(): JsonResponse
+    {
         $platformData = [
             'root' => 'enjin/platform-core',
             'url' => trim(config('app.url'), '/'),
             'chain' => config('enjin-platform.chains.selected'),
             'network' => config('enjin-platform.chains.network'),
-            'packages' => $packages,
+            'packages' => static::getPlatformPackages(),
         ];
 
         return response()

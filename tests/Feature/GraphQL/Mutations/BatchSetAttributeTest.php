@@ -44,6 +44,39 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     }
 
     // Happy Path
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->batchSetAttribute(
+            $collectionId = random_int(1, 1000),
+            $tokenId = null,
+            $attributes = $this->randomAttributes(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'attributes' => $attributes,
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+    }
+
     public function test_it_can_batch_set_attribute_on_token(): void
     {
         $encodedData = $this->codec->encode()->batchSetAttribute(

@@ -38,6 +38,37 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
+    // Happy Path
+    public function test_it_can_skip_validation(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'key' => $key = fake()->word(),
+            'value' => $value = fake()->realText(),
+        ]);
+
+        $encodedData = $this->codec->encode()->setAttribute(
+            $collectionId,
+            $this->tokenIdEncoder->encode(),
+            $key,
+            $value
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_create_an_attribute_using_adapter(): void
     {
         $response = $this->graphql($this->method, [
@@ -65,7 +96,6 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             ],
         ], $response);
     }
-    // Happy Path
 
     public function test_it_can_create_an_attribute(): void
     {

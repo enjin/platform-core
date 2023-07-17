@@ -44,12 +44,4 @@ class Substrate implements SerializationServiceInterface
 
         return $this->codec->decode()->{$method}($data);
     }
-
-    /**
-     * Get method from encoded data.
-     */
-    public function getMethodFromEncoded(string $data): string
-    {
-        return $this->codec->decode()->getMethodFromEncoded($data);
-    }
 }

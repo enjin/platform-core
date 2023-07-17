@@ -4,6 +4,7 @@ mutation Freeze(
   $tokenId: EncodableTokenIdInput
   $collectionAccount: String
   $tokenAccount: String
+  $skipValidation: Boolean
 ) {
   Freeze(
     freezeType: $freezeType
@@ -11,6 +12,7 @@ mutation Freeze(
     tokenId: $tokenId
     collectionAccount: $collectionAccount
     tokenAccount: $tokenAccount
+    skipValidation: $skipValidation
   ) {
     id
     transactionId

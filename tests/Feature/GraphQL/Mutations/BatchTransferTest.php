@@ -65,6 +65,80 @@ class BatchTransferTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        $signingWallet = Wallet::factory([
+            'managed' => false,
+        ])->create();
+
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+
+        $collection = Collection::factory([
+            'collection_chain_id' => Hex::MAX_UINT128,
+        ])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
+
+        $recipient = [
+            'accountId' => $this->defaultAccount,
+            'params' => new SimpleTransferParams(
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                amount: fake()->numberBetween(1, $tokenAccount->balance)
+            ),
+        ];
+
+        $encodedData = $this->codec->encode()->batchTransfer(
+            $collectionId = $collection->collection_chain_id,
+            [$recipient]
+        );
+
+        $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
+        $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient['accountId']),
+                    'simpleParams' => $simpleParams,
+                ],
+            ],
+            'signingAccount' => SS58Address::encode($signingWallet->public_key),
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingWallet->public_key,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_simple_single_transfer_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->batchTransfer(

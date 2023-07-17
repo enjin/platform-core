@@ -61,6 +61,64 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         ])->create();
     }
 
+    public function test_it_can_skip_validation(): void
+    {
+        $signingWallet = Wallet::factory([
+            'managed' => false,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'wallet_id' => $signingWallet,
+        ])->create();
+        $token = Token::find($tokenAccount->token_id);
+        $collection = Collection::find($tokenAccount->collection_id);
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $collection->collection_chain_id,
+            $params = new SimpleTransferParams(
+                tokenId: $this->tokenIdInput->encode($token->token_chain_id),
+                amount: fake()->numberBetween(0, $tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Simple'];
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => SS58Address::encode($signingWallet->public_key),
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingWallet->public_key,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_token_using_adapter(): void
     {
         $encodedData = $this->codec->encode()->transferToken(
@@ -100,7 +158,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'encoded_data' => $encodedData,
         ]);
     }
-    // Happy Path
 
     public function test_it_can_transfer_token(): void
     {

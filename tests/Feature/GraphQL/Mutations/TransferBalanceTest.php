@@ -32,6 +32,39 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     // Happy Path
 
+    public function test_it_can_skip_validation(): void
+    {
+        Wallet::factory([
+            'public_key' => $publicKey = app(Generator::class)->public_key(),
+            'managed' => false,
+        ])->create();
+
+        $encodedData = $this->codec->encode()->TransferBalance(
+            $this->defaultAccount,
+            $amount = fake()->numberBetween(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($this->defaultAccount),
+            'amount' => $amount,
+            'signingAccount' => SS58Address::encode($publicKey),
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $publicKey,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_balance_without_keep_alive(): void
     {
         $encodedData = $this->codec->encode()->TransferBalance(

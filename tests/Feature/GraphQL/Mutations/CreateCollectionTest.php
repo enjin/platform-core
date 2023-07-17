@@ -1212,6 +1212,25 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_will_fail_with_duplicate_attributes(): void
+    {
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => fake()->boolean(),
+            ],
+            'attributes' => [
+                ['key' => 'key', 'value' => 'value'],
+                ['key' => 'key', 'value' => 'value'],
+            ],
+        ], true);
+        $this->assertArraySubset(
+            ['attributes' => ['The attributes must be an array of distinct attributes keys.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
     protected function generateCurrencies(?int $total = 5): array
     {
         return array_map(

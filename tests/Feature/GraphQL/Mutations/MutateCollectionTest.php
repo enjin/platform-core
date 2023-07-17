@@ -41,6 +41,42 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     // Happy Path
 
+     public function test_it_can_skip_validation(): void
+     {
+         $encodedData = $this->codec->encode()->mutateCollection(
+             collectionId: $collectionId = random_int(1, 1000),
+             owner: $owner = $this->defaultAccount,
+         );
+
+         $response = $this->graphql($this->method, [
+             'collectionId' => $collectionId,
+             'mutation' => [
+                 'owner' => SS58Address::encode($owner),
+             ],
+             'skipValidation' => true,
+         ]);
+
+         $this->assertArraySubset([
+             'method' => $this->method,
+             'state' => TransactionState::PENDING->name,
+             'encodedData' => $encodedData,
+             'wallet' => [
+                 'account' => [
+                     'publicKey' => $this->defaultAccount,
+                 ],
+             ],
+         ], $response);
+
+         $this->assertDatabaseHas('transactions', [
+             'id' => $response['id'],
+             'method' => $this->method,
+             'state' => TransactionState::PENDING->name,
+             'encoded_data' => $encodedData,
+         ]);
+
+         Event::assertDispatched(TransactionCreated::class);
+     }
+
     public function test_it_will_fail_with_duplicate_field_names(): void
     {
         self::$queries['MutateCollectionDuplicateFieldName'] = '

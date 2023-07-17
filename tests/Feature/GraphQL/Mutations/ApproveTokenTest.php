@@ -55,6 +55,46 @@ class ApproveTokenTest extends TestCaseGraphQL
     }
 
     // Happy Path
+    public function test_it_can_skip_validation(): void
+    {
+        $encodedData = $this->codec->encode()->approveToken(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $tokenId = random_int(1, 1000),
+            operator: $operator = app(Generator::class)->public_key(),
+            amount: $amount = $this->tokenAccount->balance,
+            currentAmount: $currentAmount = $this->tokenAccount->balance,
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => ['integer' => $tokenId],
+            'amount' => $amount,
+            'currentAmount' => $currentAmount,
+            'operator' => SS58Address::encode($operator),
+            'skipValidation' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     /**
      * It can approve token using encodeTokenId.
      */
