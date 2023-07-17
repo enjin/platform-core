@@ -462,8 +462,9 @@ class VerifyAccountTest extends TestCaseGraphQL
             'callback' => fake()->url(),
         ]);
 
+        $verificationCode = explode(':', base64_decode(explode(':', $response['qrCode'])[3]))[1];
         $this->assertNotEmpty($verificationId = $response['verificationId']);
-        $this->assertNotEmpty($verificationCode = explode(':', base64_decode(explode(':', $response['qrCode'])[3])))[1];
+        $this->assertNotEmpty($verificationCode);
 
         return [
             'verificationId' => $verificationId,
