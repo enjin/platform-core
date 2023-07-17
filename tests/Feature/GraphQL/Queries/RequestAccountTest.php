@@ -27,7 +27,7 @@ class RequestAccountTest extends TestCaseGraphQL
         $this->assertNotEmpty($qrCode = $response['qrCode']);
         $this->assertNotEmpty($verificationId = $response['verificationId']);
         $this->assertDatabaseHas('verifications', [
-            'code' => explode(':', $qrCode)[3],
+            'code' => explode(':', base64_decode(explode(':', $qrCode)[3]))[1],
             'verification_id' => $verificationId,
             'public_key' => null,
         ]);

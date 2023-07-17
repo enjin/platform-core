@@ -463,7 +463,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         ]);
 
         $this->assertNotEmpty($verificationId = $response['verificationId']);
-        $this->assertNotEmpty($verificationCode = explode(':', $response['qrCode'])[3]);
+        $this->assertNotEmpty($verificationCode = explode(':', base64_decode(explode(':', $response['qrCode'])[3])))[1];
 
         return [
             'verificationId' => $verificationId,
