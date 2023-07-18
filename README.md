@@ -11,13 +11,21 @@ Enjin Platform is the most powerful and advanced open-source framework for build
 
 ## Requirements
 
-Please make sure you have Go installed in your machine. You can check it by typing:
+Please make sure you have Go installed on your machine. You can check it by typing:
 ```bash
 go version
 # go version go1.18.1 linux/amd64
 ```
 
-If you don't have it, you can find instructions on how to install it in [here](https://go.dev/learn/).
+If you don't have it, you can find instructions on how to install it [here](https://go.dev/learn/).
+
+Also when using [Platform-UI](https://github.com/enjin/platform-ui) make sure you have Node and NPM installed:
+```bash
+node -v      
+# v16.17.0
+npm -v      
+# 9.2.0
+```
 
 ## Installation
 
@@ -26,25 +34,19 @@ You should add to your composer.json:
 ```json
 {
   "require": {
-    "enjin/platform-core": "dev-master"
+    "enjin/platform-core": "*"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:enjin/platform-core.git"
-    }
-  ]
 }
 ```
 
-You can then run `composer install` to have it installed in your laravel application.
-After that you will need to build one dependency by typing:
+You can then run `composer install` to have it installed in your Laravel application.
+After that, you will need to build one dependency by typing:
 
 ```bash
 cd vendor/gmajor/sr25519-bindings/go && go build -buildmode=c-shared -o sr25519.so . && mv sr25519.so ../src/Crypto/sr25519.so
 ```
 
-This package will load its migrations automatically, execute them by running:
+This package will load its migrations automatically, and execute them by running:
 
 ```bash
 php artisan migrate
