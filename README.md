@@ -29,17 +29,12 @@ npm -v
 
 ## Installation
 
-You should add to your composer.json:
+You can install it with Composer in your Laravel application:
 
-```json
-{
-  "require": {
-    "enjin/platform-core": "*"
-  },
-}
+```bash
+composer require enjin/platform-core
 ```
 
-You can then run `composer install` to have it installed in your Laravel application.
 After that, you will need to build one dependency by typing:
 
 ```bash
