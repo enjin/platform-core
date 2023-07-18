@@ -41,7 +41,7 @@ After that, you will need to build one dependency by typing:
 cd vendor/gmajor/sr25519-bindings/go && go build -buildmode=c-shared -o sr25519.so . && mv sr25519.so ../src/Crypto/sr25519.so
 ```
 
-This package will load its migrations automatically, and execute them by running:
+This package will load its migrations automatically, you need to execute them by running:
 
 ```bash
 php artisan migrate
