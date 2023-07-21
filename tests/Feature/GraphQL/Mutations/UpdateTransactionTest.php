@@ -310,10 +310,9 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionId' => $transaction->transaction_chain_id,
         ], true);
 
-        $this->assertStringContainsString(
-            'The transaction id and hash are immutable once set',
-            $response['error']
-        );
+        $this->assertArraySubset([
+            'transactionId' => ['The transaction id and hash are immutable once set.'],
+        ], $response['error']);
 
         Event::assertNotDispatched(TransactionUpdated::class);
     }
@@ -327,10 +326,10 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionHash' => $transaction->transaction_chain_hash,
         ], true);
 
-        $this->assertStringContainsString(
-            'The transaction id and hash are immutable once set',
-            $response['error']
-        );
+        $this->assertArraySubset([
+            'transactionHash' => ['The transaction id and hash are immutable once set.'],
+        ], $response['error']);
+
 
         Event::assertNotDispatched(TransactionUpdated::class);
     }
