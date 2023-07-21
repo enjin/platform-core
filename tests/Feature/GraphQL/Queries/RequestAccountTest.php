@@ -22,23 +22,17 @@ class RequestAccountTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method);
 
-        $this->assertNotEmpty($qrCode = $response['qrCode']);
+        $link = sprintf('https://chart.googleapis.com/chart?chs=512x512&cht=qr&chl=%s', config('enjin-platform.deep_links.proof'));
+        $encodedString = base64_decode(str_replace($link, '', $qrCode = $response['qrCode']));
+        $verificationCode = explode(':', $encodedString)[1];
+
+        $this->assertNotEmpty($qrCode);
         $this->assertNotEmpty($verificationId = $response['verificationId']);
         $this->assertDatabaseHas('verifications', [
-            'code' => explode(':', base64_decode(explode(':', $qrCode)[3]))[1],
+            'code' => $verificationCode,
             'verification_id' => $verificationId,
             'public_key' => null,
         ]);
-    }
-
-    public function test_callback_is_embedded_in_qr_code(): void
-    {
-        $response = $this->graphql($this->method);
-
-        $this->assertNotEmpty($qrCode = $response['qrCode']);
-        $this->assertTrue(
-            base64_decode(explode(':', $qrCode)[4]) === $this->callback
-        );
     }
 
     public function test_is_valid_wallet_deep_link(): void
