@@ -458,11 +458,12 @@ class VerifyAccountTest extends TestCaseGraphQL
 
     protected function requestAccount(): array
     {
-        $response = $this->graphql('RequestAccount', [
-            'callback' => fake()->url(),
-        ]);
+        $response = $this->graphql('RequestAccount');
 
-        $verificationCode = explode(':', base64_decode(explode(':', $response['qrCode'])[3]))[1];
+        $link = sprintf('https://chart.googleapis.com/chart?chs=512x512&cht=qr&chl=%s', config('enjin-platform.deep_links.proof'));
+        $encodedString = base64_decode(str_replace($link, '', $response['qrCode']));
+        $verificationCode = explode(':', $encodedString)[1];
+
         $this->assertNotEmpty($verificationId = $response['verificationId']);
         $this->assertNotEmpty($verificationCode);
 

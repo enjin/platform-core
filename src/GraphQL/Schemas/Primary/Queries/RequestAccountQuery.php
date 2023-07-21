@@ -36,20 +36,6 @@ class RequestAccountQuery extends Query implements PlatformGraphQlQuery
     }
 
     /**
-     * Get the query's arguments definition.
-     */
-    public function args(): array
-    {
-        return [
-            'callback' => [
-                'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform::query.request_account.args.callback'),
-                'rules' => ['bail', 'filled', 'url'],
-            ],
-        ];
-    }
-
-    /**
      * Resolve the query's request.
      */
     public function resolve(
@@ -68,7 +54,6 @@ class RequestAccountQuery extends Query implements PlatformGraphQlQuery
             'qrCode' => $verificationService->qr(
                 $verification->verification_id,
                 $verification->code,
-                $args['callback']
             ),
             'verificationId' => $verification->verification_id,
         ];

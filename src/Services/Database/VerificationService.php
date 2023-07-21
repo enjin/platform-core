@@ -75,12 +75,12 @@ class VerificationService
         $publicKey = SS58Address::getPublicKey($address);
 
         $message = HexConverter::prefix(Blake2::hash(HexConverter::stringToHex('Enjin Signed Message:' . $verification->code)));
-        $esprMessage = HexConverter::prefix(Blake2::hash(HexConverter::stringToHex('espr:' . $verification->code)));
+        $epsrMessage = HexConverter::prefix(Blake2::hash(HexConverter::stringToHex('epsr:' . $verification->code)));
 
         $isValid = $this->blockchainService->verifyMessage($message, $signature, $publicKey, $cryptoSignatureType);
-        $esprIsValid = $this->blockchainService->verifyMessage($esprMessage, $signature, $publicKey, $cryptoSignatureType);
+        $epsrIsValid = $this->blockchainService->verifyMessage($epsrMessage, $signature, $publicKey, $cryptoSignatureType);
 
-        if (!$isValid && !$esprIsValid) {
+        if (!$isValid && !$epsrIsValid) {
             throw new PlatformException(__('enjin-platform::error.verification.invalid_signature'));
         }
 
@@ -119,11 +119,10 @@ class VerificationService
     /**
      * Generate a QR code for a verification.
      */
-    public function qr(string $verificationId, string $code, string $callback, int $size = 512): string
+    public function qr(string $verificationId, string $code, int $size = 512): string
     {
-        $encodedCallback = base64_encode($callback);
-        $encodedCode = base64_encode('espr:' . $code);
-        $deepLink = config('enjin-platform.deep_links.proof') . "{$verificationId}:{$encodedCode}:{$encodedCallback}";
+        $encodedCode = "{$verificationId};epsr:{$code}";
+        $deepLink = config('enjin-platform.deep_links.proof') . base64_encode($encodedCode);
 
         return "https://chart.googleapis.com/chart?chs={$size}x{$size}&cht=qr&chl={$deepLink}";
     }
