@@ -1,9 +1,5 @@
-query RequestAccount(
-    $callback: String!
-) {
-    RequestAccount(
-        callback: $callback
-    ) {
+query RequestAccount {
+    RequestAccount {
         qrCode
         verificationId
     }
