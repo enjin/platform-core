@@ -71,7 +71,11 @@ class Wallet extends BaseModel
     protected function address(): Attribute
     {
         return new Attribute(
-            get: fn () => is_null($this->public_key) ? null : SS58Address::encode($this->public_key)
+            get: fn () => match (true) {
+                is_null($this->public_key) => null,
+                $this->public_key === '0x00' => $this->public_key,
+                default => SS58Address::encode($this->public_key)
+            }
         );
     }
 
