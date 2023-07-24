@@ -5,7 +5,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Rules\ImmuteableTransaction;
+use Enjin\Platform\Rules\ImmutableTransaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidHex;
@@ -63,7 +63,7 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
                     'nullable',
                     'required_without_all:state,transactionHash,signedAtBlock',
                     new ValidSubstrateTransactionId(),
-                    new ImmuteableTransaction(),
+                    new ImmutableTransaction(),
                 ],
             ],
             'transactionHash' => [
@@ -74,7 +74,7 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
                     'nullable',
                     'required_without_all:state,transactionId,signedAtBlock',
                     new ValidHex(32),
-                    new ImmuteableTransaction('transaction_chain_hash'),
+                    new ImmutableTransaction('transaction_chain_hash'),
                 ],
             ],
             'signedAtBlock' => [

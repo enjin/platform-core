@@ -7,7 +7,7 @@ use Enjin\Platform\Models\Transaction;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class ImmuteableTransaction implements DataAwareRule, ValidationRule
+class ImmutableTransaction implements DataAwareRule, ValidationRule
 {
     /**
      * All of the data under validation.
