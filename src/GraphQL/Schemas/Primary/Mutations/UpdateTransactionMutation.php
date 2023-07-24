@@ -3,9 +3,9 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
-use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Rules\ImmutableTransaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidHex;
@@ -59,13 +59,23 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::mutation.update_transaction.args.transactionId'),
                 'alias' => 'transaction_chain_id',
-                'rules' => ['nullable', 'required_without_all:state,transactionHash,signedAtBlock', new ValidSubstrateTransactionId()],
+                'rules' => [
+                    'nullable',
+                    'required_without_all:state,transactionHash,signedAtBlock',
+                    new ValidSubstrateTransactionId(),
+                    new ImmutableTransaction(),
+                ],
             ],
             'transactionHash' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::mutation.update_transaction.args.transactionHash'),
                 'alias' => 'transaction_chain_hash',
-                'rules' => ['nullable', 'required_without_all:state,transactionId,signedAtBlock', new ValidHex(32)],
+                'rules' => [
+                    'nullable',
+                    'required_without_all:state,transactionId,signedAtBlock',
+                    new ValidHex(32),
+                    new ImmutableTransaction('transaction_chain_hash'),
+                ],
             ],
             'signedAtBlock' => [
                 'type' => GraphQL::type('Int'),
@@ -81,12 +91,6 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, TransactionService $transactionService): mixed
     {
-        $transaction = $transactionService->get($args['id']);
-
-        if ((isset($args['transaction_chain_id']) && $transaction->transaction_chain_id) || (isset($args['transaction_chain_hash']) && $transaction->transaction_chain_hash)) {
-            throw new PlatformException(__('enjin-platform::mutation.update_transaction.error.hash_and_id_are_immutable'), 403);
-        }
-
-        return $transactionService->update($transaction, Arr::except($args, 'id'));
+        return $transactionService->update($transactionService->get($args['id']), Arr::except($args, 'id'));
     }
 }
