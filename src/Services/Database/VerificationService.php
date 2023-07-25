@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Database;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
@@ -124,7 +125,7 @@ class VerificationService
         $encodedCode = "{$verificationId};epsr:{$code}";
         $deepLink = config('enjin-platform.deep_links.proof') . base64_encode($encodedCode);
 
-        return "https://chart.googleapis.com/chart?chs={$size}x{$size}&cht=qr&chl={$deepLink}";
+        return Qr::url($deepLink, $size);
     }
 
     /**

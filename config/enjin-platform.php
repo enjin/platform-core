@@ -49,7 +49,7 @@ return [
     |
     */
     'deep_links' => [
-        'proof' => env('PROOF_DEEPLINK', 'https://deeplink.wallet.enjin.io/proof/'),
+        'proof' => rtrim(env('PROOF_DEEPLINK', env('APP_URL', 'http://localhost')), '/') . '/',
     ],
 
     /*
@@ -177,6 +177,20 @@ return [
     |
     */
     'platform_channel' => env('PLATFORM_CHANNEL', 'platform'),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | The QR Image URL Adapter
+    |--------------------------------------------------------------------------
+    |
+    | Set the adapter for generating the QR URL.
+    |
+    */
+    'qr' => [
+        'adapter' => \Enjin\Platform\Services\Qr\Adapters\GoogleQrAdapter::class,
+        'size' => env('BEAM_QR_SIZE', 512),
+    ],
 
     /*
     |--------------------------------------------------------------------------
