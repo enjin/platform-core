@@ -19,7 +19,9 @@ class Authenticated
     /**
      * The names of the schemas that should not be protected.
      */
-    protected array $except = [];
+    protected array $except = [
+        '__schema',
+    ];
 
     /**
      * Create a new middleware instance.
@@ -28,7 +30,7 @@ class Authenticated
         protected AuthManager $manager,
         protected RequestParser $parser
     ) {
-        $this->except = Package::getGraphQlFieldsThatImplementInterface(PlatformPublicGraphQlOperation::class)->all();
+        $this->except = array_merge($this->except, Package::getGraphQlFieldsThatImplementInterface(PlatformPublicGraphQlOperation::class)->all());
     }
 
     /**
@@ -52,13 +54,18 @@ class Authenticated
             return false;
         }
 
+        $operationName = $requests->operation;
+
         foreach (Arr::wrap($requests) as $operation) {
             if (!$operation->query) {
                 return false;
             }
-            if ($node = Parser::parse($operation->query)) {
+
+            if ($documentNode = Parser::parse($operation->query)) {
                 if (!in_array(
-                    $node->definitions->offsetGet(0)?->selectionSet?->selections?->offsetGet(0)?->name?->value,
+                    collect($documentNode->definitions)
+                        ->filter(fn ($definition) => $operationName == $definition?->name?->value)
+                        ->first()?->selectionSet?->selections?->offsetGet(0)?->name?->value,
                     $this->except
                 )) {
                     return false;
