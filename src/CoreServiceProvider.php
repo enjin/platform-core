@@ -12,6 +12,7 @@ use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
 use Enjin\Platform\Providers\AuthServiceProvider;
 use Enjin\Platform\Providers\Deferred\BlockchainServiceProvider;
+use Enjin\Platform\Providers\Deferred\QrServiceProvider;
 use Enjin\Platform\Providers\Deferred\SerializationServiceProvider;
 use Enjin\Platform\Providers\Deferred\WebsocketClientProvider;
 use Enjin\Platform\Providers\FakerServiceProvider;
@@ -75,6 +76,7 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../routes/enjin-platform.php');
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'enjin-platform');
 
+        $this->app->register(QrServiceProvider::class);
         $this->app->register(SerializationServiceProvider::class);
         $this->app->register(BlockchainServiceProvider::class);
         $this->app->register(WebsocketClientProvider::class);

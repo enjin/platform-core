@@ -4,6 +4,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -460,7 +461,7 @@ class VerifyAccountTest extends TestCaseGraphQL
     {
         $response = $this->graphql('RequestAccount');
 
-        $link = sprintf('https://chart.googleapis.com/chart?chs=512x512&cht=qr&chl=%s', config('enjin-platform.deep_links.proof'));
+        $link = Qr::url(config('enjin-platform.deep_links.proof'));
         $encodedString = base64_decode(str_replace($link, '', $response['qrCode']));
         $verificationCode = explode(':', $encodedString)[1];
 

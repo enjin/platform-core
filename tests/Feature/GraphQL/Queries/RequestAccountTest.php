@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class RequestAccountTest extends TestCaseGraphQL
@@ -22,7 +23,7 @@ class RequestAccountTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method);
 
-        $link = sprintf('https://chart.googleapis.com/chart?chs=512x512&cht=qr&chl=%s', config('enjin-platform.deep_links.proof'));
+        $link = Qr::url(config('enjin-platform.deep_links.proof'));
         $encodedString = base64_decode(str_replace($link, '', $qrCode = $response['qrCode']));
         $verificationCode = explode(':', $encodedString)[1];
 
