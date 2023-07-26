@@ -13,6 +13,7 @@ use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\JSON;
+use Exception;
 use Facades\Enjin\Platform\Services\Processor\Substrate\State;
 use Illuminate\Console\BufferedConsoleOutput;
 use Illuminate\Console\Concerns\InteractsWithIO;
@@ -181,15 +182,18 @@ class BlockProcessor
 
             $this->info("Processing block #{$blockNumber} ({$block->hash})");
 
-            (new EventProcessor($block, $this->codec))->run();
-            (new ExtrinsicProcessor($block, $this->codec))->run();
+            $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
+            $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
+            if ($hasEventErrors || $hasExtrinsicErrors) {
+                $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
+                throw new Exception($errors);
+            }
 
             $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
             $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", now()->diffInMilliseconds($syncTime) / 1000));
         } catch (Throwable $exception) {
             $this->error("Failed processing block #{$blockNumber}");
-            $exception = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
-            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception])->save();
+            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
         }
 
         return $block;

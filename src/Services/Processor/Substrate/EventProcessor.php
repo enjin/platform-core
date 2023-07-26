@@ -6,6 +6,7 @@ use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class EventProcessor
 {
@@ -18,14 +19,21 @@ class EventProcessor
         $this->codec = $codec;
     }
 
-    public function run(): void
+    public function run(): array
     {
         Log::info("Processing Events from block #{$this->block->number}");
         $events = $this->block->events ?? [];
+        $errors = [];
 
         foreach ($events as $event) {
-            $this->processEvent($event);
+            try {
+                $this->processEvent($event);
+            } catch (Throwable $exception) {
+                $errors[] = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
+            }
         }
+
+        return $errors;
     }
 
     protected function processEvent(PolkadartEvent $event): void
