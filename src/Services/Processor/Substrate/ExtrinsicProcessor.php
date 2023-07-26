@@ -17,6 +17,7 @@ use Enjin\Platform\Support\SS58Address;
 use Facades\Enjin\Platform\Services\Database\TransactionService;
 use Facades\Enjin\Platform\Services\Processor\Substrate\State;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ExtrinsicProcessor
 {
@@ -29,14 +30,21 @@ class ExtrinsicProcessor
         $this->codec = $codec;
     }
 
-    public function run()
+    public function run(): array
     {
         Log::info("Processing Extrinsics from block #{$this->block->number}");
         $extrinsics = $this->block->extrinsics ?? [];
+        $errors = [];
 
         foreach ($extrinsics as $index => $extrinsic) {
-            $this->processExtrinsic($extrinsic, $index);
+            try {
+                $this->processExtrinsic($extrinsic, $index);
+            } catch (Throwable $exception) {
+                $errors[] = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
+            }
         }
+
+        return $errors;
     }
 
     protected function processExtrinsic(PolkadartExtrinsic $extrinsic, int $index)
