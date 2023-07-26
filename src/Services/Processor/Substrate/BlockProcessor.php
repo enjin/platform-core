@@ -186,6 +186,7 @@ class BlockProcessor
             $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
             if ($hasEventErrors || $hasExtrinsicErrors) {
                 $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
+
                 throw new Exception($errors);
             }
 
