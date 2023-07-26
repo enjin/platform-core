@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Laragraph\Utils\RequestParser;
 
 class Authenticated
@@ -55,6 +56,7 @@ class Authenticated
         }
 
         $operationName = $requests->operation;
+        $result = true;
 
         foreach (Arr::wrap($requests) as $operation) {
             if (!$operation->query) {
@@ -62,17 +64,26 @@ class Authenticated
             }
 
             if ($documentNode = Parser::parse($operation->query)) {
-                if (!in_array(
-                    collect($documentNode->definitions)
-                        ->filter(fn ($definition) => $operationName == $definition?->name?->value)
-                        ->first()?->selectionSet?->selections?->offsetGet(0)?->name?->value,
-                    $this->except
-                )) {
-                    return false;
-                }
+                collect($documentNode->definitions)
+                    ->tap(function (Collection $definitions) use ($operationName, &$result) {
+                        if (1 == $definitions->count()) {
+                            $definition = $definitions->sole();
+                        } else {
+                            $definition = $definitions
+                                ->filter(fn ($definition) => $operationName == $definition?->name?->value)
+                                ->first();
+                        }
+
+                        if (!in_array(
+                            $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value,
+                            $this->except
+                        )) {
+                            $result = false;
+                        }
+                    });
             }
         }
 
-        return true;
+        return $result;
     }
 }
