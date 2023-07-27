@@ -4,11 +4,8 @@
     <testsuite name="Unit">
       <directory>tests/Unit</directory>
     </testsuite>
-    <testsuite name="GraphQL">
-      <directory>tests/Feature/GraphQL</directory>
-    </testsuite>
-    <testsuite name="Controllers">
-      <directory>tests/Feature/Controllers</directory>
+    <testsuite name="Feature">
+      <directory>tests/Feature</directory>
     </testsuite>
   </testsuites>
   <coverage>
