@@ -2,13 +2,18 @@
 
 namespace Enjin\Platform\Models\Laravel;
 
+use Enjin\Platform\Database\Factories\PendingEventFactory;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 
 class PendingEvent extends BaseModel
 {
     use EagerLoadSelectFields;
+    use MassPrunable;
+    use HasFactory;
 
     /**
      * Indicates if the model should be timestamped.
@@ -37,10 +42,32 @@ class PendingEvent extends BaseModel
         'data',
     ];
 
+    /**
+     * Get the prunable model query.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function prunable()
+    {
+        if ($days = config('enjin-platform.prune_expired_events')) {
+            return static::where('sent', '<', now()->addDays($days));
+        }
+
+        return static::where('id', 0);
+    }
+
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(
             get: fn () => $this->uuid,
         );
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): PendingEventFactory
+    {
+        return PendingEventFactory::new();
     }
 }
