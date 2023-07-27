@@ -56,7 +56,6 @@ class Authenticated
         }
 
         $operationName = $requests->operation;
-        $result = true;
 
         foreach (Arr::wrap($requests) as $operation) {
             if (!$operation->query) {
@@ -64,9 +63,9 @@ class Authenticated
             }
 
             if ($documentNode = Parser::parse($operation->query)) {
-                collect($documentNode->definitions)
-                    ->tap(function (Collection $definitions) use ($operationName, &$result) {
-                        if (1 == $definitions->count()) {
+                return collect($documentNode->definitions)
+                    ->pipe(function (Collection $definitions) use ($operationName) {
+                        if ($definitions->containsOneItem()) {
                             $definition = $definitions->sole();
                         } else {
                             $definition = $definitions
@@ -78,12 +77,14 @@ class Authenticated
                             $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value,
                             $this->except
                         )) {
-                            $result = false;
+                            return false;
                         }
+
+                        return true;
                     });
             }
         }
 
-        return $result;
+        return true;
     }
 }
