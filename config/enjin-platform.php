@@ -202,4 +202,15 @@ return [
     */
     'sync_max_wait_timeout' => env('SYNC_MAX_WAIT_TIMEOUT', 3600),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Prune expired pending events
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the number of days to prune expired pending events.
+    | When set to null or zero, expired events will not be pruned.
+    |
+    */
+    'prune_expired_events' => env('PRUNE_EXPIRED_CLAIMS', 30),
+
 ];
