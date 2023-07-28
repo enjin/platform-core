@@ -5,6 +5,7 @@ namespace Enjin\Platform\Events;
 use Enjin\Platform\Events\Substrate\Commands\PlatformEventCached;
 use Enjin\Platform\Models\PendingEvent;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PendingBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -21,6 +22,11 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     public Model $model;
 
     /**
+     * An array of functions to call prior to broadcasting the event.
+     */
+    public static array $beforeBroadcast = [];
+
+    /**
      * The broadcast data.
      */
     public array $broadcastData = [];
@@ -28,7 +34,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * The broadcast channels.
      */
-    protected array $broadcastChannels = [];
+    public array $broadcastChannels = [];
 
     /**
      * The event class name.
@@ -52,7 +58,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Get the name the event should be broadcast on.
      */
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
         $className = Str::kebab($this->className);
 
@@ -64,7 +70,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-    public function broadcastOn()
+    public function broadcastOn(): \Illuminate\Broadcasting\Channel|array
     {
         return $this->broadcastChannels;
     }
@@ -88,7 +94,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Broadcast the event and catch any errors.
      */
-    public static function safeBroadcast()
+    public static function safeBroadcast(): void
     {
         try {
             static::broadcast(...func_get_args());
@@ -99,9 +105,22 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     }
 
     /**
+     * Broadcast the event with the given arguments.
+     *
+     * @return \Illuminate\Broadcasting\PendingBroadcast
+     */
+    public static function broadcast(): PendingBroadcast
+    {
+        $event = new static(...func_get_args());
+        $event = $event->beforeBroadcast();
+
+        return broadcast($event);
+    }
+
+    /**
      * Store the event in the database.
      */
-    protected function cacheEvent()
+    protected function cacheEvent(): void
     {
         $pendingEvent = PendingEvent::create([
             'uuid' => $this->uuid,
@@ -112,5 +131,16 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
         ]);
 
         PlatformEventCached::dispatch($pendingEvent);
+    }
+
+    protected function beforeBroadcast()
+    {
+        $event = $this;
+
+        foreach (static::$beforeBroadcast as $function) {
+            $event = $function($event) ?? $event;
+        }
+
+        return $event;
     }
 }
