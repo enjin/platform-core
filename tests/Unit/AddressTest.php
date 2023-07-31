@@ -66,7 +66,7 @@ class AddressTest extends TestCase
     {
         $address = HexConverter::unPrefix(Account::daemonPublicKey());
 
-        $this->assertEquals('00', $address);
+        $this->assertEquals('0000000000000000000000000000000000000000000000000000000000000000', $address);
     }
 
     /**
