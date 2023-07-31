@@ -254,6 +254,21 @@ class UpdateTransactionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionUpdated::class);
     }
 
+    public function test_it_will_fail_with_invalid_account(): void
+    {
+        $response = $this->graphql($this->method, [
+            'id' => $this->transaction->id,
+            'signingAccount' => 'not_valid',
+        ], true);
+
+        $this->assertArraySubset(
+            ['signingAccount' => ['The signing account is not a valid substrate account.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionUpdated::class);
+    }
+
     public function test_it_will_fail_with_invalid_state(): void
     {
         $response = $this->graphql($this->method, [
@@ -336,10 +351,11 @@ class UpdateTransactionTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset([
-            'state' => ['The state field is required when none of transaction id / transaction hash / signed at block are present.'],
-            'transactionId' => ['The transaction id field is required when none of state / transaction hash / signed at block are present.'],
-            'transactionHash' => ['The transaction hash field is required when none of state / transaction id / signed at block are present.'],
-            'signedAtBlock' => ['The signed at block field is required when none of state / transaction id / transaction hash are present.'],
+            'state' => ['The state field is required when none of transaction id / transaction hash / signed at block / signing account are present.'],
+            'transactionId' => [ 'The transaction id field is required when none of state / transaction hash / signed at block / signing account are present.'],
+            'transactionHash' => ['The transaction hash field is required when none of state / transaction id / signed at block / signing account are present.'],
+            'signingAccount' => ['The signing account field is required when none of state / transaction id / transaction hash / signed at block are present.'],
+            'signedAtBlock' => ['The signed at block field is required when none of state / transaction id / transaction hash / signing account are present.'],
         ], $response['error']);
 
         Event::assertNotDispatched(TransactionUpdated::class);
