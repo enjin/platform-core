@@ -352,7 +352,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
 
         $this->assertArraySubset([
             'state' => ['The state field is required when none of transaction id / transaction hash / signed at block / signing account are present.'],
-            'transactionId' => [ 'The transaction id field is required when none of state / transaction hash / signed at block / signing account are present.'],
+            'transactionId' => ['The transaction id field is required when none of state / transaction hash / signed at block / signing account are present.'],
             'transactionHash' => ['The transaction hash field is required when none of state / transaction id / signed at block / signing account are present.'],
             'signingAccount' => ['The signing account field is required when none of state / transaction id / transaction hash / signed at block are present.'],
             'signedAtBlock' => ['The signed at block field is required when none of state / transaction id / transaction hash / signing account are present.'],
