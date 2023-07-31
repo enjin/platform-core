@@ -7,8 +7,10 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 
@@ -98,6 +100,48 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transaction_chain_id' => $transactionId,
             'transaction_chain_hash' => $this->transaction->transaction_chain_hash,
             'state' => $this->transaction->state,
+            'encoded_data' => $this->transaction->encoded_data,
+            'signed_at_block' => $this->transaction->signed_at_block,
+        ]);
+
+        Event::assertDispatched(TransactionUpdated::class);
+    }
+
+    public function test_it_can_update_with_ss58_account(): void
+    {
+        $response = $this->graphql($this->method, [
+            'id' => $this->transaction->id,
+            'signingAccount' => $account = app(Generator::class)->chain_address(),
+        ]);
+
+        $this->assertTrue($response);
+        $this->assertDatabaseHas('transactions', [
+            'id' => $this->transaction->id,
+            'transaction_chain_id' => $this->transaction->transaction_chain_id,
+            'transaction_chain_hash' => $this->transaction->transaction_chain_hash,
+            'state' => $this->transaction->state,
+            'wallet_public_key' => SS58Address::getPublicKey($account),
+            'encoded_data' => $this->transaction->encoded_data,
+            'signed_at_block' => $this->transaction->signed_at_block,
+        ]);
+
+        Event::assertDispatched(TransactionUpdated::class);
+    }
+
+    public function test_it_can_update_with_public_key_account(): void
+    {
+        $response = $this->graphql($this->method, [
+            'id' => $this->transaction->id,
+            'signingAccount' => $account = app(Generator::class)->public_key(),
+        ]);
+
+        $this->assertTrue($response);
+        $this->assertDatabaseHas('transactions', [
+            'id' => $this->transaction->id,
+            'transaction_chain_id' => $this->transaction->transaction_chain_id,
+            'transaction_chain_hash' => $this->transaction->transaction_chain_hash,
+            'state' => $this->transaction->state,
+            'wallet_public_key' => $account,
             'encoded_data' => $this->transaction->encoded_data,
             'signed_at_block' => $this->transaction->signed_at_block,
         ]);
