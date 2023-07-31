@@ -17,7 +17,6 @@ class ValidSubstrateAccount implements Rule
      */
     public function passes($attribute, $value)
     {
-        ray($value);
         if (is_array($value)) {
             return collect($value)->every(fn ($item) => $this->isValidAddress($item));
         }
