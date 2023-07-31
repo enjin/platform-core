@@ -3,6 +3,7 @@ mutation UpdateTransaction(
     $state: TransactionState
     $transactionId: String
     $transactionHash: String
+    $signingAccount: String
     $signedAtBlock: Int
 ) {
     UpdateTransaction(
@@ -10,6 +11,7 @@ mutation UpdateTransaction(
         state: $state
         transactionId: $transactionId
         transactionHash: $transactionHash
+        signingAccount: $signingAccount
         signedAtBlock: $signedAtBlock
     )
 }
