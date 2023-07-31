@@ -279,9 +279,6 @@ class Substrate implements BlockchainServiceInterface
     {
         if ($cryptoSignatureType === CryptoSignatureType::SR25519->name) {
             $sr = new sr25519();
-            ray($message);
-            ray($signature);
-            ray($publicKey);
 
             return $sr->VerifySign(
                 HexConverter::prefix($publicKey),

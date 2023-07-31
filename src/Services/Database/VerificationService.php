@@ -75,20 +75,11 @@ class VerificationService
         $verification = Verification::where(['verification_id' => $verificationId])->firstOrFail();
         $publicKey = SS58Address::getPublicKey($address);
 
-        ray($verification->code);
-        ray($publicKey);
-
         $message = HexConverter::prefix(Blake2::hash(HexConverter::stringToHex('Enjin Signed Message:' . $verification->code)));
         $epsrMessage = HexConverter::prefix(Blake2::hash(HexConverter::stringToHex('epsr:' . $verification->code)));
-        ray('epsr:' . $verification->code);
-        ray($message);
-        ray($epsrMessage);
-
 
         $isValid = $this->blockchainService->verifyMessage($message, $signature, $publicKey, $cryptoSignatureType);
-        ray($isValid);
         $epsrIsValid = $this->blockchainService->verifyMessage($epsrMessage, $signature, $publicKey, $cryptoSignatureType);
-        ray($epsrIsValid);
 
         if (!$isValid && !$epsrIsValid) {
             throw new PlatformException(__('enjin-platform::error.verification.invalid_signature'));
