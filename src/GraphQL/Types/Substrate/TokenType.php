@@ -92,11 +92,6 @@ class TokenType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.token.field.unitPrice'),
                 'alias' => 'unit_price',
             ],
-            'mintDeposit' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.token.field.mintDeposit'),
-                'alias' => 'mint_deposit',
-            ],
             'attributeCount' => [
                 'type' => GraphQL::type('Int!'),
                 'description' => __('enjin-platform::type.token.field.attributeCount'),
@@ -133,6 +128,12 @@ class TokenType extends Type implements PlatformGraphQlType
             ],
 
             // Computed
+            'mintDeposit' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.token.field.mintDeposit'),
+                'alias' => 'mint_deposit',
+                'selectable' => false,
+            ],
             'metadata' => [
                 'type' => GraphQL::type('Object'),
                 'selectable' => false,

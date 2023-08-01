@@ -44,7 +44,6 @@ class Token extends BaseModel
         'listing_forbidden',
         'minimum_balance',
         'unit_price',
-        'mint_deposit',
         'attribute_count',
         'created_at',
         'updated_at',
@@ -62,9 +61,15 @@ class Token extends BaseModel
         'listing_forbidden' => false,
         'minimum_balance' => '1',
         'unit_price' => '0',
-        'mint_deposit' => '0',
         'attribute_count' => 0,
     ];
+
+    public function mintDeposit(): Attribute
+    {
+        return new Attribute(
+            get: fn () => gmp_strval(gmp_mul(gmp_init($this->unit_price), gmp_init($this->supply)))
+        );
+    }
 
     /**
      * The non-fungible attribute accessor.

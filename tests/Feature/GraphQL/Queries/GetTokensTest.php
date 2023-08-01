@@ -75,13 +75,13 @@ class GetTokensTest extends TestCaseGraphQL
         $this->assertTrue($response['totalCount'] === 1);
         $this->assertArraySubset([
             'tokenId' => $this->tokenIdEncoder->encode($token->token_chain_id),
-            'supply' => $token->supply,
+            'supply' => $supply = $token->supply,
             'cap' => $token->cap,
             'capSupply' => $token->cap_supply,
             'isFrozen' => $token->is_frozen,
             'minimumBalance' => $token->minimum_balance,
-            'unitPrice' => $token->unit_price,
-            'mintDeposit' => $token->mint_deposit,
+            'unitPrice' => $unitPrice = $token->unit_price,
+            'mintDeposit' => $supply * $unitPrice,
             'attributeCount' => $token->attribute_count,
             'collection' => [
                 'collectionId' => $collectionId,

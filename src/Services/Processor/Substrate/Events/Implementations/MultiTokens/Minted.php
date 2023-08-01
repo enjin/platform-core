@@ -31,7 +31,6 @@ class Minted implements SubstrateEvent
         $token = $this->getToken($collection->id, $event->tokenId);
         $token->update([
             'supply', $finalSupply = $token->supply + $event->amount,
-            'mint_deposit' => $token->unit_price * $finalSupply,
         ]);
 
         $tokenAccount = TokenAccount::firstWhere([
