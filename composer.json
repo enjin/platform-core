@@ -41,6 +41,7 @@
     "illuminate/contracts": "^10.0",
     "kevinrob/guzzle-cache-middleware": "^4.0",
     "mll-lab/laravel-graphiql": "^3.0",
+    "mxl/laravel-job": "^1.4",
     "phrity/websocket": "^1.0",
     "rebing/graphql-laravel": "^9.0",
     "revolt/event-loop": "^1.0",
