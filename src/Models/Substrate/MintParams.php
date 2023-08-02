@@ -24,7 +24,7 @@ class MintParams
         return new self(
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             amount: gmp_strval(Arr::get($params, 'amount')),
-            unitPrice: Arr::exists($params, 'unitPrice') ? gmp_strval(Arr::get($params, 'unitPrice')) : null,
+            unitPrice: ($unitPrice = Arr::get($params, 'unitPrice')) !== null ? gmp_strval($unitPrice) : null,
         );
     }
 
@@ -36,7 +36,7 @@ class MintParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             amount: Arr::get($params, 'amount'),
-            unitPrice: Arr::exists($params, 'unitPrice') ? Arr::get($params, 'unitPrice') : null,
+            unitPrice: ($unitPrice = Arr::get($params, 'unitPrice')) !== null ? gmp_strval($unitPrice) : null,
         );
     }
 

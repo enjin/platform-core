@@ -959,7 +959,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encode()->callIndexes['MultiTokens.freeze'];
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff0000000000000000000000000000000101",
+            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
             $data
         );
     }
@@ -979,7 +979,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encode()->callIndexes['MultiTokens.freeze'];
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff0000000000000000000000000000000101",
+            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
             $data
         );
     }
@@ -1063,7 +1063,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encode()->callIndexes['MultiTokens.thaw'];
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff0000000000000000000000000000000101",
+            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
             $data
         );
     }
@@ -1083,7 +1083,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encode()->callIndexes['MultiTokens.thaw'];
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff0000000000000000000000000000000101",
+            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
             $data
         );
     }

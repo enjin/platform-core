@@ -1614,29 +1614,6 @@ class BatchMintTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_no_unit_price_in_create_params(): void
-    {
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'recipients' => [
-                [
-                    'account' => $this->recipient->public_key,
-                    'createParams' => [
-                        'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
-                        'initialSupply' => fake()->numberBetween(1),
-                    ],
-                ],
-            ],
-        ], true);
-
-        $this->assertStringContainsString(
-            'Field "unitPrice" of required type "BigInt!" was not provided',
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_with_negative_unit_price_in_create_params(): void
     {
         $response = $this->graphql($this->method, [

@@ -34,11 +34,11 @@ class CreateTokenParams
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             initialSupply: gmp_strval(Arr::get($params, 'initialSupply')),
             cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()) ?? TokenMintCapType::INFINITE,
-            unitPrice: gmp_strval(Arr::get($params, 'unitPrice')),
+            unitPrice: ($unitPrice = Arr::get($params, 'sufficiency.Insufficient')) !== null ? gmp_strval($unitPrice) : null,
             supply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? gmp_strval($supply) : null,
             behavior: ($behavior = Arr::get($params, 'behavior')) !== null ? TokenMarketBehaviorParams::fromEncodable($behavior) : null,
             listingForbidden: Arr::get($params, 'listingForbidden'),
-            freezeState: Arr::get($params, 'freezeState'),
+            freezeState: FreezeStateType::tryFrom(Arr::get($params, 'freezeState')),
             attributes: Arr::get($params, 'attributes'),
         );
     }
@@ -52,11 +52,11 @@ class CreateTokenParams
             tokenId: Arr::get($params, 'tokenId'),
             initialSupply: Arr::get($params, 'initialSupply'),
             cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()) ?? TokenMintCapType::INFINITE,
-            unitPrice: Arr::get($params, 'unitPrice'),
+            unitPrice: ($unitPrice = Arr::get($params, 'unitPrice')) !== null ? $unitPrice : null,
             supply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? $supply : null,
             behavior: Arr::get($params, 'behavior'),
             listingForbidden: Arr::get($params, 'listingForbidden'),
-            freezeState: Arr::get($params, 'freezeState'),
+            freezeState: FreezeStateType::tryFrom(Arr::get($params, 'freezeState')),
             attributes: Arr::get($params, 'attributes'),
         );
     }
