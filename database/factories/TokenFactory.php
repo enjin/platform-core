@@ -30,8 +30,7 @@ class TokenFactory extends Factory
             'cap' => TokenMintCapType::INFINITE->name,
             'cap_supply' => null,
             'is_frozen' => false,
-            'unit_price' => (string) $unitPrice = fake()->numberBetween(1 / $supply * 10 ** 17),
-            'mint_deposit' => (string) ($unitPrice * $supply),
+            'unit_price' => (string) fake()->numberBetween(1 / $supply * 10 ** 17),
             'minimum_balance' => '1',
             'attribute_count' => '0',
         ];

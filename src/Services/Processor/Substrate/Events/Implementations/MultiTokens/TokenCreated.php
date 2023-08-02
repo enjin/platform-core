@@ -96,7 +96,6 @@ class TokenCreated implements SubstrateEvent
             'listing_forbidden' => Arr::get($params, 'listing_forbidden'),
             'unit_price' => gmp_strval($unitPrice),
             'minimum_balance' => $minBalance,
-            'mint_deposit' => $initialSupply * $unitPrice,
             'attribute_count' => 0,
         ]);
     }

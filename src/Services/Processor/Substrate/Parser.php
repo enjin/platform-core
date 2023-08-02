@@ -169,7 +169,6 @@ class Parser
                 'listing_forbidden' => $tokenData['listingForbidden'],
                 'minimum_balance' => $tokenData['minimumBalance'],
                 'unit_price' => $tokenData['unitPrice'],
-                'mint_deposit' => $tokenData['mintDeposit'],
                 'attribute_count' => $tokenData['attributeCount'],
                 'created_at' => $now = Carbon::now(),
                 'updated_at' => $now,
@@ -211,7 +210,6 @@ class Parser
                 'listing_forbidden' => $tokenData['listingForbidden'],
                 'minimum_balance' => $tokenData['minimumBalance'],
                 'unit_price' => $tokenData['unitPrice'],
-                'mint_deposit' => $tokenData['mintDeposit'],
                 'attribute_count' => $tokenData['attributeCount'],
             ]
         );
