@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Models\Substrate;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Illuminate\Support\Arr;
 
@@ -14,11 +15,12 @@ class CreateTokenParams
     public function __construct(
         public string $tokenId,
         public string $initialSupply,
-        public string $unitPrice,
         public TokenMintCapType $cap,
+        public ?string $unitPrice = null,
         public ?string $supply = null,
         public ?TokenMarketBehaviorParams $behavior = null,
         public ?bool $listingForbidden = false,
+        public ?FreezeStateType $freezeState = null,
         public ?array $attributes = [],
     ) {
     }
@@ -31,11 +33,12 @@ class CreateTokenParams
         return new self(
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             initialSupply: gmp_strval(Arr::get($params, 'initialSupply')),
-            unitPrice: gmp_strval(Arr::get($params, 'unitPrice')),
             cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()) ?? TokenMintCapType::INFINITE,
+            unitPrice: gmp_strval(Arr::get($params, 'unitPrice')),
             supply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? gmp_strval($supply) : null,
             behavior: ($behavior = Arr::get($params, 'behavior')) !== null ? TokenMarketBehaviorParams::fromEncodable($behavior) : null,
             listingForbidden: Arr::get($params, 'listingForbidden'),
+            freezeState: Arr::get($params, 'freezeState'),
             attributes: Arr::get($params, 'attributes'),
         );
     }
@@ -48,11 +51,12 @@ class CreateTokenParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             initialSupply: Arr::get($params, 'initialSupply'),
-            unitPrice: Arr::get($params, 'unitPrice'),
             cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()) ?? TokenMintCapType::INFINITE,
+            unitPrice: Arr::get($params, 'unitPrice'),
             supply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? $supply : null,
             behavior: Arr::get($params, 'behavior'),
             listingForbidden: Arr::get($params, 'listingForbidden'),
+            freezeState: Arr::get($params, 'freezeState'),
             attributes: Arr::get($params, 'attributes'),
         );
     }
@@ -74,7 +78,7 @@ class CreateTokenParams
                 ],
                 'behavior' => $this->behavior?->toEncodable(),
                 'listingForbidden' => $this->listingForbidden,
-                'freezeState' => null,
+                'freezeState' => $this->freezeState?->value,
                 'attributes' => array_map(
                     fn ($attribute) => [
                         'key' => HexConverter::stringToHexPrefixed(Arr::get($attribute, 'key')),
@@ -103,6 +107,7 @@ class CreateTokenParams
                 ],
                 'behavior' => $this->behavior?->toArray(),
                 'listingForbidden' => $this->listingForbidden,
+                'freezeState' => $this->freezeState?->name,
                 'attributes' => array_map(
                     fn ($attribute) => [
                         'key' => HexConverter::hexToString(Arr::get($attribute, 'key')),

@@ -7,6 +7,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
+use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
@@ -125,7 +126,6 @@ class Substrate implements BlockchainServiceInterface
         $data = [
             $this->encodeTokenId($args),
             $args['initialSupply'],
-            $args['unitPrice'],
         ];
 
         if (null !== $args['cap']) {
@@ -141,7 +141,12 @@ class Substrate implements BlockchainServiceInterface
             $data['behavior'] = new TokenMarketBehaviorParams(isCurrency: true);
         }
 
+        if (isset($args['freezeState'])) {
+            $data['freezeState'] = FreezeStateType::getEnumCase($args['freezeState']);
+        }
+
         $data['listingForbidden'] = $args['listingForbidden'];
+        $data['unitPrice'] = Arr::get($args, 'unitPrice');
         $data['attributes'] = Arr::get($args, 'attributes', []);
 
         return new CreateTokenParams(...$data);

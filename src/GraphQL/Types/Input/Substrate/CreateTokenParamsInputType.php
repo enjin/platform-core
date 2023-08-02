@@ -38,13 +38,14 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
             'initialSupply' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::input_type.create_token_params.field.initialSupply'),
-                'rules' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
                 'defaultValue' => 1,
+                'rules' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
             ],
             'unitPrice' => [
-                'type' => GraphQL::type('BigInt!'),
+                'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::input_type.create_token_params.field.unitPrice'),
-                'rules' => [new MinTokenDeposit(), new MaxBigInt(Hex::MAX_UINT128)],
+                'defaultValue' => null,
+                'rules' => ['nullable', 'bail', new MinTokenDeposit(), new MaxBigInt(Hex::MAX_UINT128)],
             ],
             'cap' => [
                 'type' => GraphQL::type('TokenMintCap!'),
@@ -59,6 +60,11 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::input_type.create_token_params.field.listingForbidden'),
                 'defaultValue' => false,
+            ],
+            'freezeState' => [
+                'type' => GraphQL::type('FreezeStateType'),
+                'description' => __('enjin-platform::input_type.token_freeze_state.description'),
+                'defaultValue' => null,
             ],
             'attributes' => [
                 'type' => GraphQL::type('[AttributeInput]'),

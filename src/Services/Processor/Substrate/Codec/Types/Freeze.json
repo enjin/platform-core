@@ -7,9 +7,13 @@
   "FreezeOf": {
     "_enum": {
       "Collection": "null",
-      "Token": "u128",
+      "Token": "TokenFreezeState",
       "CollectionAccount": "AccountId",
       "TokenAccount": "(Compact<u128>, AccountId)"
     }
+  },
+  "TokenFreezeState": {
+    "tokenId": "u128",
+    "freezeState": "Option<FreezeState>"
   }
 }

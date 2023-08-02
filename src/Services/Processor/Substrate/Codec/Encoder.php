@@ -316,7 +316,7 @@ class Encoder
 
     public function mint(string $recipientId, string $collectionId, CreateTokenParams|MintParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('CanaryMint')->encode([
+        $encoded = $this->scaleInstance->createTypeByTypeString('Mint')->encode([
             'callIndex' => $this->getCallIndex('MultiTokens.mint'),
             'recipient' => [
                 'Id' => HexConverter::unPrefix($recipientId),
@@ -330,7 +330,7 @@ class Encoder
 
     public function batchMint(string $collectionId, array $recipients)
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('CanaryBatchMint')->encode([
+        $encoded = $this->scaleInstance->createTypeByTypeString('BatchMint')->encode([
             'callIndex' => $this->getCallIndex('MultiTokens.batch_mint'),
             'collectionId' => gmp_init($collectionId),
             'recipients' => array_map(
@@ -358,7 +358,7 @@ class Encoder
 
     public function freeze(string $collectionId, FreezeTypeParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('CanaryFreeze')->encode([
+        $encoded = $this->scaleInstance->createTypeByTypeString('Freeze')->encode([
             'callIndex' => $this->getCallIndex('MultiTokens.freeze'),
             'collectionId' => gmp_init($collectionId),
             'freezeType' => $params->toEncodable(),
@@ -369,7 +369,7 @@ class Encoder
 
     public function thaw(string $collectionId, FreezeTypeParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('CanaryThaw')->encode([
+        $encoded = $this->scaleInstance->createTypeByTypeString('Thaw')->encode([
             'callIndex' => $this->getCallIndex('MultiTokens.thaw'),
             'collectionId' => gmp_init($collectionId),
             'freezeType' => $params->toEncodable(),
