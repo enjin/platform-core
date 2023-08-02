@@ -4,6 +4,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Collection;
@@ -286,6 +287,45 @@ class FreezeTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_can_freeze_a_token_with_freeze_state(): void
+    {
+        $encodedData = $this->codec->encode()->freeze(
+            $collectionId = $this->collection->collection_chain_id,
+            new FreezeTypeParams(
+                type: $freezeType = FreezeType::TOKEN,
+                token: $this->tokenIdEncoder->encode(),
+                freezeState: $freezeState = FreezeStateType::TEMPORARY,
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'freezeType' => $freezeType->name,
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'freezeState' => $freezeState->name,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_freeze_a_big_int_token(): void
     {
         $collection = Collection::factory()->create();
@@ -494,6 +534,39 @@ class FreezeTest extends TestCaseGraphQL
 
         $this->assertStringContainsString(
             'value "invalid" at "tokenId.integer"; Cannot represent following value as uint256: "invalid"',
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_invalid_freeze_state(): void
+    {
+        $response = $this->graphql($this->method, [
+            'freezeType' => FreezeType::TOKEN->name,
+            'collectionId' => $this->collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable('invalid'),
+            'freezeState' => 'invalid',
+        ], true);
+
+        $this->assertStringContainsString(
+            'value "invalid" at "tokenId.integer"; Cannot represent following value as uint256: "invalid"',
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_freeze_state_in_other_type(): void
+    {
+        $response = $this->graphql($this->method, [
+            'freezeType' => FreezeType::COLLECTION->name,
+            'collectionId' => $this->collection->collection_chain_id,
+            'freezeState' => FreezeStateType::TEMPORARY->name,
+        ], true);
+
+        $this->assertArraySubset(
+            ['freezeState' => ['The freeze state field is prohibited.']],
             $response['error']
         );
 

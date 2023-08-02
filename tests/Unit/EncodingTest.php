@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
+use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Models\Substrate\BurnParams;
@@ -442,36 +443,6 @@ class EncodingTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @define-env usesCanaryNetwork
-     */
-    public function test_it_can_encode_batch_create_token_on_canary()
-    {
-        $recipient = [
-            'accountId' => '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            'params' => new CreateTokenParams(
-                tokenId: '255',
-                initialSupply: '57005',
-                unitPrice: '10000000000000',
-                cap: TokenMintCapType::INFINITE,
-                behavior: null,
-                listingForbidden: null,
-            ),
-        ];
-
-        $data = $this->codec->encode()->batchMint(
-            '2000',
-            [$recipient]
-        );
-
-        $callIndex = $this->codec->encode()->callIndexes['MultiTokens.batch_mint'];
-        $this->assertEquals(
-            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e00fd03b67a0300000100a0724e180900000000000000000000000000000000",
-            $data
-        );
-    }
-
     public function test_it_can_encode_batch_create_token()
     {
         $recipient = [
@@ -479,8 +450,8 @@ class EncodingTest extends TestCase
             'params' => new CreateTokenParams(
                 tokenId: '255',
                 initialSupply: '57005',
-                unitPrice: '10000000000000',
                 cap: TokenMintCapType::INFINITE,
+                unitPrice: '10000000000000',
                 behavior: null,
                 listingForbidden: null,
             ),
@@ -526,8 +497,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::INFINITE,
+            unitPrice: '10000000000000',
             behavior: null,
         );
 
@@ -544,40 +515,13 @@ class EncodingTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @define-env usesCanaryNetwork
-     */
-    public function test_it_can_encode_create_token_on_canary()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '1',
-            unitPrice: '10000000000000',
-            cap: TokenMintCapType::INFINITE,
-            behavior: null,
-        );
-
-        $data = $this->codec->encode()->mint(
-            recipientId: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '2000',
-            params: $params
-        );
-
-        $callIndex = $this->codec->encode()->callIndexes['MultiTokens.mint'];
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f00fd0304000100a0724e180900000000000000000000000000000000",
-            $data
-        );
-    }
-
     public function test_it_can_encode_create_token_cap_supply()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SUPPLY,
+            unitPrice: '10000000000000',
             supply: '57005',
         );
 
@@ -594,13 +538,56 @@ class EncodingTest extends TestCase
         );
     }
 
+    public function test_it_can_encode_create_token_no_unit_price()
+    {
+        $params = new CreateTokenParams(
+            tokenId: '255',
+            initialSupply: '57005',
+            cap: TokenMintCapType::INFINITE,
+        );
+
+        $data = $this->codec->encode()->mint(
+            recipientId: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
+            collectionId: '1',
+            params: $params
+        );
+
+        $callIndex = $this->codec->encode()->callIndexes['MultiTokens.mint'];
+        $this->assertEquals(
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000000000000",
+            $data
+        );
+    }
+
+    public function test_it_can_encode_create_token_with_freeze_state()
+    {
+        $params = new CreateTokenParams(
+            tokenId: '255',
+            initialSupply: '57005',
+            cap: TokenMintCapType::INFINITE,
+            freezeState: FreezeStateType::PERMANENT
+        );
+
+        $data = $this->codec->encode()->mint(
+            recipientId: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
+            collectionId: '1',
+            params: $params
+        );
+
+        $callIndex = $this->codec->encode()->callIndexes['MultiTokens.mint'];
+        $this->assertEquals(
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000000001000000",
+            $data
+        );
+    }
+
     public function test_it_can_encode_mint_with_other_args_as_null()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::INFINITE,
+            unitPrice: '10000000000000',
             behavior: null,
             listingForbidden: null
         );
@@ -623,8 +610,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SUPPLY,
+            unitPrice: '10000000000000',
             supply: '57005',
             behavior: null,
             listingForbidden: null,
@@ -648,8 +635,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SINGLE_MINT,
+            unitPrice: '10000000000000',
             behavior: null,
             listingForbidden: null,
         );
@@ -672,8 +659,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SINGLE_MINT,
+            unitPrice: '10000000000000',
             behavior: null,
             listingForbidden: false,
         );
@@ -696,8 +683,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SINGLE_MINT,
+            unitPrice: '10000000000000',
             behavior: null,
             listingForbidden: true,
         );
@@ -720,8 +707,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::INFINITE,
+            unitPrice: '10000000000000',
             behavior: new TokenMarketBehaviorParams(
                 hasRoyalty: new RoyaltyPolicyParams(
                     beneficiary: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
@@ -749,8 +736,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SUPPLY,
+            unitPrice: '10000000000000',
             supply: '57005',
             behavior: new TokenMarketBehaviorParams(
                 hasRoyalty: new RoyaltyPolicyParams(
@@ -779,8 +766,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '1010',
             initialSupply: '1',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::INFINITE,
+            unitPrice: '10000000000000',
             listingForbidden: true,
             attributes: [
                 [
@@ -808,8 +795,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SINGLE_MINT,
+            unitPrice: '10000000000000',
             behavior: new TokenMarketBehaviorParams(
                 hasRoyalty: new RoyaltyPolicyParams(
                     beneficiary: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
@@ -837,8 +824,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SINGLE_MINT,
+            unitPrice: '10000000000000',
             behavior: new TokenMarketBehaviorParams(
                 isCurrency: true,
             ),
@@ -884,8 +871,8 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            unitPrice: '10000000000000',
             cap: TokenMintCapType::SINGLE_MINT,
+            unitPrice: '10000000000000',
         );
 
         $data = $this->codec->encode()->mint(
@@ -940,11 +927,7 @@ class EncodingTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @define-env usesCanaryNetwork
-     */
-    public function test_it_can_encode_freeze_token_on_canary()
+    public function test_it_can_encode_freeze_token()
     {
         $params = new FreezeTypeParams(
             type: FreezeType::TOKEN,
@@ -964,12 +947,13 @@ class EncodingTest extends TestCase
         );
     }
 
-    public function test_it_can_encode_freeze_token()
+    public function test_it_can_encode_freeze_token_with_freeze_state()
     {
         $params = new FreezeTypeParams(
             type: FreezeType::TOKEN,
             token: '255',
-            account: null
+            account: null,
+            freezeState: FreezeStateType::PERMANENT
         );
 
         $data = $this->codec->encode()->freeze(
@@ -979,7 +963,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encode()->callIndexes['MultiTokens.freeze'];
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
+            "0x{$callIndex}b67a030001ff0000000000000000000000000000000100",
             $data
         );
     }
@@ -1040,30 +1024,6 @@ class EncodingTest extends TestCase
         $callIndex = $this->codec->encode()->callIndexes['MultiTokens.thaw'];
         $this->assertEquals(
             "0x{$callIndex}b67a030000",
-            $data
-        );
-    }
-
-    /**
-     * @test
-     * @define-env usesCanaryNetwork
-     */
-    public function test_it_can_encode_thaw_token_on_canary()
-    {
-        $params = new FreezeTypeParams(
-            type: FreezeType::TOKEN,
-            token: '255',
-            account: null
-        );
-
-        $data = $this->codec->encode()->thaw(
-            collectionId: '57005',
-            params: $params
-        );
-
-        $callIndex = $this->codec->encode()->callIndexes['MultiTokens.thaw'];
-        $this->assertEquals(
-            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
             $data
         );
     }
@@ -1197,8 +1157,8 @@ class EncodingTest extends TestCase
             params: new CreateTokenParams(
                 tokenId: '255',
                 initialSupply: '57005',
-                unitPrice: '10000000000000',
                 cap: TokenMintCapType::INFINITE,
+                unitPrice: '10000000000000',
                 behavior: null,
                 listingForbidden: null
             )

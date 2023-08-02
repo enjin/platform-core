@@ -2,6 +2,7 @@ mutation Freeze(
   $freezeType: FreezeType!
   $collectionId: BigInt!
   $tokenId: EncodableTokenIdInput
+  $freezeState: FreezeStateType
   $collectionAccount: String
   $tokenAccount: String
   $skipValidation: Boolean
@@ -10,6 +11,7 @@ mutation Freeze(
     freezeType: $freezeType
     collectionId: $collectionId
     tokenId: $tokenId
+    freezeState: $freezeState
     collectionAccount: $collectionAccount
     tokenAccount: $tokenAccount
     skipValidation: $skipValidation
