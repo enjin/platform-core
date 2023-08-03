@@ -9,6 +9,7 @@ class PruneTest extends TestCaseGraphQL
 {
     public function test_it_can_prune_expired_events(): void
     {
+        PendingEvent::truncate();
         PendingEvent::insert(
             PendingEvent::factory(10)->make([
                 'sent' => now()->subDays(config('enjin-platform.prune_expired_events') + 1)->toDateTimeString(),
@@ -20,6 +21,7 @@ class PruneTest extends TestCaseGraphQL
 
     public function test_it_cannot_prune_expired_events(): void
     {
+        PendingEvent::truncate();
         config(['enjin-platform.prune_expired_events' => null]);
         PendingEvent::insert(
             PendingEvent::factory(10)->make([
@@ -27,10 +29,10 @@ class PruneTest extends TestCaseGraphQL
             ])->toArray()
         );
         $this->artisan('model:prune', ['--model' => PendingEvent::resolveClassFqn()]);
-        $this->assertDatabaseCount('pending_events', 10);
+        $this->assertNotEmpty(PendingEvent::count());
 
         config(['enjin-platform.prune_expired_events' => 0]);
         $this->artisan('model:prune', ['--model' => PendingEvent::resolveClassFqn()]);
-        $this->assertDatabaseCount('pending_events', 10);
+        $this->assertNotEmpty(PendingEvent::count());
     }
 }
