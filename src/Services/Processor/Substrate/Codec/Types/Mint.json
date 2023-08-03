@@ -8,18 +8,24 @@
   "MintParamsOf": {
     "_enum": {
       "CreateToken": "CreateTokenParams",
-      "Mint": "MintParams",
-      "CreateForeignToken": "CreateForeignTokenParams"
+      "Mint": "MintParams"
     }
+  },
+  "MintParams": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>",
+    "unitPrice": "Option<u128>"
   },
   "CreateTokenParams": {
     "tokenId": "Compact<u128>",
     "initialSupply": "Compact<u128>",
-    "unitPrice": "Compact<u128>",
+    "sufficiency": "SufficiencyParams",
     "cap": "Option<TokenCap>",
     "behavior": "Option<TokenMarketBehavior>",
     "listingForbidden": "bool",
-    "attributes": "Vec<Attribute>"
+    "freezeState": "Option<FreezeState>",
+    "attributes": "Vec<Attribute>",
+    "foreignParams": "Option<CreateForeignTokenParams>"
   },
   "TokenCap": {
     "_enum": {
@@ -27,10 +33,11 @@
       "Supply": "Compact<u128>"
     }
   },
-  "MintParams": {
-    "tokenId": "Compact<u128>",
-    "amount": "Compact<u128>",
-    "unitPrice": "Option<u128>"
+  "SufficiencyParams": {
+    "_enum": {
+      "Insufficient": "Option<u128>",
+      "Sufficient": "u128"
+    }
   },
   "CreateForeignTokenParams": {
     "tokenId": "Compact<u128>",

@@ -10,20 +10,33 @@
   "TokenStorageData": {
     "supply": "Compact<u128>",
     "cap": "Option<TokenCap>",
-    "isFrozen": "bool",
+    "freezeState": "Option<FreezeState>",
     "minimumBalance": "Compact",
-    "unitPrice": "Compact",
+    "sufficiency": "Sufficiency",
     "mintDeposit": "Compact",
     "attributeCount": "Compact",
     "marketBehavior": "Option<TokenMarketBehavior>",
     "listingForbidden": "bool",
     "metadata": "TokenMetadata"
   },
+  "Sufficiency": {
+    "_enum": {
+      "Sufficient": "Null",
+      "Insufficient": "Compact<u128>"
+    }
+  },
   "TokenMarketBehavior": {
     "_enum": {
       "HasRoyalty": "RoyaltyPolicyDescriptor",
       "IsCurrency": "Null"
     }
+  },
+  "FreezeState": {
+    "_enum": [
+      "Permanent",
+      "Temporary",
+      "Never"
+    ]
   },
   "TokenMetadata": {
     "_enum": {
@@ -36,5 +49,5 @@
     "name": "Bytes",
     "symbol": "Bytes",
     "location": "Option<XcmV1MultiLocation>"
+   }
   }
-}

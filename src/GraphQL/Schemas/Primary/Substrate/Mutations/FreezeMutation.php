@@ -66,6 +66,10 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
                 'description' => __('enjin-platform::mutation.freeze.args.collectionId'),
             ],
             ...$this->getTokenFields(__('enjin-platform::mutation.freeze.args.tokenId'), true),
+            'freezeState' => [
+                'type' => GraphQL::type('FreezeStateType'),
+                'description' => __('enjin-platform::mutation.freeze.args.freezeState'),
+            ],
             'collectionAccount' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::mutation.freeze.args.collectionAccount'),
@@ -122,6 +126,7 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
                     ? $this->getTokenFieldRulesExist(null, [], false)
                     : ['tokenId' => ['prohibited']]
             ),
+            'freezeState' => FreezeType::TOKEN !== $freezeType ? ['prohibited'] : ['nullable'],
             'collectionAccount' => FreezeType::COLLECTION_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInCollection()] : ['prohibited'],
             'tokenAccount' => FreezeType::TOKEN_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInToken()] : ['prohibited'],
         ];
@@ -140,6 +145,7 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
                     ? $this->getTokenFieldRules()
                     : ['tokenId' => ['prohibited'], 'encodeTokenId' => ['prohibited']]
             ),
+            'freezeState' => FreezeType::TOKEN !== $freezeType ? ['prohibited'] : ['nullable'],
             'collectionAccount' => FreezeType::COLLECTION_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount()] : ['prohibited'],
             'tokenAccount' => FreezeType::TOKEN_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount()] : ['prohibited'],
         ];

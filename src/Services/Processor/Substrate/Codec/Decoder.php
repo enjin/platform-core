@@ -196,7 +196,7 @@ class Decoder
 
     public function tokenStorageData(string $data): array
     {
-        $decoded = $this->codec->process('CanaryTokenStorageData', new ScaleBytes($data));
+        $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first()) ?? TokenMintCapType::INFINITE;
         $isCurrency = Arr::exists(Arr::get($decoded, 'marketBehavior') ?: [], 'IsCurrency');
         $isFrozen = in_array(Arr::get($decoded, 'freezeState'), ['Permanent', 'Temporary']);
@@ -248,7 +248,7 @@ class Decoder
 
     public function tokenAccountStorageKey(string $data): array
     {
-        $decoded = $this->codec->process('CanaryTokenAccountsStorageKey', new ScaleBytes($data));
+        $decoded = $this->codec->process('TokenAccountsStorageKey', new ScaleBytes($data));
 
         return [
             'accountId' => HexConverter::prefix(Arr::get($decoded, 'accountId')),
