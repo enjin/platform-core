@@ -98,7 +98,6 @@ class Decoder
     public function freeze(string $data): array
     {
         $decoded = $this->codec->process('Freeze', new ScaleBytes($data));
-        ray($decoded);
 
         return [
             'collectionId' => gmp_strval(Arr::get($decoded, 'collectionId')),
