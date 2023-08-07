@@ -49,4 +49,5 @@ return [
     'token_mutation.field.listingForbidden' => 'Set if the token can be listed on the marketplace. If null, the listingForbidden property will not be changed.',
     'transfer_recipient.description' => 'The recipient account for a transfer.',
     'erc1155_encoder.description' => 'ERC1155 Style Token ID.',
+    'token_freeze_state.description' => 'The freeze state of the token.',
 ];
