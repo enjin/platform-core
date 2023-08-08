@@ -84,7 +84,8 @@ class AuthManager
      */
     protected function resolve(?string $name): Authenticator
     {
-        $driver = Package::getClass(Str::studly($name ?? 'Null') . 'Auth');
+        $name = empty($name) ? 'Null' : $name;
+        $driver = Package::getClass(Str::studly($name) . 'Auth');
 
         if (!isset($driver)) {
             throw new InvalidArgumentException(__('enjin-platform::error.auth.auth_not_defined'));
