@@ -26,7 +26,7 @@
     "ext-sodium": "*",
     "amphp/amp": "^3.0",
     "amphp/http": "^2.0",
-    "amphp/http-client": "v5.0.0-beta.11",
+    "amphp/http-client": "v5.0.0-beta.12",
     "amphp/parallel": "^2.0",
     "amphp/socket": "^2.0.0",
     "amphp/websocket": "v2.0.0-beta.4",
