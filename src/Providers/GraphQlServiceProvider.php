@@ -14,6 +14,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlUnion;
 use Enjin\Platform\Package;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\UploadType;
 
@@ -45,6 +46,7 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->registerGraphQlHttpMiddleware();
         $this->registerGraphQlExecutionMiddleware();
         $this->registerExternalResolverMiddleware();
+        $this->registerGraphiqlEndpoints();
     }
 
     /**
@@ -230,6 +232,33 @@ class GraphQlServiceProvider extends ServiceProvider
         $graphQlResolverMiddleware = config('graphql.resolver_middleware') ?? [];
 
         config(['graphql.resolver_middleware' => array_merge($graphQlResolverMiddleware, $resolverMiddlewares)]);
+    }
+
+    protected function registerGraphiqlEndpoints(): void
+    {
+        $installedPackages = Package::getInstalledPlatformPackages();
+        $schemas = collect(config('graphql.schemas'))->keys();
+
+        $endpoints = $installedPackages->mapWithKeys(function ($package) use ($schemas) {
+            $packageName = Str::kebab(Package::getPackageName($package));
+            $graphQlEndpoint = config('graphql.route.prefix', 'graphql');
+            $graphiQlEndpoint = config('graphql.graphiql.prefix', 'graphiql');
+
+            if ('Core' != $packageName && $schemas->contains($packageName)) {
+                $graphQlEndpoint .= '/' . $packageName;
+                $graphiQlEndpoint .= '/' . $packageName;
+            }
+
+            return [
+                "/{$graphiQlEndpoint}" => [
+                    'name' => Str::replace('/', '.', $graphiQlEndpoint),
+                    'endpoint' => "/{$graphQlEndpoint}",
+                    'subscription-endpoint' => null,
+                ],
+            ];
+        });
+        
+        config(['graphiql.routes' => $endpoints->all()]);
     }
 
     /**

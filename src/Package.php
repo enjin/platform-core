@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform;
 
+use Composer\InstalledVersions;
 use Enjin\Platform\Enums\CoreRoute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -81,5 +82,28 @@ class Package
         return self::getClassNamesThatImplementInterface($interface)
             ->transform(fn ($class) => Str::replace(['Query', 'Mutation'], '', $class))
             ->unique();
+    }
+
+    public static function getInstalledPlatformPackages(): Collection
+    {
+        return collect(InstalledVersions::getInstalledPackages())
+            ->filter(fn ($packageName) => preg_match("/^enjin\/platform-/", $packageName));
+    }
+
+    public static function getPackageClass($package): string
+    {
+        $packageName = self::getPackageName($package);
+        if ($packageName == 'Core') {
+            $packageClass = 'Enjin\\Platform\\Package';
+        } else {
+            $packageClass = "Enjin\\Platform\\{$packageName}\\Package";
+        }
+
+        return $packageClass;
+    }
+
+    public static function getPackageName($package): string
+    {
+        return Str::studly(Str::after($package, '-'));
     }
 }
