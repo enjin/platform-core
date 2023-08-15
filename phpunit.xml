@@ -39,6 +39,7 @@
         <directory>./src/Traits</directory>
         <directory>./src/Services/Processor/Substrate</directory>
         <directory>./src/Clients</directory>
+        <directory>./database/schema</directory>
     </exclude>
   </source>
 </phpunit>
