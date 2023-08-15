@@ -257,7 +257,7 @@ class GraphQlServiceProvider extends ServiceProvider
                 ],
             ];
         });
-        
+
         config(['graphiql.routes' => $endpoints->all()]);
     }
 
