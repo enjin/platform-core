@@ -37,7 +37,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
     {
         return [
             'id' => [
-                'type' => GraphQL::type('Int!'),
+                'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::query.get_transaction.args.id'),
             ],
             'transactionId' => [
@@ -66,6 +66,14 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.transaction.field.encodedData'),
                 'alias' => 'encoded_data',
+            ],
+            'fee' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.transaction.field.fee'),
+            ],
+            'deposit' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.transaction.field.deposit'),
             ],
             'wallet' => [
                 'type' => GraphQL::type('Wallet'),

@@ -92,6 +92,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'simulate' => $args['simulate'] ?? false,
             ]),
             $resolveInfo
         );
