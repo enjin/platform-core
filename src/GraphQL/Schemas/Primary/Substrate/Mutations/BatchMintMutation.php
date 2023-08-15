@@ -11,6 +11,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
@@ -34,6 +35,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
     use HasTokenIdFieldArrayRules;
     use HasSkippableRules;
     use HasEncodableTokenId;
+    use HasSimulateField;
 
     /**
      * Get the mutation's attributes.
@@ -71,6 +73,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
             ],
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
+            ...$this->getSimulateField(),
         ];
     }
 

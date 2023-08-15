@@ -10,6 +10,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -33,6 +34,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
     use HasTokenIdFieldRules;
     use HasEncodableTokenId;
     use HasSkippableRules;
+    use HasSimulateField;
 
     /**
      * Get the mutation's attributes.
@@ -70,6 +72,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
             ],
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
+            ...$this->getSimulateField(),
         ];
     }
 

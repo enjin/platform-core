@@ -7,6 +7,7 @@ use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
@@ -28,6 +29,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     use InPrimarySubstrateSchema;
     use HasIdempotencyField;
     use HasSkippableRules;
+    use HasSimulateField;
 
     /**
      * Get the mutation's attributes.
@@ -69,6 +71,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
             ],
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
+            ...$this->getSimulateField(),
         ];
     }
 
