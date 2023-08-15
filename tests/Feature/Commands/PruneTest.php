@@ -11,7 +11,7 @@ class PruneTest extends TestCaseGraphQL
     {
         PendingEvent::truncate();
         PendingEvent::insert(
-            PendingEvent::factory(10)->make([
+            PendingEvent::factory(1)->make([
                 'sent' => now()->subDays(config('enjin-platform.prune_expired_events') + 1)->toDateTimeString(),
             ])->toArray()
         );
@@ -21,10 +21,9 @@ class PruneTest extends TestCaseGraphQL
 
     public function test_it_cannot_prune_expired_events(): void
     {
-        PendingEvent::truncate();
         config(['enjin-platform.prune_expired_events' => null]);
         PendingEvent::insert(
-            PendingEvent::factory(10)->make([
+            PendingEvent::factory(1)->make([
                 'sent' => now()->subDays(config('enjin-platform.prune_expired_events') + 1)->toDateTimeString(),
             ])->toArray()
         );
