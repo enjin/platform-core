@@ -239,7 +239,7 @@ class GraphQlServiceProvider extends ServiceProvider
         $installedPackages = Package::getInstalledPlatformPackages();
         $schemas = collect(config('graphql.schemas'))->keys();
 
-        $endpoints = $installedPackages->mapWithKeys(function ($package) use ($schemas) {
+        $packageRoutes = $installedPackages->mapWithKeys(function ($package) use ($schemas) {
             $packageName = Str::kebab(Package::getPackageName($package));
             $graphQlEndpoint = config('graphql.route.prefix', 'graphql');
             $graphiQlEndpoint = config('graphql.graphiql.prefix', 'graphiql');
@@ -258,7 +258,8 @@ class GraphQlServiceProvider extends ServiceProvider
             ];
         });
 
-        config(['graphiql.routes' => $endpoints->all()]);
+        $existingRoutes = collect(config('graphiql.routes'));
+        config(['graphiql.routes' => $packageRoutes->merge($existingRoutes)->all()]);
     }
 
     /**
