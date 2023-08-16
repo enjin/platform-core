@@ -3,9 +3,9 @@
 namespace Enjin\Platform\Http\Controllers;
 
 use Composer\InstalledVersions;
+use Enjin\Platform\Package;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Str;
 
 class PlatformController extends Controller
 {
@@ -14,16 +14,10 @@ class PlatformController extends Controller
      */
     public static function getPlatformPackages(): array
     {
-        $installedPackages = collect(InstalledVersions::getInstalledPackages())
-            ->filter(fn ($packageName) => preg_match("/^enjin\/platform-/", $packageName));
+        $installedPackages = Package::getInstalledPlatformPackages();
 
         return $installedPackages->mapWithKeys(function ($package) {
-            $packageName = Str::studly(Str::afterLast($package, '-'));
-            if ($packageName == 'Core') {
-                $packageClass = 'Enjin\\Platform\\Package';
-            } else {
-                $packageClass = 'Enjin\\Platform\\' . Str::studly(Str::afterLast($package, '-')) . '\\Package';
-            }
+            $packageClass = Package::getPackageClass($package);
 
             $info = [
                 'version' => InstalledVersions::getVersion($package),
