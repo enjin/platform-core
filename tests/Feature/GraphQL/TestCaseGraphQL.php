@@ -168,10 +168,11 @@ class TestCaseGraphQL extends BaseTestCase
         $app['config']->set('database.default', env('DB_DRIVER', 'mysql'));
         $app['config']->set('database.connections.mysql', [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1:3306'),
+            'host' => env('DB_HOST', '127.0.0.1'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', 'password'),
             'database' => env('DB_DATABASE', 'platform'),
+            'port' => '3306',
             'prefix' => '',
         ]);
 

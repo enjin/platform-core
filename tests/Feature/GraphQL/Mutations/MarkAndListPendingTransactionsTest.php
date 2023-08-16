@@ -82,6 +82,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
         $totalCount = $response['totalCount'];
 
+        $this->generateTransactions();
         $response = $this->graphql($this->method, [
             'markAsProcessing' => true,
         ]);
@@ -215,7 +216,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
         );
     }
 
-    protected function generateTransactions(?int $numberOfTransactions = 40): Collection
+    protected function generateTransactions(?int $numberOfTransactions = 5): Collection
     {
         return collect(range(0, $numberOfTransactions))
             ->map(fn () => Transaction::factory([

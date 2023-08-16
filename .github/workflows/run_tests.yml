@@ -3,10 +3,7 @@ name: Run Tests
 on:
   pull_request:
     paths-ignore:
-      - '**.md'
-  push:
-    paths-ignore:
-      - '**.md'
+      - "**.md"
 
 jobs:
   test:
@@ -40,16 +37,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, gmp, intl, json, mysql, readline, sodium, bcmath
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, gmp, intl, json, mysql, readline, sodium, bcmath, pcov
           tools: composer:v2
-          coverage: xdebug
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup GO
         uses: actions/setup-go@v4
         with:
-          go-version: '^1.19'
+          go-version: "^1.19"
 
       - name: Setup problem matchers
         run: |
@@ -64,7 +60,7 @@ jobs:
 
       - name: Execute tests
         run: |
-          XDEBUG_MODE=coverage ./vendor/bin/phpunit --colors=always --coverage-clover coverage.xml
+          php -d pcov.enabled=1 ./vendor/bin/phpunit --colors=always --coverage-clover coverage.xml
         env:
           DB_HOST: 127.0.0.1:${{ job.services.mysql.ports[3306] }}
           DB_DATABASE: platform

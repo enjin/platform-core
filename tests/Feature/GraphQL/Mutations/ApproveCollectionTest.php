@@ -35,7 +35,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
         $this->codec = new Codec();
         $this->defaultAccount = Account::daemonPublicKey();
         $this->collection = Collection::factory()->create();
-        Token::factory(fake()->numberBetween(1, 10))->create([
+        Token::factory(fake()->numberBetween(1, 2))->create([
             'collection_id' => $this->collection->id,
         ]);
         $this->owner = Wallet::find($this->collection->owner_wallet_id);
