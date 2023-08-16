@@ -101,7 +101,7 @@ class UnapproveTokenMutation extends Mutation implements PlatformBlockchainTrans
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'simulate' => $args['simulate'] ?? false,
+                'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );

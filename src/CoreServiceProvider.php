@@ -57,6 +57,8 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('create_pending_events_table')
             ->hasMigration('add_signed_at_block')
             ->hasMigration('remove_linking_code_from_wallets_table')
+            ->hasMigration('remove_mint_deposit_from_tokens_table')
+            ->hasMigration('add_fee_to_transactions_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)

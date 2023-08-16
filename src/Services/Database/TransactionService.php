@@ -39,8 +39,6 @@ class TransactionService
      */
     public function store(array $data, ?Model $signingWallet = null): Model
     {
-        ray($data);
-
         if ($transaction = Transaction::firstWhere(['idempotency_key' => $data['idempotency_key']])) {
             return $transaction;
         }
@@ -49,10 +47,7 @@ class TransactionService
         $data['method'] = $data['method'] ?? '';
 
         if (Arr::get($data, 'simulate', false)) {
-            $transaction = Transaction::newModelInstance($data);
-            ray($transaction);
-
-            return $transaction;
+            return Transaction::newModelInstance($data);
         }
 
         $transaction = Transaction::create($data);
