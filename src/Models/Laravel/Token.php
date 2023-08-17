@@ -154,7 +154,7 @@ class Token extends BaseModel
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->token_chain_id,
+            get: fn () => "{$this->collection->collection_chain_id}:{$this->token_chain_id}",
         );
     }
 }
