@@ -39,7 +39,7 @@ abstract class TestCase extends BaseTestCase
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', 'password'),
             'database' => env('DB_DATABASE', 'platform'),
-            'port' => '3306',
+            'port' => env('DB_PORT', '3306'),
             'prefix' => '',
         ]);
 
