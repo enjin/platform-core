@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Enjin\Platform\Constants\Substrate\Fee;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
@@ -70,15 +71,12 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
             'fee' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.transaction.field.fee'),
-                'resolve' => function ($transaction, $args) {
+                'resolve' => function ($transaction) {
                     if (isset($transaction['id'])) {
                         return Arr::get($transaction, 'fee');
                     }
 
-                    ray($transaction);
-                    ray($args);
-
-                    return 0;
+                    return Fee::forCall($transaction['encoded_data']);
                 },
             ],
             'deposit' => [
