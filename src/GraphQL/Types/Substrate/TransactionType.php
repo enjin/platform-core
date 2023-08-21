@@ -2,12 +2,12 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
-use Enjin\Platform\Constants\Substrate\Fee;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Traits\HasSelectFields;
+use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Support\Arr;
@@ -76,7 +76,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                         return Arr::get($transaction, 'fee');
                     }
 
-                    return Fee::forCall($transaction['encoded_data']);
+                    return Substrate::getFee($transaction['encoded_data']);
                 },
             ],
             'deposit' => [

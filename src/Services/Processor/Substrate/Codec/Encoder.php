@@ -34,6 +34,13 @@ class Encoder
         $this->callIndexes = $this->loadCallIndexes();
     }
 
+    public function sequenceLength(string $sequence): string
+    {
+        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($sequence)));
+
+        return HexConverter::prefix($encoded);
+    }
+
     public function transferBalance(string $recipient, string $value): string
     {
         $encoded = $this->scaleInstance->createTypeByTypeString('TransferBalance')->encode([
