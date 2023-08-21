@@ -47,4 +47,5 @@ return [
     'failed_to_get_current_block' => 'Failed to get the current block...',
     'line_and_file' => 'Line :line in :file',
     'unable_to_process' => "Sorry, we're unable to process your request at this time. Please try again later.",
+    'no_collection' => 'Unable to find a collection for token ID :tokenId.',
 ];
