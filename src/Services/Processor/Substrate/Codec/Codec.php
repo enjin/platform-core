@@ -48,6 +48,7 @@ class Codec
                 // merge all array to one $moduleTypes array
                 $moduleTypes = array_merge($moduleTypes, $content);
             }
+
             // reg custom type
             return $moduleTypes;
         });

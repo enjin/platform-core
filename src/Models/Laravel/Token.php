@@ -4,6 +4,7 @@ namespace Enjin\Platform\Models\Laravel;
 
 use Enjin\Platform\Database\Factories\TokenFactory;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\Token as TokenMethods;
@@ -153,8 +154,12 @@ class Token extends BaseModel
 
     protected function pivotIdentifier(): Attribute
     {
+        if (!$collection = $this->collection) {
+            throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
+        }
+
         return Attribute::make(
-            get: fn () => $this->token_chain_id,
+            get: fn () => "{$collection->collection_chain_id}:{$this->token_chain_id}",
         );
     }
 }
