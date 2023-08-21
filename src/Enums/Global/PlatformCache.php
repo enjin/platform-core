@@ -21,6 +21,8 @@ enum PlatformCache: string implements PlatformCacheable
     case SYNCING_IN_PROGRESS = 'syncingInProgress';
     case VERIFY_ACCOUNT = 'verifyAccount';
     case PAGINATION = 'pagination';
+    case FEE = 'fee';
+    case DEPOSIT = 'deposit';
 
     public function key(?string $suffix = null): string
     {
