@@ -108,6 +108,7 @@ class MintTokenTest extends TestCaseGraphQL
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
+            'simulate' => true,
         ]);
 
         $this->assertIsNumeric($response['deposit']);
