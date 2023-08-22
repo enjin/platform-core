@@ -1,7 +1,12 @@
-mutation DestroyCollection($collectionId: BigInt!, $skipValidation: Boolean) {
+mutation DestroyCollection(
+  $collectionId: BigInt!
+  $skipValidation: Boolean
+  $simulate: Boolean
+) {
   DestroyCollection(
     collectionId: $collectionId
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -9,6 +14,8 @@ mutation DestroyCollection($collectionId: BigInt!, $skipValidation: Boolean) {
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

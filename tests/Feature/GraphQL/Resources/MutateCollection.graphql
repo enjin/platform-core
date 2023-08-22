@@ -2,11 +2,13 @@ mutation MutateCollection(
   $collectionId: BigInt!
   $mutation: CollectionMutationInput!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   MutateCollection(
     collectionId: $collectionId
     mutation: $mutation
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -14,6 +16,8 @@ mutation MutateCollection(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

@@ -6,6 +6,7 @@ mutation Freeze(
   $collectionAccount: String
   $tokenAccount: String
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   Freeze(
     freezeType: $freezeType
@@ -15,6 +16,7 @@ mutation Freeze(
     collectionAccount: $collectionAccount
     tokenAccount: $tokenAccount
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -22,6 +24,8 @@ mutation Freeze(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

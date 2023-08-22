@@ -14,6 +14,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Event;
 class ApproveCollectionTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'ApproveCollection';
     protected Codec $codec;
@@ -48,6 +50,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId = random_int(1, 1000),
             'operator' => $operator = app(Generator::class)->public_key(),
             'skipValidation' => true,
+            'simulate' => null,
         ]);
 
         $encodedData = $this->codec->encode()->approveCollection(
@@ -67,6 +70,37 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'operator' => $operator = app(Generator::class)->public_key(),
+            'simulate' => true,
+        ]);
+
+        $encodedData = $this->codec->encode()->approveCollection(
+            $this->collection->collection_chain_id,
+            $operator,
+        );
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_approve_a_collection_with_any_operator(): void
@@ -271,6 +305,22 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
         $this->assertEquals(
             'Variable "$collectionId" of non-null type "BigInt!" must not be null.',
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_fail_with_simulate_invalid(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'operator' => app(Generator::class)->public_key(),
+            'simulate' => 'invalid',
+        ], true);
+
+        $this->assertStringContainsString(
+            'Variable "$simulate" got invalid value "invalid"',
             $response['error']
         );
 

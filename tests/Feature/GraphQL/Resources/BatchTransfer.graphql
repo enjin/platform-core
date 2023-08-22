@@ -3,12 +3,14 @@ mutation BatchTransfer(
   $recipients: [TransferRecipient!]!
   $signingAccount: String
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   BatchTransfer(
     collectionId: $collectionId
     recipients: $recipients
     signingAccount: $signingAccount
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation BatchTransfer(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

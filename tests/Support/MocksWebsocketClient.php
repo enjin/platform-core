@@ -9,6 +9,25 @@ use WebSocket\Client;
 
 trait MocksWebsocketClient
 {
+    protected function mockFee(array $mockedFee): void
+    {
+        $this->mockWebsocketClient(
+            'payment_queryFeeDetails',
+            [],
+            json_encode(
+                [
+                    'jsonrpc' => '2.0',
+                    'result' => [
+                        'inclusionFee' => $mockedFee,
+                    ],
+                    'id' => 1,
+                ],
+                JSON_THROW_ON_ERROR
+            ),
+            true,
+        );
+    }
+
     /**
      * @throws \JsonException
      */
@@ -26,19 +45,25 @@ trait MocksWebsocketClient
     /**
      * @throws \JsonException
      */
-    private function mockWebsocketClient(string $method, array $params, string $responseJson): void
+    private function mockWebsocketClient(string $method, array $params, string $responseJson, bool $anyParam = false): void
     {
         $expectedRpcRequest = Util::createJsonRpc($method, $params);
 
-        app()->bind(Client::class, function () use ($expectedRpcRequest, $responseJson) {
+        app()->bind(Client::class, function () use ($expectedRpcRequest, $responseJson, $anyParam) {
             $mock = Mockery::mock(Client::class);
-            $mock->shouldReceive('send')
-                ->once()
-                ->with(Mockery::on(function ($rpcRequest) use ($expectedRpcRequest) {
-                    $this->assertRpcResponseEquals($expectedRpcRequest, $rpcRequest);
+            if ($anyParam) {
+                $mock->shouldReceive('send')
+                    ->once()
+                    ->withAnyArgs();
+            } else {
+                $mock->shouldReceive('send')
+                    ->once()
+                    ->with(Mockery::on(function ($rpcRequest) use ($expectedRpcRequest) {
+                        $this->assertRpcResponseEquals($expectedRpcRequest, $rpcRequest);
 
-                    return true;
-                }));
+                        return true;
+                    }));
+            }
 
             $mock->shouldReceive('receive')
                 ->once()

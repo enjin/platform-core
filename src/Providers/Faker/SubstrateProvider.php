@@ -10,6 +10,16 @@ use Faker\Provider\Base;
 
 class SubstrateProvider extends Base
 {
+    public function fee_details(): array
+    {
+        return [
+            'baseFee' => HexConverter::intToHexPrefixed($base = fake()->numberBetween()),
+            'lenFee' => HexConverter::intToHexPrefixed($len = fake()->numberBetween()),
+            'adjustedWeightFee' => HexConverter::intToHexPrefixed($adjusted = fake()->numberBetween()),
+            'fakeSum' => $base + $len + $adjusted,
+        ];
+    }
+
     /**
      * Get a random substrate public key.
      */

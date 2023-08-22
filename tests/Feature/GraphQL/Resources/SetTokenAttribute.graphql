@@ -4,6 +4,7 @@ mutation SetTokenAttribute(
   $key: String!
   $value: String!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   SetTokenAttribute(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation SetTokenAttribute(
     key: $key
     value: $value
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -18,6 +20,8 @@ mutation SetTokenAttribute(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

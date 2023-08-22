@@ -3,12 +3,14 @@ mutation TransferAllBalance(
   $keepAlive: Boolean
   $signingAccount: String
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   TransferAllBalance(
     recipient: $recipient
     keepAlive: $keepAlive
     signingAccount: $signingAccount
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation TransferAllBalance(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

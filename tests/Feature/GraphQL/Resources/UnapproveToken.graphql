@@ -3,12 +3,14 @@ mutation UnapproveToken(
   $tokenId: EncodableTokenIdInput!
   $operator: String!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   UnapproveToken(
     collectionId: $collectionId
     tokenId: $tokenId
     operator: $operator
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation UnapproveToken(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

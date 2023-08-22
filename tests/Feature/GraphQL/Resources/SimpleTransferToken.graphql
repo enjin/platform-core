@@ -4,6 +4,7 @@ mutation SimpleTransferToken(
   $params: SimpleTransferParams!
   $signingAccount: String
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   SimpleTransferToken(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation SimpleTransferToken(
     params: $params
     signingAccount: $signingAccount
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -18,6 +20,8 @@ mutation SimpleTransferToken(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

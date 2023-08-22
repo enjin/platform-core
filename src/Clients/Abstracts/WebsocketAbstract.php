@@ -35,6 +35,7 @@ abstract class WebsocketAbstract
     public function send(string $method, array $params = [], bool $rawResponse = false): array|string|null
     {
         $response = $this->sendRaw(Util::createJsonRpc($method, $params));
+        ray($response);
 
         return $rawResponse ? $response : $response['result'] ?? null;
     }

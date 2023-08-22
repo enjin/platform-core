@@ -2,11 +2,13 @@ mutation RemoveCollectionAttribute(
   $collectionId: BigInt!
   $key: String!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   RemoveCollectionAttribute(
     collectionId: $collectionId
     key: $key
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -14,6 +16,8 @@ mutation RemoveCollectionAttribute(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

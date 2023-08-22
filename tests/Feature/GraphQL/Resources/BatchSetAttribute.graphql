@@ -3,12 +3,14 @@ mutation BatchSetAttribute(
   $tokenId: EncodableTokenIdInput
   $attributes: [AttributeInput!]!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   BatchSetAttribute(
     collectionId: $collectionId
     tokenId: $tokenId
     attributes: $attributes
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation BatchSetAttribute(
     method
     encodedData
     state
+    fee
+    deposit
     wallet {
       account {
         publicKey
