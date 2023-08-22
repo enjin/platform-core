@@ -15,12 +15,14 @@ use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
 class CreateCollectionTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'CreateCollection';
 
@@ -80,6 +82,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
+            'simulate' => null,
         ]);
 
         $this->assertArraySubset([
@@ -101,6 +104,37 @@ class CreateCollectionTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->createCollection(
+            $policy = new MintPolicyParams(
+                forceSingleMint: fake()->boolean(),
+            )
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => $policy->toArray(),
+            'simulate' => true,
+        ]);
+
+        $this->assertIsNumeric($response['deposit']);
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_one_create_collection_transaction_is_created_using_idempotency(): void
@@ -611,6 +645,23 @@ class CreateCollectionTest extends TestCaseGraphQL
             'mintPolicy' => [
                 'forceSingleMint' => 'invalid',
             ],
+        ], true);
+
+        $this->assertStringContainsString(
+            'Boolean cannot represent a non boolean value',
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_invalid_simulate(): void
+    {
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => fake()->boolean(),
+            ],
+            'simulate' => 'invalid',
         ], true);
 
         $this->assertStringContainsString(

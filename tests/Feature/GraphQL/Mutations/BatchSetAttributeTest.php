@@ -12,11 +12,14 @@ use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 
 class BatchSetAttributeTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'BatchSetAttribute';
     protected Codec $codec;
@@ -48,7 +51,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     {
         $encodedData = $this->codec->encode()->batchSetAttribute(
             $collectionId = random_int(1, 1000),
-            $tokenId = null,
+            null,
             $attributes = $this->randomAttributes(),
         );
 
@@ -77,11 +80,42 @@ class BatchSetAttributeTest extends TestCaseGraphQL
         ]);
     }
 
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->batchSetAttribute(
+            $collectionId = $this->collection->collection_chain_id,
+            $this->tokenIdEncoder->encode(),
+            $attributes = $this->randomAttributes(),
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'attributes' => $attributes,
+            'simulate' => true,
+        ]);
+
+        $this->assertIsNumeric($response['deposit']);
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+    }
+
     public function test_it_can_batch_set_attribute_on_token(): void
     {
         $encodedData = $this->codec->encode()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
-            $tokenId = $this->tokenIdEncoder->encode(),
+            $this->tokenIdEncoder->encode(),
             $attributes = $this->randomAttributes(),
         );
 
@@ -464,6 +498,26 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
         $this->assertStringContainsString(
             'abc',
+            $response['error']
+        );
+    }
+
+    public function test_it_fail_with_simulate_invalid(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'attributes' => [
+                [
+                    'key' => 'test',
+                    'value' => 'abc',
+                ],
+            ],
+            'simulate' => 'invalid',
+        ], true);
+
+        $this->assertStringContainsString(
+            'Variable "$simulate" got invalid value "invalid"',
             $response['error']
         );
     }
