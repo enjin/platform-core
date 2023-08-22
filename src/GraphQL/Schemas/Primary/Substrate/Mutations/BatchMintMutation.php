@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Codec\Utils;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
@@ -134,9 +135,23 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
 
     protected function getDepositValue(array $args): ?string
     {
-        ray($args);
+        $totalDeposit = collect($args['recipients'])->sum(
+            function ($token) {
+                $initialSupply = gmp_init($token['createParams']['initialSupply']);
+                $unitPrice = gmp_init($token['createParams']['unitPrice'] ?? '10000000000000000');
+                $tokenDeposit = gmp_mul($initialSupply, $unitPrice);
+                $depositBase = gmp_init('200000000000000000');
+                $depositPerByte = gmp_init('100000000000000');
+                $totalBytes = collect($token['createParams']['attributes'])->sum(
+                    fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
+                );
+                $attributes = $totalBytes > 0 ? gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)) : gmp_init(0);
 
-        return null;
+                return gmp_add($tokenDeposit, $attributes);
+            }
+        );
+
+        return gmp_strval($totalDeposit);
     }
 
     /**
