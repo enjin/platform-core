@@ -16,6 +16,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Event;
 class MintTokenTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'MintToken';
     protected Codec $codec;
@@ -85,6 +87,44 @@ class MintTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->mint(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new MintParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: fake()->numberBetween(),
+            ),
+        );
+
+        $params = $params->toArray()['Mint'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($recipient),
+            'collectionId' => $collectionId,
+            'params' => $params,
+        ]);
+
+        $this->assertIsNumeric($response['deposit']);
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_can_mint_a_token_without_unit_price(): void
