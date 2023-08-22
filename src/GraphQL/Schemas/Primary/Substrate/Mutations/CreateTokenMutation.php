@@ -3,10 +3,12 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Codec\Utils;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
@@ -31,6 +33,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     use InPrimarySubstrateSchema;
     use HasSkippableRules;
     use HasSimulateField;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -102,6 +105,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDepositValue($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
@@ -114,6 +118,21 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     public function getMethodName(): string
     {
         return 'mint';
+    }
+
+    protected function getDepositValue(array $args): ?string
+    {
+        $initialSupply = gmp_init($args['params']['initialSupply']);
+        $unitPrice = gmp_init($args['params']['unitPrice'] ?? '10000000000000000');
+        $tokenDeposit = gmp_mul($initialSupply, $unitPrice);
+        $depositBase = gmp_init('200000000000000000');
+        $depositPerByte = gmp_init('100000000000000');
+        $totalBytes = collect($args['params']['attributes'])->sum(
+            fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
+        );
+        $attributes = $totalBytes > 0 ? gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)) : gmp_init(0);
+
+        return gmp_strval(gmp_add($tokenDeposit, $attributes));
     }
 
     /**

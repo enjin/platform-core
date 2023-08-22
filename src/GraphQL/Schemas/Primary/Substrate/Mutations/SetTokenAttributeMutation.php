@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Codec\Utils;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -100,6 +101,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDepositValue($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
@@ -112,6 +114,15 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     public function getMethodName(): string
     {
         return 'setAttribute';
+    }
+
+    protected function getDepositValue(array $args): ?string
+    {
+        $depositBase = gmp_init('200000000000000000');
+        $depositPerByte = gmp_init('100000000000000');
+        $totalBytes = count(Utils::string2ByteArray($args['key'] . $args['value']));
+
+        return gmp_strval(gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)));
     }
 
     /**

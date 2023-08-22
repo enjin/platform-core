@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Codec\Utils;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
@@ -92,6 +93,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDepositValue($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
@@ -104,6 +106,15 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     public function getMethodName(): string
     {
         return 'setAttribute';
+    }
+
+    protected function getDepositValue(array $args): ?string
+    {
+        $depositBase = gmp_init('200000000000000000');
+        $depositPerByte = gmp_init('100000000000000');
+        $totalBytes = count(Utils::string2ByteArray($args['key'])) + count(Utils::string2ByteArray($args['value']));
+
+        return gmp_strval(gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)));
     }
 
     /**

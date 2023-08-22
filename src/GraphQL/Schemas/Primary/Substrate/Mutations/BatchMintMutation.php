@@ -125,10 +125,18 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                 'method' => $this->getMutationName(),
                 'encoded_data' => $this->resolveBatch($args['collectionId'], $recipients, false, $serializationService),
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDepositValue($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );
+    }
+
+    protected function getDepositValue(array $args): ?string
+    {
+        ray($args);
+
+        return null;
     }
 
     /**

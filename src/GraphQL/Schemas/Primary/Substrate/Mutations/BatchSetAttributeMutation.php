@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Codec\Utils;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -90,10 +91,22 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
                 'method' => $this->getMutationName(),
                 'encoded_data' => $this->resolveBatch($args['collectionId'], $this->encodeTokenId($args), $args['attributes'], false, $serializationService),
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDepositValue($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );
+    }
+
+    protected function getDepositValue(array $args): ?string
+    {
+        $depositBase = gmp_init('200000000000000000');
+        $depositPerByte = gmp_init('100000000000000');
+        $totalBytes = collect($args['attributes'])->sum(
+            fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
+        );
+
+        return gmp_strval(gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)));
     }
 
     /**
