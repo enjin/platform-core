@@ -20,6 +20,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\Event;
 class BatchTransferTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected $method = 'BatchTransfer';
     protected Codec $codec;
@@ -116,6 +118,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingWallet->public_key),
             'skipValidation' => true,
+            'simulate' => null,
         ]);
 
         $this->assertArraySubset([
@@ -184,6 +187,53 @@ class BatchTransferTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->batchTransfer(
+            $collectionId = $this->collection->collection_chain_id,
+            [
+                [
+                    'accountId' => $recipient = $this->recipient->public_key,
+                    'params' => new SimpleTransferParams(
+                        tokenId: $this->tokenIdEncoder->encode(),
+                        amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance)
+                    ),
+                ],
+            ]
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient),
+                    'simpleParams' => [
+                        'tokenId' => $this->tokenIdEncoder->toEncodable(),
+                        'amount' => $amount,
+                    ],
+                ],
+            ],
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_batch_simple_single_transfer(): void

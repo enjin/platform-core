@@ -16,12 +16,15 @@ use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 
 class BurnTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected $method = 'Burn';
     protected Codec $codec;
@@ -127,6 +130,43 @@ class BurnTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->burn(
+            $collectionId = $this->collection->collection_chain_id,
+            new BurnParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+            ),
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable(),
+                'amount' => $amount,
+            ],
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_can_burn_a_token_with_default_values(): void
