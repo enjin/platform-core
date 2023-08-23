@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Codec\Utils;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -105,24 +104,11 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
                 'method' => $this->getMutationName(),
                 'encoded_data' => $serializationService->encode($this->getMethodName(), $blockchainService->getCollectionPolicies($args)),
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getDepositValue($args),
+                'deposit' => $this->getCreateCollectionDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );
-    }
-
-    protected function getDepositValue(array $args): ?string
-    {
-        $collectionCreation = gmp_init('25000000000000000000');
-        $depositBase = gmp_init('200000000000000000');
-        $depositPerByte = gmp_init('100000000000000');
-        $totalBytes = collect($args['attributes'])->sum(
-            fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
-        );
-        $attributes = $totalBytes > 0 ? gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)) : gmp_init(0);
-
-        return gmp_strval(gmp_add($collectionCreation, $attributes));
     }
 
     /**

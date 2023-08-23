@@ -20,4 +20,8 @@ class DepositFeeTest extends TestCase
 
         $this->assertEquals(gmp_strval($totalFee), $fee);
     }
+
+    public function test_it_can_get_create_collection_deposit()
+    {
+    }
 }

@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Codec\Utils;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
@@ -11,11 +10,11 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -38,6 +37,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
     use HasSkippableRules;
     use HasEncodableTokenId;
     use HasSimulateField;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -127,53 +127,11 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                 'method' => $this->getMutationName(),
                 'encoded_data' => $this->resolveBatch($args['collectionId'], $recipients, false, $serializationService),
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getDepositValue($args),
+                'deposit' => $this->getBatchMintDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );
-    }
-
-    protected function getDepositValue(array $args): ?string
-    {
-        $totalDeposit = gmp_init(0);
-        collect($args['recipients'])->each(
-            function ($rcpt) use ($args, &$totalDeposit) {
-                if (isset($rcpt['createParams'])) {
-                    $initialSupply = gmp_init($rcpt['createParams']['initialSupply']);
-                    $unitPrice = gmp_init($rcpt['createParams']['unitPrice'] ?? '10000000000000000');
-                    $tokenDeposit = gmp_mul($initialSupply, $unitPrice);
-                    $depositBase = gmp_init('200000000000000000');
-                    $depositPerByte = gmp_init('100000000000000');
-                    $totalBytes = collect($rcpt['createParams']['attributes'])->sum(
-                        fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
-                    );
-                    $attributes = $totalBytes > 0 ? gmp_add($depositBase, gmp_mul($depositPerByte, $totalBytes)) : gmp_init(0);
-                    $deposit = gmp_add($tokenDeposit, $attributes);
-                    $totalDeposit = gmp_add($totalDeposit, $deposit);
-                } else {
-                    $collection = \Enjin\Platform\Models\Collection::firstWhere('collection_chain_id', $args['collectionId']);
-                    $tokenId = $this->encodeTokenId($rcpt['mintParams']['tokenId']);
-                    $token = Token::firstWhere([
-                        'collection_id' => $collection->id,
-                        'token_chain_id' => $tokenId,
-                    ]);
-
-                    $unitPrice = $token?->unit_price ?? '10000000000000000';
-                    $extraUnitPrice = Arr::get($rcpt, 'mintParams.unitPrice', $unitPrice);
-                    $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
-
-                    if (Arr::get($rcpt, 'mintParams.unitPrice')) {
-                        $unitPrice = Arr::get($rcpt, 'mintParams.unitPrice');
-                    }
-
-                    $deposit = gmp_add(gmp_mul($unitPrice, $rcpt['mintParams']['amount']), $extra);
-                    $totalDeposit = gmp_add($totalDeposit, $deposit);
-                }
-            }
-        );
-
-        return gmp_strval($totalDeposit);
     }
 
     /**

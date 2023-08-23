@@ -13,8 +13,6 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -23,7 +21,6 @@ use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -109,7 +106,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getDepositValue($args),
+                'deposit' => $this->getMintTokenDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
@@ -122,26 +119,6 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     public function getMethodName(): string
     {
         return 'mint';
-    }
-
-    protected function getDepositValue(array $args): ?string
-    {
-        $collection = Collection::firstWhere('collection_chain_id', $args['collectionId']);
-        $tokenId = $this->encodeTokenId($args['params']);
-        $token = Token::firstWhere([
-            'collection_id' => $collection->id,
-            'token_chain_id' => $tokenId,
-        ]);
-
-        $unitPrice = $token?->unit_price ?? '10000000000000000';
-        $extraUnitPrice = Arr::get($args, 'params.unitPrice', $unitPrice);
-        $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
-
-        if (Arr::get($args, 'params.unitPrice')) {
-            $unitPrice = Arr::get($args, 'params.unitPrice');
-        }
-
-        return gmp_strval(gmp_add(gmp_mul($unitPrice, $args['params']['amount']), $extra));
     }
 
     /**
