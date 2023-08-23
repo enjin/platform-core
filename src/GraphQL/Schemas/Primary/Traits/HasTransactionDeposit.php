@@ -50,38 +50,51 @@ trait HasTransactionDeposit
         return gmp_strval($totalDeposit);
     }
 
+    protected function calculateDepositForToken(array $args): GMP
+    {
+        $initialSupply = gmp_init($args['initialSupply']);
+        $unitPrice = gmp_init($args['unitPrice'] ?? TransactionDeposit::TOKEN_ACCOUNT->value);
+
+        return gmp_mul($initialSupply, $unitPrice);
+    }
+
     protected function getCreateTokenDeposit(array $args): ?string
     {
-        $initialSupply = gmp_init($args['params']['initialSupply']);
-        $unitPrice = gmp_init($args['params']['unitPrice'] ?? '10000000000000000');
-        $tokenDeposit = gmp_mul($initialSupply, $unitPrice);
+        $tokenDeposit = $this->calculateDepositForToken($args['params']);
         $attributesDeposit = $this->calculateDepositForAttributes($args['params']['attributes']);
 
         return gmp_strval(gmp_add($tokenDeposit, $attributesDeposit));
     }
 
-    protected function getMintTokenDeposit(array $args): ?string
+    protected function calculateDepositForMint(string $collectionId, array $params): GMP
     {
-        $collection = Collection::firstWhere('collection_chain_id', $args['collectionId']);
-        $tokenId = $this->encodeTokenId($args['params']);
+        $collection = Collection::firstWhere('collection_chain_id', $collectionId);
+        $tokenId = $this->encodeTokenId($params);
         $token = Token::firstWhere([
             'collection_id' => $collection->id,
             'token_chain_id' => $tokenId,
         ]);
 
-        $unitPrice = $token?->unit_price ?? '10000000000000000';
-        $extraUnitPrice = Arr::get($args, 'params.unitPrice', $unitPrice);
+        $unitPrice = $token?->unit_price ?? TransactionDeposit::TOKEN_ACCOUNT->value;
+        $extraUnitPrice = Arr::get($params, 'unitPrice', $unitPrice);
         $extra = 0;
 
-        if (Arr::get($args, 'params.unitPrice')) {
+        if (Arr::get($params, 'unitPrice')) {
             $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
-            $unitPrice = Arr::get($args, 'params.unitPrice');
+            $unitPrice = Arr::get($params, 'unitPrice');
         }
 
-        return gmp_strval(gmp_add(gmp_mul($unitPrice, $args['params']['amount']), $extra));
+        return gmp_add(gmp_mul($unitPrice, $params['amount']), $extra);
     }
 
-    protected function getSetAttributeDeposit(array $args): ?string
+    protected function getMintTokenDeposit(array $args): string
+    {
+        $mintDeposit = $this->calculateDepositForMint($args['collectionId'], $args['params']);
+
+        return gmp_strval($mintDeposit);
+    }
+
+    protected function getSetAttributeDeposit(array $args): string
     {
         $attributeDeposit = $this->calculateDepositForAttributes([
             [
@@ -93,46 +106,26 @@ trait HasTransactionDeposit
         return gmp_strval($attributeDeposit);
     }
 
-    protected function getBatchSetAttributeDeposit(array $args): ?string
+    protected function getBatchSetAttributeDeposit(array $args): string
     {
         $attributesDeposit = $this->calculateDepositForAttributes($args['attributes']);
 
         return gmp_strval($attributesDeposit);
     }
 
-    protected function getBatchMintDeposit(array $args): ?string
+    protected function getBatchMintDeposit(array $args): string
     {
         $totalDeposit = gmp_init(0);
+
         collect($args['recipients'])->each(
             function ($rcpt) use ($args, &$totalDeposit) {
                 if (isset($rcpt['createParams'])) {
-                    $initialSupply = gmp_init($rcpt['createParams']['initialSupply']);
-                    $unitPrice = gmp_init($rcpt['createParams']['unitPrice'] ?? '10000000000000000');
-                    $tokenDeposit = gmp_mul($initialSupply, $unitPrice);
-                    $totalBytes = collect($rcpt['createParams']['attributes'])->sum(
-                        fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
-                    );
-                    $attributes = $totalBytes > 0 ? gmp_add(TransactionDeposit::ATTRIBUTE_BASE->toGMP(), gmp_mul(TransactionDeposit::ATTRIBUTE_PER_BYTE->toGMP(), $totalBytes)) : gmp_init(0);
-                    $deposit = gmp_add($tokenDeposit, $attributes);
-                    $totalDeposit = gmp_add($totalDeposit, $deposit);
+                    $tokenDeposit = $this->calculateDepositForToken($rcpt['createParams']);
+                    $attributesDeposit = $this->calculateDepositForAttributes($rcpt['createParams']['attributes']);
+                    $totalDeposit = gmp_add($totalDeposit, gmp_add($tokenDeposit, $attributesDeposit));
                 } else {
-                    $collection = Collection::firstWhere('collection_chain_id', $args['collectionId']);
-                    $tokenId = $this->encodeTokenId($rcpt['mintParams']['tokenId']);
-                    $token = Token::firstWhere([
-                        'collection_id' => $collection->id,
-                        'token_chain_id' => $tokenId,
-                    ]);
-
-                    $unitPrice = $token?->unit_price ?? '10000000000000000';
-                    $extraUnitPrice = Arr::get($rcpt, 'mintParams.unitPrice', $unitPrice);
-                    $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
-
-                    if (Arr::get($rcpt, 'mintParams.unitPrice')) {
-                        $unitPrice = Arr::get($rcpt, 'mintParams.unitPrice');
-                    }
-
-                    $deposit = gmp_add(gmp_mul($unitPrice, $rcpt['mintParams']['amount']), $extra);
-                    $totalDeposit = gmp_add($totalDeposit, $deposit);
+                    $mintDeposit = $this->calculateDepositForMint($args['collectionId'], $rcpt['mintParams']);
+                    $totalDeposit = gmp_add($totalDeposit, $mintDeposit);
                 }
             }
         );

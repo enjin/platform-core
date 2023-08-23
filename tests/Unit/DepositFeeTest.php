@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
+use Codec\Utils;
+use Enjin\Platform\Enums\Substrate\TransactionDeposit;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
@@ -33,7 +35,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getCreateCollectionDeposit($args);
 
-        $this->assertEquals('25000000000000000000', $deposit);
+        $this->assertEquals(TransactionDeposit::COLLECTION->value, $deposit);
     }
 
     public function test_deposit_for_create_collection_with_attributes()
@@ -41,39 +43,31 @@ class DepositFeeTest extends TestCase
         $args = [
             'attributes' => [
                 [
-                    'key' => 'string',
-                    'value' => 'test',
+                    'key' => $key = fake()->word(),
+                    'value' => $value = fake()->text(),
                 ],
             ],
         ];
 
         $deposit = $this->getCreateCollectionDeposit($args);
+        $totalBytes = count(Utils::string2ByteArray($key . $value));
+        $totalDeposit = gmp_add(TransactionDeposit::ATTRIBUTE_BASE->toGMP(), gmp_mul(TransactionDeposit::ATTRIBUTE_PER_BYTE->toGMP(), $totalBytes));
 
-        $this->assertEquals('25201000000000000000', $deposit);
+        $this->assertEquals(gmp_strval(gmp_add(TransactionDeposit::COLLECTION->toGMP(), $totalDeposit)), $deposit);
     }
 
-    public function test_deposit_for_set_collection_attribute()
+    public function test_deposit_for_set_attribute()
     {
         $args = [
-            'key' => 'uri',
-            'value' => 'localhost',
+            'key' => $key = fake()->word(),
+            'value' => $value = fake()->text(),
         ];
 
         $deposit = $this->getSetAttributeDeposit($args);
+        $totalBytes = count(Utils::string2ByteArray($key . $value));
+        $totalDeposit = gmp_add(TransactionDeposit::ATTRIBUTE_BASE->toGMP(), gmp_mul(TransactionDeposit::ATTRIBUTE_PER_BYTE->toGMP(), $totalBytes));
 
-        $this->assertEquals('201200000000000000', $deposit);
-    }
-
-    public function test_deposit_for_set_token_attribute()
-    {
-        $args = [
-            'key' => 'uri',
-            'value' => 'localhost',
-        ];
-
-        $deposit = $this->getSetAttributeDeposit($args);
-
-        $this->assertEquals('201200000000000000', $deposit);
+        $this->assertEquals(gmp_strval($totalDeposit), $deposit);
     }
 
     public function test_deposit_for_create_token_with_empty_attributes()
@@ -82,14 +76,13 @@ class DepositFeeTest extends TestCase
             'collectionId' => 2000,
             'params' => [
                 'initialSupply' => 1,
-                'unitPrice' => 10000000000000000,
                 'attributes' => [],
             ],
         ];
 
         $deposit = $this->getCreateTokenDeposit($args);
 
-        $this->assertEquals('10000000000000000', $deposit);
+        $this->assertEquals(TransactionDeposit::TOKEN_ACCOUNT->value, $deposit);
     }
 
     public function test_deposit_for_create_token_with_attributes()
@@ -97,7 +90,6 @@ class DepositFeeTest extends TestCase
         $args = [
             'params' => [
                 'initialSupply' => 1,
-                'unitPrice' => 10000000000000000,
                 'attributes' => [
                     [
                         'key' => 'string',
@@ -116,7 +108,7 @@ class DepositFeeTest extends TestCase
     {
         $token = Token::factory()->create([
             'supply' => '1',
-            'unit_price' => '10000000000000000',
+            'unit_price' => TransactionDeposit::TOKEN_ACCOUNT->value,
         ]);
         $collection = Collection::find($token->collection_id);
 
@@ -133,7 +125,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getMintTokenDeposit($args);
 
-        $this->assertEquals('10000000000000000', $deposit);
+        $this->assertEquals(TransactionDeposit::TOKEN_ACCOUNT->value, $deposit);
     }
 
     public function test_deposit_for_batch_create_token_with_empty_attributes()
@@ -143,7 +135,6 @@ class DepositFeeTest extends TestCase
                 [
                     'createParams' => [
                         'initialSupply' => 1,
-                        'unitPrice' => 10000000000000000,
                         'attributes' => [],
                     ],
                 ],
@@ -152,7 +143,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getBatchMintDeposit($args);
 
-        $this->assertEquals('10000000000000000', $deposit);
+        $this->assertEquals(TransactionDeposit::TOKEN_ACCOUNT->value, $deposit);
     }
 
     public function test_deposit_for_batch_create_token_with_attributes()
@@ -162,7 +153,6 @@ class DepositFeeTest extends TestCase
                 [
                     'createParams' => [
                         'initialSupply' => 1,
-                        'unitPrice' => 10000000000000000,
                         'attributes' => [
                             [
                                 'key' => 'string',
