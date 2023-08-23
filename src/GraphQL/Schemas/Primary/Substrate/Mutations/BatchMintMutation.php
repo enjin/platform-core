@@ -136,8 +136,6 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
 
     protected function getDepositValue(array $args): ?string
     {
-        ray($args);
-
         $totalDeposit = gmp_init(0);
         collect($args['recipients'])->each(
             function ($rcpt) use ($args, &$totalDeposit) {
