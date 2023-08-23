@@ -2,6 +2,9 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
+use Codec\Base;
+use Codec\Types\ScaleInstance;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
@@ -26,6 +29,38 @@ class EncodingTest extends TestCase
         parent::setUp();
 
         $this->codec = new Codec();
+    }
+
+    public function test_it_can_encode_sequence_length()
+    {
+        $data = $this->codec->encode()->sequenceLength('0x110022');
+        $this->assertEquals('0x0c', $data);
+
+        $data = $this->codec->encode()->sequenceLength($hexText = HexConverter::stringToHexPrefixed(fake()->text()));
+        $length = (new ScaleInstance(Base::create()))->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($hexText)));
+
+        $this->assertEquals(HexConverter::prefix($length), HexConverter::prefix($data));
+    }
+
+    public function test_it_can_add_a_fake_signature_to_a_call()
+    {
+        $call = $this->codec->encode()->transferBalance(
+            '0x3a158a287b46acd830ee9a83d304a63569f8669968a20ea80720e338a565dd09',
+            '1000000000000000000'
+        );
+
+        $data = $this->codec->encode()->addFakeSignature($call);
+
+        $extraByte = '84';
+        $signed = '003a158a287b46acd830ee9a83d304a63569f8669968a20ea80720e338a565dd09';
+        $signature = '01a2369c177101204aede6d1992240c436a05084f1b56321a0851ed346cb2783704fd10cbfd10a423f1f7ab321761de08c3927c082236ed433a979b19ee09ed789';
+        $era = '00';
+        $nonce = '00';
+        $tip = '00';
+        $length = $this->codec->encode()->sequenceLength(($fakeInfo = '0x' . $extraByte . $signed . $signature . $era . $nonce . $tip) . HexConverter::unPrefix($call));
+
+        $this->assertEquals($length, substr($data, 0, 6));
+        $this->assertEquals(HexConverter::unPrefix($call), substr($data, strlen('0x' . HexConverter::unPrefix($length) . HexConverter::unPrefix($fakeInfo))));
     }
 
     public function test_it_can_encode_transfer_balance()
