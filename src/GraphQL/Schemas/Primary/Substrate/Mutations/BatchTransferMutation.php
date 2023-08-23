@@ -9,6 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
@@ -37,6 +38,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     use HasEncodableTokenId;
     use HasSkippableRules;
     use HasSimulateField;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -126,6 +128,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
                     'method' => $this->getMutationName(),
                     'encoded_data' => $this->resolveBatch($args['collectionId'], $recipients, false, $serializationService),
                     'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                    'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
                 ],
                 signingWallet: $signingWallet

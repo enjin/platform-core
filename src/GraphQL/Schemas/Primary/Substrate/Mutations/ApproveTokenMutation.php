@@ -8,6 +8,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
@@ -38,6 +39,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
     use HasEncodableTokenId;
     use HasSkippableRules;
     use HasSimulateField;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -126,6 +128,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo

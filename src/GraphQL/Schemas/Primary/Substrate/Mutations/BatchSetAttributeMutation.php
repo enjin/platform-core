@@ -92,7 +92,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
                 'method' => $this->getMutationName(),
                 'encoded_data' => $this->resolveBatch($args['collectionId'], $this->encodeTokenId($args), $args['attributes'], false, $serializationService),
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getBatchSetAttributeDeposit($args),
+                'deposit' => $this->getDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo

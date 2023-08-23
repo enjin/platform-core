@@ -33,6 +33,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasEncodableTokenId;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -106,7 +107,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getMintTokenDeposit($args),
+                'deposit' => $this->getDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo

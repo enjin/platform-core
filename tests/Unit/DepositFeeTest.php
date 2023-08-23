@@ -59,7 +59,7 @@ class DepositFeeTest extends TestCase
             'value' => 'localhost',
         ];
 
-        $deposit = $this->getSetCollectionAttributeDeposit($args);
+        $deposit = $this->getSetAttributeDeposit($args);
 
         $this->assertEquals('201200000000000000', $deposit);
     }
@@ -71,7 +71,7 @@ class DepositFeeTest extends TestCase
             'value' => 'localhost',
         ];
 
-        $deposit = $this->getSetTokenAttributeDeposit($args);
+        $deposit = $this->getSetAttributeDeposit($args);
 
         $this->assertEquals('201200000000000000', $deposit);
     }

@@ -104,7 +104,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
                 'method' => $this->getMutationName(),
                 'encoded_data' => $serializationService->encode($this->getMethodName(), $blockchainService->getCollectionPolicies($args)),
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getCreateCollectionDeposit($args),
+                'deposit' => $this->getDeposit($args),
                 'simulate' => $args['simulate'],
             ]),
             $resolveInfo
