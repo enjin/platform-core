@@ -2,6 +2,9 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
+use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Token;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Enjin\Platform\Tests\TestCase;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -10,6 +13,7 @@ use Faker\Generator;
 class DepositFeeTest extends TestCase
 {
     use MocksWebsocketClient;
+    use HasTransactionDeposit;
 
     public function test_it_can_get_extrinsic_fee()
     {
@@ -21,7 +25,177 @@ class DepositFeeTest extends TestCase
         $this->assertEquals(gmp_strval($totalFee), $fee);
     }
 
-    public function test_it_can_get_create_collection_deposit()
+    public function test_deposit_for_create_collection_with_empty_attributes()
     {
+        $args = [
+            'attributes' => [],
+        ];
+
+        $deposit = $this->getCreateCollectionDeposit($args);
+
+        $this->assertEquals('25000000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_create_collection_with_attributes()
+    {
+        $args = [
+            'attributes' => [
+                [
+                    'key' => 'string',
+                    'value' => 'test',
+                ],
+            ],
+        ];
+
+        $deposit = $this->getCreateCollectionDeposit($args);
+
+        $this->assertEquals('25201000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_set_collection_attribute()
+    {
+        $args = [
+            'key' => 'uri',
+            'value' => 'localhost',
+        ];
+
+        $deposit = $this->getSetCollectionAttributeDeposit($args);
+
+        $this->assertEquals('201200000000000000', $deposit);
+    }
+
+    public function test_deposit_for_set_token_attribute()
+    {
+        $args = [
+            'key' => 'uri',
+            'value' => 'localhost',
+        ];
+
+        $deposit = $this->getSetTokenAttributeDeposit($args);
+
+        $this->assertEquals('201200000000000000', $deposit);
+    }
+
+    public function test_deposit_for_create_token_with_empty_attributes()
+    {
+        $args = [
+            'collectionId' => 2000,
+            'params' => [
+                'initialSupply' => 1,
+                'unitPrice' => 10000000000000000,
+                'attributes' => [],
+            ],
+        ];
+
+        $deposit = $this->getCreateTokenDeposit($args);
+
+        $this->assertEquals('10000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_create_token_with_attributes()
+    {
+        $args = [
+            'params' => [
+                'initialSupply' => 1,
+                'unitPrice' => 10000000000000000,
+                'attributes' => [
+                    [
+                        'key' => 'string',
+                        'value' => 'test',
+                    ],
+                ],
+            ],
+        ];
+
+        $deposit = $this->getCreateTokenDeposit($args);
+
+        $this->assertEquals('211000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_mint_token()
+    {
+        $token = Token::factory()->create([
+            'supply' => '1',
+            'unit_price' => '10000000000000000',
+        ]);
+        $collection = Collection::find($token->collection_id);
+
+        $args = [
+            'collectionId' => $collection->collection_chain_id,
+            'params' => [
+                'tokenId' => [
+                    'integer' => $token->token_chain_id,
+                ],
+                'amount' => 1,
+                'unitPrice' => null,
+            ],
+        ];
+
+        $deposit = $this->getMintTokenDeposit($args);
+
+        $this->assertEquals('10000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_batch_create_token_with_empty_attributes()
+    {
+        $args = [
+            'recipients' => [
+                [
+                    'createParams' => [
+                        'initialSupply' => 1,
+                        'unitPrice' => 10000000000000000,
+                        'attributes' => [],
+                    ],
+                ],
+            ],
+        ];
+
+        $deposit = $this->getBatchMintDeposit($args);
+
+        $this->assertEquals('10000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_batch_create_token_with_attributes()
+    {
+        $args = [
+            'recipients' => [
+                [
+                    'createParams' => [
+                        'initialSupply' => 1,
+                        'unitPrice' => 10000000000000000,
+                        'attributes' => [
+                            [
+                                'key' => 'string',
+                                'value' => 'test',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $deposit = $this->getBatchMintDeposit($args);
+
+        $this->assertEquals('211000000000000000', $deposit);
+    }
+
+    public function test_deposit_for_batch_set_attribute()
+    {
+        $args = [
+            'attributes' => [
+                [
+                    'key' => 'uri',
+                    'value' => 'localhost',
+                ],
+                [
+                    'key' => 'name',
+                    'value' => 'test',
+                ],
+            ],
+        ];
+
+        $deposit = $this->getBatchSetAttributeDeposit($args);
+
+        $this->assertEquals('202000000000000000', $deposit);
     }
 }

@@ -3,17 +3,22 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Traits;
 
 use Codec\Utils;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Illuminate\Support\Arr;
 
 trait HasTransactionDeposit
 {
+    use HasEncodableTokenId;
+
     /**
      * Gets the deposit necessary to execute this transaction.
      */
     protected function getCreateCollectionDeposit(array $args): ?string
     {
+        ray($args);
+
         $collectionCreation = gmp_init('25000000000000000000');
         $depositBase = gmp_init('200000000000000000');
         $depositPerByte = gmp_init('100000000000000');
@@ -27,6 +32,8 @@ trait HasTransactionDeposit
 
     protected function getCreateTokenDeposit(array $args): ?string
     {
+        ray($args);
+
         $initialSupply = gmp_init($args['params']['initialSupply']);
         $unitPrice = gmp_init($args['params']['unitPrice'] ?? '10000000000000000');
         $tokenDeposit = gmp_mul($initialSupply, $unitPrice);
@@ -42,6 +49,8 @@ trait HasTransactionDeposit
 
         protected function getMintTokenDeposit(array $args): ?string
         {
+            ray($args);
+
             $collection = Collection::firstWhere('collection_chain_id', $args['collectionId']);
             $tokenId = $this->encodeTokenId($args['params']);
             $token = Token::firstWhere([
@@ -51,9 +60,10 @@ trait HasTransactionDeposit
 
             $unitPrice = $token?->unit_price ?? '10000000000000000';
             $extraUnitPrice = Arr::get($args, 'params.unitPrice', $unitPrice);
-            $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
+            $extra = 0;
 
             if (Arr::get($args, 'params.unitPrice')) {
+                $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
                 $unitPrice = Arr::get($args, 'params.unitPrice');
             }
 
@@ -62,6 +72,8 @@ trait HasTransactionDeposit
 
     protected function getSetCollectionAttributeDeposit(array $args): ?string
     {
+        ray($args);
+
         $depositBase = gmp_init('200000000000000000');
         $depositPerByte = gmp_init('100000000000000');
         $totalBytes = count(Utils::string2ByteArray($args['key'])) + count(Utils::string2ByteArray($args['value']));
@@ -71,6 +83,8 @@ trait HasTransactionDeposit
 
     protected function getSetTokenAttributeDeposit(array $args): ?string
     {
+        ray($args);
+
         $depositBase = gmp_init('200000000000000000');
         $depositPerByte = gmp_init('100000000000000');
         $totalBytes = count(Utils::string2ByteArray($args['key'] . $args['value']));
@@ -80,6 +94,8 @@ trait HasTransactionDeposit
 
     protected function getBatchSetAttributeDeposit(array $args): ?string
     {
+        ray($args);
+
         $depositBase = gmp_init('200000000000000000');
         $depositPerByte = gmp_init('100000000000000');
         $totalBytes = collect($args['attributes'])->sum(
@@ -91,6 +107,8 @@ trait HasTransactionDeposit
 
     protected function getBatchMintDeposit(array $args): ?string
     {
+        ray($args);
+
         $totalDeposit = gmp_init(0);
         collect($args['recipients'])->each(
             function ($rcpt) use ($args, &$totalDeposit) {
