@@ -172,6 +172,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
+            'simulate' => true,
         ]);
 
         $this->assertArraySubset([
@@ -186,7 +187,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                     'publicKey' => $this->defaultAccount,
                 ],
             ],
-            'simulate' => true,
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);

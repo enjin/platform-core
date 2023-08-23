@@ -118,7 +118,7 @@ class FreezeTest extends TestCaseGraphQL
         ]);
 
         $this->assertArraySubset([
-            'id' => true,
+            'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,

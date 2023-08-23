@@ -128,14 +128,7 @@ class ThawTest extends TestCaseGraphQL
             ],
         ], $response);
 
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_can_thaw_a_collection(): void

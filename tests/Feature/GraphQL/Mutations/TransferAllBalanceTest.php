@@ -77,6 +77,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'recipient' => $address,
             'keepAlive' => $keepAlive,
+            'simulate' => true,
         ]);
 
         $this->assertArraySubset([

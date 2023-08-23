@@ -162,13 +162,13 @@ class CreateTokenTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
+        $this->assertIsNumeric($response['deposit']);
         $this->assertArraySubset([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'fee' => $feeDetails['fakeSum'],
-            'deposit' => null,
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,

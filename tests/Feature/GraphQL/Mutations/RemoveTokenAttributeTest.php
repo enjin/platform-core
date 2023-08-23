@@ -91,6 +91,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $this->collection->collection_chain_id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => $key = $this->attribute->key,
+            'simulate' => true,
         ]);
 
         $encodedData = $this->codec->encode()->removeAttribute(

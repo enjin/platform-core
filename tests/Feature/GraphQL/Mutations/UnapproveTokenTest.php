@@ -128,7 +128,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'fee' => $feeDetails['fee'],
+            'fee' => $feeDetails['fakeSum'],
             'deposit' => null,
             'wallet' => [
                 'account' => [
