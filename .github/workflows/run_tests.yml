@@ -62,7 +62,8 @@ jobs:
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --colors=always --coverage-clover coverage.xml
         env:
-          DB_HOST: 127.0.0.1:${{ job.services.mysql.ports[3306] }}
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
           DB_DATABASE: platform
 
       - name: Upload coverage to Codecov
