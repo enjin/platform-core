@@ -163,6 +163,7 @@ class TestCaseGraphQL extends BaseTestCase
     protected function defineEnvironment($app): void
     {
         $app->useEnvironmentPath(__DIR__ . '/..');
+        $app->useDatabasePath(__DIR__ . '/../../../database');
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
 
         $app['config']->set('database.default', env('DB_DRIVER', 'mysql'));
