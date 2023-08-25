@@ -111,7 +111,7 @@ return [
                     'network-id' => 101,
                     'testnet' => false,
                     'platform-id' => env('EFINITY_POLKADOT_PLATFORM_ID', 0),
-                    'node' => env('EFINITY_POLKADOT_RPC', 'wss://rpc.efinity.io:443'),
+                    'node' => env('EFINITY_POLKADOT_RPC', 'wss://archive.rpc.efinity.io:443'),
                     'ss58-prefix' => env('EFINITY_POLKADOT_SS58_PREFIX', 1110),
                 ],
                 'local' => [

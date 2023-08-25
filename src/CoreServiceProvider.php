@@ -5,6 +5,7 @@ namespace Enjin\Platform;
 use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\Sync;
+use Enjin\Platform\Commands\TransactionChecker;
 use Enjin\Platform\Commands\Transactions;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
@@ -64,6 +65,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasCommand(Ingest::class)
             ->hasCommand(Transactions::class)
             ->hasCommand(ClearCache::class)
+            ->hasCommand(TransactionChecker::class)
             ->hasTranslations();
     }
 

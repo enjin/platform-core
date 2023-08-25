@@ -34,6 +34,7 @@ class ExtrinsicProcessor
     {
         Log::info("Processing Extrinsics from block #{$this->block->number}");
         $extrinsics = $this->block->extrinsics ?? [];
+        ray($extrinsics);
         $errors = [];
 
         foreach ($extrinsics as $index => $extrinsic) {
