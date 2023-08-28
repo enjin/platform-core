@@ -43,42 +43,29 @@ class TransactionChecker extends Command
         $start = now();
 
         $blockNumber = Block::where('synced', true)->max('number');
-        $this->info("Going until block {$blockNumber}");
 
-        // 25 blocos atras = 5min
-        // 50 blocks = 10min
-//        $lastBlock = max(0, $blockNumber - 100000);
-//        ray('When start searching');
-
-
-        $transactions = Transaction::where([
+        $transactions = collect(Transaction::where([
             'state' => TransactionState::BROADCAST,
-        ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
-//            ->whereBetween('signed_at_block', [$lastBlock, $blockNumber])
-            ->get();
-//        ray($transactions);
-
-        $counter = $transactions->count();
+        ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])->get());
 
         if ($transactions->isEmpty()) {
             return;
         }
 
         $minSignedAtBlock = $transactions->min('signed_at_block');
-        $this->info("Starting on block {$minSignedAtBlock}");
+        $this->info("We will start scanning the chain on block: {$minSignedAtBlock}");
+        $this->info("And we will go until block: {$blockNumber}");
 
         if ($minSignedAtBlock > $blockNumber) {
-            $this->info("No transactions to check");
+            $this->info('There are no transactions to check in those blocks');
+
             return;
         }
 
-        ray($minSignedAtBlock);
-
+        $counter = $transactions->count();
         $hashes = array_filter($transactions->pluck('transaction_chain_hash')->toArray());
-        ray($hashes);
 
         for ($i = $minSignedAtBlock; $i <= $blockNumber; $i++) {
-            ray($i);
             $block = Block::firstWhere('number', $i);
             if (!($block?->hash)) {
                 $block = Block::updateOrCreate(
@@ -88,60 +75,55 @@ class TransactionChecker extends Command
             }
 
             $extrinsics = $this->fetchExtrinsics($block, $client);
-//            ray($extrinsics);
             $hashesFromThisBlock = collect($extrinsics)->pluck('hash')->toArray();
 
             if (($i - $minSignedAtBlock) > 300) {
-                $this->info("Did not find transaction signed at block $minSignedAtBlock in the last 300 blocks");
+                $this->info("Did not find transaction signed at block {$minSignedAtBlock} in the last 300 blocks");
 
                 $transactions = collect($transactions)->filter(fn ($transaction) => $transaction->signed_at_block != $minSignedAtBlock);
                 $minSignedAtBlock = collect($transactions)->min('signed_at_block');
 
+                if (empty($minSignedAtBlock) || $minSignedAtBlock >= $blockNumber) {
+                    $this->info("There are no more transactions to search for.");
+                    break;
+                }
+
                 if ($minSignedAtBlock <= $i) {
-                    $this->info("Continuing trying to find transaction signed at block $minSignedAtBlock");
+                    $this->info("Continuing trying to find transaction signed at block {$minSignedAtBlock}");
                 } else {
-                  $this->info("Skipping from block: {$i} to block: {$minSignedAtBlock}");
-                  $i = $minSignedAtBlock - 1;
+                    $this->info("Skipping from block: {$i} to block: {$minSignedAtBlock}");
+                    $i = $minSignedAtBlock - 1;
                 }
             }
 
             if (count(array_intersect($hashes, $hashesFromThisBlock)) > 0) {
-                    // Found extrinsic
-                    $block->events = $this->fetchEvents($block, $client);
-                    $block->extrinsics = $extrinsics;
-//                    ray($block);
-                    $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
-                    if (!empty($hasExtrinsicErrors)) {
-                        ray($hasExtrinsicErrors);
-                    }
-//                    ray($hasExtrinsicErrors);
+                $block->events = $this->fetchEvents($block, $client);
+                $block->extrinsics = $extrinsics;
 
-//                    ray("Removing hash for hashes array");
-                    $this->info(sprintf("Took %s blocks to find the transaction signed at block: %s", $i - $minSignedAtBlock, $minSignedAtBlock));
-                    $hashes = array_diff($hashes, $hashesFromThisBlock);
-                    $transactions = collect($transactions)->filter(fn ($transaction) => !in_array($transaction->transaction_chain_hash, $hashesFromThisBlock));
-                    $minSignedAtBlock = collect($transactions)->min('signed_at_block');
+                $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
+                if (!empty($hasExtrinsicErrors)) {
+                    $this->error(json_encode($hasExtrinsicErrors));
+                }
 
-                    if ($minSignedAtBlock > $i) {
-                        $this->info(sprintf("Skipping from block: {$i} to block: %s", $minSignedAtBlock));
-                        $i = $minSignedAtBlock - 1;
-                    }
+                $this->info(sprintf('Took %s blocks to find the transaction signed at block: %s', $i - $minSignedAtBlock, $minSignedAtBlock));
+                $hashes = array_diff($hashes, $hashesFromThisBlock);
+                $transactions = collect($transactions)->filter(fn ($transaction) => !in_array($transaction->transaction_chain_hash, $hashesFromThisBlock));
+                $minSignedAtBlock = collect($transactions)->min('signed_at_block');
+
+                if ($minSignedAtBlock > $i) {
+                    $this->info(sprintf("Skipping from block: {$i} to block: %s", $minSignedAtBlock));
+                    $i = $minSignedAtBlock - 1;
+                }
             }
 
             if (empty($hashes)) {
                 break;
             }
-
-//            ray($extrinsics);
         }
 
-        $end = collect($transactions)->count();
-        $counter = $counter - $end;
-
-        $this->info(sprintf("We could not find the following transactions: %s", json_encode($hashes)));
-        $this->info("Fixed {$counter} transactions");
-
-        $this->info(__('enjin-platform::commands.sync.total_time', ['sec' => now()->diffInMilliseconds($start) / 1000]));
+        $this->info(sprintf('We did not find the following transactions: %s', json_encode($hashes)));
+        $this->info(sprintf("The command has fixed %s transactions.", $counter - collect($transactions)->count()));
+        $this->info(sprintf('Command run for the total of %s seconds.', now()->diffInMilliseconds($start) / 1000));
     }
 
     protected function fetchExtrinsics($block, Substrate $client): mixed
@@ -162,5 +144,4 @@ class TransactionChecker extends Command
 
         return [];
     }
-
 }
