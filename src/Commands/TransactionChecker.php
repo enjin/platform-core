@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Commands;
 
+use Carbon\Carbon;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Models\Laravel\Block;
@@ -12,6 +13,7 @@ use Enjin\Platform\Services\Processor\Substrate\ExtrinsicProcessor;
 use Facades\Enjin\Platform\Services\Processor\Substrate\State;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class TransactionChecker extends Command
 {
@@ -31,6 +33,16 @@ class TransactionChecker extends Command
 
     protected Codec $codec;
     protected Substrate $client;
+    protected ProgressBar $progressBar;
+    protected Carbon $start;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->description = __('enjin-platform::commands.transactions.description');
+        $this->start = now();
+    }
 
     /**
      * Execute the job.
@@ -40,21 +52,20 @@ class TransactionChecker extends Command
         $this->codec = $codec;
         $this->client = $client;
 
-        $start = now();
-
         $blockNumber = Block::where('synced', true)->max('number');
-
         $transactions = collect(Transaction::where([
             'state' => TransactionState::BROADCAST,
         ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])->get());
 
         if ($transactions->isEmpty()) {
+            $this->info('There are no transactions to check.');
+
             return;
         }
 
         $minSignedAtBlock = $transactions->min('signed_at_block');
-        $this->info("We will start scanning the chain on block: {$minSignedAtBlock}");
-        $this->info("And we will go until block: {$blockNumber}");
+        $this->info(__('enjin-platform::commands.transactions.header'));
+        $this->info(__('enjin-platform::commands.transactions.syncing', ['fromBlock' => $minSignedAtBlock, 'toBlock' => $blockNumber]));
 
         if ($minSignedAtBlock > $blockNumber) {
             $this->info('There are no transactions to check in those blocks');
@@ -62,10 +73,17 @@ class TransactionChecker extends Command
             return;
         }
 
+        $this->info(__('enjin-platform::commands.transactions.fetching'));
         $counter = $transactions->count();
         $hashes = array_filter($transactions->pluck('transaction_chain_hash')->toArray());
 
+        $this->progressBar = $this->output->createProgressBar($counter);
+        $this->progressBar->setFormat('debug');
+        $this->progressBar->start();
+
         for ($i = $minSignedAtBlock; $i <= $blockNumber; $i++) {
+            $this->progressBar->setProgress($counter - collect($transactions)->count());
+
             $block = Block::firstWhere('number', $i);
             if (!($block?->hash)) {
                 $block = Block::updateOrCreate(
@@ -78,20 +96,21 @@ class TransactionChecker extends Command
             $hashesFromThisBlock = collect($extrinsics)->pluck('hash')->toArray();
 
             if (($i - $minSignedAtBlock) > 300) {
-                $this->info("Did not find transaction signed at block {$minSignedAtBlock} in the last 300 blocks");
+                $this->displayMessageAboveBar("Did not find transaction signed at block {$minSignedAtBlock} in the last 300 blocks");
 
                 $transactions = collect($transactions)->filter(fn ($transaction) => $transaction->signed_at_block != $minSignedAtBlock);
                 $minSignedAtBlock = collect($transactions)->min('signed_at_block');
 
                 if (empty($minSignedAtBlock) || $minSignedAtBlock >= $blockNumber) {
-                    $this->info("There are no more transactions to search for.");
+                    $this->displayMessageAboveBar('There are no more transactions to search for.');
+
                     break;
                 }
 
                 if ($minSignedAtBlock <= $i) {
-                    $this->info("Continuing trying to find transaction signed at block {$minSignedAtBlock}");
+                    $this->displayMessageAboveBar("Continuing trying to find transaction signed at block {$minSignedAtBlock}");
                 } else {
-                    $this->info("Skipping from block: {$i} to block: {$minSignedAtBlock}");
+                    $this->displayMessageAboveBar("Skipping from block {$i} to block {$minSignedAtBlock}");
                     $i = $minSignedAtBlock - 1;
                 }
             }
@@ -105,13 +124,13 @@ class TransactionChecker extends Command
                     $this->error(json_encode($hasExtrinsicErrors));
                 }
 
-                $this->info(sprintf('Took %s blocks to find the transaction signed at block: %s', $i - $minSignedAtBlock, $minSignedAtBlock));
+                $this->displayMessageAboveBar(sprintf('Took %s blocks to find the transaction signed at block %s', $i - $minSignedAtBlock, $minSignedAtBlock));
                 $hashes = array_diff($hashes, $hashesFromThisBlock);
                 $transactions = collect($transactions)->filter(fn ($transaction) => !in_array($transaction->transaction_chain_hash, $hashesFromThisBlock));
                 $minSignedAtBlock = collect($transactions)->min('signed_at_block');
 
                 if ($minSignedAtBlock > $i) {
-                    $this->info(sprintf("Skipping from block: {$i} to block: %s", $minSignedAtBlock));
+                    $this->displayMessageAboveBar(sprintf("Skipping from block {$i} to block %s", $minSignedAtBlock));
                     $i = $minSignedAtBlock - 1;
                 }
             }
@@ -121,9 +140,7 @@ class TransactionChecker extends Command
             }
         }
 
-        $this->info(sprintf('We did not find the following transactions: %s', json_encode($hashes)));
-        $this->info(sprintf("The command has fixed %s transactions.", $counter - collect($transactions)->count()));
-        $this->info(sprintf('Command run for the total of %s seconds.', now()->diffInMilliseconds($start) / 1000));
+        $this->displayOverview($counter, $hashes);
     }
 
     protected function fetchExtrinsics($block, Substrate $client): mixed
@@ -143,5 +160,24 @@ class TransactionChecker extends Command
         }
 
         return [];
+    }
+
+    protected function displayOverview(int $counter, array $hashes): void
+    {
+        $this->progressBar->finish();
+        $this->newLine();
+
+        $this->info(__('enjin-platform::commands.transactions.overview'));
+        $this->info(sprintf('We did not find the following transactions: %s', json_encode($hashes)));
+        $this->info(sprintf('The command has fixed %s transactions.', $counter - collect($hashes)->count()));
+        $this->info(sprintf('Command run for the total of %s seconds.', now()->diffInMilliseconds($this->start) / 1000));
+        $this->info('=======================================================');
+    }
+
+    protected function displayMessageAboveBar(string $message): void
+    {
+        $this->progressBar->clear();
+        $this->info($message);
+        $this->progressBar->display();
     }
 }
