@@ -117,6 +117,7 @@ class TransactionChecker extends Command
 //                    ray($hasExtrinsicErrors);
 
 //                    ray("Removing hash for hashes array");
+                    $this->info(sprintf("Took %s blocks to find the transaction signed at block: %s", $i - $minSignedAtBlock, $minSignedAtBlock));
                     $hashes = array_diff($hashes, $hashesFromThisBlock);
                     $transactions = collect($transactions)->filter(fn ($transaction) => !in_array($transaction->transaction_chain_hash, $hashesFromThisBlock));
                     $minSignedAtBlock = collect($transactions)->min('signed_at_block');
