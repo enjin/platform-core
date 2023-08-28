@@ -42,13 +42,6 @@ class TransactionChecker extends Command
 
         $start = now();
 
-
-        // Verificar todas transacoes que estao paradas em broadcast
-        // Essas transacoes nao podem ser mais velhas que Y minutos
-        // Essas transacoes nao podem ser mais novas do que o bloco atual do ingest
-
-        // Pegar essas transacoes e ver o signedAtBlock
-        // Fazer query da chain a partir desse signedAtBlock e ver se a transacao foi confirmada
         $blockNumber = Block::where('synced', true)->max('number');
         $this->info("Going until block {$blockNumber}");
 
@@ -73,13 +66,19 @@ class TransactionChecker extends Command
 
         $minSignedAtBlock = $transactions->min('signed_at_block');
         $this->info("Starting on block {$minSignedAtBlock}");
-//        ray($minSignedAtBlock);
+
+        if ($minSignedAtBlock > $blockNumber) {
+            $this->info("No transactions to check");
+            return;
+        }
+
+        ray($minSignedAtBlock);
 
         $hashes = array_filter($transactions->pluck('transaction_chain_hash')->toArray());
-//        ray($hashes);
+        ray($hashes);
 
         for ($i = $minSignedAtBlock; $i <= $blockNumber; $i++) {
-//            ray($i);
+            ray($i);
             $block = Block::firstWhere('number', $i);
             if (!($block?->hash)) {
                 $block = Block::updateOrCreate(
@@ -124,7 +123,7 @@ class TransactionChecker extends Command
         $end = collect($transactions)->count();
         $counter = $counter - $end;
 
-        $this->info("We could not find the following transactions: ", $hashes);
+        $this->info(sprintf("We could not find the following transactions: %s", json_encode($hashes)));
         $this->info("Fixed {$counter} transactions");
 
         $this->info(__('enjin-platform::commands.sync.total_time', ['sec' => now()->diffInMilliseconds($start) / 1000]));
