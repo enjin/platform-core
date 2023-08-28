@@ -3,12 +3,14 @@ mutation MintToken(
   $collectionId: BigInt!
   $params: MintTokenParams!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   MintToken(
     recipient: $recipient
     collectionId: $collectionId
     params: $params
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation MintToken(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

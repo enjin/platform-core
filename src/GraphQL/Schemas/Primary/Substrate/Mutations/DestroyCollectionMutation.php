@@ -6,7 +6,9 @@ use Closure;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
@@ -28,6 +30,8 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     use HasIdempotencyField;
     use InPrimarySubstrateSchema;
     use HasSkippableRules;
+    use HasSimulateField;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -60,6 +64,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
             ],
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
+            ...$this->getSimulateField(),
         ];
     }
 
@@ -85,6 +90,8 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDeposit($args),
+                'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );

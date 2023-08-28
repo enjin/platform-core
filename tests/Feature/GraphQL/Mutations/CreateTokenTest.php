@@ -19,6 +19,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Event;
 class CreateTokenTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'CreateToken';
     protected Codec $codec;
@@ -113,6 +115,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'recipient' => $recipient,
             'collectionId' => $collectionId,
             'params' => $params,
+            'simulate' => null,
         ]);
 
         $this->assertArraySubset([
@@ -133,7 +136,48 @@ class CreateTokenTest extends TestCaseGraphQL
             'encoded_data' => $encodedData,
         ]);
     }
+
     // Happy Path
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->mint(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new CreateTokenParams(
+                tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
+                initialSupply: $initialSupply = fake()->numberBetween(1),
+                cap: TokenMintCapType::INFINITE,
+                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+            ),
+        );
+
+        $params = $params->toArray()['CreateToken'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'recipient' => $recipient,
+            'collectionId' => $collectionId,
+            'params' => $params,
+            'simulate' => true,
+        ]);
+
+        $this->assertIsNumeric($response['deposit']);
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
 
     public function test_can_create_a_token_with_cap_equals_null(): void
     {

@@ -106,6 +106,8 @@ return [
     'transaction.field.method' => 'The on-chain method used.',
     'transaction.field.result' => 'The transaction result.',
     'transaction.field.state' => 'The transaction state.',
+    'transaction.field.fee' => 'The fee paid by this transaction.',
+    'transaction.field.deposit' => 'The deposit made for this transaction.',
     'transaction.field.transactionHash' => 'The on-chain transaction hash.',
     'transaction.field.transactionId' => 'The on-chain transaction ID.',
     'transaction.field.createdAt' => 'The date and time the transaction was created.',

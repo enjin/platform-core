@@ -14,12 +14,15 @@ use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 
 class RemoveTokenAttributeTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'RemoveTokenAttribute';
     protected Codec $codec;
@@ -79,6 +82,39 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'key' => $key = $this->attribute->key,
+            'simulate' => true,
+        ]);
+
+        $encodedData = $this->codec->encode()->removeAttribute(
+            $collectionId,
+            $this->tokenIdEncoder->encode(),
+            $key,
+        );
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_remove_an_attribute(): void

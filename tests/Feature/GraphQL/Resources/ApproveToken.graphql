@@ -6,6 +6,7 @@ mutation ApproveToken(
   $currentAmount: BigInt!
   $expiration: Int
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   ApproveToken(
     collectionId: $collectionId
@@ -15,6 +16,7 @@ mutation ApproveToken(
     currentAmount: $currentAmount
     expiration: $expiration
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -22,6 +24,8 @@ mutation ApproveToken(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

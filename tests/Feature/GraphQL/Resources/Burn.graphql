@@ -2,11 +2,13 @@ mutation Burn(
   $collectionId: BigInt!
   $params: BurnParamsInput!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   Burn(
     collectionId: $collectionId
     params: $params
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -14,6 +16,8 @@ mutation Burn(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

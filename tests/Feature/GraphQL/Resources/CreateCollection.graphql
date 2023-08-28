@@ -5,6 +5,7 @@ mutation CreateCollection(
   $attributes: [AttributeInput]
   $idempotencyKey: String
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   CreateCollection(
     mintPolicy: $mintPolicy
@@ -13,6 +14,7 @@ mutation CreateCollection(
     attributes: $attributes
     idempotencyKey: $idempotencyKey
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -20,6 +22,8 @@ mutation CreateCollection(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

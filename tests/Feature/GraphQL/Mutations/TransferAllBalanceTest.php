@@ -10,12 +10,14 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
 class TransferAllBalanceTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'TransferAllBalance';
     protected Codec $codec;
@@ -62,6 +64,37 @@ class TransferAllBalanceTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->transferAllBalance(
+            $address = app(Generator::class)->public_key(),
+            $keepAlive = fake()->boolean(),
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'recipient' => $address,
+            'keepAlive' => $keepAlive,
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_all_balance(): void

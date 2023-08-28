@@ -23,6 +23,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -31,6 +32,7 @@ use Illuminate\Support\Facades\Event;
 class BatchMintTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'BatchMint';
     protected Codec $codec;
@@ -154,6 +156,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'simulate' => null,
         ]);
 
         $this->assertArraySubset([
@@ -173,6 +176,55 @@ class BatchMintTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->batchMint(
+            $collectionId = $this->collection->collection_chain_id,
+            [
+                [
+                    'accountId' => $recipient = $this->recipient->public_key,
+                    'params' => $createParams = new CreateTokenParams(
+                        tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
+                        initialSupply: $supply = fake()->numberBetween(1),
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
+                        cap: TokenMintCapType::INFINITE,
+                    ),
+                ],
+            ]
+        );
+
+        $params = $createParams->toArray()['CreateToken'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient),
+                    'createParams' => $params,
+                ],
+            ],
+            'simulate' => true,
+        ]);
+
+        $this->assertIsNumeric($response['deposit']);
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_batch_mint_create_single_token_with_cap_null(): void

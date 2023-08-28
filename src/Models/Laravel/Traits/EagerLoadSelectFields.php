@@ -37,7 +37,11 @@ trait EagerLoadSelectFields
             return null;
         }
 
-        [$select, $with, $withCount] = static::selectFields($resolveInfo, $query);
+        [, $with, $withCount] = static::selectFields($resolveInfo, $query);
+
+        if (empty($withCount)) {
+            return $model->load($with);
+        }
 
         return $model->load($with)->loadCount($withCount);
     }

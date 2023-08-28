@@ -3,12 +3,14 @@ mutation RemoveTokenAttribute(
   $tokenId: EncodableTokenIdInput!
   $key: String!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   RemoveTokenAttribute(
     collectionId: $collectionId
     tokenId: $tokenId
     key: $key
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation RemoveTokenAttribute(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

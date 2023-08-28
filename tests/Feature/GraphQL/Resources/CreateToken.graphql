@@ -3,12 +3,14 @@ mutation CreateToken(
   $collectionId: BigInt!
   $params: CreateTokenParams!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   CreateToken(
     recipient: $recipient
     collectionId: $collectionId
     params: $params
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation CreateToken(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

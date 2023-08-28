@@ -32,6 +32,8 @@ class TransactionFactory extends Factory
             'encoded_data' => HexConverter::prefix(fake()->unique()->sha256()),
             'state' => TransactionState::PENDING->name,
             'result' => null,
+            'fee' => null,
+            'deposit' => null,
             'method' => fake()->randomElement((new TransactionMethodEnum())->getAttributes()['values']),
             'idempotency_key' => fake()->uuid(),
             'signed_at_block' => fake()->numberBetween(),

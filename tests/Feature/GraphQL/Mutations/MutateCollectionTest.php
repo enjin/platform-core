@@ -15,6 +15,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Event;
 class MutateCollectionTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'MutateCollection';
     protected Codec $codec;
@@ -107,6 +109,39 @@ class MutateCollectionTest extends TestCaseGraphQL
             ['tokenId' => ['message' => 'There can be only one input field named "tokenId".']],
             $response['errors']
         );
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->mutateCollection(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            owner: $owner = $this->defaultAccount,
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'mutation' => [
+                'owner' => SS58Address::encode($owner),
+            ],
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_mutate_a_collection_with_owner(): void

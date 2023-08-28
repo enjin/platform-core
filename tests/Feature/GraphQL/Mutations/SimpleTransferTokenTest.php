@@ -19,6 +19,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Event;
 class SimpleTransferTokenTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'SimpleTransferToken';
     protected Codec $codec;
@@ -157,6 +159,46 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new SimpleTransferParams(
+                tokenId: $this->tokenIdInput->encode(),
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Simple'];
+        $params['tokenId'] = $this->tokenIdInput->toEncodable();
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_token(): void

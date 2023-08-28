@@ -11,12 +11,14 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
 class TransferBalanceTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'TransferBalance';
     protected Codec $codec;
@@ -44,17 +46,22 @@ class TransferBalanceTest extends TestCaseGraphQL
             $amount = fake()->numberBetween(),
         );
 
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($this->defaultAccount),
             'amount' => $amount,
             'signingAccount' => SS58Address::encode($publicKey),
             'skipValidation' => true,
+            'simulate' => true,
         ]);
 
         $this->assertArraySubset([
+            'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
             'wallet' => [
                 'account' => [
                     'publicKey' => $publicKey,
@@ -62,7 +69,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             ],
         ], $response);
 
-        Event::assertDispatched(TransactionCreated::class);
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_balance_without_keep_alive(): void

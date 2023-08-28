@@ -2,11 +2,13 @@ mutation BatchMint(
   $collectionId: BigInt!
   $recipients: [MintRecipient!]!
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   BatchMint(
     collectionId: $collectionId
     recipients: $recipients
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -14,6 +16,8 @@ mutation BatchMint(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

@@ -2,11 +2,15 @@ mutation SetCollectionAttribute(
     $collectionId: BigInt!
     $key: String!
     $value: String!
+    $skipValidation: Boolean
+    $simulate: Boolean
 ) {
     SetCollectionAttribute(
         collectionId: $collectionId
         key: $key
         value: $value
+        skipValidation: $skipValidation
+        simulate: $simulate
     ) {
         id
         transactionId
@@ -14,6 +18,8 @@ mutation SetCollectionAttribute(
         method
         state
         encodedData
+        fee
+        deposit
         wallet {
             account {
                 publicKey

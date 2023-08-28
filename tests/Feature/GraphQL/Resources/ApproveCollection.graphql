@@ -3,12 +3,14 @@ mutation ApproveCollection(
   $operator: String!
   $expiration: Int
   $skipValidation: Boolean
+  $simulate: Boolean
 ) {
   ApproveCollection(
     collectionId: $collectionId
     operator: $operator
     expiration: $expiration
     skipValidation: $skipValidation
+    simulate: $simulate
   ) {
     id
     transactionId
@@ -16,6 +18,8 @@ mutation ApproveCollection(
     method
     state
     encodedData
+    fee
+    deposit
     wallet {
       account {
         publicKey

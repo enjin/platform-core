@@ -38,6 +38,8 @@ class Transaction extends BaseModel
         'result',
         'events',
         'encoded_data',
+        'fee',
+        'deposit',
         'idempotency_key',
         'signed_at_block',
         'created_at',

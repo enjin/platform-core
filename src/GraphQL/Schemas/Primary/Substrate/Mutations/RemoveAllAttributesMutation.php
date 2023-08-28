@@ -9,7 +9,9 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
+use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -33,6 +35,8 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
     use HasTokenIdFieldRules;
     use HasEncodableTokenId;
     use HasSkippableRules;
+    use HasSimulateField;
+    use HasTransactionDeposit;
 
     /**
      * Get the mutation's attributes.
@@ -70,6 +74,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
             ],
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
+            ...$this->getSimulateField(),
         ];
     }
 
@@ -104,6 +109,8 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                'deposit' => $this->getDeposit($args),
+                'simulate' => $args['simulate'],
             ]),
             $resolveInfo
         );

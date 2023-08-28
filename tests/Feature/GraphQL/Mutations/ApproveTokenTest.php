@@ -18,6 +18,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Event;
 class ApproveTokenTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected $method = 'ApproveToken';
 
@@ -72,6 +74,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'currentAmount' => $currentAmount,
             'operator' => SS58Address::encode($operator),
             'skipValidation' => true,
+            'simulate' => null,
         ]);
 
         $this->assertArraySubset([
@@ -133,6 +136,43 @@ class ApproveTokenTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $encodedData = $this->codec->encode()->approveToken(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            operator: $operator = app(Generator::class)->public_key(),
+            amount: $amount = $this->tokenAccount->balance,
+            currentAmount: $currentAmount = $this->tokenAccount->balance,
+        );
+
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'amount' => $amount,
+            'currentAmount' => $currentAmount,
+            'operator' => SS58Address::encode($operator),
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'deposit' => null,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_approve_a_token_with_any_operator(): void
@@ -610,6 +650,25 @@ class ApproveTokenTest extends TestCaseGraphQL
         $this->assertStringContainsString(
             'The integer field must have a value.',
             $response['error'],
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_fail_with_simulate_invalid(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'amount' => $this->tokenAccount->balance,
+            'currentAmount' => $this->tokenAccount->balance,
+            'operator' => app(Generator::class)->public_key(),
+            'simulate' => 'invalid',
+        ], true);
+
+        $this->assertStringContainsString(
+            'Variable "$simulate" got invalid value "invalid"',
+            $response['error']
         );
 
         Event::assertNotDispatched(TransactionCreated::class);

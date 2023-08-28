@@ -9,6 +9,7 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Account;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class TransactionService
 {
@@ -44,6 +45,10 @@ class TransactionService
 
         $data['wallet_public_key'] = $signingWallet->public_key ?? Account::daemon()->public_key;
         $data['method'] = $data['method'] ?? '';
+
+        if (Arr::get($data, 'simulate', false)) {
+            return Transaction::newModelInstance($data);
+        }
 
         $transaction = Transaction::create($data);
 

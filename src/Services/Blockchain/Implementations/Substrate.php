@@ -60,6 +60,22 @@ class Substrate implements BlockchainServiceInterface
         return $this->client->send($name, $args);
     }
 
+    public function getFee(string $call): string
+    {
+        return Cache::remember(PlatformCache::FEE->key($call), now()->addWeek(), function () use ($call) {
+            $extrinsic = $this->codec->encode()->addFakeSignature($call);
+            $result = $this->callMethod('payment_queryFeeDetails', [
+                $extrinsic,
+            ]);
+
+            $baseFee = gmp_init(Arr::get($result, 'inclusionFee.baseFee'));
+            $lenFee = gmp_init(Arr::get($result, 'inclusionFee.lenFee'));
+            $adjustedWeightFee = gmp_init(Arr::get($result, 'inclusionFee.adjustedWeightFee'));
+
+            return gmp_strval(gmp_add($baseFee, gmp_add($lenFee, $adjustedWeightFee)));
+        });
+    }
+
     /**
      * Get the collection policies.
      */

@@ -9,12 +9,15 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 
 class SetCollectionAttributeTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
+    use MocksWebsocketClient;
 
     protected string $method = 'SetCollectionAttribute';
     protected Codec $codec;
@@ -38,6 +41,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
+            'simulate' => null,
         ]);
 
         $encodedData = $this->codec->encode()->setAttribute(
@@ -59,6 +63,40 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_simulate(): void
+    {
+        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'key' => $key = fake()->word(),
+            'value' => $value = fake()->realText(),
+            'simulate' => true,
+        ]);
+
+        $encodedData = $this->codec->encode()->setAttribute(
+            $this->collection->collection_chain_id,
+            null,
+            $key,
+            $value
+        );
+
+        $this->assertIsNumeric($response['deposit']);
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'fee' => $feeDetails['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     // Exception Path
