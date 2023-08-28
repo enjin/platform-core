@@ -91,8 +91,8 @@ class TransactionChecker extends Command
 //            ray($extrinsics);
             $hashesFromThisBlock = collect($extrinsics)->pluck('hash')->toArray();
 
-            if (($i - $minSignedAtBlock) > 500) {
-                $this->info("Did not find transaction signed at block $minSignedAtBlock in the last 500 blocks");
+            if (($i - $minSignedAtBlock) > 300) {
+                $this->info("Did not find transaction signed at block $minSignedAtBlock in the last 300 blocks");
 
                 $transactions = collect($transactions)->filter(fn ($transaction) => $transaction->signed_at_block != $minSignedAtBlock);
                 $minSignedAtBlock = collect($transactions)->min('signed_at_block');
