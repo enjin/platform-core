@@ -97,8 +97,12 @@ class TransactionChecker extends Command
                 $transactions = collect($transactions)->filter(fn ($transaction) => $transaction->signed_at_block != $minSignedAtBlock);
                 $minSignedAtBlock = collect($transactions)->min('signed_at_block');
 
-                $this->info("Skipping from block: {$i} to block: {$minSignedAtBlock}");
-                $i = $minSignedAtBlock - 1;
+                if ($minSignedAtBlock <= $i) {
+                    $this->info("Continuing trying to find transaction signed at block $minSignedAtBlock");
+                } else {
+                  $this->info("Skipping from block: {$i} to block: {$minSignedAtBlock}");
+                  $i = $minSignedAtBlock - 1;
+                }
             }
 
             if (count(array_intersect($hashes, $hashesFromThisBlock)) > 0) {
