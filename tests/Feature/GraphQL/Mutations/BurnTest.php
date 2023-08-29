@@ -288,6 +288,45 @@ class BurnTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+
+
+        $encodedData = $this->codec->encode()->burn(
+            $collectionId = $this->collection->collection_chain_id,
+            new BurnParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: 0,
+                removeTokenStorage: true,
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable(),
+                'amount' => 0,
+                'removeTokenStorage' => true,
+            ],
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_can_burn_a_token_with_all_args(): void
