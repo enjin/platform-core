@@ -23,6 +23,7 @@ use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterfa
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -111,9 +112,11 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
      */
     protected function rulesWithValidation(array $args): array
     {
+        $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
+
         return [
             'collectionId' => ['exists:collections,collection_chain_id'],
-            'params.amount' => [new MinBigInt(1), new MaxTokenBalance()],
+            'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
     }
@@ -123,9 +126,11 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
      */
     protected function rulesWithoutValidation(array $args): array
     {
+        $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
+
         return [
             'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
-            'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            'params.amount' => [new MinBigInt($min), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params'),
         ];
     }
