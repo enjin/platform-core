@@ -9,6 +9,7 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\BurnParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
@@ -51,6 +52,7 @@ class BurnTest extends TestCaseGraphQL
         $this->token = Token::find($this->tokenAccount->token_id);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
         $this->collection = Collection::find($this->tokenAccount->collection_id);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     // Happy Path
@@ -374,6 +376,7 @@ class BurnTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => fake()->numberBetween(2000),
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([
@@ -428,6 +431,7 @@ class BurnTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => fake()->numberBetween(2000),
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([
@@ -500,6 +504,25 @@ class BurnTest extends TestCaseGraphQL
 
         Event::assertNotDispatched(TransactionCreated::class);
     }
+
+     public function test_it_will_fail_with_invalid_owner(): void
+     {
+         $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+         $response = $this->graphql($this->method, [
+             'collectionId' => $this->collection->collection_chain_id,
+             'params' => [
+                 'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_id),
+                 'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+             ],
+         ], true);
+
+         $this->assertArraySubset(
+             ['collectionId' => ['The collection id provided is not owned by you.']],
+             $response['error']
+         );
+
+         Event::assertNotDispatched(TransactionCreated::class);
+     }
 
     public function test_it_will_fail_token_id_that_doesnt_exists(): void
     {
