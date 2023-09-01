@@ -16,6 +16,16 @@ class DepositFeeTest extends TestCase
 {
     use MocksWebsocketClient;
     use HasTransactionDeposit;
+    protected static bool $initialized = false;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        if (!self::$initialized) {
+            $this->artisan('migrate:fresh');
+            self::$initialized = true;
+        }
+    }
 
     public function test_it_can_get_extrinsic_fee()
     {
