@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.SSH_PHP_COMMONS }}
 
@@ -27,7 +27,7 @@ jobs:
           coverage: none
 
       - name: Checkout sensiolabs security-checker code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'sensiolabs/security-checker'
           path: 'security-checker'
