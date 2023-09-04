@@ -15,6 +15,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\BurnParams;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
@@ -115,7 +116,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => ['bail', 'exists:collections,collection_chain_id', new IsCollectionOwner()],
             'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
