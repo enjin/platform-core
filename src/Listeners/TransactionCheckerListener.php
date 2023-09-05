@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Listeners;
 
-use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Jobs\TransactionCheckerJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
