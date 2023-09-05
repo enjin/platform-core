@@ -53,9 +53,12 @@ class TransactionChecker extends Command
         $this->client = $client;
 
         $blockNumber = Block::where('synced', true)->max('number');
+        $maxBlockToCheck = $blockNumber - 100;
+
         $transactions = collect(Transaction::where([
             'state' => TransactionState::BROADCAST,
-        ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])->get());
+        ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
+            ->where('signed_at_block', '<', $maxBlockToCheck)->get());
 
         if ($transactions->isEmpty()) {
             $this->info('There are no transactions to check.');
@@ -65,9 +68,9 @@ class TransactionChecker extends Command
 
         $minSignedAtBlock = $transactions->min('signed_at_block');
         $this->info(__('enjin-platform::commands.transactions.header'));
-        $this->info(__('enjin-platform::commands.transactions.syncing', ['fromBlock' => $minSignedAtBlock, 'toBlock' => $blockNumber]));
+        $this->info(__('enjin-platform::commands.transactions.syncing', ['fromBlock' => $minSignedAtBlock, 'toBlock' => $maxBlockToCheck]));
 
-        if ($minSignedAtBlock > $blockNumber) {
+        if ($minSignedAtBlock > $maxBlockToCheck) {
             $this->info('There are no transactions to check in those blocks');
 
             return;
@@ -81,7 +84,7 @@ class TransactionChecker extends Command
         $this->progressBar->setFormat('debug');
         $this->progressBar->start();
 
-        for ($i = $minSignedAtBlock; $i <= $blockNumber; $i++) {
+        for ($i = $minSignedAtBlock; $i <= $maxBlockToCheck; $i++) {
             $this->progressBar->setProgress($counter - collect($transactions)->count());
 
             $block = Block::firstWhere('number', $i);
@@ -101,7 +104,7 @@ class TransactionChecker extends Command
                 $transactions = collect($transactions)->filter(fn ($transaction) => $transaction->signed_at_block != $minSignedAtBlock);
                 $minSignedAtBlock = collect($transactions)->min('signed_at_block');
 
-                if (empty($minSignedAtBlock) || $minSignedAtBlock >= $blockNumber) {
+                if (empty($minSignedAtBlock) || $minSignedAtBlock >= $maxBlockToCheck) {
                     $this->displayMessageAboveBar('There are no more transactions to search for.');
 
                     break;

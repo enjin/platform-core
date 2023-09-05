@@ -8,9 +8,11 @@ use Enjin\Platform\Commands\Sync;
 use Enjin\Platform\Commands\TransactionChecker;
 use Enjin\Platform\Commands\Transactions;
 use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
+use Enjin\Platform\Listeners\TransactionCheckerListener as TransactionCheckerListener;
 use Enjin\Platform\Providers\AuthServiceProvider;
 use Enjin\Platform\Providers\Deferred\BlockchainServiceProvider;
 use Enjin\Platform\Providers\Deferred\QrServiceProvider;
@@ -91,6 +93,7 @@ class CoreServiceProvider extends PackageServiceProvider
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::synching());
         Event::listen(PlatformSynced::class, fn () => BlockProcessor::synchingDone());
         Event::listen(PlatformSyncError::class, fn () => BlockProcessor::synchingDone());
+        Event::listen(TransactionCreated::class, TransactionCheckerListener::class);
 
         Builder::macro('cursorPaginateWithTotal', function ($order, $limit, $cache = true) {
             if ($cache) {
