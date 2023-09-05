@@ -49,7 +49,7 @@ return [
     |
     */
     'deep_links' => [
-        'proof' => rtrim(env('PROOF_DEEPLINK', env('APP_URL', 'http://localhost')), '/') . '/',
+        'proof' => rtrim(env('PROOF_DEEPLINK', rtrim(env('APP_URL', 'http://localhost'), '/') . '/proof'), '/') . '/',
     ],
 
     /*
