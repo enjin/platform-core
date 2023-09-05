@@ -11,7 +11,7 @@ env:
   - QUEUE_CONNECTION="redis"
   - CHAIN="substrate"
   - NETWORK="polkadot"
-  - DAEMON_ACCOUNT="0xf64fda4cb0352aff9394f0cc14495ca8ceffb8c8e9b37de058a1d4d4650c3313"
+  - DAEMON_ACCOUNT="0x68b427dda4f3894613e113b570d5878f3eee981196133e308c0a82584cf2e160"
 
 providers:
   - Enjin\Platform\CoreServiceProvider
