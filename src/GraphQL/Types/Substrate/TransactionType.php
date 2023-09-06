@@ -72,7 +72,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.transaction.field.fee'),
                 'resolve' => function ($transaction) {
-                    return isset($transaction['id']) ? Arr::get($transaction, 'fee') : Substrate::getFee($transaction['encoded_data']);
+                    return isset($transaction['idempotency_key']) ? Arr::get($transaction, 'fee') : Substrate::getFee($transaction['encoded_data']);
                 },
             ],
             'deposit' => [

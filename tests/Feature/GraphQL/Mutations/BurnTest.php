@@ -505,24 +505,24 @@ class BurnTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-     public function test_it_will_fail_with_invalid_owner(): void
-     {
-         $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-         $response = $this->graphql($this->method, [
-             'collectionId' => $this->collection->collection_chain_id,
-             'params' => [
-                 'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_id),
-                 'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
-             ],
-         ], true);
+    public function test_it_will_fail_with_invalid_owner(): void
+    {
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_id),
+                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+            ],
+        ], true);
 
-         $this->assertArraySubset(
-             ['collectionId' => ['The collection id provided is not owned by you.']],
-             $response['error']
-         );
+        $this->assertArraySubset(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
 
-         Event::assertNotDispatched(TransactionCreated::class);
-     }
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
 
     public function test_it_will_fail_token_id_that_doesnt_exists(): void
     {

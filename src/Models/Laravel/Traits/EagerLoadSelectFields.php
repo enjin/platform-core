@@ -37,6 +37,10 @@ trait EagerLoadSelectFields
             return null;
         }
 
+        if (!isset($model->idempotency_key)) {
+            return $model;
+        }
+
         [, $with, $withCount] = static::selectFields($resolveInfo, $query);
 
         if (empty($withCount)) {
