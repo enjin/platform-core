@@ -48,7 +48,6 @@ class TransactionService
         $data['method'] = $data['method'] ?? '';
 
         if (Arr::get($data, 'simulate', false)) {
-            $data['id'] = -1;
             $data['created_at'] = $data['updated_at'] = Carbon::now();
             $data['idempotency_key'] = null;
 
