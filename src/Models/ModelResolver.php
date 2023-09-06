@@ -21,7 +21,13 @@ abstract class ModelResolver extends Model
 
         $class = static::resolveClassFqn();
 
-        $this->model = new $class();
+        $this->model = new $class($attributes);
+
+        $this->appends = $this->model->appends ?? [];
+        $this->casts = $this->model->casts ?? [];
+        $this->guarded = $this->model->guarded ?? ['*'];
+        $this->attributes = $this->model->getAttributes() ?? [];
+        $this->fillable = $this->model->getFillable() ?? [];
     }
 
     /**

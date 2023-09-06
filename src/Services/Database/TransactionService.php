@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Database;
 
+use Carbon\Carbon;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Exceptions\PlatformException;
@@ -47,7 +48,10 @@ class TransactionService
         $data['method'] = $data['method'] ?? '';
 
         if (Arr::get($data, 'simulate', false)) {
-            return Transaction::newModelInstance($data);
+            $data['created_at'] = $data['updated_at'] = Carbon::now();
+            $data['idempotency_key'] = null;
+
+            return Transaction::make($data);
         }
 
         $transaction = Transaction::create($data);
