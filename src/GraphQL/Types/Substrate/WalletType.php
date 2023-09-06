@@ -113,7 +113,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
                             ['parameters'=>['id']]
                         ),
-                        'total' => (int) $wallet?->collectionAccounts_count,
+                        'total' => (int) $wallet?->collection_accounts_count,
                     ];
                 },
                 'is_relation' => true,
@@ -139,7 +139,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
                             ['parameters'=>['id']]
                         ),
-                        'total' => (int) $wallet?->tokenAccounts_count,
+                        'total' => (int) $wallet?->token_accounts_count,
                     ];
                 },
                 'is_relation' => true,
@@ -156,7 +156,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
                             ['parameters'=>['id']]
                         ),
-                        'total' => (int) $wallet?->collectionAccountApprovals_count,
+                        'total' => (int) $wallet?->collection_account_approvals_count,
                     ];
                 },
                 'is_relation' => true,
@@ -173,7 +173,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
                             ['parameters'=>['id']]
                         ),
-                        'total' => (int) $wallet?->tokenAccountApprovals_count,
+                        'total' => (int) $wallet?->token_account_approvals_count,
                     ];
                 },
                 'is_relation' => true,

@@ -77,8 +77,9 @@ trait EagerLoadSelectFields
             $with = [
                 $key => function ($query) use ($select, $args) {
                     $query->select(array_unique($select))
-                        ->when(Arr::get($args, 'after'), fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id')))
-                        ->when(Arr::get($args, 'collectionIds'), fn ($q) => $q->whereIn('collection_chain_id', $args['collectionIds']));
+                        ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
+                        ->when(Arr::get($args, 'collectionIds'), fn ($q) => $q->whereIn('collection_chain_id', $args['collectionIds']))
+                        ->orderBy('collections.id');
                     // This must be done this way to load eager limit correctly.
                     if ($limit = Arr::get($args, 'first')) {
                         $query->limit($limit + 1);
@@ -141,7 +142,7 @@ trait EagerLoadSelectFields
                         ->when(
                             Arr::get($args, 'after'),
                             fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id'))
-                        );
+                        )->orderBy('tokens.id');
                     // This must be done this way to load eager limit correctly.
                     if ($limit = Arr::get($args, 'first')) {
                         $query->limit($limit + 1);
@@ -200,12 +201,13 @@ trait EagerLoadSelectFields
             $with = [
                 $key => function ($query) use ($select, $args) {
                     $query->select(array_unique($select))
-                        ->when(Arr::get($args, 'after'), fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id')))
+                        ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                         ->when(Arr::get($args, 'transactionIds'), fn ($q) => $q->whereIn('transaction_chain_id', $args['transactionIds']))
                         ->when(Arr::get($args, 'transactionHashes'), fn ($q) => $q->whereIn('transaction_chain_hash', $args['transactionHashes']))
                         ->when(Arr::get($args, 'methods'), fn ($q) => $q->whereIn('method', $args['methods']))
                         ->when(Arr::get($args, 'states'), fn ($q) => $q->whereIn('state', $args['states']))
-                        ->when(Arr::get($args, 'signedAtBlocks'), fn ($q) => $q->whereIn('signed_at_block', $args['signedAtBlocks']));
+                        ->when(Arr::get($args, 'signedAtBlocks'), fn ($q) => $q->whereIn('signed_at_block', $args['signedAtBlocks']))
+                        ->orderBy('transactions.id');
 
                     // This must be done this way to load eager limit correctly.
                     if ($limit = Arr::get($args, 'first')) {
@@ -259,11 +261,12 @@ trait EagerLoadSelectFields
             $with = [
                 $key => function ($query) use ($select, $args) {
                     $query->select(array_unique($select))
-                        ->when(Arr::get($args, 'after'), fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id')))
+                        ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                         ->when(Arr::get($args, 'transactionIds'), fn ($q) => $q->whereIn('transaction_chain_id', $args['transactionIds']))
                         ->when(Arr::get($args, 'transactionHashes'), fn ($q) => $q->whereIn('transaction_chain_hash', $args['transactionIds']))
                         ->when(Arr::get($args, 'methods'), fn ($q) => $q->whereIn('method', $args['methods']))
-                        ->when(Arr::get($args, 'states'), fn ($q) => $q->whereIn('state', $args['states']));
+                        ->when(Arr::get($args, 'states'), fn ($q) => $q->whereIn('state', $args['states']))
+                        ->orderBy('wallets.id');
 
                     // This must be done this way to load eager limit correctly.
                     if ($limit = Arr::get($args, 'first')) {
@@ -555,7 +558,7 @@ trait EagerLoadSelectFields
                     $withs,
                     [$key => function ($query) use ($select, $args) {
                         $query->select(array_unique($select))
-                            ->when(Arr::get($args, 'after'), fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id')))
+                            ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                             ->when(
                                 Arr::get($args, 'collectionIds'),
                                 fn ($q) => $q->whereIn(
@@ -569,7 +572,7 @@ trait EagerLoadSelectFields
                                     'token_id',
                                     DB::table('tokens')->select('id')->whereIn('token_chain_id', $args['tokenIds'])
                                 )
-                            );
+                            )->orderBy('token_accounts.id');
                         // This must be done this way to load eager limit correctly.
                         if ($limit = Arr::get($args, 'first')) {
                             $query->limit($limit + 1);
@@ -609,14 +612,14 @@ trait EagerLoadSelectFields
                     $withs,
                     [$key => function ($query) use ($select, $args) {
                         $query->select(array_unique($select))
-                            ->when(Arr::get($args, 'after'), fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id')))
+                            ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                             ->when(
                                 Arr::get($args, 'collectionIds'),
                                 fn ($q) => $q->whereIn(
                                     'collection_id',
                                     DB::table('collections')->select('id')->whereIn('collection_chain_id', $args['collectionIds'])
                                 )
-                            );
+                            )->orderBy('collection_accounts.id');
                         if ($limit = Arr::get($args, 'first')) {
                             $query->limit($limit + 1);
                         }
