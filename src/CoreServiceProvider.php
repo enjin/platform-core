@@ -5,6 +5,7 @@ namespace Enjin\Platform;
 use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\Sync;
+use Enjin\Platform\Commands\TransactionChecker;
 use Enjin\Platform\Commands\Transactions;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
@@ -18,6 +19,7 @@ use Enjin\Platform\Providers\Deferred\WebsocketClientProvider;
 use Enjin\Platform\Providers\FakerServiceProvider;
 use Enjin\Platform\Providers\GraphQlServiceProvider;
 use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -64,6 +66,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasCommand(Ingest::class)
             ->hasCommand(Transactions::class)
             ->hasCommand(ClearCache::class)
+            ->hasCommand(TransactionChecker::class)
             ->hasTranslations();
     }
 
@@ -85,6 +88,16 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(GraphQlServiceProvider::class);
         $this->app->register(FakerServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
+
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+            $schedule->command('platform:transaction-checker')
+                ->everyFiveMinutes()
+                ->withoutOverlapping(3)
+                ->onOneServer()
+                ->runInBackground()
+                ->appendOutputTo(storage_path('logs/txchecker.log'));
+        });
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::synching());
         Event::listen(PlatformSynced::class, fn () => BlockProcessor::synchingDone());
