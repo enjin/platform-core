@@ -95,7 +95,8 @@ class CoreServiceProvider extends PackageServiceProvider
                 ->everyFiveMinutes()
                 ->withoutOverlapping(3)
                 ->onOneServer()
-                ->runInBackground();
+                ->runInBackground()
+                ->appendOutputTo(storage_path('logs/txchecker.log'));
         });
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::synching());
