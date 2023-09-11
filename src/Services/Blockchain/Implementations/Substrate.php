@@ -287,14 +287,16 @@ class Substrate implements BlockchainServiceInterface
             $wallet = WalletService::firstOrStore(['public_key' => SS58Address::getPublicKey($wallet)]);
         }
 
-        return Cache::remember(PlatformCache::BALANCE->key($wallet->public_key), now()->addSeconds(12), function () use ($wallet) {
-            $storage = $this->fetchSystemAccount($wallet->public_key);
-            $accountInfo = $this->codec->decode()->systemAccount($storage);
-            $wallet->nonce = Arr::get($accountInfo, 'nonce');
-            $wallet->balances = Arr::get($accountInfo, 'balances');
+        $accountInfo = Cache::remember(
+            PlatformCache::BALANCE->key($wallet->public_key),
+            now()->addSeconds(12),
+            fn () => $this->codec->decode()->systemAccount($this->fetchSystemAccount($wallet->public_key))
+        );
 
-            return $wallet;
-        });
+        $wallet->nonce = Arr::get($accountInfo, 'nonce');
+        $wallet->balances = Arr::get($accountInfo, 'balances');
+
+        return $wallet;
     }
 
     /**
