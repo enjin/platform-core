@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Event;
@@ -56,7 +57,18 @@ class EventType extends GraphQLType implements PlatformGraphQlType
                 'type' => GraphQL::type('[EventParam]'),
                 'description' => __('enjin-platform::type.event.field.params'),
                 'resolve' => function ($event) {
-                    return JSON::decode($event['params']);
+                    $params = JSON::decode($event['params']);
+                    if ($event['event_id'] == 'FuelTankCreated') {
+                        foreach ($params as &$param) {
+                            if ($param->type == 'tankName') {
+                                $param->value = HexConverter::hexToString($param->value);
+
+                                break;
+                            }
+                        }
+                    }
+
+                    return $params;
                 },
             ],
         ];
