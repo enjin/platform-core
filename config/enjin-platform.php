@@ -96,7 +96,7 @@ return [
                     'testnet' => false,
                     'platform-id' => env('SUBSTRATE_ENJIN_PLATFORM_ID', 0),
                     'node' => env('SUBSTRATE_ENJIN_RPC', 'wss://rpc.matrix.blockchain.enjin.io'),
-                    'ss58-prefix' => env('SUBSTRATE_ENJIN_SS58_PREFIX', 12120),
+                    'ss58-prefix' => env('SUBSTRATE_ENJIN_SS58_PREFIX', 1110),
                 ],
                 'canary' => [
                     'chain-id' => 0,
@@ -127,7 +127,7 @@ return [
 
         'selected' => env('CHAIN', 'substrate'),
 
-        'network' => env('NETWORK', 'polkadot'),
+        'network' => env('NETWORK', 'enjin'),
 
         'daemon-account' => env('DAEMON_ACCOUNT') ?: '0x0000000000000000000000000000000000000000000000000000000000000000',
     ],
