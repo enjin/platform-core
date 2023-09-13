@@ -39,6 +39,8 @@ class Ingest extends Command
      */
     public function handle(Backoff $backoff, BlockProcessor $processor): int
     {
+        $this->call('platform:sync');
+        
         try {
             $backoff->setStrategy(new PolynomialStrategy(300))
                 ->setMaxAttempts(10)
