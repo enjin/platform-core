@@ -1204,7 +1204,7 @@ class EncodingTest extends TestCase
             continueOnFailure: false,
         );
 
-        $callIndex = $this->codec->encode()->callIndexes['EfinityUtility.batch'];
+        $callIndex = $this->codec->encode()->callIndexes['MatrixUtility.batch'];
         $this->assertEquals(
             "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000000",
             $data

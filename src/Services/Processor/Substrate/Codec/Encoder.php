@@ -155,7 +155,7 @@ class Encoder
 
     public function batch(array $calls, bool $continueOnFailure): string
     {
-        $callIndex = $this->callIndexes['EfinityUtility.batch'];
+        $callIndex = $this->callIndexes['MatrixUtility.batch'];
         $numberOfCalls = $this->scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
         $calls = str_replace('0x', '', implode('', $calls));
         $continueOnFailure = $continueOnFailure ? '01' : '00';
@@ -462,7 +462,7 @@ class Encoder
     {
         $metadata = Cache::remember(PlatformCache::METADATA->key(), 3600, function () {
             if (app()->runningUnitTests()) {
-                return Metadata::v3014();
+                return Metadata::v604();
             }
 
             $blockchain = new SubstrateWebsocket();

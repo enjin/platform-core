@@ -73,7 +73,7 @@ class AddressTest extends TestCase
      * @test
      * @define-env usesEnjinNetwork
      */
-    public function test_it_will_encode_efinity_address_if_polkadot_is_the_selected_chain()
+    public function test_it_will_encode_matrix_address_if_enjin_is_the_selected_chain()
     {
         $address = SS58Address::encode('d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
 
