@@ -106,10 +106,10 @@ class ExtrinsicProcessor
                 $params = $event->getParams();
                 if ($event->name == 'FuelTankCreated') {
                     foreach ($params as &$param) {
-                        $param->value = match($param->type) {
+                        $param->value = match ($param->type) {
                             'tankName' => HexConverter::hexToString($param->value),
                             default => $param->value
-                        }
+                        };
                     }
                 }
 
