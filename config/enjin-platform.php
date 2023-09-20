@@ -188,8 +188,9 @@ return [
     |
     */
     'qr' => [
-        'adapter' => \Enjin\Platform\Services\Qr\Adapters\GoogleQrAdapter::class,
-        'size' => env('BEAM_QR_SIZE', 512),
+        'adapter' => \Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter::class,
+        'size' => env('QR_CODE_SIZE', 512),
+        'format' => env('QR_CODE_FORMAT', 'svg'),
     ],
 
     /*

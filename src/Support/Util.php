@@ -16,4 +16,13 @@ class Util
             'id' => random_int(1, 999999999),
         ], JSON_THROW_ON_ERROR);
     }
+
+    public static function isBase64String(string $string)
+    {
+        if (base64_encode(base64_decode($string, true)) === $string) {
+            return true;
+        }
+
+        return false;
+    }
 }

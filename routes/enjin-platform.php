@@ -1,6 +1,8 @@
 <?php
 
+use Enjin\Platform\Enums\CoreRoute;
 use Enjin\Platform\Http\Controllers\PlatformController;
+use Enjin\Platform\Http\Controllers\QrController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,3 +16,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/.well-known/enjin-platform.json', [PlatformController::class, 'getPlatformInfo']);
+
+Route::get(CoreRoute::QR->value, [QrController::class, 'get']);

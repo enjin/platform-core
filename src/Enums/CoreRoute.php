@@ -9,4 +9,6 @@ enum CoreRoute: string
     use EnumExtensions;
 
     case PROOF = 'proof/{code}';
+
+    case QR = 'qr';
 }
