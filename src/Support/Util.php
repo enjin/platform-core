@@ -19,10 +19,6 @@ class Util
 
     public static function isBase64String(string $string)
     {
-        if (base64_encode(base64_decode($string, true)) === $string) {
-            return true;
-        }
-
-        return false;
+        return base64_encode(base64_decode($string, true)) === $string;
     }
 }
