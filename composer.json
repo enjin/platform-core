@@ -44,6 +44,7 @@
     "phrity/websocket": "^1.0",
     "rebing/graphql-laravel": "^9.0",
     "revolt/event-loop": "^1.0",
+    "simplesoftwareio/simple-qrcode": "^4.2",
     "spatie/laravel-package-tools": "^1.0",
     "spatie/laravel-ray": "^1.0",
     "staudenmeir/eloquent-eager-limit": "^1.0",

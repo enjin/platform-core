@@ -106,14 +106,6 @@ return [
                     'node' => env('SUBSTRATE_CANARY_RPC', 'wss://rpc.matrix.canary.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_CANARY_SS58_PREFIX', 9030),
                 ],
-                'polkadot' => [
-                    'chain-id' => 0,
-                    'network-id' => 101,
-                    'testnet' => false,
-                    'platform-id' => env('EFINITY_POLKADOT_PLATFORM_ID', 0),
-                    'node' => env('EFINITY_POLKADOT_RPC', 'wss://rpc.efinity.io:443'),
-                    'ss58-prefix' => env('EFINITY_POLKADOT_SS58_PREFIX', 1110),
-                ],
                 'local' => [
                     'chain-id' => 0,
                     'network-id' => 104,
@@ -188,8 +180,9 @@ return [
     |
     */
     'qr' => [
-        'adapter' => \Enjin\Platform\Services\Qr\Adapters\GoogleQrAdapter::class,
-        'size' => env('BEAM_QR_SIZE', 512),
+        'adapter' => \Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter::class,
+        'size' => env('QR_CODE_SIZE', 512),
+        'format' => env('QR_CODE_FORMAT', 'svg'),
     ],
 
     /*
