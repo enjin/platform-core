@@ -160,6 +160,7 @@ class GraphQLController extends GraphQLGraphQLController
             if (!$operation->query) {
                 return false;
             }
+
             if ($node = Parser::parse($operation->query)) {
                 if ('__schema' == $node->definitions->offsetGet(0)?->selectionSet?->selections?->offsetGet(0)?->name?->value) {
                     return true;
