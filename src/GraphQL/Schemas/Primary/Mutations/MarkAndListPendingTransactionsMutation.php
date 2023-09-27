@@ -6,7 +6,6 @@ use Closure;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
-use Enjin\Platform\GraphQL\Schemas\Traits\GetsMiddleware;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
@@ -23,7 +22,6 @@ use Rebing\GraphQL\Support\Mutation;
 class MarkAndListPendingTransactionsMutation extends Mutation implements PlatformGraphQlMutation
 {
     use InPrimarySchema;
-    use GetsMiddleware;
 
     protected $middleware = [
         ResolvePage::class,
