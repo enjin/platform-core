@@ -15,8 +15,10 @@ trait HasAuthorizableFields
         }
 
         return collect($fields)
-            ->filter(fn ($field) => auth()->check() || !in_array(OperationDefinitionNodeStore::getOperationName(), $field['excludeFrom'] ?? []))
-            ->filter(fn ($field) => !(($field['authRequired'] ?? false) && !auth()->check()))
+            ->filter(
+                fn ($field) => (auth()->check() || !in_array(OperationDefinitionNodeStore::getOperationName(), $field['excludeFrom'] ?? [])) &&
+                !(($field['authRequired'] ?? false) && !auth()->check())
+            )
             ->all();
     }
 }
