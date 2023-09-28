@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Models\Verification;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
@@ -248,6 +249,23 @@ class VerifyAccountTest extends TestCaseGraphQL
 
         $this->assertStringContainsString(
             'The signature provided is not valid.',
+            $response['error']
+        );
+    }
+
+    public function test_it_will_fail_with_used_verification_id(): void
+    {
+        Wallet::factory()->create(['verification_id' => $this->verification->verification_id]);
+        $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
+
+        $response = $this->graphql($this->method, [
+            'verificationId' => $this->verification->verification_id,
+            'signature' => $data['signature'],
+            'account' => $data['address'],
+        ], true);
+
+        $this->assertArraySubset(
+            ['verificationId' => ['The verification ID is already in use.']],
             $response['error']
         );
     }

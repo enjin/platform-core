@@ -35,4 +35,5 @@ return [
     'valid_verification_id' => 'The verification ID is not valid.',
     'numeric' => 'The :attribute must be numeric.',
     'collection_has_tokens' => "The collection doesn't have any tokens.",
+    'unused_verification_id' => 'The verification ID is already in use.',
 ];
