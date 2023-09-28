@@ -9,6 +9,7 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Interfaces\PlatformPublicGraphQlOperation;
+use Enjin\Platform\Rules\UnusedVerificationId;
 use Enjin\Platform\Rules\ValidHex;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\VerificationService;
@@ -49,7 +50,12 @@ class VerifyAccountMutation extends Mutation implements PlatformGraphQlMutation,
         return [
             'verificationId' => [
                 'type' => GraphQL::type('String!'),
-                'rules' => ['bail', 'filled', 'exists:verifications,verification_id'],
+                'rules' => [
+                    'bail',
+                    'filled',
+                    'exists:verifications,verification_id',
+                    new UnusedVerificationId(),
+                ],
             ],
             'signature' => [
                 'type' => GraphQL::type('String!'),
