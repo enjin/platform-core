@@ -2,33 +2,27 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Models\Collection;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class NoTokensInCollection implements Rule
+class NoTokensInCollection implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $collection = Collection::query()->withCount('tokens')->firstWhere('collection_chain_id', '=', $value);
 
-        return 0 === $collection?->tokens_count;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.no_tokens_in_collection');
+        if (0 !== $collection?->tokens_count) {
+            $fail('enjin-platform::validation.no_tokens_in_collection')->translate();
+        }
     }
 }

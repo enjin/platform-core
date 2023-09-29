@@ -2,16 +2,15 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
+use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Database\CollectionService;
 use Illuminate\Contracts\Validation\DataAwareRule;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class ApprovalExistsInCollection implements DataAwareRule, Rule
+class ApprovalExistsInCollection implements DataAwareRule, ValidationRule
 {
-    /**
-     * All of the data under validation.
-     */
-    protected array $data = [];
+    use HasDataAwareRule;
 
     /**
      * The collection service.
@@ -23,7 +22,7 @@ class ApprovalExistsInCollection implements DataAwareRule, Rule
      */
     public function __construct()
     {
-        $this->collectionService = app()->make(CollectionService::class);
+        $this->collectionService = resolve(CollectionService::class);
     }
 
     /**
@@ -31,35 +30,18 @@ class ApprovalExistsInCollection implements DataAwareRule, Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return $this->collectionService->approvalExistsInCollection($this->data['collectionId'], $value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.approval_exists_in_collection', ['operator' => $this->data['operator'], 'collectionId' => $this->data['collectionId']]);
-    }
-
-    /**
-     * Set the data under validation.
-     *
-     * @param array $data
-     *
-     * @return $this
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-
-        return $this;
+        if (!$this->collectionService->approvalExistsInCollection($this->data['collectionId'], $value)) {
+            $fail('enjin-platform::validation.approval_exists_in_collection')
+                ->translate([
+                    'operator' => $this->data['operator'],
+                    'collectionId' => $this->data['collectionId'],
+                ]);
+        }
     }
 }

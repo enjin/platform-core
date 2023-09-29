@@ -2,30 +2,24 @@
 
 namespace Enjin\Platform\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class DistinctAttributes implements Rule
+class DistinctAttributes implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return is_array($value) && collect($value)->pluck('key')->unique()->count() === count($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.distinct_attribute');
+        if (!(is_array($value) && collect($value)->pluck('key')->unique()->count() === count($value))) {
+            $fail('enjin-platform::validation.distinct_attribute')->translate();
+        }
     }
 }

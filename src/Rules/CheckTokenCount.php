@@ -2,16 +2,12 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Models\Laravel\Collection;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class CheckTokenCount implements Rule
+class CheckTokenCount implements ValidationRule
 {
-    /**
-     * The error message.
-     */
-    protected string $message;
-
     /**
      * Create a new rule instance.
      */
@@ -24,32 +20,23 @@ class CheckTokenCount implements Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if ($collection = Collection::withCount('tokens')
             ->firstWhere('collection_chain_id', '=', $value)
         ) {
             $total = ($collection->tokens_count + $this->offset);
             if (null !== $collection->max_token_count && (0 === $collection->max_token_count || $total > $collection->max_token_count)) {
-                $this->message = __('enjin-platform::validation.check_token_count', ['total' => $total, 'maxToken' => $collection->max_token_count]);
-
-                return false;
+                $fail('enjin-platform::validation.check_token_count')
+                    ->translate([
+                        'total' => $total,
+                        'maxToken' => $collection->max_token_count,
+                    ]);
             }
         }
-
-        return true;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return $this->message;
     }
 }

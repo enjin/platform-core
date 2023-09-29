@@ -2,35 +2,25 @@
 
 namespace Enjin\Platform\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class ValidSubstrateTransactionId implements Rule
+class ValidSubstrateTransactionId implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (is_array($value)) {
-            return collect($value)->every(fn ($item) => $this->isValidTransactionId($item));
+        if (!(is_array($value) ? collect($value)->every(fn ($item) => $this->isValidTransactionId($item)) : $this->isValidTransactionId($value))) {
+            $fail('enjin-platform::validation.valid_substrate_transaction_id')->translate();
         }
-
-        return $this->isValidTransactionId($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.valid_substrate_transaction_id');
     }
 
     /**

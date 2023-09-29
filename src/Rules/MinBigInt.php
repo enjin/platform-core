@@ -2,9 +2,10 @@
 
 namespace Enjin\Platform\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class MinBigInt implements Rule
+class MinBigInt implements ValidationRule
 {
     /**
      * The validation error message.
@@ -16,7 +17,6 @@ class MinBigInt implements Rule
      */
     public function __construct(protected string|int $min = 0)
     {
-        $this->min = $min;
     }
 
     /**
@@ -24,26 +24,18 @@ class MinBigInt implements Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (is_array($value)) {
-            return collect($value)->flatten()->every(fn ($item) => $this->isValidMinBigInt($item));
+        if (!(is_array($value) ? collect($value)->flatten()->every(fn ($item) => $this->isValidMinBigInt($item)) : $this->isValidMinBigInt($value))) {
+            $fail($this->message)
+                ->translate([
+                    'min' => $this->min,
+                ]);
         }
-
-        return $this->isValidMinBigInt($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return $this->message;
     }
 
     /**
@@ -52,12 +44,12 @@ class MinBigInt implements Rule
     protected function isValidMinBigInt($value): bool
     {
         if (!is_numeric($value)) {
-            $this->message = __('validation.numeric');
+            $this->message = 'validation.numeric';
 
             return false;
         }
 
-        $this->message = __('enjin-platform::validation.min_big_int', ['min' => $this->min]);
+        $this->message = 'enjin-platform::validation.min_big_int';
 
         return bccomp($this->min, $value) <= 0;
     }

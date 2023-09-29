@@ -2,30 +2,24 @@
 
 namespace Enjin\Platform\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class DistinctMultiAsset implements Rule
+class DistinctMultiAsset implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return is_array($value) && collect($value)->unique()->count() === count($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.distinct_multi_asset');
+        if (!(is_array($value) && collect($value)->unique()->count() === count($value))) {
+            $fail('enjin-platform::validation.distinct_multi_asset')->translate();
+        }
     }
 }

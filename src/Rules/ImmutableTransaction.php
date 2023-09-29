@@ -4,24 +4,26 @@ namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class ImmutableTransaction implements DataAwareRule, ValidationRule
 {
-    /**
-     * All of the data under validation.
-     */
-    protected array $data = [];
+    use HasDataAwareRule;
 
     public function __construct(protected string $column = 'transaction_chain_id')
     {
     }
 
     /**
-     * Run the validation rule.
+     * Determine if the validation rule passes.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param string $attribute
+     * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
+     *
+     * @return void
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -30,19 +32,5 @@ class ImmutableTransaction implements DataAwareRule, ValidationRule
                 $fail('enjin-platform::mutation.update_transaction.error.hash_and_id_are_immutable')->translate();
             }
         }
-    }
-
-    /**
-     * Set the data under validation.
-     *
-     * @param array $data
-     *
-     * @return $this
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-
-        return $this;
     }
 }
