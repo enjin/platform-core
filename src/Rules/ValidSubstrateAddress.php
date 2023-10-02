@@ -2,31 +2,25 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Support\SS58Address;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class ValidSubstrateAddress implements Rule
+class ValidSubstrateAddress implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return SS58Address::isValidAddress($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.valid_substrate_address');
+        if (!SS58Address::isValidAddress($value)) {
+            $fail('enjin-platform::validation.valid_substrate_address')->translate();
+        }
     }
 }

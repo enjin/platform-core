@@ -9,9 +9,13 @@ use Illuminate\Contracts\Validation\ValidationRule;
 class UnusedVerificationId implements ValidationRule
 {
     /**
-     * Run the validation rule.
+     * Determine if the validation rule passes.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param string $attribute
+     * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
+     *
+     * @return void
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

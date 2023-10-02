@@ -2,19 +2,16 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Token\TokenIdManager;
 use Illuminate\Contracts\Validation\DataAwareRule;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class TokenEncodeExists implements DataAwareRule, Rule
+class TokenEncodeExists implements DataAwareRule, ValidationRule
 {
-    /**
-     * All of the data under validation.
-     *
-     * @var array
-     */
-    protected $data = [];
+    use HasDataAwareRule;
 
     /**
      * The token id manager service.
@@ -26,7 +23,7 @@ class TokenEncodeExists implements DataAwareRule, Rule
      */
     public function __construct()
     {
-        $this->tokenIdManager = app()->make(TokenIdManager::class);
+        $this->tokenIdManager = resolve(TokenIdManager::class);
     }
 
     /**
@@ -34,35 +31,14 @@ class TokenEncodeExists implements DataAwareRule, Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return Token::whereTokenChainId($this->tokenIdManager->encode($this->data))->exists();
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.token_encode_exists');
-    }
-
-    /**
-     * Set the data under validation.
-     *
-     * @param array $data
-     *
-     * @return $this
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-
-        return $this;
+        if (!Token::whereTokenChainId($this->tokenIdManager->encode($this->data))->exists()) {
+            $fail('enjin-platform::validation.token_encode_exists')->translate();
+        }
     }
 }

@@ -2,19 +2,17 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Database\TokenService;
 use Illuminate\Contracts\Validation\DataAwareRule;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class AttributeExistsInToken implements DataAwareRule, Rule
+class AttributeExistsInToken implements DataAwareRule, ValidationRule
 {
+    use HasDataAwareRule;
     use HasEncodableTokenId;
-
-    /**
-     * All of the data under validation.
-     */
-    protected $data = [];
 
     /**
      * The token service.
@@ -26,7 +24,7 @@ class AttributeExistsInToken implements DataAwareRule, Rule
      */
     public function __construct()
     {
-        $this->tokenService = app()->make(TokenService::class);
+        $this->tokenService = resolve(TokenService::class);
     }
 
     /**
@@ -34,39 +32,16 @@ class AttributeExistsInToken implements DataAwareRule, Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$tokenId = $this->encodeTokenId($this->data)) {
-            return true;
+        $tokenId = $this->encodeTokenId($this->data);
+
+        if ($tokenId && !$this->tokenService->attributeExistsInToken($this->data['collectionId'], $tokenId, $value)) {
+            $fail('enjin-platform::validation.key_doesnt_exit_in_token')->translate();
         }
-
-        return $this->tokenService->attributeExistsInToken($this->data['collectionId'], $tokenId, $value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.key_doesnt_exit_in_token');
-    }
-
-    /**
-     * Set the data under validation.
-     *
-     * @param array $data
-     *
-     * @return $this
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-
-        return $this;
     }
 }

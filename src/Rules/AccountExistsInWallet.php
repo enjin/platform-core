@@ -2,10 +2,11 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Services\Database\WalletService;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class AccountExistsInWallet implements Rule
+class AccountExistsInWallet implements ValidationRule
 {
     /**
      * The wallet service.
@@ -17,7 +18,7 @@ class AccountExistsInWallet implements Rule
      */
     public function __construct()
     {
-        $this->walletService = app()->make(WalletService::class);
+        $this->walletService = resolve(WalletService::class);
     }
 
     /**
@@ -25,21 +26,14 @@ class AccountExistsInWallet implements Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return $this->walletService->accountExistsInWallet($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.account_exists_in_wallet');
+        if (!$this->walletService->accountExistsInWallet($value)) {
+            $fail('enjin-platform::validation.account_exists_in_wallet')->translate();
+        }
     }
 }

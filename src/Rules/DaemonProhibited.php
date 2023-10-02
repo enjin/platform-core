@@ -2,34 +2,29 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class DaemonProhibited implements Rule
+class DaemonProhibited implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
+     *
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (is_int($value)) {
-            if (!($wallet = Wallet::find($value))) {
-                return true;
-            }
+        $wallet = is_int($value) ? Wallet::find($value)?->address : $value;
 
-            return !SS58Address::isSameAddress($wallet->address, Account::daemonPublicKey());
+        if (isset($wallet) && SS58Address::isSameAddress($wallet, Account::daemonPublicKey())) {
+            $fail('enjin-platform::validation.daemon_prohibited')->translate();
         }
-
-        return !SS58Address::isSameAddress($value, Account::daemonPublicKey());
-    }
-
-    /**
-     * Get the validation error message.
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.daemon_prohibited');
     }
 }

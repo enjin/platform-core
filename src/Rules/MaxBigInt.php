@@ -2,10 +2,11 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Support\Hex;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class MaxBigInt implements Rule
+class MaxBigInt implements ValidationRule
 {
     /**
      * The validation error message.
@@ -24,26 +25,18 @@ class MaxBigInt implements Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (is_array($value)) {
-            return collect($value)->flatten()->every(fn ($item) => $this->isValidMaxBigInt($item));
+        if (!(is_array($value) ? collect($value)->flatten()->every(fn ($item) => $this->isValidMaxBigInt($item)) : $this->isValidMaxBigInt($value))) {
+            $fail($this->message)
+                ->translate([
+                    'max' => $this->max,
+                ]);
         }
-
-        return $this->isValidMaxBigInt($value);
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return $this->message;
     }
 
     /**
@@ -52,12 +45,12 @@ class MaxBigInt implements Rule
     protected function isValidMaxBigInt($value): bool
     {
         if (!is_numeric($value)) {
-            $this->message = __('validation.numeric');
+            $this->message = 'validation.numeric';
 
             return false;
         }
 
-        $this->message = __('enjin-platform::validation.max_big_int', ['max' => $this->max]);
+        $this->message = 'enjin-platform::validation.max_big_int';
 
         return bccomp($this->max, $value) >= 0;
     }

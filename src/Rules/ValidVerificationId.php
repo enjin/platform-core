@@ -2,34 +2,24 @@
 
 namespace Enjin\Platform\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class ValidVerificationId implements Rule
+class ValidVerificationId implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value) || 66 !== strlen($value)) {
-            return false;
+        if (!is_string($value) || 66 !== strlen($value) || preg_match('/^0x[a-fA-F0-9]*$/', $value) < 1) {
+            $fail('enjin-platform::validation.valid_verification_id')->translate();
         }
-
-        return preg_match('/^0x[a-fA-F0-9]*$/', $value) >= 1;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.valid_verification_id');
     }
 }

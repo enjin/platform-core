@@ -2,35 +2,29 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class IsCollectionOwner implements Rule
+class IsCollectionOwner implements ValidationRule
 {
     /**
      * Determine if the validation rule passes.
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $owner = Collection::firstWhere('collection_chain_id', '=', $value)?->owner->public_key;
 
-        return SS58Address::isSameAddress($owner, Account::daemonPublicKey());
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.is_collection_owner');
+        if (!SS58Address::isSameAddress($owner, Account::daemonPublicKey())) {
+            $fail('enjin-platform::validation.is_collection_owner')->translate();
+        }
     }
 }

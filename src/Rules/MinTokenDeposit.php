@@ -2,16 +2,15 @@
 
 namespace Enjin\Platform\Rules;
 
+use Closure;
+use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
 
-class MinTokenDeposit implements DataAwareRule, Rule
+class MinTokenDeposit implements DataAwareRule, ValidationRule
 {
-    /**
-     * All of the data under validation.
-     */
-    protected array $data = [];
+    use HasDataAwareRule;
 
     /**
      * The minimum token deposit.
@@ -23,38 +22,17 @@ class MinTokenDeposit implements DataAwareRule, Rule
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
      *
-     * @return bool
+     * @return void
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $initialSupply = Arr::get($this->data, str_replace('.unitPrice', '.initialSupply', $attribute));
         $tokenDeposit = gmp_mul($initialSupply, $value);
 
-        return gmp_sub($tokenDeposit, $this->minTokenDeposit) >= 0;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return __('enjin-platform::validation.min_token_deposit');
-    }
-
-    /**
-     * Set the data under validation.
-     *
-     * @param array $data
-     *
-     * @return $this
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-
-        return $this;
+        if (gmp_sub($tokenDeposit, $this->minTokenDeposit) < 0) {
+            $fail('enjin-platform::validation.min_token_deposit')->translate();
+        }
     }
 }
