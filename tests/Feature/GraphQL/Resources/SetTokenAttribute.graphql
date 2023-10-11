@@ -5,6 +5,7 @@ mutation SetTokenAttribute(
   $value: String!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   SetTokenAttribute(
     collectionId: $collectionId
@@ -13,6 +14,7 @@ mutation SetTokenAttribute(
     value: $value
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

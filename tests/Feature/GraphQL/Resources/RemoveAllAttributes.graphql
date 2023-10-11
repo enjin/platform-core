@@ -4,6 +4,7 @@ mutation RemoveAllAttributes(
   $attributeCount: Int
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   RemoveAllAttributes(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation RemoveAllAttributes(
     attributeCount: $attributeCount
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -3,12 +3,14 @@ mutation BatchMint(
   $recipients: [MintRecipient!]!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   BatchMint(
     collectionId: $collectionId
     recipients: $recipients
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

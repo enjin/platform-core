@@ -2,17 +2,17 @@ mutation SimpleTransferToken(
   $collectionId: BigInt!
   $recipient: String!
   $params: SimpleTransferParams!
-  $signingAccount: String
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   SimpleTransferToken(
     collectionId: $collectionId
     recipient: $recipient
     params: $params
-    signingAccount: $signingAccount
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -4,6 +4,7 @@ mutation MintToken(
   $params: MintTokenParams!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   MintToken(
     recipient: $recipient
@@ -11,6 +12,7 @@ mutation MintToken(
     params: $params
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -3,12 +3,14 @@ mutation MutateCollection(
   $mutation: CollectionMutationInput!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   MutateCollection(
     collectionId: $collectionId
     mutation: $mutation
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

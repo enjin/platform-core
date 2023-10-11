@@ -4,6 +4,7 @@ mutation SetCollectionAttribute(
     $value: String!
     $skipValidation: Boolean
     $simulate: Boolean
+    $signingAccount: String
 ) {
     SetCollectionAttribute(
         collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation SetCollectionAttribute(
         value: $value
         skipValidation: $skipValidation
         simulate: $simulate
+        signingAccount: $signingAccount
     ) {
         id
         transactionId

@@ -6,6 +6,7 @@ mutation Thaw(
   $tokenAccount: String
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   Thaw(
     freezeType: $freezeType
@@ -15,6 +16,7 @@ mutation Thaw(
     tokenAccount: $tokenAccount
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

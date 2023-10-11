@@ -4,6 +4,7 @@ mutation ApproveCollection(
   $expiration: Int
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   ApproveCollection(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation ApproveCollection(
     expiration: $expiration
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId
