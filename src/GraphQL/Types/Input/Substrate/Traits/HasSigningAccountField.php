@@ -3,12 +3,14 @@
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate\Traits;
 
 use Enjin\Platform\Rules\ValidSubstrateAccount;
+use Enjin\Platform\Support\Account;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 trait HasSigningAccountField
 {
     /**
-     * Get the idempotency field.
+     * Get the signing account field.
      */
     public function getSigningAccountField(
         ?string $signingAccountDesc = null,
@@ -22,5 +24,13 @@ trait HasSigningAccountField
         return [
             'signingAccount' => $signingAccountType,
         ];
+    }
+
+    /**
+     * Get the signing account.
+     */
+    public function getSigningAccount(array $args)
+    {
+        return empty($signing = Arr::get($args, 'signingAccount')) ? Account::daemonPublicKey() : $signing;
     }
 }

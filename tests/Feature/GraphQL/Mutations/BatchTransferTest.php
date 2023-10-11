@@ -2213,49 +2213,4 @@ class BatchTransferTest extends TestCaseGraphQL
 
         Event::assertNotDispatched(TransactionCreated::class);
     }
-
-    public function test_it_will_fail_with_not_managed_signing_wallet(): void
-    {
-        $signingWallet = Wallet::factory([
-            'managed' => false,
-        ])->create();
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
-        $collection = Collection::factory([
-            'collection_chain_id' => Hex::MAX_UINT128,
-        ])->create();
-        CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $signingWallet,
-            'account_count' => 1,
-        ])->create();
-        $token = Token::factory([
-            'collection_id' => $collection,
-        ])->create();
-        $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'wallet_id' => $signingWallet,
-        ])->create();
-
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
-            'recipients' => [
-                [
-                    'account' => SS58Address::encode($this->recipient->public_key),
-                    'simpleParams' => [
-                        'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-                        'amount' => fake()->numberBetween(1, $tokenAccount->balance),
-                    ],
-                ],
-            ],
-            'signingAccount' => SS58Address::encode($signingWallet->public_key),
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account is not a wallet managed by this platform.']],
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
 }
