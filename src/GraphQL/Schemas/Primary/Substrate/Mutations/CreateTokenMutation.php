@@ -9,6 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -33,6 +34,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
@@ -71,6 +73,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
                 'type' => GraphQL::type('CreateTokenParams!'),
                 'description' => __('enjin-platform::input_type.create_token_params.description'),
             ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),

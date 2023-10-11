@@ -9,11 +9,11 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsManagedWallet;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
@@ -34,6 +34,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
@@ -71,10 +72,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
             'params' => [
                 'type' => GraphQL::type('OperatorTransferParams!'),
             ],
-            'signingAccount' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::mutation.batch_transfer.args.signingAccount'),
-            ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -146,7 +144,6 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'collectionId' => ['exists:collections,collection_chain_id'],
-            'signingAccount' => '' === Arr::get($args, 'signingAccount') ? ['filled'] : ['nullable', 'bail', new ValidSubstrateAccount(), new IsManagedWallet()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
     }
@@ -156,9 +153,6 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
      */
     protected function rulesWithoutValidation(array $args): array
     {
-        return [
-            'signingAccount' => '' === Arr::get($args, 'signingAccount') ? ['filled'] : ['nullable', 'bail', new ValidSubstrateAccount()],
-            ...$this->getTokenFieldRules('params'),
-        ];
+        return $this->getTokenFieldRules('params');
     }
 }

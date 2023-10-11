@@ -19,6 +19,8 @@ class ValidSubstrateAccount implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        ray($attribute);
+        ray($value);
         if (!(is_array($value) ? collect($value)->every(fn ($item) => $this->isValidAddress($item)) : $this->isValidAddress($value))) {
             $fail('enjin-platform::validation.valid_substrate_account')->translate();
         }

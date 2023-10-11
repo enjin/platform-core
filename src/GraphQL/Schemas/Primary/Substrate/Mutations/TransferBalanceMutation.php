@@ -8,11 +8,11 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsManagedWallet;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
@@ -32,6 +32,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
 {
     use InPrimarySubstrateSchema;
     use HasIdempotencyField;
+    use HasSigningAccountField;
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
@@ -74,10 +75,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
                 'defaultValue' => false,
             ],
-            'signingAccount' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::mutation.batch_transfer.args.signingAccount'),
-            ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -132,26 +130,6 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         return [
             'recipient' => ['filled', new ValidSubstrateAccount()],
             'amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
-        ];
-    }
-
-    /**
-     * Get the mutation's validation rules.
-     */
-    protected function rulesWithValidation(array $args): array
-    {
-        return [
-            'signingAccount' => '' === Arr::get($args, 'signingAccount') ? ['filled'] : ['nullable', 'bail', new ValidSubstrateAccount(), new IsManagedWallet()],
-        ];
-    }
-
-    /**
-     * Get the mutation's validation rules without DB rules.
-     */
-    protected function rulesWithoutValidation(array $args): array
-    {
-        return [
-            'signingAccount' => '' === Arr::get($args, 'signingAccount') ? ['filled'] : ['nullable', 'bail', new ValidSubstrateAccount()],
         ];
     }
 }

@@ -12,6 +12,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -26,7 +27,6 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\ArrayShape;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchMintMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -38,11 +38,11 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
     use HasEncodableTokenId;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
      */
-    #[ArrayShape(['name' => 'string', 'description' => 'string'])]
     public function attributes(): array
     {
         return [
@@ -73,6 +73,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                 'type' => GraphQL::type('[MintRecipient!]!'),
                 'rules' => ['array', 'min:1', 'max:250'],
             ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),

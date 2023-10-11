@@ -11,12 +11,11 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsManagedWallet;
-use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
@@ -27,7 +26,6 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\ArrayShape;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchTransferMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -39,11 +37,11 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
      */
-    #[ArrayShape(['name' => 'string', 'description' => 'string'])]
     public function attributes(): array
     {
         return [
@@ -73,10 +71,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
             'recipients' => [
                 'type' => GraphQL::type('[TransferRecipient!]!'),
             ],
-            'signingAccount' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::mutation.batch_transfer.args.signingAccount'),
-            ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -196,7 +191,6 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     {
         return [
             'collectionId' => ['exists:collections,collection_chain_id'],
-            'signingAccount' => ['nullable', 'bail', new ValidSubstrateAccount(), new IsManagedWallet()],
             ...$this->getTokenFieldRulesExist('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRulesExist('recipients.*.operatorParams', $args),
         ];
@@ -208,7 +202,6 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'signingAccount' => ['nullable', 'bail', new ValidSubstrateAccount()],
             ...$this->getTokenFieldRules('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRules('recipients.*.operatorParams', $args),
         ];
