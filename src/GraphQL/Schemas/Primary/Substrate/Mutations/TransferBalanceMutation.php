@@ -98,7 +98,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $signingWallet = $walletService->firstOrStore([
-            'account' => Arr::get($args, 'signingAccount') ?: Account::daemonPublicKey(),
+            'account' => $this->getSigningAccount($args),
         ]);
 
         $method = $this->getMethodName() . ($args['keepAlive'] ? 'KeepAlive' : '');
