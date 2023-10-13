@@ -101,11 +101,11 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
             }
         }
 
-        $encodedData = $serializationService->encode($this->name, [
-            'collectionId' => $args['collectionId'],
-            'tokenId' => $tokenId,
-            'attributeCount' => $args['attributeCount'],
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $tokenId,
+            attributeCount: $args['attributeCount']
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -120,6 +120,15 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'tokenId' => Arr::get($params, 'tokenId', null),
+            'attributeCount' => Arr::get($params, 'attributeCount', 0),
+        ];
     }
 
     /**

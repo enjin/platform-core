@@ -93,12 +93,12 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         TransactionService $transactionService,
         Substrate $blockchainService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'tokenId' => $this->encodeTokenId($args),
-            'behavior' => $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
-            'listingForbidden' => Arr::get($args, 'mutation.listingForbidden'),
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $this->encodeTokenId($args),
+            behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
+            listingForbidden: Arr::get($args, 'mutation.listingForbidden')
+        ));
 
 
         return Transaction::lazyLoadSelectFields(
@@ -123,6 +123,16 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     {
         return [
             'mutation.behavior.isCurrency.accepted' => __('enjin-platform::validation.mutation.behavior.isCurrency.accepted'),
+        ];
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'tokenId' => Arr::get($params, 'tokenId', 0),
+            'behavior' =>  Arr::get($params, 'behavior', null),
+            'listingForbidden' => Arr::get($params, 'listingForbidden', null),
         ];
     }
 

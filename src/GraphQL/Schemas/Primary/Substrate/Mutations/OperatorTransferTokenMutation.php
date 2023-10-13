@@ -13,6 +13,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -92,11 +93,11 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            $targetWallet->public_key,
-            $args['collectionId'],
-            $blockchainService->getOperatorTransferParams($args['params']),
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            recipient: $targetWallet->public_key,
+            collectionId: $args['collectionId'],
+            operatorTransferParams: $blockchainService->getOperatorTransferParams($args['params'])
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -119,6 +120,15 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     public function getMethodName(): string
     {
         return 'transferToken';
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'recipient' => Arr::get($params, 'recipient', Account::daemonPublicKey()),
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0)),
+        ];
     }
 
     /**

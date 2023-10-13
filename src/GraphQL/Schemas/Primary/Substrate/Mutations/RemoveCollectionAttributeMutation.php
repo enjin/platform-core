@@ -18,6 +18,7 @@ use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -82,11 +83,11 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'tokenId' => null,
-            'key' => $args['key'],
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: null,
+            key: $args['key']
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -109,6 +110,15 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
     public function getMethodName(): string
     {
         return 'removeAttribute';
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'tokenId' => null,
+            'key' => Arr::get($params, 'key', '0'),
+        ];
     }
 
     /**

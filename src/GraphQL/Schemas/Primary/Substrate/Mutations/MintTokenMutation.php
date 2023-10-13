@@ -14,14 +14,17 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -98,11 +101,11 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
         WalletService $walletService
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'recipientId' => $recipientWallet->public_key,
-            'collectionId' => $args['collectionId'],
-            'params' => $blockchainService->getMintTokenParams($args['params']),
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            recipientId: $recipientWallet->public_key,
+            collectionId: $args['collectionId'],
+            mintParams: $blockchainService->getMintTokenParams($args['params'])
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -125,6 +128,15 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     public function getMethodName(): string
     {
         return 'mint';
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'recipientId' => Arr::get($params, 'recipientId', Account::daemonPublicKey()),
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'params' => Arr::get($params, 'mintParams', new MintParams(0, 0)),
+        ];
     }
 
     /**

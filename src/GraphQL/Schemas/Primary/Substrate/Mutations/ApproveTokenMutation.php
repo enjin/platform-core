@@ -25,9 +25,11 @@ use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -116,14 +118,14 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'tokenId' => $this->encodeTokenId($args),
-            'operator' => $operatorWallet->public_key,
-            'amount' => $args['amount'],
-            'currentAmount' => $args['currentAmount'],
-            'expiration' => $args['expiration'],
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $this->encodeTokenId($args),
+            operator: $operatorWallet->public_key,
+            amount: $args['amount'],
+            currentAmount: $args['currentAmount'],
+            expiration: $args['expiration']
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -138,6 +140,18 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'tokenId' => Arr::get($params, 'tokenId', 0),
+            'operator' => Arr::get($params, 'operator', Account::daemonPublicKey()),
+            'amount' => Arr::get($params, 'amount', 0),
+            'currentAmount' => Arr::get($params, 'currentAmount', 0),
+            'expiration' => Arr::get($params, 'expiration', null),
+        ];
     }
 
     /**

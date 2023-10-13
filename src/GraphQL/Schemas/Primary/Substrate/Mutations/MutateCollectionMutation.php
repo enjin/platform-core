@@ -14,6 +14,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DistinctMultiAsset;
 use Enjin\Platform\Rules\ValidRoyaltyPercentage;
@@ -22,6 +23,7 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -107,14 +109,14 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
             );
         }
 
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'owner' => null !== Arr::get($args, 'mutation.owner')
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            owner: null !== Arr::get($args, 'mutation.owner')
                 ? $walletService->firstOrStore(['account' => $args['mutation']['owner']])->public_key
                 : null,
-            'royalty' => $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
-            'explicitRoyaltyCurrencies' => Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
-        ]);
+            royalty: $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
+            explicitRoyaltyCurrencies: Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -129,6 +131,16 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'owner' => Arr::get($params, 'owner', null),
+            'royalty' => Arr::get($params, 'royalty', new RoyaltyPolicyParams(Account::daemonPublicKey(), 0)),
+            'explicitRoyaltyCurrencies' => Arr::get($params, 'explicitRoyaltyCurrencies', null),
+        ];
     }
 
     /**

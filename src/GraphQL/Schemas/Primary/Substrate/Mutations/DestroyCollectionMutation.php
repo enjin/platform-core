@@ -23,6 +23,7 @@ use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterfa
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -84,9 +85,9 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService,
         WalletService $walletService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId']
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -101,6 +102,13 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+        ];
     }
 
     /**

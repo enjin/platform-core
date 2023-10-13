@@ -15,6 +15,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\FreezeTypeParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AccountExistsInCollection;
 use Enjin\Platform\Rules\AccountExistsInToken;
@@ -24,6 +25,7 @@ use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -101,10 +103,10 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'params' => $params,
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            thawParams: $params,
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -119,6 +121,14 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'params' => Arr::get($params, 'thawParams', new FreezeTypeParams(FreezeType::TOKEN)),
+        ];
     }
 
     /**

@@ -20,6 +20,7 @@ use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -92,12 +93,12 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'tokenId' => $this->encodeTokenId($args),
-            'key' => $args['key'],
-            'value' => $args['value'],
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $this->encodeTokenId($args),
+            key: $args['key'],
+            value: $args['value']
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -120,6 +121,16 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     public function getMethodName(): string
     {
         return 'setAttribute';
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'tokenId' => Arr::get($params, 'tokenId', 0),
+            'key' => Arr::get($params, 'key', '0'),
+            'value' => Arr::get($params, 'value', '0'),
+        ];
     }
 
     /**

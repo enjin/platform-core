@@ -14,6 +14,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DistinctAttributes;
 use Enjin\Platform\Rules\DistinctMultiAsset;
@@ -23,6 +24,7 @@ use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterfa
 use Enjin\Platform\Traits\InheritsGraphQlFields;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -106,7 +108,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
             $transactionService->store(
                 [
                     'method' => $this->getMutationName(),
-                    'encoded_data' => $serializationService->encode($this->getMethodName(), $blockchainService->getCollectionPolicies($args)),
+                    'encoded_data' => $serializationService->encode($this->getMethodName(), static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))),
                     'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
@@ -115,6 +117,18 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        ray($params);
+
+        return [
+            'mintPolicy' => Arr::get($params, 'mintPolicy', new MintPolicyParams(false)),
+            'marketPolicy' => Arr::get($params, 'marketPolicy', null),
+            'explicitRoyaltyCurrencies' => Arr::get($params, 'explicitRoyaltyCurrencies', []),
+            'attributes' => Arr::get($params, 'attributes', []),
+        ];
     }
 
     /**

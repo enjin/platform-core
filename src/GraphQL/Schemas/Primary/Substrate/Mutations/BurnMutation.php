@@ -94,10 +94,10 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     ): mixed {
         $args['params']['tokenId'] = $this->encodeTokenId($args['params']);
         unset($args['params']['encodeTokenId']);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'params' => new BurnParams(...$args['params']),
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            burnParams: new BurnParams(...$args['params'])
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -112,6 +112,14 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'params' => Arr::get($params, 'burnParams', new BurnParams(0, 0)),
+        ];
     }
 
     /**

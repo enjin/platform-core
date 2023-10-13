@@ -13,4 +13,6 @@ interface PlatformBlockchainTransaction
      * Get the mutation name.
      */
     public function getMutationName(): string;
+
+    public static function getEncodableParams(...$params): array;
 }

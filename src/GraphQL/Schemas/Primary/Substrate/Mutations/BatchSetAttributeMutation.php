@@ -22,6 +22,7 @@ use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -105,6 +106,15 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         );
     }
 
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'tokenId' => Arr::get($params, 'tokenId', 0),
+            'attributes' => Arr::get($params, 'attributes', []),
+        ];
+    }
+
     /**
      * Resolve batch set attribute.
      */
@@ -122,11 +132,11 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
      */
     protected function resolveWithoutContinueOnFailure(string $collectionId, ?string $tokenId, array $attributes, SerializationServiceInterface $serializationService): string
     {
-        return $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $collectionId,
-            'tokenId' => $tokenId,
-            'attributes' => $attributes,
-        ]);
+        return $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $tokenId,
+            attributes: $attributes
+        ));
     }
 
     /**

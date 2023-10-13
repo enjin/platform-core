@@ -138,6 +138,14 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         );
     }
 
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'recipients' => Arr::get($params, 'recipients', []),
+        ];
+    }
+
     /**
      * Resolve batch mint.
      */
@@ -155,10 +163,10 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
      */
     protected function resolveWithoutContinueOnFailure(string $collectionId, Collection $recipients, SerializationServiceInterface $serializationService): string
     {
-        return $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $collectionId,
-            'recipients' => $recipients->toArray(),
-        ]);
+        return $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $collectionId,
+            recipients: $recipients->toArray()
+        ));
     }
 
     /**

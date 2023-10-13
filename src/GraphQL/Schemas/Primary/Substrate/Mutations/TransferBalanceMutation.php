@@ -96,10 +96,10 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $method = $this->getMethodName() . ($args['keepAlive'] ? 'KeepAlive' : '');
-        $encodedData = $serializationService->encode($method, [
-            $targetWallet->public_key,
-            $args['amount'],
-        ]);
+        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+            recipient: $targetWallet->public_key,
+            value: $args['amount']
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -114,6 +114,14 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'recipient' => Arr::get($params, 'recipient', Account::daemonPublicKey()),
+            'value' => Arr::get($params, 'value', 0),
+        ];
     }
 
     /**

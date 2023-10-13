@@ -18,8 +18,10 @@ use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -86,10 +88,10 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'operator' => $operatorWallet->public_key,
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            operator: $operatorWallet->public_key
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
@@ -104,6 +106,14 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
             ),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'operator' => Arr::get($params, 'operator', Account::daemonPublicKey()),
+        ];
     }
 
     /**
