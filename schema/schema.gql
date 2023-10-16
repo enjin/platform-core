@@ -518,7 +518,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -552,7 +552,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token ID that will be approved."""
     tokenId: EncodableTokenIdInput!
@@ -576,7 +576,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -598,7 +598,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token ID."""
     tokenId: EncodableTokenIdInput
@@ -622,7 +622,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -645,7 +645,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -674,7 +674,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -700,7 +700,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """Store a new unverified wallet record using an external ID."""
@@ -726,7 +726,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -755,7 +755,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token account to freeze."""
     tokenAccount: String
@@ -800,7 +800,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """Changes collection default values."""
@@ -821,7 +821,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """Changes token default values."""
@@ -842,7 +842,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token that will be mutated."""
     tokenId: EncodableTokenIdInput!
@@ -869,7 +869,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """Removes all attributes from the given collection ID and token ID."""
@@ -892,7 +892,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token ID."""
     tokenId: EncodableTokenIdInput
@@ -916,7 +916,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """Remove an attribute from the specified token."""
@@ -937,7 +937,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token ID."""
     tokenId: EncodableTokenIdInput!
@@ -972,7 +972,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The attribute value."""
     value: String!
@@ -996,7 +996,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token ID."""
     tokenId: EncodableTokenIdInput!
@@ -1036,7 +1036,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """Thaw a previously frozen collection or token."""
@@ -1060,7 +1060,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token account to thaw."""
     tokenAccount: String
@@ -1091,7 +1091,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -1119,7 +1119,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -1142,7 +1142,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -1165,7 +1165,7 @@ type Mutation {
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
-    skipValidation: Boolean! = false
+    skipValidation: Boolean = false
 
     """The token that approval will be removed from."""
     tokenId: EncodableTokenIdInput!

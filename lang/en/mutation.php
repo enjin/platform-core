@@ -2,6 +2,7 @@
 
 return [
     'args.skipValidation' => 'Skip all validation rules, use with caution. Defaults to false.',
+    'args.signingAccount' => 'The signing wallet for this transaction. Defaults to wallet daemon.',
     'acknowledge_events.args.uuids' => 'The event UUIDs to acknowledge.',
     'acknowledge_events.description' => 'Use this mutation to acknowledge cached events and remove them from the cache.',
     'approve_collection.args.collectionId' => 'The collection that will be approved.',
