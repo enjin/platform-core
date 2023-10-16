@@ -62,6 +62,7 @@ trait EagerLoadSelectFields
         $hasBeneficiary = (bool) Arr::get($fields, 'royalty.fields.beneficiary');
         $select = array_filter([
             'id',
+            'collection_chain_id',
             'max_token_supply',
             'force_single_mint',
             isset($fields['owner']) || static::$query == 'GetWallet' ? 'owner_wallet_id' : null,
