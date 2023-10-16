@@ -95,10 +95,6 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $signingWallet = $walletService->firstOrStore([
-            'account' => $this->getSigningAccount($args),
-        ]);
-
         $method = $this->getMethodName() . ($args['keepAlive'] ? 'KeepAlive' : '');
         $encodedData = $serializationService->encode($method, [
             $targetWallet->public_key,
@@ -114,7 +110,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
                 ],
-                signingWallet: $signingWallet
+                signingWallet: $this->getSigningAccount($args)
             ),
             $resolveInfo
         );

@@ -99,7 +99,6 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
             'value' => $args['value'],
         ]);
 
-
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
                 [

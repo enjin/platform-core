@@ -86,7 +86,6 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-
         $encodedData = $serializationService->encode($this->getMethodName(), [
             'collectionId' => $args['collectionId'],
             'operator' => $operatorWallet->public_key,

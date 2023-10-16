@@ -7,6 +7,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -14,6 +15,7 @@ use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
@@ -140,6 +142,110 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_remove_an_attribute_with_ss58_signing_account(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+        $collection = Collection::factory([
+            'owner_wallet_id'=> $wallet,
+            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+            'token_chain_id' => $tokenId = fake()->numberBetween(),
+        ])->create();
+        Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
+            'attributeCount' => $attributeCount = 1,
+            'signingAccount' => SS58Address::encode($signingAccount),
+        ]);
+
+        $encodedData = $this->codec->encode()->removeAllAttributes(
+            $collectionId,
+            $this->tokenIdEncoder->encode($tokenId),
+            $attributeCount,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_remove_an_attribute_with_public_key_signing_account(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+        $collection = Collection::factory([
+            'owner_wallet_id'=> $wallet,
+            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+            'token_chain_id' => $tokenId = fake()->numberBetween(),
+        ])->create();
+        Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
+            'attributeCount' => $attributeCount = 1,
+            'signingAccount' => $signingAccount,
+        ]);
+
+        $encodedData = $this->codec->encode()->removeAllAttributes(
+            $collectionId,
+            $this->tokenIdEncoder->encode($tokenId),
+            $attributeCount,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
                 ],
             ],
         ], $response);

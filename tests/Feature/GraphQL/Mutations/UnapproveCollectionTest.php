@@ -145,6 +145,60 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_unapprove_a_collection_with_ss58_signing_account(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'operator' => SS58Address::encode($this->operator->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $encodedData = $this->codec->encode()->unapproveCollection(
+            $this->collection->collection_chain_id,
+            $this->operator->public_key,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_unapprove_a_collection_with_public_key_signing_account(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'operator' => SS58Address::encode($this->operator->public_key),
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $encodedData = $this->codec->encode()->unapproveCollection(
+            $this->collection->collection_chain_id,
+            $this->operator->public_key,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_unapprove_a_collection_with_int(): void
     {
         $response = $this->graphql($this->method, [

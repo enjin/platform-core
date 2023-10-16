@@ -341,6 +341,63 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_transfer_token_with_public_keysigning_wallet(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'wallet_id' => $wallet,
+        ])->create();
+        $token = Token::find($tokenAccount->token_id);
+        $collection = Collection::find($tokenAccount->collection_id);
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $wallet,
+            'account_count' => 1,
+        ])->create();
+
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $collection->collection_chain_id,
+            $params = new SimpleTransferParams(
+                tokenId: $this->tokenIdInput->encode($token->token_chain_id),
+                amount: fake()->numberBetween(0, $tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Simple'];
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => $signingAccount,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_token_with_null_signing_wallet(): void
     {
         $encodedData = $this->codec->encode()->transferToken(

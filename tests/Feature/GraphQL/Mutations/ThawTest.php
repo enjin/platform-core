@@ -166,6 +166,78 @@ class ThawTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_can_thaw_a_collection_with_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->thaw(
+            $collectionId = $this->collection->collection_chain_id,
+            new FreezeTypeParams(
+                type: $freezeType = FreezeType::COLLECTION
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'freezeType' => $freezeType->name,
+            'collectionId' => $collectionId,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_can_thaw_a_collection_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->thaw(
+            $collectionId = $this->collection->collection_chain_id,
+            new FreezeTypeParams(
+                type: $freezeType = FreezeType::COLLECTION
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'freezeType' => $freezeType->name,
+            'collectionId' => $collectionId,
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_thaw_a_big_int_collection(): void
     {
         $collection = Collection::factory([

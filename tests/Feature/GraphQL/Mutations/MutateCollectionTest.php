@@ -179,6 +179,78 @@ class MutateCollectionTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_mutate_a_collection_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->mutateCollection(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            owner: $owner = $this->defaultAccount,
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'mutation' => [
+                'owner' => SS58Address::encode($owner),
+            ],
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key()),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_mutate_a_collection_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->mutateCollection(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            owner: $owner = $this->defaultAccount,
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'mutation' => [
+                'owner' => SS58Address::encode($owner),
+            ],
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_mutate_a_collection_with_explicit_royalty_currencies(): void
     {
         $encodedData = $this->codec->encode()->mutateCollection(

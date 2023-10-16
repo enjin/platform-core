@@ -130,6 +130,40 @@ class TransferAllBalanceTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_transfer_all_balance_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->transferAllBalance(
+            $address = app(Generator::class)->public_key(),
+            $keepAlive = fake()->boolean(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'recipient' => $address,
+            'keepAlive' => $keepAlive,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_all_with_missing_keep_alive(): void
     {
         $encodedData = $this->codec->encode()->transferAllBalance(

@@ -14,6 +14,7 @@ use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
@@ -92,6 +93,76 @@ class CreateCollectionTest extends TestCaseGraphQL
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_create_collection_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->createCollection(
+            $policy = new MintPolicyParams(
+                forceSingleMint: fake()->boolean(),
+            )
+        );
+
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => $policy->toArray(),
+            'simulate' => null,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_create_collection_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->createCollection(
+            $policy = new MintPolicyParams(
+                forceSingleMint: fake()->boolean(),
+            )
+        );
+
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => $policy->toArray(),
+            'simulate' => null,
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
                 ],
             ],
         ], $response);

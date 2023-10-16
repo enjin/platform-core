@@ -169,6 +169,90 @@ class MintTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_can_mint_a_token_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->mint(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new MintParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: fake()->numberBetween(),
+            ),
+        );
+
+        $params = $params->toArray()['Mint'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($recipient),
+            'collectionId' => $collectionId,
+            'params' => $params,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_can_mint_a_token_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->mint(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new MintParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: fake()->numberBetween(),
+            ),
+        );
+
+        $params = $params->toArray()['Mint'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($recipient),
+            'collectionId' => $collectionId,
+            'params' => $params,
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_can_mint_a_token_with_different_types(): void
     {
         $encodedData = $this->codec->encode()->mint(

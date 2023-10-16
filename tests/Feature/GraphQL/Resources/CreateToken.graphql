@@ -2,8 +2,9 @@ mutation CreateToken(
   $recipient: String!
   $collectionId: BigInt!
   $params: CreateTokenParams!
-  $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
+  $skipValidation: Boolean
 ) {
   CreateToken(
     recipient: $recipient
@@ -11,6 +12,7 @@ mutation CreateToken(
     params: $params
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

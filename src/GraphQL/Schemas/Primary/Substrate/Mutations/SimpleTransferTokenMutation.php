@@ -92,10 +92,6 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $signingWallet = $walletService->firstOrStore([
-            'account' => $this->getSigningAccount($args),
-        ]);
-
         $encodedData = $serializationService->encode($this->getMethodName(), [
             $targetWallet->public_key,
             $args['collectionId'],
@@ -111,7 +107,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
                 ],
-                signingWallet: $signingWallet
+                signingWallet: $this->getSigningAccount($args)
             ),
             $resolveInfo
         );

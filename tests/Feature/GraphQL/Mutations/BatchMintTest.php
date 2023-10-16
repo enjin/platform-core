@@ -278,6 +278,110 @@ class BatchMintTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->batchMint(
+            $collectionId = $this->collection->collection_chain_id,
+            [
+                [
+                    'accountId' => $recipient = $this->recipient->public_key,
+                    'params' => $createParams = new CreateTokenParams(
+                        tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
+                        initialSupply: $supply = fake()->numberBetween(1),
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
+                        cap: TokenMintCapType::INFINITE,
+                    ),
+                ],
+            ]
+        );
+
+        $params = $createParams->toArray()['CreateToken'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient),
+                    'createParams' => $params,
+                ],
+            ],
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->batchMint(
+            $collectionId = $this->collection->collection_chain_id,
+            [
+                [
+                    'accountId' => $recipient = $this->recipient->public_key,
+                    'params' => $createParams = new CreateTokenParams(
+                        tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
+                        initialSupply: $supply = fake()->numberBetween(1),
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
+                        cap: TokenMintCapType::INFINITE,
+                    ),
+                ],
+            ]
+        );
+
+        $params = $createParams->toArray()['CreateToken'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient),
+                    'createParams' => $params,
+                ],
+            ],
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_mint_create_single_token_with_single_mint_cap(): void
     {
         $encodedData = $this->codec->encode()->batchMint(

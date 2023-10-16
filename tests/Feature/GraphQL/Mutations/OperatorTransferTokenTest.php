@@ -235,6 +235,94 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_transfer_token_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new OperatorTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                source: $this->wallet->public_key,
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Operator'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_transfer_token_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new OperatorTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                source: $this->wallet->public_key,
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Operator'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_token_without_pass_keep_alive(): void
     {
         $encodedData = $this->codec->encode()->transferToken(

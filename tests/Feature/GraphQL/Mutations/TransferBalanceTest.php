@@ -106,6 +106,41 @@ class TransferBalanceTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_transfer_balance_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->TransferBalance(
+            $publicKey = app(Generator::class)->public_key(),
+            $amount = fake()->numberBetween(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($publicKey),
+            'amount' => $amount,
+            'keepAlive' => false,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_balance_with_bigint_amount(): void
     {
         $encodedData = $this->codec->encode()->TransferBalance(

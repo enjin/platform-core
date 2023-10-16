@@ -116,7 +116,6 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-
         $encodedData = $serializationService->encode($this->getMethodName(), [
             'collectionId' => $args['collectionId'],
             'tokenId' => $this->encodeTokenId($args),

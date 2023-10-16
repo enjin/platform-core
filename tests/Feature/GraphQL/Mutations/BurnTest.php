@@ -16,6 +16,7 @@ use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
@@ -196,6 +197,128 @@ class BurnTest extends TestCaseGraphQL
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_can_burn_a_token_with_ss58_signing_account(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        $collection = Collection::factory([
+            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+            'owner_wallet_id' => $wallet,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collection,
+            'token_chain_id' => $tokenId = fake()->numberBetween(),
+        ])->create();
+
+        TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $wallet,
+            'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+        ])->create();
+
+        $encodedData = $this->codec->encode()->burn(
+            $collectionId,
+            new BurnParams(
+                tokenId: $tokenId,
+                amount: $amount,
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
+                'amount' => $amount,
+            ],
+            'signingAccount' => SS58Address::encode($signingAccount),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_can_burn_a_token_with_public_key_signing_account(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        $collection = Collection::factory([
+            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+            'owner_wallet_id' => $wallet,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collection,
+            'token_chain_id' => $tokenId = fake()->numberBetween(),
+        ])->create();
+
+        TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $wallet,
+            'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+        ])->create();
+
+        $encodedData = $this->codec->encode()->burn(
+            $collectionId,
+            new BurnParams(
+                tokenId: $tokenId,
+                amount: $amount,
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
+                'amount' => $amount,
+            ],
+            'signingAccount' => $signingAccount,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
                 ],
             ],
         ], $response);

@@ -5,12 +5,14 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
@@ -132,6 +134,88 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+    }
+
+    public function test_it_can_batch_set_attribute_on_token_with_ss58_signing_account(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        $collection = Collection::factory([
+            'owner_wallet_id' => $wallet,
+        ])->create();
+
+        $encodedData = $this->codec->encode()->batchSetAttribute(
+            $collectionId = $collection->collection_chain_id,
+            null,
+            $attributes = $this->randomAttributes(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'attributes' => $attributes,
+            'signingAccount' => SS58Address::encode($signingAccount),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+    }
+
+    public function test_it_can_batch_set_attribute_on_token_with_public_key_signing_account(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        $collection = Collection::factory([
+            'owner_wallet_id' => $wallet,
+        ])->create();
+
+        $encodedData = $this->codec->encode()->batchSetAttribute(
+            $collectionId = $collection->collection_chain_id,
+            null,
+            $attributes = $this->randomAttributes(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'attributes' => $attributes,
+            'signingAccount' => $signingAccount,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
                 ],
             ],
         ], $response);

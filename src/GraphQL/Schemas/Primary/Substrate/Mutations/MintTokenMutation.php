@@ -98,7 +98,6 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
         WalletService $walletService
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-
         $encodedData = $serializationService->encode($this->getMethodName(), [
             'recipientId' => $recipientWallet->public_key,
             'collectionId' => $args['collectionId'],
