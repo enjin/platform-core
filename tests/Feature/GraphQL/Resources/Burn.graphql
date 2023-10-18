@@ -3,12 +3,9 @@ mutation Burn(
   $params: BurnParamsInput!
   $skipValidation: Boolean
   $simulate: Boolean
-<<<<<<< master
   $signingAccount: String
-=======
   $nonce: Int
   $tip: BigInt
->>>>>>> Adds signingPayload
 ) {
   Burn(
     collectionId: $collectionId

@@ -4,12 +4,9 @@ mutation BatchSetAttribute(
   $attributes: [AttributeInput!]!
   $skipValidation: Boolean
   $simulate: Boolean
-<<<<<<< master
   $signingAccount: String
-=======
   $nonce: Int
   $tip: BigInt
->>>>>>> Adds signingPayload
 ) {
   BatchSetAttribute(
     collectionId: $collectionId
