@@ -52,7 +52,7 @@ class TokenService
      */
     public function tokenBalanceForAccount(string $collectionId, string $tokenId, ?string $address = null): string
     {
-        $publicKey = null !== $address ? SS58Address::getPublicKey($address) : Account::daemon()->public_key;
+        $publicKey = !empty($address) ? SS58Address::getPublicKey($address) : Account::daemon()->public_key;
         if (!($accountWallet = Wallet::firstWhere(['public_key' => $publicKey]))
             || !($collection = Collection::firstWhere(['collection_chain_id' => $collectionId]))
             || !($token = Token::firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))

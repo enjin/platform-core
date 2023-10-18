@@ -8,6 +8,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -27,6 +28,7 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
@@ -61,6 +63,7 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.key'),
             ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -86,13 +89,16 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
         ]);
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store([
-                'method' => $this->getMutationName(),
-                'encoded_data' => $encodedData,
-                'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getDeposit($args),
-                'simulate' => $args['simulate'],
-            ]),
+            $transactionService->store(
+                [
+                    'method' => $this->getMutationName(),
+                    'encoded_data' => $encodedData,
+                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                    'deposit' => $this->getDeposit($args),
+                    'simulate' => $args['simulate'],
+                ],
+                signingWallet: $this->getSigningAccount($args),
+            ),
             $resolveInfo
         );
     }

@@ -16,7 +16,7 @@ trait HasSkippableRules
             'skipValidation' => [
                 'name' => 'skipValidation',
                 'description' => __('enjin-platform::mutation.args.skipValidation'),
-                'type' => GraphQL::type('Boolean!'),
+                'type' => GraphQL::type('Boolean'),
                 'defaultValue' => false,
             ],
         ];

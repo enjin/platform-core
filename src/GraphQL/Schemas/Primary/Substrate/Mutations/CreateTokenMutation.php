@@ -9,6 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -33,6 +34,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
@@ -71,6 +73,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
                 'type' => GraphQL::type('CreateTokenParams!'),
                 'description' => __('enjin-platform::input_type.create_token_params.description'),
             ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -92,7 +95,6 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
         WalletService $walletService
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-
         $encodedData = $serializationService->encode($this->getMethodName(), [
             'recipientId' => $recipientWallet->public_key,
             'collectionId' => $args['collectionId'],
@@ -100,13 +102,16 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
         ]);
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store([
-                'method' => $this->getMutationName(),
-                'encoded_data' => $encodedData,
-                'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getDeposit($args),
-                'simulate' => $args['simulate'],
-            ]),
+            $transactionService->store(
+                [
+                    'method' => $this->getMutationName(),
+                    'encoded_data' => $encodedData,
+                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                    'deposit' => $this->getDeposit($args),
+                    'simulate' => $args['simulate'],
+                ],
+                signingWallet: $this->getSigningAccount($args),
+            ),
             $resolveInfo
         );
     }

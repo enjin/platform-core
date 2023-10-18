@@ -3,12 +3,14 @@ mutation RemoveCollectionAttribute(
   $key: String!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   RemoveCollectionAttribute(
     collectionId: $collectionId
     key: $key
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

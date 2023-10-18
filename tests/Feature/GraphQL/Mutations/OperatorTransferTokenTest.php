@@ -235,6 +235,94 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_transfer_token_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new OperatorTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                source: $this->wallet->public_key,
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Operator'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_transfer_token_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new OperatorTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                source: $this->wallet->public_key,
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Operator'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_token_without_pass_keep_alive(): void
     {
         $encodedData = $this->codec->encode()->transferToken(
@@ -346,6 +434,50 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
             'signingAccount' => null,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_transfer_token_with_empty_signing_wallet_and_works_as_daemon(): void
+    {
+        $encodedData = $this->codec->encode()->transferToken(
+            $recipient = $this->recipient->public_key,
+            $collectionId = $this->collection->collection_chain_id,
+            $params = new OperatorTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                source: $this->wallet->public_key,
+                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                keepAlive: fake()->boolean(),
+            ),
+        );
+
+        $params = $params->toArray()['Operator'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipient' => SS58Address::encode($recipient),
+            'params' => $params,
+            'signingAccount' => '',
         ]);
 
         $this->assertArraySubset([
@@ -976,52 +1108,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_empty_string_signing_wallet(): void
-    {
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'source' => SS58Address::encode($this->wallet->public_key),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
-            ],
-            'signingAccount' => '',
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account field must have a value.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_not_managed_signing_wallet(): void
-    {
-        $signingWallet = Wallet::factory([
-            'managed' => false,
-        ])->create();
-
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'source' => SS58Address::encode($this->wallet->public_key),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
-            ],
-            'signingAccount' => SS58Address::encode($signingWallet->public_key),
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account is not a wallet managed by this platform.']],
             $response['error']
         );
 

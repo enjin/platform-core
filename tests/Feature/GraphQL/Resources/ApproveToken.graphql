@@ -7,6 +7,7 @@ mutation ApproveToken(
   $expiration: Int
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   ApproveToken(
     collectionId: $collectionId
@@ -17,6 +18,7 @@ mutation ApproveToken(
     expiration: $expiration
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

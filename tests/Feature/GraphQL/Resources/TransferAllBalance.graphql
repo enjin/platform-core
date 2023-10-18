@@ -1,16 +1,16 @@
 mutation TransferAllBalance(
   $recipient: String!
   $keepAlive: Boolean
-  $signingAccount: String
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   TransferAllBalance(
     recipient: $recipient
     keepAlive: $keepAlive
-    signingAccount: $signingAccount
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

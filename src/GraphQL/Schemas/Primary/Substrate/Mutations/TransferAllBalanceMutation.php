@@ -8,20 +8,18 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsManagedWallet;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -32,6 +30,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
@@ -67,10 +66,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
                 'defaultValue' => false,
             ],
-            'signingAccount' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::mutation.batch_transfer.args.signingAccount'),
-            ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -92,10 +88,6 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $signingWallet = $walletService->firstOrStore([
-            'account' => Arr::get($args, 'signingAccount') ?: Account::daemonPublicKey(),
-        ]);
-
         $encodedData = $serializationService->encode($this->getMethodName(), [
             $targetWallet->public_key,
             $args['keepAlive'],
@@ -110,7 +102,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
                 ],
-                signingWallet: $signingWallet
+                signingWallet: $this->getSigningAccount($args)
             ),
             $resolveInfo
         );
@@ -123,26 +115,6 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     {
         return [
             'recipient' => ['filled', new ValidSubstrateAccount()],
-        ];
-    }
-
-    /**
-     * Get the mutation's validation rules.
-     */
-    protected function rulesWithValidation(array $args): array
-    {
-        return [
-            'signingAccount' => '' === Arr::get($args, 'signingAccount') ? ['filled'] : ['nullable', 'bail', new ValidSubstrateAccount(), new IsManagedWallet()],
-        ];
-    }
-
-    /**
-     * Get the mutation's validation rules without DB rules.
-     */
-    protected function rulesWithoutValidation(array $args): array
-    {
-        return [
-            'signingAccount' => '' === Arr::get($args, 'signingAccount') ? ['filled'] : ['nullable', 'bail', new ValidSubstrateAccount()],
         ];
     }
 }

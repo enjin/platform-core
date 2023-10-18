@@ -106,6 +106,41 @@ class TransferBalanceTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_transfer_balance_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->TransferBalance(
+            $publicKey = app(Generator::class)->public_key(),
+            $amount = fake()->numberBetween(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($publicKey),
+            'amount' => $amount,
+            'keepAlive' => false,
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_transfer_balance_with_bigint_amount(): void
     {
         $encodedData = $this->codec->encode()->TransferBalance(
@@ -376,6 +411,33 @@ class TransferBalanceTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_a_empty_signing_account_is_considered_the_daemon_account(): void
+    {
+        $encodedData = $this->codec->encode()->TransferBalance(
+            $publicKey = app(Generator::class)->public_key(),
+            $amount = fake()->numberBetween(),
+        );
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($publicKey),
+            'amount' => $amount,
+            'signingAccount' => '',
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $this->defaultAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     // Exception Path
 
     public function test_it_will_fail_with_no_args(): void
@@ -534,61 +596,6 @@ class TransferBalanceTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_empty_string_signing_wallet(): void
-    {
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode(app(Generator::class)->public_key()),
-            'amount' => fake()->numberBetween(),
-            'signingAccount' => '',
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account field must have a value.']],
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_signing_wallet_not_saved(): void
-    {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
-
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->defaultAccount),
-            'amount' => fake()->numberBetween(),
-            'signingAccount' => SS58Address::encode($publicKey),
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account is not a wallet managed by this platform.']],
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_signing_wallet_that_is_not_managed(): void
-    {
-        Wallet::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
-        ])->create();
-
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->defaultAccount),
-            'amount' => fake()->numberBetween(),
-            'signingAccount' => SS58Address::encode($publicKey),
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account is not a wallet managed by this platform.']],
             $response['error'],
         );
 

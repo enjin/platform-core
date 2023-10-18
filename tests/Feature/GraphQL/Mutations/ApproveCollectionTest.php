@@ -129,6 +129,60 @@ class ApproveCollectionTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_approve_with_signing_account_ss58(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'operator' => $operator = app(Generator::class)->public_key(),
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key()),
+        ]);
+
+        $encodedData = $this->codec->encode()->approveCollection(
+            $this->collection->collection_chain_id,
+            $operator,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_approve_with_public_key(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'operator' => $operator = app(Generator::class)->public_key(),
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+
+        $encodedData = $this->codec->encode()->approveCollection(
+            $this->collection->collection_chain_id,
+            $operator,
+        );
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_approve_a_collection_with_operator_that_exists_locally(): void
     {
         $operator = Wallet::factory()->create();

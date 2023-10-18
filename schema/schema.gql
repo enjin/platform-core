@@ -1,96 +1,60 @@
-"""
-A substrate account.
-"""
+"""A substrate account."""
 type Account {
-  """
-  The account address.
-  """
+  """The account address."""
   address: String
 
-  """
-  The account public key.
-  """
+  """The account public key."""
   publicKey: String
 }
 
-"""
-A request to verify an account.
-"""
+"""A request to verify an account."""
 type AccountRequest {
-  """
-  The QR code a user can scan in the wallet app to verify their account.
-  """
+  """The QR code a user can scan in the wallet app to verify their account."""
   qrCode: String!
 
-  """
-  This is a verification ID generated to get the account from.
-  """
+  """This is a verification ID generated to get the account from."""
   verificationId: String!
 }
 
-"""
-The verification status of an account.
-"""
+"""The verification status of an account."""
 type AccountVerified {
-  """
-  The account that was verified.
-  """
+  """The account that was verified."""
   account: Account
 
-  """
-  If the user account has already been verified.
-  """
+  """If the user account has already been verified."""
   verified: Boolean!
 }
 
-"""
-An on-chain key/value pair.
-"""
+"""An on-chain key/value pair."""
 type Attribute {
-  """
-  The attribute key.
-  """
+  """The attribute key."""
   key: String!
 
-  """
-  The attribute value.
-  """
+  """The attribute value."""
   value: String!
 }
 
-"""
-The attribute for a collection or token.
-"""
+"""The attribute for a collection or token."""
 input AttributeInput {
-  """
-  The attribute key.
-  """
+  """The attribute key."""
   key: String!
 
-  """
-  The attribute value.
-  """
+  """The attribute value."""
   value: String!
 }
 
-"""
-The balance properties for a wallet account.
-"""
+"""The balance properties for a wallet account."""
 type Balances {
-  """
-  """
+  """"""
   feeFrozen: BigInt!
 
-  """
-  """
+  """"""
   free: BigInt!
 
-  """
-  """
+  """"""
   miscFrozen: BigInt!
 
-  """
-  """
+  """"""
   reserved: BigInt!
 }
 
@@ -99,38 +63,24 @@ A type that represents unsigned integers up to 256 bits. The value must be a PHP
 """
 scalar BigInt
 
-"""
-An blockchain block.
-"""
+"""An blockchain block."""
 type Block {
-  """
-  The exception that happened when processing the block.
-  """
+  """The exception that happened when processing the block."""
   exception: String
 
-  """
-  If the block failed to be processed.
-  """
+  """If the block failed to be processed."""
   failed: Boolean!
 
-  """
-  The on-chain block hash.
-  """
+  """The on-chain block hash."""
   hash: String!
 
-  """
-  The internal ID of the block.
-  """
+  """The internal ID of the block."""
   id: Int!
 
-  """
-  The on-chain block number.
-  """
+  """The on-chain block number."""
   number: BigInt!
 
-  """
-  If the block was already synced.
-  """
+  """If the block was already synced."""
   synced: Boolean!
 }
 
@@ -143,19 +93,13 @@ type BlockConnection {
 type BlockEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: Block!
 }
 
-"""
-The params to burn a token.
-"""
+"""The params to burn a token."""
 input BurnParamsInput {
-  """
-  The amount to transfer.
-  """
+  """The amount to transfer."""
   amount: BigInt!
 
   """
@@ -168,9 +112,7 @@ input BurnParamsInput {
   """
   removeTokenStorage: Boolean = false
 
-  """
-  The token ID.
-  """
+  """The token ID."""
   tokenId: EncodableTokenIdInput!
 }
 
@@ -178,29 +120,19 @@ input BurnParamsInput {
 A collection groups together tokens and sets the policies that apply to them.
 """
 type Collection {
-  """
-  The accounts for this collection.
-  """
+  """The accounts for this collection."""
   accounts(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): CollectionAccountConnection
 
-  """
-  The attributes for this collection.
-  """
+  """The attributes for this collection."""
   attributes: [Attribute]
 
-  """
-  The ID assigned to this collection.
-  """
+  """The ID assigned to this collection."""
   collectionId: BigInt!
 
   """
@@ -208,14 +140,10 @@ type Collection {
   """
   forceSingleMint: Boolean
 
-  """
-  Whether this collection is frozen.
-  """
+  """Whether this collection is frozen."""
   frozen: Boolean
 
-  """
-  The maximum number of tokens that can be issued for this collection.
-  """
+  """The maximum number of tokens that can be issued for this collection."""
   maxTokenCount: Int
 
   """
@@ -223,33 +151,21 @@ type Collection {
   """
   maxTokenSupply: BigInt
 
-  """
-  The network this collection belongs to.
-  """
+  """The network this collection belongs to."""
   network: String!
 
-  """
-  The wallet which can mint tokens from this collection.
-  """
+  """The wallet which can mint tokens from this collection."""
   owner: Wallet!
 
-  """
-  Specifies if this token has a royalty policy.
-  """
+  """Specifies if this token has a royalty policy."""
   royalty: Royalty
 
-  """
-  The tokens minted from this collection.
-  """
+  """The tokens minted from this collection."""
   tokens(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): TokenConnection
 }
@@ -258,49 +174,31 @@ type Collection {
 A collection account groups together a wallet's token accounts for a given collection and controls options such as freezing and approvals for all tokens in them.
 """
 type CollectionAccount {
-  """
-  The number of token accounts attached to this collection account.
-  """
+  """The number of token accounts attached to this collection account."""
   accountCount: Int!
 
-  """
-  A list of approvals for this account.
-  """
+  """A list of approvals for this account."""
   approvals: [CollectionAccountApproval]
 
-  """
-  The collection this collection account belongs to.
-  """
+  """The collection this collection account belongs to."""
   collection: Collection!
 
-  """
-  Specifies if this collection account is frozen.
-  """
+  """Specifies if this collection account is frozen."""
   isFrozen: Boolean!
 
-  """
-  The wallet which owns this collection account.
-  """
+  """The wallet which owns this collection account."""
   wallet: Wallet
 }
 
-"""
-The wallets that have been approved to use this collection account.
-"""
+"""The wallets that have been approved to use this collection account."""
 type CollectionAccountApproval {
-  """
-  The token account this approval belongs to.
-  """
+  """The token account this approval belongs to."""
   account: CollectionAccount!
 
-  """
-  The expiration block the wallet will lose the approval.
-  """
+  """The expiration block the wallet will lose the approval."""
   expiration: Int
 
-  """
-  The wallet that has been approved.
-  """
+  """The wallet that has been approved."""
   wallet: Wallet!
 }
 
@@ -313,9 +211,7 @@ type CollectionAccountApprovalConnection {
 type CollectionAccountApprovalEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: CollectionAccountApproval!
 }
 
@@ -328,9 +224,7 @@ type CollectionAccountConnection {
 type CollectionAccountEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: CollectionAccount!
 }
 
@@ -343,44 +237,28 @@ type CollectionConnection {
 type CollectionEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: Collection!
 }
 
-"""
-The params that can be mutated for a collection.
-"""
+"""The params that can be mutated for a collection."""
 input CollectionMutationInput {
-  """
-  Set the explicit royalty currencies for tokens in this collection.
-  """
+  """Set the explicit royalty currencies for tokens in this collection."""
   explicitRoyaltyCurrencies: [MultiTokenIdInput]
 
-  """
-  The new owner account of the collection.
-  """
+  """The new owner account of the collection."""
   owner: String
 
-  """
-  The new royalty of the collection.
-  """
+  """The new royalty of the collection."""
   royalty: MutationRoyaltyInput
 }
 
-"""
-The params to create a token.
-"""
+"""The params to create a token."""
 input CreateTokenParams {
-  """
-  Set initial attributes for this token.
-  """
+  """Set initial attributes for this token."""
   attributes: [AttributeInput] = []
 
-  """
-  The market behavior for a token.
-  """
+  """The market behavior for a token."""
   behavior: TokenMarketBehaviorInput = null
 
   """
@@ -388,30 +266,27 @@ input CreateTokenParams {
   """
   cap: TokenMintCap!
 
+  """The freeze state of the token."""
+  freezeState: FreezeStateType = null
+
   """
   The initial supply of tokens to mint to the specified recipient. Must not exceed the token cap if set.
   """
   initialSupply: BigInt = 1
 
-  """
-  If the token can be listed in the marketplace.
-  """
+  """If the token can be listed in the marketplace."""
   listingForbidden: Boolean = false
 
-  """
-  The token ID to set. This must be unique for this collection.
-  """
+  """The token ID to set. This must be unique for this collection."""
   tokenId: EncodableTokenIdInput!
 
   """
   The price of each token. The price cannot be zero and unitPrice * totalSupply must be greater than the token account deposit.
   """
-  unitPrice: BigInt!
+  unitPrice: BigInt = null
 }
 
-"""
-The type of encryption algorithm used to sign messages.
-"""
+"""The type of encryption algorithm used to sign messages."""
 enum CryptoSignatureType {
   ED25519
   SR25519
@@ -419,23 +294,15 @@ enum CryptoSignatureType {
 
 scalar DateTime
 
-"""
-The params to encode the token ID.
-"""
+"""The params to encode the token ID."""
 input EncodableTokenIdInput {
-  """
-  Creates an integer representation from an ERC1155 style token input.
-  """
+  """Creates an integer representation from an ERC1155 style token input."""
   erc1155: Erc1155EncoderInput
 
-  """
-  Hashes an arbitrary object into an integer.
-  """
+  """Hashes an arbitrary object into an integer."""
   hash: Object
 
-  """
-  A 128bit unsigned integer, the native format for Substrate.
-  """
+  """A 128bit unsigned integer, the native format for Substrate."""
   integer: BigInt
 
   """
@@ -444,9 +311,7 @@ input EncodableTokenIdInput {
   stringId: String
 }
 
-"""
-erc1155_encoder.description
-"""
+"""erc1155_encoder.description"""
 input Erc1155EncoderInput {
   """
   A 64bit integer index.  This will be converted to hex and concatenated with the tokenId to make the final unique NFT id.  Defaults to 0 is not supplied.
@@ -459,33 +324,21 @@ input Erc1155EncoderInput {
   tokenId: String!
 }
 
-"""
-A blockchain event.
-"""
+"""A blockchain event."""
 type Event {
-  """
-  The event ID.
-  """
+  """The event ID."""
   eventId: String!
 
-  """
-  The method look up.
-  """
+  """The method look up."""
   lookUp: String!
 
-  """
-  The pallet module.
-  """
+  """The pallet module."""
   moduleId: String!
 
-  """
-  The params from this event.
-  """
+  """The params from this event."""
   params: [EventParam]
 
-  """
-  The phase of block execution it happened.
-  """
+  """The phase of block execution it happened."""
   phase: Int!
 }
 
@@ -498,30 +351,20 @@ type EventConnection {
 type EventEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: Event!
 }
 
-"""
-enjin-platform::type.event_param.description
-"""
+"""enjin-platform::type.event_param.description"""
 type EventParam {
-  """
-  The value type of the param.
-  """
+  """The value type of the param."""
   type: String!
 
-  """
-  The value of the param.
-  """
+  """The value of the param."""
   value: Json
 }
 
-"""
-The event types related to blockchain token transactions.
-"""
+"""The event types related to blockchain token transactions."""
 enum EventType {
   APPROVED
   ATTRIBUTE_REMOVED
@@ -544,9 +387,14 @@ enum EventType {
   UNAPPROVED
 }
 
-"""
-The freezable objects supported on-chain.
-"""
+"""enjin-platform::enum.freeze_state_type.description"""
+enum FreezeStateType {
+  NEVER
+  PERMANENT
+  TEMPORARY
+}
+
+"""The freezable objects supported on-chain."""
 enum FreezeType {
   COLLECTION
   COLLECTION_ACCOUNT
@@ -555,7 +403,7 @@ enum FreezeType {
 }
 
 """
-A string value that can be used to represent a range of integer numbers.  Use a double full stop to supply a range between 2 integers.  For example an integer range that looks like this:
+A string value that can be used to represent a range of integer numbers.  Use a double full stop to supply a range between 2 integers.  For example an integer range that looks like this: 
 
 "3..8"
 
@@ -566,7 +414,7 @@ Will be automatically expanded to:
 scalar IntegerRange
 
 """
-An array that can be used to represent ranges of integer numbers.  Use a double full stop to supply a range between 2 integers in the array.  For example an integer ranges array that looks like this:
+An array that can be used to represent ranges of integer numbers.  Use a double full stop to supply a range between 2 integers in the array.  For example an integer ranges array that looks like this: 
 
 ["1", "3..8", "11", "15..18"]
 
@@ -576,33 +424,23 @@ Will be automatically expanded to:
 """
 scalar IntegerRangesArray
 
-"""
-A type that represents json data.
-"""
+"""A type that represents json data."""
 scalar Json
 
-"""
-The marketplace policy for a collection.
-"""
+"""The marketplace policy for a collection."""
 input MarketPolicy {
-  """
-  The royalty set to this marketplace policy.
-  """
+  """The royalty set to this marketplace policy."""
   royalty: RoyaltyInput!
 }
 
-"""
-The mint policy for a new collection.
-"""
+"""The mint policy for a new collection."""
 input MintPolicy {
   """
   Set whether the tokens in this collection will be minted as SingleMint types. This would indicate the tokens in this collection are NFTs.
   """
   forceSingleMint: Boolean!
 
-  """
-  The maximum number of tokens that can be issued for this collection.
-  """
+  """The maximum number of tokens that can be issued for this collection."""
   maxTokenCount: BigInt
 
   """
@@ -611,30 +449,22 @@ input MintPolicy {
   maxTokenSupply: BigInt
 }
 
-"""
-The recipient account for a mint.
-"""
+"""The recipient account for a mint."""
 input MintRecipient {
-  """
-  The recipient account of the token.
-  """
+  """The recipient account of the token."""
   account: String!
   createParams: CreateTokenParams
   mintParams: MintTokenParams
 }
 
-"""
-The params to mint a token.
-"""
+"""The params to mint a token."""
 input MintTokenParams {
   """
   The initial supply of tokens to mint to the specified recipient. Must not exceed the token cap if set.
   """
   amount: BigInt!
 
-  """
-  The token ID to set. This must be unique for this collection.
-  """
+  """The token ID to set. This must be unique for this collection."""
   tokenId: EncodableTokenIdInput!
 
   """
@@ -647,14 +477,10 @@ input MintTokenParams {
 The unique identifier for a token. Composed using a collection ID and a token ID.
 """
 input MultiTokenIdInput {
-  """
-  The collection id of a multi token.
-  """
+  """The collection id of a multi token."""
   collectionId: BigInt!
 
-  """
-  The token ID of a multi token.
-  """
+  """The token ID of a multi token."""
   tokenId: EncodableTokenIdInput!
 }
 
@@ -663,9 +489,7 @@ type Mutation {
   Use this mutation to acknowledge cached events and remove them from the cache.
   """
   AcknowledgeEvents(
-    """
-    The event UUIDs to acknowledge.
-    """
+    """The event UUIDs to acknowledge."""
     uuids: [String!]!
   ): Boolean!
 
@@ -673,9 +497,7 @@ type Mutation {
   Approve another account to transfer any tokens from a collection account. You can also specify a block number where this approval will expire.
   """
   ApproveCollection(
-    """
-    The collection that will be approved.
-    """
+    """The collection that will be approved."""
     collectionId: BigInt!
 
     """
@@ -683,39 +505,33 @@ type Mutation {
     """
     expiration: Int = null
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The account that will be approved to operate the collection.
-    """
+    """The account that will be approved to operate the collection."""
     operator: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Approve another account to make transfers from a token account. You can also specify a block number where this approval will expire and the amount of tokens this account will be able to transfer.
   """
   ApproveToken(
-    """
-    The amount of tokens it will be approved to operate.
-    """
+    """The amount of tokens it will be approved to operate."""
     amount: BigInt!
 
-    """
-    The collection that the token that will be approved belongs to.
-    """
+    """The collection that the token that will be approved belongs to."""
     collectionId: BigInt!
 
-    """
-    The current amount of tokens the operator has.
-    """
+    """The current amount of tokens the operator has."""
     currentAmount: BigInt!
 
     """
@@ -723,24 +539,22 @@ type Mutation {
     """
     expiration: Int = null
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The account that will be approved to operate the token.
-    """
+    """The account that will be approved to operate the token."""
     operator: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token ID that will be approved.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token ID that will be approved."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
 
@@ -748,20 +562,21 @@ type Mutation {
   Use this method to batch together several mints into one transaction. You can mix and match Create Token and Mint Token params, as well as use the continueOnFailure flag to skip mints which fail on chain so they can be fixed later.
   """
   BatchMint(
-    """
-    The collection ID that you be minting the tokens to.
-    """
+    """The collection ID that you be minting the tokens to."""
     collectionId: BigInt!
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
     recipients: [MintRecipient!]!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
@@ -770,24 +585,22 @@ type Mutation {
   BatchSetAttribute(
     attributes: [AttributeInput!]!
 
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token ID.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token ID."""
     tokenId: EncodableTokenIdInput
   ): Transaction!
 
@@ -795,125 +608,104 @@ type Mutation {
   Use this method to transfer multiple tokens in one transaction. You can include up to 250 different transfers per batch. Set the continueOnFailure to true to allow all valid transfers to complete while skipping transfers which would fali so they can be fixed and attempted again in another transaction.
   """
   BatchTransfer(
-    """
-    The collection ID that you be transferring the tokens from.
-    """
+    """The collection ID that you be transferring the tokens from."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
     recipients: [TransferRecipient!]!
 
-    """
-    The signing wallet for this transaction. Defaults to wallet daemon.
-    """
+    """enjin-platform::args.signingAccount"""
     signingAccount: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Deletes a collection and get its reserved value back. You can only destroy a collection after all tokens have been burned.
   """
   Burn(
-    """
-    The collection ID to create this token in.
-    """
+    """The collection ID to create this token in."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The params required to burn a token.
-    """
+    """The params required to burn a token."""
     params: BurnParamsInput!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Creates a new on-chain collection. The new collection ID will be returned in the transaction events after being finalized on-chain.
   """
   CreateCollection(
-    """
-    Set initial attributes for this collection.
-    """
+    """Set initial attributes for this collection."""
     attributes: [AttributeInput] = []
 
-    """
-    Set the explicit royalty currencies for tokens in this collection.
-    """
+    """Set the explicit royalty currencies for tokens in this collection."""
     explicitRoyaltyCurrencies: [MultiTokenIdInput] = []
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The marketplace policy for a collection.
-    """
+    """The marketplace policy for a collection."""
     marketPolicy: MarketPolicy = null
 
-    """
-    Set the mint policy for tokens in this collection.
-    """
+    """Set the mint policy for tokens in this collection."""
     mintPolicy: MintPolicy!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Creates a new token in a collection. The new token will be automatically transferred to the specified recipient account.
   """
   CreateToken(
-    """
-    The collection ID to create this token in.
-    """
+    """The collection ID to create this token in."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The params to create a token.
-    """
+    """The params to create a token."""
     params: CreateTokenParams!
 
-    """
-    The recipient account of the tokens for the initial mint.
-    """
+    """The recipient account of the tokens for the initial mint."""
     recipient: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
-  """
-  Store a new unverified wallet record using an external ID.
-  """
+  """Store a new unverified wallet record using an external ID."""
   CreateWallet(
-    """
-    The external ID set for this wallet.
-    """
+    """The external ID set for this wallet."""
     externalId: String!
   ): Boolean!
 
@@ -921,79 +713,66 @@ type Mutation {
   Deletes a collection and get its reserved value back. You can only destroy a collection after all tokens have been burned.
   """
   DestroyCollection(
-    """
-    The collection ID to create this token in.
-    """
+    """The collection ID to create this token in."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Freezes a collection, token, collection account or token account. Tokens cannot be transferred or burned if they are frozen. Freezing a collection or collection account will freeze all the tokens in it.
   """
   Freeze(
-    """
-    The collection account to freeze.
-    """
+    """The collection account to freeze."""
     collectionAccount: String
 
-    """
-    The collection ID to freeze.
-    """
+    """The collection ID to freeze."""
     collectionId: BigInt!
 
-    """
-    The type of freezing to do.
-    """
+    """enjin-platform::mutation.freeze.args.freezeState"""
+    freezeState: FreezeStateType
+
+    """The type of freezing to do."""
     freezeType: FreezeType!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token account to freeze.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token account to freeze."""
     tokenAccount: String
 
-    """
-    The token ID to freeze.
-    """
+    """The token ID to freeze."""
     tokenId: EncodableTokenIdInput
   ): Transaction!
 
-  """
-  Get a list of new pending transactions and mark them as processing.
-  """
+  """Get a list of new pending transactions and mark them as processing."""
   MarkAndListPendingTransactions(
-    """
-    The accounts to filter the transactions.
-    """
+    """The accounts to filter the transactions."""
     accounts: [String]
 
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
     markAsProcessing: Boolean = true
   ): TransactionConnection
@@ -1002,84 +781,70 @@ type Mutation {
   Mint more of an existing token. This only applies to tokens which have a supply cap greater than 1.
   """
   MintToken(
-    """
-    The collection ID to mint from.
-    """
+    """The collection ID to mint from."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The params to mint a token.
-    """
+    """The params to mint a token."""
     params: MintTokenParams!
 
-    """
-    The recipient account of the tokens being minted.
-    """
+    """The recipient account of the tokens being minted."""
     recipient: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
-  """
-  Changes collection default values.
-  """
+  """Changes collection default values."""
   MutateCollection(
-    """
-    The collection that will be mutated.
-    """
+    """The collection that will be mutated."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The params that will be mutated.
-    """
+    """The params that will be mutated."""
     mutation: CollectionMutationInput!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
-  """
-  Changes token default values.
-  """
+  """Changes token default values."""
   MutateToken(
-    """
-    The collection that will be mutated.
-    """
+    """The collection that will be mutated."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The params that will be mutated.
-    """
+    """The params that will be mutated."""
     mutation: TokenMutationInput!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token that will be mutated.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token that will be mutated."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
 
@@ -1087,115 +852,94 @@ type Mutation {
   Transfer tokens as the operator of someone else's wallet. Operator transfers are transfers that you make using tokens from somebody else's wallet as the source. To make this type of transfer the source wallet owner must approve you for transferring their tokens.
   """
   OperatorTransferToken(
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
     params: OperatorTransferParams!
 
-    """
-    The recipient account who is going to receive the transfer.
-    """
+    """The recipient account who is going to receive the transfer."""
     recipient: String!
 
-    """
-    The signing wallet for this transaction. Defaults to wallet daemon.
-    """
+    """enjin-platform::args.signingAccount"""
     signingAccount: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
-  """
-  Removes all attributes from the given collection ID and token ID.
-  """
+  """Removes all attributes from the given collection ID and token ID."""
   RemoveAllAttributes(
     """
     This is an advanced feature and is used to calculate the weight of the on-chain extrinsic. Putting a value in that isn't equal to the on-chain attribute count will lead to the transaction failing. When empty, the attribute count will be auto calculated from data stored in the local database.
     """
     attributeCount: Int
 
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token ID.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token ID."""
     tokenId: EncodableTokenIdInput
   ): Transaction!
 
-  """
-  Remove an attribute from the specified collection.
-  """
+  """Remove an attribute from the specified collection."""
   RemoveCollectionAttribute(
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The attribute key.
-    """
+    """The attribute key."""
     key: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
-  """
-  Remove an attribute from the specified token.
-  """
+  """Remove an attribute from the specified token."""
   RemoveTokenAttribute(
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The attribute key.
-    """
+    """The attribute key."""
     key: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token ID.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token ID."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
 
@@ -1203,170 +947,125 @@ type Mutation {
   Retries transactions that have failed or otherwise not been included on-chain after some time.  Use with caution and ensure the transactions really aren't yet on-chain (or likely to be) to make sure they are not accidentally included twice.
   """
   RetryTransactions(
-    """
-    The idempotency keys to filter to.
-    """
+    """The idempotency keys to filter to."""
     idempotencyKeys: [String!]
 
-    """
-    The internal ID of the transaction.
-    """
+    """The internal ID of the transaction."""
     ids: [BigInt!]
   ): Boolean!
 
-  """
-  Set an attribute on a collection.
-  """
+  """Set an attribute on a collection."""
   SetCollectionAttribute(
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The attribute key.
-    """
+    """The attribute key."""
     key: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The attribute value.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The attribute value."""
     value: String!
   ): Transaction!
 
-  """
-  Set an attribute on a token.
-  """
+  """Set an attribute on a token."""
   SetTokenAttribute(
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The attribute key.
-    """
+    """The attribute key."""
     key: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token ID.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token ID."""
     tokenId: EncodableTokenIdInput!
 
-    """
-    The attribute value.
-    """
+    """The attribute value."""
     value: String!
   ): Transaction!
 
-  """
-  Set the account on a wallet model.
-  """
+  """Set the account on a wallet model."""
   SetWalletAccount(
-    """
-    The wallet account on the blockchain.
-    """
+    """The wallet account on the blockchain."""
     account: String!
 
-    """
-    The external ID for this wallet.
-    """
+    """The external ID for this wallet."""
     externalId: String
 
-    """
-    The internal ID of this wallet.
-    """
+    """The internal ID of this wallet."""
     id: Int
   ): Boolean!
 
-  """
-  Transfers a single token to a recipient account.
-  """
+  """Transfers a single token to a recipient account."""
   SimpleTransferToken(
-    """
-    The collection ID that you be adding attributes to.
-    """
+    """The collection ID that you be adding attributes to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
     params: SimpleTransferParams!
 
-    """
-    The recipient account who is going to receive the transfer.
-    """
+    """The recipient account who is going to receive the transfer."""
     recipient: String!
 
-    """
-    The signing wallet for this transaction. Defaults to wallet daemon.
-    """
+    """enjin-platform::args.signingAccount"""
     signingAccount: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
-  """
-  Thaw a previously frozen collection or token.
-  """
+  """Thaw a previously frozen collection or token."""
   Thaw(
-    """
-    Thaw a previously frozen collection or token.
-    """
+    """Thaw a previously frozen collection or token."""
     collectionAccount: String
 
-    """
-    The collection ID to thaw.
-    """
+    """The collection ID to thaw."""
     collectionId: BigInt!
 
-    """
-    The type of thawing to do.
-    """
+    """The type of thawing to do."""
     freezeType: FreezeType!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token account to thaw.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token account to thaw."""
     tokenAccount: String
 
-    """
-    The token ID to thaw.
-    """
+    """The token ID to thaw."""
     tokenId: EncodableTokenIdInput
   ): Transaction!
 
@@ -1374,9 +1073,7 @@ type Mutation {
   Transfers all balances of an account to another. You can pass a keepAlive argument if you want to keep at least the existential deposit.
   """
   TransferAllBalance(
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
     """
@@ -1384,34 +1081,27 @@ type Mutation {
     """
     keepAlive: Boolean = false
 
-    """
-    The recipient account who is going to receive the transfer.
-    """
+    """The recipient account who is going to receive the transfer."""
     recipient: String!
 
-    """
-    The signing wallet for this transaction. Defaults to wallet daemon.
-    """
+    """enjin-platform::args.signingAccount"""
     signingAccount: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Transfers a balance from one account to another. You can pass the keepAlive argument if you want to check if the account will be left with at least the existential deposit.
   """
   TransferBalance(
-    """
-    The amount to transfer.
-    """
+    """The amount to transfer."""
     amount: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
     """
@@ -1419,74 +1109,65 @@ type Mutation {
     """
     keepAlive: Boolean = false
 
-    """
-    The recipient account who is going to receive the transfer.
-    """
+    """The recipient account who is going to receive the transfer."""
     recipient: String!
 
-    """
-    The signing wallet for this transaction. Defaults to wallet daemon.
-    """
+    """enjin-platform::args.signingAccount"""
     signingAccount: String
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Removes the approval of any specific account to make transfers from a collection account.
   """
   UnapproveCollection(
-    """
-    The collection that approval will be removed from.
-    """
+    """The collection that approval will be removed from."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The account that collection approval will be removed from.
-    """
+    """The account that collection approval will be removed from."""
     operator: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
+
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
   ): Transaction!
 
   """
   Removes the approval of any specific account to make transfers from a token account.
   """
   UnapproveToken(
-    """
-    The collection that the token belongs to.
-    """
+    """The collection that the token belongs to."""
     collectionId: BigInt!
 
-    """
-    The idempotency key to set. It is recommended to use a UUID for this.
-    """
+    """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
-    """
-    The account that token approval will be removed from.
-    """
+    """The account that token approval will be removed from."""
     operator: String!
 
-    """
-    Skip all validation rules, use with caution. Defaults to false.
-    """
-    skipValidation: Boolean! = false
+    """enjin-platform::args.signingAccount"""
+    signingAccount: String
 
-    """
-    The token that approval will be removed from.
-    """
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean = false
+
+    """The token that approval will be removed from."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
 
@@ -1496,49 +1177,34 @@ type Mutation {
   UpdateTransaction(
     id: Int!
 
-    """
-    The block number the transaction was signed at.
-    """
-    signedAtBlock: BigInt
+    """The block number the transaction was signed at."""
+    signedAtBlock: Int
 
-    """
-    The new state of the transaction.
-    """
+    """The wallet account on the blockchain."""
+    signingAccount: String
+
+    """The new state of the transaction."""
     state: TransactionState
 
-    """
-    The on chain transaction hash.
-    """
+    """The on chain transaction hash."""
     transactionHash: String
 
-    """
-    The on chain transaction id.
-    """
+    """The on chain transaction id."""
     transactionId: String
   ): Boolean!
 
-  """
-  Change the external ID on a wallet model.
-  """
+  """Change the external ID on a wallet model."""
   UpdateWalletExternalId(
-    """
-    The wallet account on the blockchain.
-    """
+    """The wallet account on the blockchain."""
     account: String
 
-    """
-    The external ID for this wallet.
-    """
+    """The external ID for this wallet."""
     externalId: String
 
-    """
-    The internal ID of this wallet.
-    """
+    """The internal ID of this wallet."""
     id: Int
 
-    """
-    The new external ID to set for this wallet.
-    """
+    """The new external ID to set for this wallet."""
     newExternalId: String!
   ): Boolean!
 
@@ -1557,18 +1223,12 @@ type Mutation {
   ): Boolean!
 }
 
-"""
-The royalty for a new collection or token.
-"""
+"""The royalty for a new collection or token."""
 input MutationRoyaltyInput {
-  """
-  The account that will receive the royalty.
-  """
+  """The account that will receive the royalty."""
   beneficiary: String
 
-  """
-  The amount of royalty the beneficiary receives in percentage.
-  """
+  """The amount of royalty the beneficiary receives in percentage."""
   percentage: Float
 }
 
@@ -1578,9 +1238,7 @@ scalar Object
 The params to make an operator transfer. Operator transfers are transfers that you make using tokens from somebody else's wallet as the source. To make this type of transfer the source wallet owner must approve you for transferring their tokens.
 """
 input OperatorTransferParams {
-  """
-  The amount to transfer.
-  """
+  """The amount to transfer."""
   amount: BigInt!
 
   """
@@ -1588,80 +1246,52 @@ input OperatorTransferParams {
   """
   keepAlive: Boolean = false
 
-  """
-  The source account of the token.
-  """
+  """The source account of the token."""
   source: String!
 
-  """
-  The token ID.
-  """
+  """The token ID."""
   tokenId: EncodableTokenIdInput!
 }
 
 type PageInfo {
-  """
-  The next cursor.
-  """
+  """The next cursor."""
   endCursor: String!
 
-  """
-  Determines if cursor has more pages after the current page.
-  """
+  """Determines if cursor has more pages after the current page."""
   hasNextPage: Boolean!
 
-  """
-  Determines if cursor has more pages before the current page.
-  """
+  """Determines if cursor has more pages before the current page."""
   hasPreviousPage: Boolean!
 
-  """
-  The previous cursor.
-  """
+  """The previous cursor."""
   startCursor: String!
 }
 
-"""
-The on-chain pallet identifier.
-"""
+"""The on-chain pallet identifier."""
 enum PalletIdentifier {
   FUEL_TANK
   MARKETPLACE
   MULTI_TOKENS
 }
 
-"""
-A websocket event pending to be acknowledge.
-"""
+"""A websocket event pending to be acknowledge."""
 type PendingEvent {
-  """
-  The channels the event was sent to.
-  """
+  """The channels the event was sent to."""
   channels: [String]
 
-  """
-  The data of the event.
-  """
+  """The data of the event."""
   data: Json!
 
-  """
-  The internal ID of the event.
-  """
+  """The internal ID of the event."""
   id: Int!
 
-  """
-  The name of the event.
-  """
+  """The name of the event."""
   name: String!
 
-  """
-  The timestamp when the event was sent.
-  """
+  """The timestamp when the event was sent."""
   sent: String!
 
-  """
-  The UUID of the event.
-  """
+  """The UUID of the event."""
   uuid: String!
 }
 
@@ -1674,126 +1304,78 @@ type PendingEventConnection {
 type PendingEventEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: PendingEvent!
 }
 
 type Query {
-  """
-  Get the verification status of an account.
-  """
+  """Get the verification status of an account."""
   GetAccountVerified(
-    """
-    The wallet account that you want to check if it is verified.
-    """
+    """The wallet account that you want to check if it is verified."""
     account: String
 
-    """
-    The verification ID that you want to check if it was verified.
-    """
+    """The verification ID that you want to check if it was verified."""
     verificationId: String
   ): AccountVerified!
   GetBlocks(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
 
-    """
-    The blockchain transaction hashes to filter to.
-    """
+    """The blockchain transaction hashes to filter to."""
     hashes: [String]
 
-    """
-    The blockchain transaction IDs to filter to.
-    """
+    """The blockchain transaction IDs to filter to."""
     numbers: [String]
   ): BlockConnection
 
-  """
-  Get a collection by its collection ID.
-  """
+  """Get a collection by its collection ID."""
   GetCollection(
-    """
-    The on-chain collection ID to get.
-    """
+    """The on-chain collection ID to get."""
     collectionId: BigInt!
   ): Collection!
 
-  """
-  Get an array of collections optionally filtered by collection IDs.
-  """
+  """Get an array of collections optionally filtered by collection IDs."""
   GetCollections(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The on-chain collection IDs to filter to.
-    """
+    """The on-chain collection IDs to filter to."""
     collectionIds: [BigInt]
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): CollectionConnection
 
-  """
-  Get a list of events that were broadcast but not yet acknowledged.
-  """
+  """Get a list of events that were broadcast but not yet acknowledged."""
   GetPendingEvents(
-    """
-    Automatically acknowledge all returned events (defaults to false).
-    """
+    """Automatically acknowledge all returned events (defaults to false)."""
     acknowledgeEvents: Boolean = false
 
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): PendingEventConnection
 
-  """
-  Get an array of wallet accounts which have yet to be verified.
-  """
+  """Get an array of wallet accounts which have yet to be verified."""
   GetPendingWallets(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): WalletConnection
 
-  """
-  Get a token from a collection using its token ID.
-  """
+  """Get a token from a collection using its token ID."""
   GetToken(
-    """
-    The token collection ID.
-    """
+    """The token collection ID."""
     collectionId: BigInt!
 
-    """
-    The specific token ID to get.
-    """
+    """The specific token ID to get."""
     tokenId: EncodableTokenIdInput!
   ): Token!
 
@@ -1801,24 +1383,16 @@ type Query {
   Get an array of tokens from a collection, optionally filtered by token IDs.
   """
   GetTokens(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The Collection to return tokens from.
-    """
-    collectionId: BigInt!
+    """The Collection to return tokens from."""
+    collectionId: BigInt
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
 
-    """
-    Filter to specific token IDs or omit to return all.
-    """
+    """Filter to specific token IDs or omit to return all."""
     tokenIds: [EncodableTokenIdInput]
   ): TokenConnection
 
@@ -1826,24 +1400,16 @@ type Query {
   Get a transaction using its database ID, on-chain transaction ID or transaction hash.
   """
   GetTransaction(
-    """
-    The internal ID of the transaction.
-    """
+    """The internal ID of the transaction."""
     id: BigInt
 
-    """
-    The idempotency keys to filter to.
-    """
+    """The idempotency keys to filter to."""
     idempotencyKey: String
 
-    """
-    The blockchain transaction hash.
-    """
+    """The blockchain transaction hash."""
     transactionHash: String
 
-    """
-    The blockchain transaction id.
-    """
+    """The blockchain transaction id."""
     transactionId: String
   ): Transaction
 
@@ -1851,59 +1417,37 @@ type Query {
   Get an array of transactions optionally filtered by transaction IDs, transaction hashes, methods, states, results or accounts.
   """
   GetTransactions(
-    """
-    The wallet accounts to filter to.
-    """
+    """The wallet accounts to filter to."""
     accounts: [String]
 
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
 
-    """
-    The idempotency keys to filter to.
-    """
+    """The idempotency keys to filter to."""
     idempotencyKeys: [String]
 
-    """
-    The internal ID of the transaction.
-    """
+    """The internal ID of the transaction."""
     ids: [BigInt]
 
-    """
-    The transaction method types to filter to.
-    """
+    """The transaction method types to filter to."""
     methods: [TransactionMethod]
 
-    """
-    Filter transactions to the specified results.
-    """
+    """Filter transactions to the specified results."""
     results: [TransactionResult]
 
-    """
-    The block numbers that the transactions were signed at.
-    """
-    signedAtBlocks: [BigInt]
+    """The block numbers that the transactions were signed at."""
+    signedAtBlocks: [Int]
 
-    """
-    Filter transactions to the specified states.
-    """
+    """Filter transactions to the specified states."""
     states: [TransactionState]
 
-    """
-    enjin-platform::query.get_transactions.args.hashes
-    """
+    """enjin-platform::query.get_transactions.args.hashes"""
     transactionHashes: [String]
 
-    """
-    The blockchain transaction id.
-    """
+    """The blockchain transaction id."""
     transactionIds: [String]
   ): TransactionConnection
 
@@ -1911,93 +1455,83 @@ type Query {
   Get a wallet using either its database ID, external ID, verification ID or account address.
   """
   GetWallet(
-    """
-    The wallet account on the blockchain.
-    """
+    """The wallet account on the blockchain."""
     account: String
 
-    """
-    The external ID for this wallet.
-    """
+    """The external ID for this wallet."""
     externalId: String
 
-    """
-    The internal ID of this wallet.
-    """
+    """The internal ID of this wallet."""
     id: Int
 
-    """
-    The verification ID of this wallet.
-    """
+    """The verification ID of this wallet."""
     verificationId: String
   ): Wallet
 
   """
-  This query generates a QR code that the user can scan to give us their wallet account.
+  Get wallets using either its database ID, external ID, verification ID or account address.
   """
-  RequestAccount(
-    """
-    This is the callback URL that the wallet should send the verification to.
-    """
-    callback: String!
-  ): AccountRequest!
+  GetWallets(
+    """The wallet account on the blockchain."""
+    accounts: [String!]
+
+    """The cursor to fetch."""
+    after: String = null
+
+    """The external ID for this wallet."""
+    externalIds: [String!]
+
+    """The number of results to return per page."""
+    first: Int = 15
+
+    """The internal ID of this wallet."""
+    ids: [Int!]
+
+    """The verification ID of this wallet."""
+    verificationIds: [String!]
+  ): WalletConnection
 
   """
-  Verifies a message was signed with the public key provided.
+  This query generates a QR code that the user can scan to give us their wallet account.
   """
+  RequestAccount: AccountRequest!
+
+  """Verifies a message was signed with the public key provided."""
   VerifyMessage(
     """
     The signature crypto type. This field is optional and it will use sr25519 by default.
     """
     cryptoSignatureType: CryptoSignatureType = SR25519
 
-    """
-    The message that the user signed.
-    """
+    """The message that the user signed."""
     message: String!
 
-    """
-    The public key of the user.
-    """
+    """The public key of the user."""
     publicKey: String!
 
-    """
-    The signed message.
-    """
+    """The signed message."""
     signature: String!
   ): Boolean!
 }
 
-"""
-Royalty settings.
-"""
+"""Royalty settings."""
 type Royalty {
   beneficiary: Wallet!
   percentage: Float!
 }
 
-"""
-The royalty for a new collection or token.
-"""
+"""The royalty for a new collection or token."""
 input RoyaltyInput {
-  """
-  The account that will receive the royalty.
-  """
+  """The account that will receive the royalty."""
   beneficiary: String!
 
-  """
-  The amount of royalty the beneficiary receives in percentage.
-  """
+  """The amount of royalty the beneficiary receives in percentage."""
   percentage: Float!
 }
 
-"""
-The params to make a simple transfer.
-"""
+"""The params to make a simple transfer."""
 input SimpleTransferParams {
-  """
-  The amount to transfer.
-  """
+  """The amount to transfer."""
   amount: BigInt!
 
   """
@@ -2005,9 +1539,7 @@ input SimpleTransferParams {
   """
   keepAlive: Boolean = false
 
-  """
-  The token ID.
-  """
+  """The token ID."""
   tokenId: EncodableTokenIdInput!
 }
 
@@ -2015,44 +1547,28 @@ input SimpleTransferParams {
 A token on the blockchain. Tokens have settings specific to them and can also have their own attributes which can be used to override the parent collection attributes.
 """
 type Token {
-  """
-  The token accounts that hold this token.
-  """
+  """The token accounts that hold this token."""
   accounts(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): TokenAccountConnection
 
-  """
-  The number of attributes set on this token.
-  """
+  """The number of attributes set on this token."""
   attributeCount: Int!
 
-  """
-  The token attributes.
-  """
+  """The token attributes."""
   attributes: [Attribute]
 
-  """
-  The maximum quantity available for this token.
-  """
+  """The maximum quantity available for this token."""
   cap: TokenMintCapType
 
-  """
-  The maximum quantity available for this token.
-  """
+  """The maximum quantity available for this token."""
   capSupply: BigInt
 
-  """
-  The collection this token belongs to.
-  """
+  """The collection this token belongs to."""
   collection: Collection!
 
   """
@@ -2060,20 +1576,14 @@ type Token {
   """
   isCurrency: Boolean!
 
-  """
-  Specifies if this token is frozen, disallowing transfers.
-  """
+  """Specifies if this token is frozen, disallowing transfers."""
   isFrozen: Boolean!
   metadata: Object
 
-  """
-  The minimum required balance of this token for all accounts.
-  """
+  """The minimum required balance of this token for all accounts."""
   minimumBalance: BigInt!
 
-  """
-  The amount of currency reserved from the issuer for minting.
-  """
+  """The amount of currency reserved from the issuer for minting."""
   mintDeposit: BigInt!
 
   """
@@ -2081,24 +1591,16 @@ type Token {
   """
   nonFungible: Boolean
 
-  """
-  Returns the token royalty if set, or null if not.
-  """
+  """Returns the token royalty if set, or null if not."""
   royalty: Royalty
 
-  """
-  The current supply of this token.
-  """
+  """The current supply of this token."""
   supply: BigInt!
 
-  """
-  The token chain ID which is a 128bit unsigned integer number.
-  """
+  """The token chain ID which is a 128bit unsigned integer number."""
   tokenId: BigInt!
 
-  """
-  The price of each token in EFI.
-  """
+  """The price of each token in EFI."""
   unitPrice: BigInt!
 }
 
@@ -2106,69 +1608,43 @@ type Token {
 A token account stores a wallet's balance of a specific token in a collection.
 """
 type TokenAccount {
-  """
-  A list of approvals for this account.
-  """
+  """A list of approvals for this account."""
   approvals: [TokenAccountApproval]
 
-  """
-  The balance of the token this account holds.
-  """
+  """The balance of the token this account holds."""
   balance: BigInt!
 
-  """
-  The collection this token account belongs to.
-  """
+  """The collection this token account belongs to."""
   collection: Collection!
 
-  """
-  Specifies if this token account is frozen, disallowing transfers.
-  """
+  """Specifies if this token account is frozen, disallowing transfers."""
   isFrozen: Boolean!
 
-  """
-  The named reserves for this account.
-  """
+  """The named reserves for this account."""
   namedReserves: [TokenAccountNamedReserve]
 
-  """
-  The reserved value for this account.
-  """
+  """The reserved value for this account."""
   reservedBalance: BigInt!
 
-  """
-  The token for this account.
-  """
+  """The token for this account."""
   token: Token!
 
-  """
-  The wallet which owns this token account.
-  """
+  """The wallet which owns this token account."""
   wallet: Wallet
 }
 
-"""
-The wallets that have been approved to use this token account.
-"""
+"""The wallets that have been approved to use this token account."""
 type TokenAccountApproval {
-  """
-  The token account this approval belongs to.
-  """
+  """The token account this approval belongs to."""
   account: TokenAccount!
 
-  """
-  The amount the wallet has been approved.
-  """
+  """The amount the wallet has been approved."""
   amount: BigInt!
 
-  """
-  The expiration block the wallet will lose the approval.
-  """
+  """The expiration block the wallet will lose the approval."""
   expiration: Int
 
-  """
-  The wallet that has been approved.
-  """
+  """The wallet that has been approved."""
   wallet: Wallet!
 }
 
@@ -2181,9 +1657,7 @@ type TokenAccountApprovalConnection {
 type TokenAccountApprovalEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: TokenAccountApproval!
 }
 
@@ -2196,24 +1670,16 @@ type TokenAccountConnection {
 type TokenAccountEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: TokenAccount!
 }
 
-"""
-The pallet that has reserved some tokens and the amount.
-"""
+"""The pallet that has reserved some tokens and the amount."""
 type TokenAccountNamedReserve {
-  """
-  The amount in the wallet that has been reserved.
-  """
+  """The amount in the wallet that has been reserved."""
   amount: BigInt!
 
-  """
-  The pallet that has created this reserve.
-  """
+  """The pallet that has created this reserve."""
   pallet: PalletIdentifier!
 }
 
@@ -2226,43 +1692,29 @@ type TokenConnection {
 type TokenEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: Token!
 }
 
-"""
-The market behavior for a token.
-"""
+"""The market behavior for a token."""
 input TokenMarketBehaviorInput {
-  """
-  The account that will receive the royalty.
-  """
+  """The account that will receive the royalty."""
   hasRoyalty: RoyaltyInput
 
-  """
-  If the token is a currency.
-  """
+  """If the token is a currency."""
   isCurrency: Boolean
 }
 
-"""
-The market behaviour types a token supports.
-"""
+"""The market behaviour types a token supports."""
 enum TokenMarketBehaviorType {
   HAS_ROYALTY
   IS_CURRENCY
   NONE
 }
 
-"""
-The token mint cap type and value.
-"""
+"""The token mint cap type and value."""
 input TokenMintCap {
-  """
-  The cap amount when using the SUPPLY type.
-  """
+  """The cap amount when using the SUPPLY type."""
   amount: BigInt = null
 
   """
@@ -2280,9 +1732,7 @@ enum TokenMintCapType {
   SUPPLY
 }
 
-"""
-The params that can be mutated for a token.
-"""
+"""The params that can be mutated for a token."""
 input TokenMutationInput {
   """
   Set if the token has royalty or is a currency. If null, the behavior will not be changed.
@@ -2295,91 +1745,63 @@ input TokenMutationInput {
   listingForbidden: Boolean
 }
 
-"""
-The token type, fungible or non-fungible.
-"""
+"""The token type, fungible or non-fungible."""
 enum TokenType {
   FUNGIBLE
   NON_FUNGIBLE
 }
 
-"""
-An blockchain transaction.
-"""
+"""An blockchain transaction."""
 type Transaction {
-  """
-  enjin-platform::type.transaction.field.created_at
-  """
+  """The date and time the transaction was created."""
   createdAt: DateTime!
 
-  """
-  The encoded transaction data.
-  """
+  """The deposit made for this transaction."""
+  deposit: BigInt
+
+  """The encoded transaction data."""
   encodedData: String!
 
-  """
-  The events generated by this transaction.
-  """
+  """The events generated by this transaction."""
   events(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): EventConnection
 
-  """
-  The internal ID of the transaction.
-  """
-  id: Int!
+  """The fee paid by this transaction."""
+  fee: BigInt
 
-  """
-  The idempotency key set for this transaction.
-  """
+  """The internal ID of the transaction."""
+  id: Int
+
+  """The idempotency key set for this transaction."""
   idempotencyKey: String
 
-  """
-  The on-chain method used.
-  """
+  """The on-chain method used."""
   method: TransactionMethod
 
-  """
-  The transaction result.
-  """
+  """The transaction result."""
   result: TransactionResult
 
-  """
-  enjin-platform::type.transaction.field.signed_at_block
-  """
+  """The block number the transaction was signed at."""
   signedAtBlock: Int
 
-  """
-  The transaction state.
-  """
+  """The transaction state."""
   state: TransactionState!
 
-  """
-  The on-chain transaction hash.
-  """
+  """The on-chain transaction hash."""
   transactionHash: String
 
-  """
-  The on-chain transaction ID.
-  """
+  """The on-chain transaction ID."""
   transactionId: String
 
-  """
-  enjin-platform::type.transaction.field.updated_at
-  """
+  """The date and time the transaction was last updated."""
   updatedAt: DateTime!
 
-  """
-  The wallet used for signing this transaction.
-  """
+  """The wallet used for signing this transaction."""
   wallet: Wallet
 }
 
@@ -2392,15 +1814,11 @@ type TransactionConnection {
 type TransactionEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: Transaction!
 }
 
-"""
-The currently supported transactions.
-"""
+"""The currently supported transactions."""
 enum TransactionMethod {
   ApproveCollection
   ApproveToken
@@ -2429,17 +1847,13 @@ enum TransactionMethod {
   UnapproveToken
 }
 
-"""
-The result status of a transaction.
-"""
+"""The result status of a transaction."""
 enum TransactionResult {
   EXTRINSIC_FAILED
   EXTRINSIC_SUCCESS
 }
 
-"""
-The states in a transaction's lifecycle.
-"""
+"""The states in a transaction's lifecycle."""
 enum TransactionState {
   ABANDONED
   BROADCAST
@@ -2449,13 +1863,9 @@ enum TransactionState {
   PROCESSING
 }
 
-"""
-The recipient account for a transfer.
-"""
+"""The recipient account for a transfer."""
 input TransferRecipient {
-  """
-  The recipient account of the token.
-  """
+  """The recipient account of the token."""
   account: String!
   operatorParams: OperatorTransferParams
   simpleParams: SimpleTransferParams
@@ -2467,13 +1877,9 @@ The `Upload` special type represents a file to be uploaded in the same HTTP requ
 """
 scalar Upload
 
-"""
-A blockchain wallet.
-"""
+"""A blockchain wallet."""
 type Wallet {
-  """
-  The wallet account.
-  """
+  """The wallet account."""
   account: Account
 
   """
@@ -2481,59 +1887,37 @@ type Wallet {
   """
   balances: Balances
 
-  """
-  The collection account approvals this wallet has.
-  """
+  """The collection account approvals this wallet has."""
   collectionAccountApprovals(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): CollectionAccountApprovalConnection
 
-  """
-  The collection accounts this wallet has.
-  """
+  """The collection accounts this wallet has."""
   collectionAccounts(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The collection to return.
-    """
+    """The collection to return."""
     collectionIds: [BigInt]
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): CollectionAccountConnection
 
-  """
-  The external ID associated with the wallet.
-  """
+  """The external ID associated with the wallet."""
   externalId: String
 
-  """
-  The internal ID of the wallet.
-  """
+  """The internal ID of the wallet."""
   id: Int!
 
-  """
-  Whether this is a managed wallet.
-  """
+  """Whether this is a managed wallet."""
   managed: Boolean!
 
-  """
-  The blockchain network this wallet belongs to.
-  """
+  """The blockchain network this wallet belongs to."""
   network: String!
 
   """
@@ -2541,38 +1925,24 @@ type Wallet {
   """
   nonce: Int
 
-  """
-  The collections this wallet owns.
-  """
+  """The collections this wallet owns."""
   ownedCollections(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The collection to return.
-    """
+    """The collection to return."""
     collectionIds: [BigInt]
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): CollectionConnection
 
-  """
-  The token account approvals this wallet has.
-  """
+  """The token account approvals this wallet has."""
   tokenAccountApprovals(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
   ): TokenAccountApprovalConnection
 
@@ -2580,79 +1950,49 @@ type Wallet {
   The token accounts this wallet owns. Token accounts store the balances of tokens.
   """
   tokenAccounts(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The Collection to return tokens from.
-    """
+    """The Collection to return tokens from."""
     collectionIds: [BigInt]
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
 
-    """
-    Filter to specific token IDs or omit to return all.
-    """
+    """Filter to specific token IDs or omit to return all."""
     tokenIds: [BigInt]
   ): TokenAccountConnection
 
-  """
-  The transactions performed by this wallet.
-  """
+  """The transactions performed by this wallet."""
   transactions(
-    """
-    The cursor to fetch.
-    """
+    """The cursor to fetch."""
     after: String = null
 
-    """
-    The number of results to return per page.
-    """
+    """The number of results to return per page."""
     first: Int = 15
 
-    """
-    The idempotency keys to filter to.
-    """
+    """The idempotency keys to filter to."""
     idempotencyKeys: [String]
 
-    """
-    The internal ID of the transaction.
-    """
+    """The internal ID of the transaction."""
     ids: [BigInt]
 
-    """
-    The transaction method types to filter to.
-    """
+    """The transaction method types to filter to."""
     methods: [TransactionMethod]
 
-    """
-    Filter transactions to the specified results.
-    """
+    """Filter transactions to the specified results."""
     results: [TransactionResult]
 
-    """
-    The block numbers that the transactions were signed at.
-    """
-    signedAtBlocks: [BigInt]
+    """The block numbers that the transactions were signed at."""
+    signedAtBlocks: [Int]
 
-    """
-    Filter transactions to the specified states.
-    """
+    """Filter transactions to the specified states."""
     states: [TransactionState]
 
-    """
-    enjin-platform::query.get_transactions.args.hashes
-    """
+    """enjin-platform::query.get_transactions.args.hashes"""
     transactionHashes: [String]
 
-    """
-    The blockchain transaction id.
-    """
+    """The blockchain transaction id."""
     transactionIds: [String]
   ): TransactionConnection
 }
@@ -2666,8 +2006,6 @@ type WalletConnection {
 type WalletEdge {
   cursor: String!
 
-  """
-  List of items on the current cursor.
-  """
+  """List of items on the current cursor."""
   node: Wallet!
 }

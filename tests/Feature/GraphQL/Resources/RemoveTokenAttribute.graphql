@@ -4,6 +4,7 @@ mutation RemoveTokenAttribute(
   $key: String!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   RemoveTokenAttribute(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation RemoveTokenAttribute(
     key: $key
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

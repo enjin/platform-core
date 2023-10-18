@@ -4,6 +4,7 @@ mutation BatchSetAttribute(
   $attributes: [AttributeInput!]!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   BatchSetAttribute(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation BatchSetAttribute(
     attributes: $attributes
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

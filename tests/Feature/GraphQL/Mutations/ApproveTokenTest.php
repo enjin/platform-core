@@ -214,6 +214,86 @@ class ApproveTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_approve_a_token_with_ss58_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->approveToken(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            operator: $operator = app(Generator::class)->public_key(),
+            amount: $amount = $this->tokenAccount->balance,
+            currentAmount: $currentAmount = $this->tokenAccount->balance,
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'amount' => $amount,
+            'currentAmount' => $currentAmount,
+            'operator' => SS58Address::encode($operator),
+            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key()),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_approve_a_token_with_public_key_signing_account(): void
+    {
+        $encodedData = $this->codec->encode()->approveToken(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            operator: $operator = app(Generator::class)->public_key(),
+            amount: $amount = $this->tokenAccount->balance,
+            currentAmount: $currentAmount = $this->tokenAccount->balance,
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'amount' => $amount,
+            'currentAmount' => $currentAmount,
+            'operator' => SS58Address::encode($operator),
+            'signingAccount' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_approve_a_token_with_operator_doesnt_exist(): void
     {
         Wallet::where('public_key', '=', $operator = app(Generator::class)->public_key())?->delete();

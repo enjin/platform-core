@@ -4,6 +4,7 @@ mutation MutateToken(
   $mutation: TokenMutationInput!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   MutateToken(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation MutateToken(
     mutation: $mutation
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -6,6 +6,7 @@ mutation CreateCollection(
   $idempotencyKey: String
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   CreateCollection(
     mintPolicy: $mintPolicy
@@ -15,6 +16,7 @@ mutation CreateCollection(
     idempotencyKey: $idempotencyKey
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

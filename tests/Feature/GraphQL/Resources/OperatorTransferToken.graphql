@@ -2,17 +2,17 @@ mutation OperatorTransferToken(
   $collectionId: BigInt!
   $recipient: String!
   $params: OperatorTransferParams!
-  $signingAccount: String
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   OperatorTransferToken(
     collectionId: $collectionId
     recipient: $recipient
     params: $params
-    signingAccount: $signingAccount
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -4,6 +4,7 @@ mutation UnapproveToken(
   $operator: String!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   UnapproveToken(
     collectionId: $collectionId
@@ -11,6 +12,7 @@ mutation UnapproveToken(
     operator: $operator
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -10,6 +10,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
@@ -34,6 +35,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     use HasSkippableRules;
     use HasSimulateField;
     use HasTransactionDeposit;
+    use HasSigningAccountField;
 
     /**
      * Get the mutation's attributes.
@@ -68,6 +70,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             'attributes' => [
                 'type' => GraphQL::type('[AttributeInput!]!'),
             ],
+            ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
             ...$this->getSimulateField(),
@@ -88,13 +91,16 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService
     ): mixed {
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store([
-                'method' => $this->getMutationName(),
-                'encoded_data' => $this->resolveBatch($args['collectionId'], $this->encodeTokenId($args), $args['attributes'], false, $serializationService),
-                'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                'deposit' => $this->getDeposit($args),
-                'simulate' => $args['simulate'],
-            ]),
+            $transactionService->store(
+                [
+                    'method' => $this->getMutationName(),
+                    'encoded_data' => $this->resolveBatch($args['collectionId'], $this->encodeTokenId($args), $args['attributes'], false, $serializationService),
+                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                    'deposit' => $this->getDeposit($args),
+                    'simulate' => $args['simulate'],
+                ],
+                signingWallet: $this->getSigningAccount($args),
+            ),
             $resolveInfo
         );
     }

@@ -2,11 +2,13 @@ mutation DestroyCollection(
   $collectionId: BigInt!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   DestroyCollection(
     collectionId: $collectionId
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

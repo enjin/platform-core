@@ -3,12 +3,14 @@ mutation Burn(
   $params: BurnParamsInput!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   Burn(
     collectionId: $collectionId
     params: $params
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

@@ -285,6 +285,79 @@ class BatchTransferTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_batch_simple_single_transfer_with_public_key_signing_account(): void
+    {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+
+        $collection = Collection::factory([
+            'collection_chain_id' => Hex::MAX_UINT128,
+        ])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
+
+        $recipient = [
+            'accountId' => $this->defaultAccount,
+            'params' => new SimpleTransferParams(
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                amount: fake()->numberBetween(1, $tokenAccount->balance)
+            ),
+        ];
+
+        $encodedData = $this->codec->encode()->batchTransfer(
+            $collectionId = $collection->collection_chain_id,
+            [$recipient]
+        );
+
+        $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
+        $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient['accountId']),
+                    'simpleParams' => $simpleParams,
+                ],
+            ],
+            'signingAccount' => $signingAccount,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $signingAccount,
+                ],
+            ],
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_simple_single_transfer_with_keep_alive(): void
     {
         $encodedData = $this->codec->encode()->batchTransfer(
@@ -2208,51 +2281,6 @@ class BatchTransferTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_not_managed_signing_wallet(): void
-    {
-        $signingWallet = Wallet::factory([
-            'managed' => false,
-        ])->create();
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
-        $collection = Collection::factory([
-            'collection_chain_id' => Hex::MAX_UINT128,
-        ])->create();
-        CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $signingWallet,
-            'account_count' => 1,
-        ])->create();
-        $token = Token::factory([
-            'collection_id' => $collection,
-        ])->create();
-        $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'wallet_id' => $signingWallet,
-        ])->create();
-
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
-            'recipients' => [
-                [
-                    'account' => SS58Address::encode($this->recipient->public_key),
-                    'simpleParams' => [
-                        'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-                        'amount' => fake()->numberBetween(1, $tokenAccount->balance),
-                    ],
-                ],
-            ],
-            'signingAccount' => SS58Address::encode($signingWallet->public_key),
-        ], true);
-
-        $this->assertArraySubset(
-            ['signingAccount' => ['The signing account is not a wallet managed by this platform.']],
             $response['error'],
         );
 

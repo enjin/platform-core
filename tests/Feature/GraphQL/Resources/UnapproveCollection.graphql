@@ -3,12 +3,14 @@ mutation UnapproveCollection(
   $operator: String!
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   UnapproveCollection(
     collectionId: $collectionId
     operator: $operator
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId

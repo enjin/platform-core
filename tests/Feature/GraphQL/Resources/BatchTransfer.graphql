@@ -1,16 +1,16 @@
 mutation BatchTransfer(
   $collectionId: BigInt!
   $recipients: [TransferRecipient!]!
-  $signingAccount: String
   $skipValidation: Boolean
   $simulate: Boolean
+  $signingAccount: String
 ) {
   BatchTransfer(
     collectionId: $collectionId
     recipients: $recipients
-    signingAccount: $signingAccount
     skipValidation: $skipValidation
     simulate: $simulate
+    signingAccount: $signingAccount
   ) {
     id
     transactionId
