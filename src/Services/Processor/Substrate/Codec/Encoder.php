@@ -34,11 +34,47 @@ class Encoder
         $this->callIndexes = $this->loadCallIndexes();
     }
 
+    public function uint32(string $value): string
+    {
+        $encoded = $this->scaleInstance->createTypeByTypeString('u32')->encode($value);
+
+        return HexConverter::prefix($encoded);
+    }
+
+    public function compact(string $value): string
+    {
+        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
+
+        return HexConverter::prefix($encoded);
+    }
+
     public function sequenceLength(string $sequence): string
     {
         $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($sequence)));
 
         return HexConverter::prefix($encoded);
+    }
+
+    public function signingPayload(
+        string $call,
+        int $nonce,
+        string $blockHash,
+        string $genesisHash,
+        int $specVersion,
+        int $txVersion,
+        ?string $era = '00',
+        ?string $tip = '00',
+    ): string {
+        $call = HexConverter::unPrefix($call);
+        $nonce = HexConverter::unPrefix($this->compact(gmp_strval($nonce)));
+        $blockHash = HexConverter::unPrefix($blockHash);
+        $genesisHash = HexConverter::unPrefix($genesisHash);
+        $specVersion = HexConverter::unPrefix($this->uint32(gmp_strval($specVersion)));
+        $txVersion = HexConverter::unPrefix($this->uint32(gmp_strval($txVersion)));
+        $era = HexConverter::unPrefix($era);
+        $tip = $tip == '0' ? '00' : HexConverter::unPrefix($this->compact(gmp_strval($tip)));
+
+        return HexConverter::prefix($call . $era . $nonce . $tip . $specVersion . $txVersion . $genesisHash . $blockHash);
     }
 
     public function addFakeSignature(string $call): string

@@ -17,6 +17,7 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
@@ -274,12 +275,17 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
+            'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
         $this->assertArraySubset([
             'state' => TransactionState::PENDING->name,
             'method' => $this->method,
             'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,

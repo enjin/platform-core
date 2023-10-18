@@ -24,6 +24,7 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -255,12 +256,17 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
         $this->assertArraySubset([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,

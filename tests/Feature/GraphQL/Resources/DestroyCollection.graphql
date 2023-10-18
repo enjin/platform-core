@@ -3,6 +3,8 @@ mutation DestroyCollection(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   DestroyCollection(
     collectionId: $collectionId
@@ -16,6 +18,7 @@ mutation DestroyCollection(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

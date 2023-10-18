@@ -5,6 +5,8 @@ mutation CreateToken(
   $simulate: Boolean
   $signingAccount: String
   $skipValidation: Boolean
+  $nonce: Int
+  $tip: BigInt
 ) {
   CreateToken(
     recipient: $recipient
@@ -20,6 +22,7 @@ mutation CreateToken(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

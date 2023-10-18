@@ -511,14 +511,21 @@ type Mutation {
     """The account that will be approved to operate the collection."""
     operator: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -545,6 +552,7 @@ type Mutation {
     """The account that will be approved to operate the token."""
     operator: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -554,6 +562,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token ID that will be approved."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
@@ -569,14 +585,21 @@ type Mutation {
     idempotencyKey: String
     recipients: [MintRecipient!]!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -591,6 +614,7 @@ type Mutation {
     """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -600,6 +624,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token ID."""
     tokenId: EncodableTokenIdInput
   ): Transaction!
@@ -615,14 +647,22 @@ type Mutation {
     idempotencyKey: String
     recipients: [TransferRecipient!]!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
+=======
+    """The signing wallet for this transaction. Defaults to wallet daemon."""
+>>>>>>> Adds signingPayload
     signingAccount: String
 
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -638,14 +678,21 @@ type Mutation {
     """The params required to burn a token."""
     params: BurnParamsInput!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -667,14 +714,21 @@ type Mutation {
     """Set the mint policy for tokens in this collection."""
     mintPolicy: MintPolicy!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -693,14 +747,21 @@ type Mutation {
     """The recipient account of the tokens for the initial mint."""
     recipient: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """Store a new unverified wallet record using an external ID."""
@@ -719,14 +780,21 @@ type Mutation {
     """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -748,6 +816,7 @@ type Mutation {
     """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -757,6 +826,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token account to freeze."""
     tokenAccount: String
 
@@ -793,14 +870,21 @@ type Mutation {
     """The recipient account of the tokens being minted."""
     recipient: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """Changes collection default values."""
@@ -814,14 +898,21 @@ type Mutation {
     """The params that will be mutated."""
     mutation: CollectionMutationInput!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """Changes token default values."""
@@ -835,6 +926,7 @@ type Mutation {
     """The params that will be mutated."""
     mutation: TokenMutationInput!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -844,6 +936,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token that will be mutated."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
@@ -862,14 +962,22 @@ type Mutation {
     """The recipient account who is going to receive the transfer."""
     recipient: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
+=======
+    """The signing wallet for this transaction. Defaults to wallet daemon."""
+>>>>>>> Adds signingPayload
     signingAccount: String
 
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """Removes all attributes from the given collection ID and token ID."""
@@ -885,6 +993,7 @@ type Mutation {
     """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -894,6 +1003,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token ID."""
     tokenId: EncodableTokenIdInput
   ): Transaction!
@@ -909,14 +1026,21 @@ type Mutation {
     """The attribute key."""
     key: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """Remove an attribute from the specified token."""
@@ -930,6 +1054,7 @@ type Mutation {
     """The attribute key."""
     key: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -939,6 +1064,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token ID."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
@@ -965,6 +1098,7 @@ type Mutation {
     """The attribute key."""
     key: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -974,6 +1108,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The attribute value."""
     value: String!
   ): Transaction!
@@ -989,6 +1131,7 @@ type Mutation {
     """The attribute key."""
     key: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -998,6 +1141,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token ID."""
     tokenId: EncodableTokenIdInput!
 
@@ -1029,14 +1180,22 @@ type Mutation {
     """The recipient account who is going to receive the transfer."""
     recipient: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
+=======
+    """The signing wallet for this transaction. Defaults to wallet daemon."""
+>>>>>>> Adds signingPayload
     signingAccount: String
 
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """Thaw a previously frozen collection or token."""
@@ -1053,6 +1212,7 @@ type Mutation {
     """The idempotency key to set. It is recommended to use a UUID for this."""
     idempotencyKey: String
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -1062,6 +1222,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token account to thaw."""
     tokenAccount: String
 
@@ -1084,14 +1252,22 @@ type Mutation {
     """The recipient account who is going to receive the transfer."""
     recipient: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
+=======
+    """The signing wallet for this transaction. Defaults to wallet daemon."""
+>>>>>>> Adds signingPayload
     signingAccount: String
 
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -1112,14 +1288,22 @@ type Mutation {
     """The recipient account who is going to receive the transfer."""
     recipient: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
+=======
+    """The signing wallet for this transaction. Defaults to wallet daemon."""
+>>>>>>> Adds signingPayload
     signingAccount: String
 
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -1135,14 +1319,21 @@ type Mutation {
     """The account that collection approval will be removed from."""
     operator: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
+=======
+>>>>>>> Adds signingPayload
     """Simulates a transaction without broadcasting it to the network."""
     simulate: Boolean = false
 
     """Skip all validation rules, use with caution. Defaults to false."""
+<<<<<<< master
     skipValidation: Boolean = false
+=======
+    skipValidation: Boolean! = false
+>>>>>>> Adds signingPayload
   ): Transaction!
 
   """
@@ -1158,6 +1349,7 @@ type Mutation {
     """The account that token approval will be removed from."""
     operator: String!
 
+<<<<<<< master
     """enjin-platform::args.signingAccount"""
     signingAccount: String
 
@@ -1167,6 +1359,14 @@ type Mutation {
     """Skip all validation rules, use with caution. Defaults to false."""
     skipValidation: Boolean = false
 
+=======
+    """Simulates a transaction without broadcasting it to the network."""
+    simulate: Boolean = false
+
+    """Skip all validation rules, use with caution. Defaults to false."""
+    skipValidation: Boolean! = false
+
+>>>>>>> Adds signingPayload
     """The token that approval will be removed from."""
     tokenId: EncodableTokenIdInput!
   ): Transaction!
@@ -1789,6 +1989,18 @@ type Transaction {
   """The block number the transaction was signed at."""
   signedAtBlock: Int
 
+<<<<<<< master
+=======
+  """The signing payload to make an extrinsic."""
+  signingPayload(
+    """The nonce of the account to make the extrinsic."""
+    nonce: Int = 0
+
+    """The tip to make the extrinsic."""
+    tip: BigInt = "0"
+  ): String!
+
+>>>>>>> Adds signingPayload
   """The transaction state."""
   state: TransactionState!
 

@@ -7,6 +7,8 @@ mutation Thaw(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   Thaw(
     freezeType: $freezeType
@@ -24,6 +26,7 @@ mutation Thaw(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

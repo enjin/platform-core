@@ -5,6 +5,8 @@ mutation TransferBalance(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   TransferBalance(
     recipient: $recipient
@@ -20,6 +22,7 @@ mutation TransferBalance(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

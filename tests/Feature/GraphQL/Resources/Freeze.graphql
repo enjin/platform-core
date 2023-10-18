@@ -8,6 +8,8 @@ mutation Freeze(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   Freeze(
     freezeType: $freezeType
@@ -26,6 +28,7 @@ mutation Freeze(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {
