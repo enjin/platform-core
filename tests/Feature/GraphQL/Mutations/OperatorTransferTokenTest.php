@@ -68,7 +68,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'managed' => false,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -113,7 +113,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -154,7 +154,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -195,7 +195,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -331,7 +331,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_without_pass_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -377,7 +377,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -421,7 +421,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_null_signing_wallet(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -511,7 +511,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $address,
             $collectionId = $this->collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -576,7 +576,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new OperatorTransferParams(
@@ -636,7 +636,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new OperatorTransferParams(

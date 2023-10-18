@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -109,7 +110,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
             );
         }
 
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             owner: null !== Arr::get($args, 'mutation.owner')
                 ? $walletService->firstOrStore(['account' => $args['mutation']['owner']])->public_key
@@ -135,11 +136,22 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
 
     public static function getEncodableParams(...$params): array
     {
+        $owner = Arr::get($params, 'owner', null);
+        $royalty = Arr::get($params, 'royalty', new RoyaltyPolicyParams(Account::daemonPublicKey(), 0));
+        $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', null);
+
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'owner' => Arr::get($params, 'owner', null),
-            'royalty' => Arr::get($params, 'royalty', new RoyaltyPolicyParams(Account::daemonPublicKey(), 0)),
-            'explicitRoyaltyCurrencies' => Arr::get($params, 'explicitRoyaltyCurrencies', null),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'mutation' => [
+                'owner' => $owner !== null ? HexConverter::unPrefix($owner) : null,
+                'royalty' => is_array($royalty) ? ['NoMutation' => null] : ['SomeMutation' => $royalty?->toEncodable()],
+                'explicitRoyaltyCurrencies' => $explicitRoyaltyCurrencies !== null ? collect($explicitRoyaltyCurrencies)
+                    ->map(fn ($multiToken) => [
+                        'collectionId' => gmp_init($multiToken['collectionId']),
+                        'tokenId' => gmp_init($multiToken['tokenId']),
+                    ])->toArray()
+                    : null,
+            ],
         ];
     }
 

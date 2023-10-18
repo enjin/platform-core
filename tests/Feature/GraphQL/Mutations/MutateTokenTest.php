@@ -49,7 +49,7 @@ class MutateTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = random_int(1, 1000),
             $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
@@ -87,7 +87,7 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_listing_forbidden_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
@@ -122,7 +122,7 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
@@ -157,7 +157,7 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_listing_forbidden(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
@@ -275,7 +275,7 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_empty_behavior(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             behavior: [],
@@ -312,7 +312,7 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_behavior_is_currency(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             behavior: new TokenMarketBehaviorParams(isCurrency: true),
@@ -351,7 +351,7 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_behavior_has_royalty(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             behavior: new TokenMarketBehaviorParams(hasRoyalty: new RoyaltyPolicyParams(
@@ -405,7 +405,7 @@ class MutateTokenTest extends TestCaseGraphQL
             )),
         ]);
 
-        $encodedData = $this->codec->encode()->mutateToken(
+        $encodedData = $this->codec->encoder()->mutateToken(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             behavior: $behavior,

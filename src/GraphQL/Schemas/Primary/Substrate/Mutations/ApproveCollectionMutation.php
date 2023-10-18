@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
@@ -95,7 +96,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             operator: $operatorWallet->public_key,
             expiration: $args['expiration']
@@ -119,8 +120,8 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'operator' => Arr::get($params, 'operator', Account::daemonPublicKey()),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
             'expiration' => Arr::get($params, 'expiration', null),
         ];
     }

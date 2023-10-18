@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
@@ -109,15 +110,15 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
      */
     public function getMethodName(): string
     {
-        return 'removeAttribute';
+        return 'RemoveAttribute';
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => null,
-            'key' => Arr::get($params, 'key', '0'),
+            'key' => HexConverter::stringToHexPrefixed(Arr::get($params, 'key', '0')),
         ];
     }
 

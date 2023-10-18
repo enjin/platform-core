@@ -22,13 +22,11 @@ class Substrate implements SerializationServiceInterface
      */
     public function encode(string $method, array $data, $address = null): string
     {
-        $method = Str::camel($method);
-
-        if (!method_exists($this->codec->encode(), $method)) {
+        if (!$this->codec->encoder()->methodSupported($method)) {
             throw new PlatformException(__('enjin-platform::error.serialization.method_does_not_exist', ['method' => $method]), 403);
         }
 
-        return $this->codec->encode()->{$method}(...$data);
+        return $this->codec->encoder()->getEncoded($method, $data);
     }
 
     /**
@@ -38,10 +36,10 @@ class Substrate implements SerializationServiceInterface
     {
         $method = Str::camel($method);
 
-        if (!method_exists($this->codec->decode(), $method)) {
+        if (!method_exists($this->codec->decoder(), $method)) {
             throw new PlatformException(__('enjin-platform::error.serialization.method_does_not_exist', ['method' => $method]), 403);
         }
 
-        return $this->codec->decode()->{$method}($data);
+        return $this->codec->decoder()->{$method}($data);
     }
 }

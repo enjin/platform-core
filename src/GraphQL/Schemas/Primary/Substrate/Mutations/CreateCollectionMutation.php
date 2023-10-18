@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -108,7 +109,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
             $transactionService->store(
                 [
                     'method' => $this->getMutationName(),
-                    'encoded_data' => $serializationService->encode($this->getMethodName(), static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))),
+                    'encoded_data' => $serializationService->encode($this->getMutationName(), static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))),
                     'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
@@ -121,13 +122,32 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
 
     public static function getEncodableParams(...$params): array
     {
-        ray($params);
+        $mintPolicy = Arr::get($params, 'mintPolicy', new MintPolicyParams(false));
+        $marketPolicy = Arr::get($params, 'marketPolicy', null);
+        $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', []);
+        $attributes = Arr::get($params, 'attributes', []);
 
         return [
-            'mintPolicy' => Arr::get($params, 'mintPolicy', new MintPolicyParams(false)),
-            'marketPolicy' => Arr::get($params, 'marketPolicy', null),
-            'explicitRoyaltyCurrencies' => Arr::get($params, 'explicitRoyaltyCurrencies', []),
-            'attributes' => Arr::get($params, 'attributes', []),
+            'descriptor' => [
+                'policy' => [
+                    'mint' => $mintPolicy->toEncodable(),
+                    'market' => $marketPolicy?->toEncodable(),
+                ],
+                'explicitRoyaltyCurrencies' => array_map(
+                    fn ($multiToken) => [
+                        'collectionId' => gmp_init($multiToken['collectionId']),
+                        'tokenId' => gmp_init($multiToken['tokenId']),
+                    ],
+                    $explicitRoyaltyCurrencies
+                ),
+                'attributes' => array_map(
+                    fn ($attribute) => [
+                        'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                        'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                    ],
+                    $attributes
+                ),
+            ],
         ];
     }
 

@@ -50,7 +50,7 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new MintParams(
@@ -92,7 +92,7 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new MintParams(
@@ -131,7 +131,7 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_without_unit_price(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new MintParams(
@@ -261,7 +261,7 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_different_types(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new MintParams(
@@ -311,7 +311,7 @@ class MintTokenTest extends TestCaseGraphQL
             'token_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new MintParams(
@@ -354,7 +354,7 @@ class MintTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $recipient = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient,
             $collectionId = $this->collection->collection_chain_id,
             $params = new MintParams(

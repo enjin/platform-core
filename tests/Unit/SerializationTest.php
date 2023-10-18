@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
 use Enjin\Platform\Tests\TestCase;
@@ -12,8 +13,10 @@ class SerializationTest extends TestCase
     {
         $substrate = new Substrate();
         $encoded = $substrate->encode(
-            'createCollection',
-            [new MintPolicyParams(forceSingleMint: true)]
+            'CreateCollection',
+            CreateCollectionMutation::getEncodableParams(
+                mintPolicy: new MintPolicyParams(forceSingleMint: true)
+            )
         );
         $this->assertNotEmpty($encoded);
 

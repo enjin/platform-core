@@ -50,7 +50,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = random_int(1, 1000),
             new CreateTokenParams(
@@ -98,7 +98,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_cap_equals_null_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new CreateTokenParams(
@@ -141,7 +141,7 @@ class CreateTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new CreateTokenParams(
@@ -182,7 +182,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_cap_equals_null(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new CreateTokenParams(
@@ -318,7 +318,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_unit_price_equals_null(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new CreateTokenParams(
@@ -361,7 +361,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_single_mint(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -408,7 +408,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_supply_cap(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -457,7 +457,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_royalty_equals_null(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -506,7 +506,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_royalty(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -565,7 +565,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_listing_forbidden_equals_null(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -614,7 +614,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_listing_forbidden(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -663,7 +663,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_different_types_for_numbers(): void
     {
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             new CreateTokenParams(
@@ -714,7 +714,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new CreateTokenParams(
@@ -757,7 +757,7 @@ class CreateTokenTest extends TestCaseGraphQL
     {
         $collection = Collection::factory()->create();
 
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new CreateTokenParams(
@@ -806,7 +806,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encode()->mint(
+        $encodedData = $this->codec->encoder()->mint(
             $recipient,
             $collectionId = $collection->collection_chain_id,
             $params = new CreateTokenParams(

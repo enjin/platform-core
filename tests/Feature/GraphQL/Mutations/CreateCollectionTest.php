@@ -76,7 +76,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_single_mint(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
@@ -180,7 +180,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
@@ -211,7 +211,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_one_create_collection_transaction_is_created_using_idempotency(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
@@ -266,7 +266,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_max_token_count(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(1, Hex::MAX_UINT64),
@@ -305,7 +305,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_max_token_supply(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenSupply: fake()->numberBetween(1, Hex::MAX_UINT64),
@@ -339,7 +339,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_all_mint_args(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(1, Hex::MAX_UINT64),
@@ -374,7 +374,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_works_with_big_int_max_token_count(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: Hex::MAX_UINT64,
@@ -408,7 +408,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_works_with_big_int_max_token_supply(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenSupply: Hex::MAX_UINT128,
@@ -442,7 +442,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_royalty(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             ),
@@ -482,7 +482,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_explicit_royalty_currencies(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             ),
@@ -517,7 +517,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_empty_array_of_currencies(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             ),
@@ -552,7 +552,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_all_args(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
+        $encodedData = $this->codec->encoder()->createCollection(
             $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(),

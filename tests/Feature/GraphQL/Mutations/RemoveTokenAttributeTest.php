@@ -59,7 +59,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
+        $encodedData = $this->codec->encoder()->removeAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -96,7 +96,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
+        $encodedData = $this->codec->encoder()->removeAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -168,7 +168,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
+        $encodedData = $this->codec->encoder()->removeAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -254,7 +254,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $key = $attribute->key,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
+        $encodedData = $this->codec->encoder()->removeAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode($token->token_chain_id),
             $key,
@@ -304,7 +304,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $key = $attribute->key,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
+        $encodedData = $this->codec->encoder()->removeAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode($tokenId),
             $key,

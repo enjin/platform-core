@@ -24,14 +24,46 @@ use Illuminate\Support\Facades\Cache;
 
 class Encoder
 {
-    public array $callIndexes;
+    protected static array $callIndexes = [];
 
-    protected ScaleInstance $scaleInstance;
+    protected static ScaleInstance $scaleInstance;
+
+    protected static array $callIndexKeys = [
+        'Batch' => 'MatrixUtility.batch',
+        'TransferBalance' => 'Balances.transfer',
+        'TransferBalanceKeepAlive' => 'Balances.transfer_keep_alive',
+        'TransferAllBalance' => 'Balances.transfer_all',
+        'ApproveCollection' => 'MultiTokens.approve_collection',
+        'UnapproveCollection' => 'MultiTokens.unapprove_collection',
+        'ApproveToken' => 'MultiTokens.approve_token',
+        'UnapproveToken' => 'MultiTokens.unapprove_token',
+        'BatchSetAttribute' => 'MultiTokens.batch_set_attribute',
+        'BatchTransfer' => 'MultiTokens.batch_transfer',
+        'Transfer' => 'MultiTokens.transfer',
+        'CreateCollection' => 'MultiTokens.create_collection',
+        'DestroyCollection' => 'MultiTokens.destroy_collection',
+        'MutateCollection' => 'MultiTokens.mutate_collection',
+        'MutateToken' => 'MultiTokens.mutate_token',
+        'Mint' => 'MultiTokens.mint',
+        'BatchMint' => 'MultiTokens.batch_mint',
+        'Burn' => 'MultiTokens.burn',
+        'Freeze' => 'MultiTokens.freeze',
+        'Thaw' => 'MultiTokens.thaw',
+        'SetRoyalty' => 'MultiTokens.set_royalty',
+        'SetAttribute' => 'MultiTokens.set_attribute',
+        'RemoveAttribute' => 'MultiTokens.remove_attribute',
+        'RemoveAllAttributes' => 'MultiTokens.remove_all_attributes',
+    ];
 
     public function __construct(ScaleInstance $scaleInstance)
     {
-        $this->scaleInstance = $scaleInstance;
-        $this->callIndexes = $this->loadCallIndexes();
+        static::$scaleInstance = $scaleInstance;
+        static::$callIndexes = $this->loadCallIndexes();
+    }
+
+    public function methodSupported($method): bool
+    {
+        return array_key_exists($method, static::$callIndexKeys);
     }
 
     public function uint32(string $value): string
@@ -50,7 +82,7 @@ class Encoder
 
     public function sequenceLength(string $sequence): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($sequence)));
+        $encoded = static::$scaleInstance->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($sequence)));
 
         return HexConverter::prefix($encoded);
     }
@@ -91,43 +123,44 @@ class Encoder
         return $this->sequenceLength($extrinsic) . $extrinsic;
     }
 
+    public static function getEncoded(string $type, array $params): string
+    {
+        $encoded = static::$scaleInstance->createTypeByTypeString($type)->encode([
+            'callIndex' => static::getCallIndex(static::$callIndexKeys[$type]),
+            ...$params,
+        ]);
+
+        return HexConverter::prefix($encoded);
+    }
+
     public function transferBalance(string $recipient, string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('TransferBalance')->encode([
-            'callIndex' => $this->getCallIndex('Balances.transfer'),
+        return static::getEncoded('TransferBalance', [
             'dest' => [
                 'Id' => HexConverter::unPrefix($recipient),
             ],
             'value' => gmp_init($value),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function transferBalanceKeepAlive(string $recipient, string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('TransferBalanceKeepAlive')->encode([
-            'callIndex' => $this->getCallIndex('Balances.transfer_keep_alive'),
+        return static::getEncoded('TransferBalanceKeepAlive', [
             'dest' => [
                 'Id' => HexConverter::unPrefix($recipient),
             ],
             'value' => gmp_init($value),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function transferAllBalance(string $recipient, ?bool $keepAlive = false): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('TransferAllBalance')->encode([
-            'callIndex' => $this->getCallIndex('Balances.transfer_all'),
+        return static::getEncoded('TransferAllBalance', [
             'dest' => [
                 'Id' => HexConverter::unPrefix($recipient),
             ],
             'keepAlive' => $keepAlive,
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function systemAccountStorageKey(string $publicKey): string
@@ -141,31 +174,24 @@ class Encoder
 
     public function approveCollection(string $collectionId, string $operator, ?int $expiration = null): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('ApproveCollection')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.approve_collection'),
+        return static::getEncoded('ApproveCollection', [
             'collectionId' => gmp_init($collectionId),
             'operator' => HexConverter::unPrefix($operator),
             'expiration' => $expiration,
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function unapproveCollection(string $collectionId, string $operator): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('UnapproveCollection')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.unapprove_collection'),
+        return static::getEncoded('UnapproveCollection', [
             'collectionId' => gmp_init($collectionId),
             'operator' => HexConverter::unPrefix($operator),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function approveToken(string $collectionId, string $tokenId, string $operator, string $amount, string $currentAmount, ?int $expiration = null): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('ApproveToken')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.approve_token'),
+        return static::getEncoded('ApproveToken', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => gmp_init($tokenId),
             'operator' => HexConverter::unPrefix($operator),
@@ -173,26 +199,21 @@ class Encoder
             'expiration' => $expiration,
             'currentAmount' => gmp_init($currentAmount),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function unapproveToken(string $collectionId, string $tokenId, string $operator): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('UnapproveToken')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.unapprove_token'),
+        return static::getEncoded('UnapproveToken', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => gmp_init($tokenId),
             'operator' => HexConverter::unPrefix($operator),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function batch(array $calls, bool $continueOnFailure): string
     {
-        $callIndex = $this->callIndexes['MatrixUtility.batch'];
-        $numberOfCalls = $this->scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
+        $callIndex = static::$callIndexes['MatrixUtility.batch'];
+        $numberOfCalls = static::$scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
         $calls = str_replace('0x', '', implode('', $calls));
         $continueOnFailure = $continueOnFailure ? '01' : '00';
         $encoded = $callIndex . $numberOfCalls . $calls . $continueOnFailure;
@@ -202,8 +223,7 @@ class Encoder
 
     public function batchSetAttribute(string $collectionId, ?string $tokenId, array $attributes)
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('BatchSetAttribute')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.batch_set_attribute'),
+        return static::getEncoded('BatchSetAttribute', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
             'attributes' => array_map(
@@ -214,14 +234,11 @@ class Encoder
                 $attributes
             ),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function batchTransfer(string $collectionId, array $recipients)
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('BatchTransfer')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.batch_transfer'),
+        return static::getEncoded('BatchTransfer', [
             'collectionId' => gmp_init($collectionId),
             'recipients' => array_map(
                 fn ($item) => [
@@ -231,69 +248,55 @@ class Encoder
                 $recipients
             ),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function transferToken(string $recipient, string $collectionId, SimpleTransferParams|OperatorTransferParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Transfer')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.transfer'),
+        return static::getEncoded('Transfer', [
             'recipient' => [
                 'Id' => HexConverter::unPrefix($recipient),
             ],
             'collectionId' => gmp_init($collectionId),
             'params' => $params->toEncodable(),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function createCollection(MintPolicyParams $mintPolicy, ?RoyaltyPolicyParams $marketPolicy = null, ?array $explicitRoyaltyCurrencies = [], ?array $attributes = []): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('CreateCollection')->encode(
-            [
-                'callIndex' => $this->getCallIndex('MultiTokens.create_collection'),
-                'descriptor' => [
-                    'policy' => [
-                        'mint' => $mintPolicy->toEncodable(),
-                        'market' => $marketPolicy?->toEncodable(),
-                    ],
-                    'explicitRoyaltyCurrencies' => array_map(
-                        fn ($multiToken) => [
-                            'collectionId' => gmp_init($multiToken['collectionId']),
-                            'tokenId' => gmp_init($multiToken['tokenId']),
-                        ],
-                        $explicitRoyaltyCurrencies
-                    ),
-                    'attributes' => array_map(
-                        fn ($attribute) => [
-                            'key' => HexConverter::stringToHexPrefixed($attribute['key']),
-                            'value' => HexConverter::stringToHexPrefixed($attribute['value']),
-                        ],
-                        $attributes
-                    ),
+        return static::getEncoded('CreateCollection', [
+            'descriptor' => [
+                'policy' => [
+                    'mint' => $mintPolicy->toEncodable(),
+                    'market' => $marketPolicy?->toEncodable(),
                 ],
-            ]
-        );
-
-        return HexConverter::prefix($encoded);
+                'explicitRoyaltyCurrencies' => array_map(
+                    fn ($multiToken) => [
+                        'collectionId' => gmp_init($multiToken['collectionId']),
+                        'tokenId' => gmp_init($multiToken['tokenId']),
+                    ],
+                    $explicitRoyaltyCurrencies
+                ),
+                'attributes' => array_map(
+                    fn ($attribute) => [
+                        'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                        'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                    ],
+                    $attributes
+                ),
+            ],
+        ]);
     }
 
     public function destroyCollection(string $collectionId): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('DestroyCollection')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.destroy_collection'),
+        return static::getEncoded('DestroyCollection', [
             'collectionId' => gmp_init($collectionId),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function mutateCollection(string $collectionId, ?string $owner = null, null|array|RoyaltyPolicyParams $royalty = null, ?array $explicitRoyaltyCurrencies = null): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('MutateCollection')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.mutate_collection'),
+        return static::getEncoded('MutateCollection', [
             'collectionId' => gmp_init($collectionId),
             'mutation' => [
                 'owner' => $owner !== null ? HexConverter::unPrefix($owner) : null,
@@ -307,14 +310,11 @@ class Encoder
                 ) : null,
             ],
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function mutateToken(string $collectionId, string $tokenId, null|array|TokenMarketBehaviorParams $behavior = null, ?bool $listingForbidden = null): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('MutateToken')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.mutate_token'),
+        return static::getEncoded('MutateToken', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => gmp_init($tokenId),
             'mutation' => [
@@ -323,8 +323,6 @@ class Encoder
                 'metadata' => null,
             ],
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public static function collectionStorageKey(string $collectionId): string
@@ -354,10 +352,10 @@ class Encoder
     {
         $storageKey = StorageKey::ATTRIBUTES->value . Blake2::hashAndEncode($collectionId);
 
-        $encodedToken = $this->scaleInstance->createTypeByTypeString('Option<u128>')->encode($tokenId);
+        $encodedToken = static::$scaleInstance->createTypeByTypeString('Option<u128>')->encode($tokenId);
         $storageKey .= Blake2::hash($encodedToken, 128) . $encodedToken;
 
-        $encodedKey = $this->scaleInstance->createTypeByTypeString('Bytes')->encode($key);
+        $encodedKey = static::$scaleInstance->createTypeByTypeString('Bytes')->encode($key);
         $storageKey .= Blake2::hash($encodedKey, 128) . $encodedKey;
 
         return HexConverter::prefix($storageKey);
@@ -373,22 +371,18 @@ class Encoder
 
     public function mint(string $recipientId, string $collectionId, CreateTokenParams|MintParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Mint')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.mint'),
+        return static::getEncoded('Mint', [
             'recipient' => [
                 'Id' => HexConverter::unPrefix($recipientId),
             ],
             'collectionId' => gmp_init($collectionId),
             'params' => $params->toEncodable(),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function batchMint(string $collectionId, array $recipients)
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('BatchMint')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.batch_mint'),
+        return static::getEncoded('BatchMint', [
             'collectionId' => gmp_init($collectionId),
             'recipients' => array_map(
                 fn ($item) => [
@@ -398,100 +392,88 @@ class Encoder
                 $recipients
             ),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function burn(string $collectionId, BurnParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Burn')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.burn'),
+        return static::getEncoded('Burn', [
             'collectionId' => gmp_init($collectionId),
             'params' => $params->toEncodable(),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function freeze(string $collectionId, FreezeTypeParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Freeze')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.freeze'),
+        return static::getEncoded('Freeze', [
             'collectionId' => gmp_init($collectionId),
             'freezeType' => $params->toEncodable(),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function thaw(string $collectionId, FreezeTypeParams $params): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Thaw')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.thaw'),
+        return static::getEncoded('Thaw', [
             'collectionId' => gmp_init($collectionId),
             'freezeType' => $params->toEncodable(),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function setRoyalty(string $collectionId, ?string $tokenId, RoyaltyPolicyParams $royalty): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('SetRoyalty')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.set_royalty'),
+        return static::getEncoded('SetRoyalty', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId,
             'descriptor' => $royalty->toEncodable(),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function setAttribute(string $collectionId, ?string $tokenId, string $key, string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('SetAttribute')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.set_attribute'),
+        return static::getEncoded('SetAttribute', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
             'key' => HexConverter::stringToHexPrefixed($key),
             'value' => HexConverter::stringToHexPrefixed($value),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function removeAttribute(string $collectionId, ?string $tokenId, string $key): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('RemoveAttribute')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.remove_attribute'),
+        return static::getEncoded('RemoveAttribute', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
             'key' => HexConverter::stringToHex($key),
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function removeAllAttributes(string $collectionId, ?string $tokenId, int $attributeCount): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('RemoveAllAttributes')->encode([
-            'callIndex' => $this->getCallIndex('MultiTokens.remove_all_attributes'),
+        return static::getEncoded('RemoveAllAttributes', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
             'attributeCount' => $attributeCount,
         ]);
-
-        return HexConverter::prefix($encoded);
     }
 
     public function attributeStorage(int $module, int $method): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('AttributeStorage')->encode([
+        $encoded = static::$scaleInstance->createTypeByTypeString('AttributeStorage')->encode([
             'module' => $module,
             'method' => $method,
         ]);
 
         return HexConverter::prefix($encoded);
+    }
+
+    public static function getCallIndex(string $call, bool $raw = false): array|int|string
+    {
+        if ($raw) {
+            return static::$callIndexes[$call];
+        }
+
+        $index = str_split(static::$callIndexes[$call], 2);
+
+        return [HexConverter::hexToInt($index[0]), HexConverter::hexToInt($index[1])];
     }
 
     protected function loadCallIndexes(): array
@@ -515,7 +497,7 @@ class Encoder
         return Cache::rememberForever(
             PlatformCache::CALL_INDEXES->key(config('enjin-platform.chains.selected') . config('enjin-platform.chains.network')),
             function () use ($metadata) {
-                $decode = $this->scaleInstance->process('metadata', new ScaleBytes($metadata));
+                $decode = static::$scaleInstance->process('metadata', new ScaleBytes($metadata));
 
                 $callIndexes = collect(Arr::get($decode, 'metadata.call_index'))->mapWithKeys(
                     fn ($call, $key) => [
@@ -526,12 +508,5 @@ class Encoder
                 return $callIndexes->toArray();
             }
         );
-    }
-
-    protected function getCallIndex(string $call): array
-    {
-        $index = str_split($this->callIndexes[$call], 2);
-
-        return [HexConverter::hexToInt($index[0]), HexConverter::hexToInt($index[1])];
     }
 }

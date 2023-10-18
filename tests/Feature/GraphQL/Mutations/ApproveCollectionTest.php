@@ -54,7 +54,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $collectionId,
             $operator,
         );
@@ -82,7 +82,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $this->collection->collection_chain_id,
             $operator,
         );
@@ -143,7 +143,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key()),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $this->collection->collection_chain_id,
             $operator,
         );
@@ -202,7 +202,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $this->collection->collection_chain_id,
             $operator->public_key,
         );
@@ -238,7 +238,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'public_key' => $operator,
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $this->collection->collection_chain_id,
             $operator,
         );
@@ -265,7 +265,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'expiration' => $expiration = fake()->numberBetween(1),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $this->collection->collection_chain_id,
             $operator,
             $expiration
@@ -308,7 +308,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator = app(Generator::class)->public_key()),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
+        $encodedData = $this->codec->encoder()->approveCollection(
             $collection->collection_chain_id,
             $operator,
         );

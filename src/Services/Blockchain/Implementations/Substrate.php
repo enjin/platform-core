@@ -76,7 +76,7 @@ class Substrate implements BlockchainServiceInterface
     public function getFee(string $call): string
     {
         return Cache::remember(PlatformCache::FEE->key($call), now()->addWeek(), function () use ($call) {
-            $extrinsic = $this->codec->encode()->addFakeSignature($call);
+            $extrinsic = $this->codec->encoder()->addFakeSignature($call);
             $result = $this->callMethod('payment_queryFeeDetails', [
                 $extrinsic,
             ]);
@@ -303,7 +303,7 @@ class Substrate implements BlockchainServiceInterface
         $accountInfo = Cache::remember(
             PlatformCache::BALANCE->key($wallet->public_key),
             now()->addSeconds(12),
-            fn () => $this->codec->decode()->systemAccount($this->fetchSystemAccount($wallet->public_key))
+            fn () => $this->codec->decoder()->systemAccount($this->fetchSystemAccount($wallet->public_key))
         );
 
         $wallet->nonce = Arr::get($accountInfo, 'nonce');
@@ -347,7 +347,7 @@ class Substrate implements BlockchainServiceInterface
             PlatformCache::SYSTEM_ACCOUNT->key($publicKey),
             now()->addSeconds(12),
             fn () => $this->callMethod('state_getStorage', [
-                $this->codec->encode()->systemAccountStorageKey($publicKey),
+                $this->codec->encoder()->systemAccountStorageKey($publicKey),
             ])
         );
     }

@@ -79,7 +79,7 @@ class BatchMintTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = random_int(1, 1000),
             [
                 [
@@ -131,7 +131,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_cap_null_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -181,7 +181,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -230,7 +230,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_cap_null(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -390,7 +390,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_single_mint_cap(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -441,7 +441,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_supply_cap(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -495,7 +495,7 @@ class BatchMintTest extends TestCaseGraphQL
     {
         Token::where('token_chain_id', '=', $tokenId = Hex::MAX_UINT128)?->delete();
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -551,7 +551,7 @@ class BatchMintTest extends TestCaseGraphQL
             'collection_chain_id' => $collectionId,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId,
             [
                 [
@@ -602,7 +602,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_single_token_without_unit_price(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -654,7 +654,7 @@ class BatchMintTest extends TestCaseGraphQL
         // TODO: Need to calculate the unitPrice with the previous minted token.
         // Will do that later
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -712,7 +712,7 @@ class BatchMintTest extends TestCaseGraphQL
             'collection_id' => $collection,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId,
             [
                 [
@@ -767,7 +767,7 @@ class BatchMintTest extends TestCaseGraphQL
             'token_chain_id' => $tokenId,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -831,7 +831,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ),
             ]);
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             $recipients->toArray()
         );
@@ -887,7 +887,7 @@ class BatchMintTest extends TestCaseGraphQL
             ),
         ]);
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             $recipients->toArray()
         );
@@ -956,7 +956,7 @@ class BatchMintTest extends TestCaseGraphQL
             ])
         );
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             $recipients->toArray(),
         );
@@ -1020,7 +1020,7 @@ class BatchMintTest extends TestCaseGraphQL
             ),
         ];
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [$recipient]
         );
@@ -1065,7 +1065,7 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $tokenId = fake()->unique()->numberBetween();
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [
@@ -1134,7 +1134,7 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $tokenId = fake()->unique()->numberBetween();
 
-        $encodedData = $this->codec->encode()->batchMint(
+        $encodedData = $this->codec->encoder()->batchMint(
             $collectionId = $this->collection->collection_chain_id,
             [
                 [

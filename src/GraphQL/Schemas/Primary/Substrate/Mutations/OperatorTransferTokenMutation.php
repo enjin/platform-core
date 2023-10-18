@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
@@ -119,15 +120,17 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
      */
     public function getMethodName(): string
     {
-        return 'transferToken';
+        return 'Transfer';
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
-            'recipient' => Arr::get($params, 'recipient', Account::daemonPublicKey()),
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0)),
+            'recipient' => [
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipient', Account::daemonPublicKey())),
+            ],
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0))->toEncodable(),
         ];
     }
 

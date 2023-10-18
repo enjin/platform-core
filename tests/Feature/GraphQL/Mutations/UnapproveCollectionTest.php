@@ -70,7 +70,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
+        $encodedData = $this->codec->encoder()->unapproveCollection(
             $collectionId,
             $this->operator->public_key,
         );
@@ -98,7 +98,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
+        $encodedData = $this->codec->encoder()->unapproveCollection(
             $this->collection->collection_chain_id,
             $this->operator->public_key,
         );
@@ -159,7 +159,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
+        $encodedData = $this->codec->encoder()->unapproveCollection(
             $this->collection->collection_chain_id,
             $this->operator->public_key,
         );
@@ -212,7 +212,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
+        $encodedData = $this->codec->encoder()->unapproveCollection(
             $this->collection->collection_chain_id,
             $this->operator->public_key,
         );
@@ -247,7 +247,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
+        $encodedData = $this->codec->encoder()->unapproveCollection(
             $collection->collection_chain_id,
             $this->operator->public_key,
         );

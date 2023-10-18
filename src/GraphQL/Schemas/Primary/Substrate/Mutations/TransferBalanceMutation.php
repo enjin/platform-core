@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
@@ -95,7 +96,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $method = $this->getMethodName() . ($args['keepAlive'] ? 'KeepAlive' : '');
+        $method = $this->getMutationName() . ($args['keepAlive'] ? 'KeepAlive' : '');
         $encodedData = $serializationService->encode($method, static::getEncodableParams(
             recipient: $targetWallet->public_key,
             value: $args['amount']
@@ -119,8 +120,10 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     public static function getEncodableParams(...$params): array
     {
         return [
-            'recipient' => Arr::get($params, 'recipient', Account::daemonPublicKey()),
-            'value' => Arr::get($params, 'value', 0),
+            'dest' => [
+                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipient', Account::daemonPublicKey())),
+            ],
+            'value' => gmp_init(Arr::get($params, 'value', 0)),
         ];
     }
 

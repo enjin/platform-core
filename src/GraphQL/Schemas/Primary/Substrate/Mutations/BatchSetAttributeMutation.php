@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -37,6 +38,8 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+
+    private SerializationServiceInterface $serializationService;
 
     /**
      * Get the mutation's attributes.
@@ -91,6 +94,8 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
+        $this->serializationService = $serializationService;
+
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
                 [
@@ -108,10 +113,35 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
 
     public static function getEncodableParams(...$params): array
     {
+        $continueOnFailure = Arr::get($params, 'continueOnFailure', false);
+        $collectionId = Arr::get($params, 'collectionId', 0);
+        $tokenId = Arr::get($params, 'tokenId', null);
+        $attributes = Arr::get($params, 'attributes', []);
+
+        if ($continueOnFailure) {
+            $encodedData = collect($attributes)->map(
+                fn ($attribute) => $this->serializationService->encode('SetAttribute', [
+                    'collectionId' => gmp_init($collectionId),
+                    'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+                    'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                    'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                ])
+            );
+
+            return [
+                'calls' => $encodedData->toArray(),
+                'continueOnFailure' => true,
+            ];
+        }
+
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'tokenId' => Arr::get($params, 'tokenId', 0),
-            'attributes' => Arr::get($params, 'attributes', []),
+            'collectionId' => gmp_init($collectionId),
+            'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+            'attributes' => collect($attributes)
+                ->map(fn ($attribute) => [
+                    'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                    'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                ])->toArray(),
         ];
     }
 
@@ -121,42 +151,20 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     protected function resolveBatch(string $collectionId, ?string $tokenId, array $attributes, bool $continueOnFailure, SerializationServiceInterface $serializationService): string
     {
         if ($continueOnFailure) {
-            return $this->resolveWithContinueOnFailure($collectionId, $tokenId, $attributes, $serializationService);
+            return $serializationService->encode('Batch', static::getEncodableParams(
+                collectionId: $collectionId,
+                tokenId: $tokenId,
+                attributes: $attributes,
+                continueOnFailure: true
+            ));
         }
 
-        return $this->resolveWithoutContinueOnFailure($collectionId, $tokenId, $attributes, $serializationService);
-    }
-
-    /**
-     * Resolve batch set attribute without continue on failure.
-     */
-    protected function resolveWithoutContinueOnFailure(string $collectionId, ?string $tokenId, array $attributes, SerializationServiceInterface $serializationService): string
-    {
-        return $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        return $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $collectionId,
             tokenId: $tokenId,
-            attributes: $attributes
+            attributes: $attributes,
+            continueOnFailure: false
         ));
-    }
-
-    /**
-     * Resolve batch set attribute with continue on failure.
-     */
-    protected function resolveWithContinueOnFailure(string $collectionId, ?string $tokenId, array $attributes, SerializationServiceInterface $serializationService): string
-    {
-        $encodedData = collect($attributes)->map(
-            fn ($attribute) => $serializationService->encode('setAttribute', [
-                'collectionId' => $collectionId,
-                'tokenId' => $tokenId,
-                'key' => $attribute['key'],
-                'value' => $attribute['value'],
-            ])
-        );
-
-        return $serializationService->encode('batch', [
-            'calls' => $encodedData->toArray(),
-            'continueOnFailure' => true,
-        ]);
     }
 
     /**

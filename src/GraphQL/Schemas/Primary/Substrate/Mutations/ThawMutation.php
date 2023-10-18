@@ -103,7 +103,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             thawParams: $params,
         ));
@@ -126,8 +126,8 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'params' => Arr::get($params, 'thawParams', new FreezeTypeParams(FreezeType::TOKEN)),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'freezeType' => Arr::get($params, 'thawParams', new FreezeTypeParams(FreezeType::TOKEN))->toEncodable(),
         ];
     }
 

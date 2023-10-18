@@ -41,7 +41,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'managed' => false,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $this->defaultAccount,
             $keepAlive = fake()->boolean(),
         );
@@ -69,7 +69,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $address = app(Generator::class)->public_key(),
             $keepAlive = fake()->boolean(),
         );
@@ -100,7 +100,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_balance(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $address = app(Generator::class)->public_key(),
             $keepAlive = fake()->boolean(),
         );
@@ -172,7 +172,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_missing_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $address = app(Generator::class)->public_key(),
         );
 
@@ -203,7 +203,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_null_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $address = app(Generator::class)->public_key(),
         );
 
@@ -237,7 +237,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $address,
             $keepAlive = fake()->boolean(),
         );
@@ -278,7 +278,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'public_key' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $publicKey,
             $keepAlive = fake()->boolean(),
         );
@@ -316,7 +316,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $this->defaultAccount,
             $keepAlive = fake()->boolean(),
         );
@@ -343,7 +343,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_passing_the_default_wallet_on_signing_wallet(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $this->defaultAccount,
             $keepAlive = fake()->boolean(),
         );
@@ -370,7 +370,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_signing_wallet_null(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
+        $encodedData = $this->codec->encoder()->transferAllBalance(
             $publicKey = app(Generator::class)->public_key(),
             $keepAlive = fake()->boolean(),
         );

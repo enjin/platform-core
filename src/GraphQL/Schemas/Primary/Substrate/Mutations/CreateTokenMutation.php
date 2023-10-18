@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -125,15 +126,17 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
      */
     public function getMethodName(): string
     {
-        return 'mint';
+        return 'Mint';
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
-            'recipientId' => Arr::get($params, 'recipientId', Account::daemonPublicKey()),
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0, TokenMintCapType::INFINITE)),
+            'recipient' => [
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientId', Account::daemonPublicKey())),
+            ],
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0, TokenMintCapType::INFINITE))->toEncodable(),
         ];
     }
 

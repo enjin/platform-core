@@ -61,7 +61,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = random_int(2000, 3000),
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -101,7 +101,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_default_values_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -138,7 +138,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -175,7 +175,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_default_values(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -341,7 +341,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_keepalive(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -382,7 +382,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_remove_token_storage(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -421,7 +421,7 @@ class BurnTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
 
 
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -462,7 +462,7 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_all_args(): void
     {
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $this->collection->collection_chain_id,
             $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
@@ -519,7 +519,7 @@ class BurnTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $collection->collection_chain_id,
             $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
@@ -575,7 +575,7 @@ class BurnTest extends TestCaseGraphQL
             'balance' => $balance = Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
+        $encodedData = $this->codec->encoder()->burn(
             $collectionId = $collection->collection_chain_id,
             $params = new BurnParams(
                 tokenId: $token->token_chain_id,

@@ -52,7 +52,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = random_int(1, 1000),
             null,
             $attributes = $this->randomAttributes(),
@@ -85,7 +85,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             $attributes = $this->randomAttributes(),
@@ -116,7 +116,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_token(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             $attributes = $this->randomAttributes(),
@@ -231,7 +231,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_collection(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $tokenId = null,
             $attributes = $this->randomAttributes(),
@@ -268,7 +268,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_collection_with_continue_on_failure(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $tokenId = null,
             $attributes = $this->randomAttributes(),
@@ -301,7 +301,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_token_max_amount(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $tokenId = $this->tokenIdEncoder->encode(),
             $attributes = $this->randomAttributes(20, 20),
@@ -334,7 +334,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_collection_max_amount(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $tokenId = null,
             $attributes = $this->randomAttributes(20, 20),
@@ -366,7 +366,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_with_encoded_token(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
+        $encodedData = $this->codec->encoder()->batchSetAttribute(
             $collectionId = $this->collection->collection_chain_id,
             $this->tokenIdEncoder->encode(),
             $attributes = $this->randomAttributes(),

@@ -101,7 +101,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
             }
         }
 
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $tokenId,
             attributeCount: $args['attributeCount']
@@ -124,10 +124,12 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
 
     public static function getEncodableParams(...$params): array
     {
+        $tokenId = Arr::get($params, 'tokenId', null);
+
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'tokenId' => Arr::get($params, 'tokenId', null),
-            'attributeCount' => Arr::get($params, 'attributeCount', 0),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+            'attributeCount' => gmp_init(Arr::get($params, 'attributeCount', 0)),
         ];
     }
 

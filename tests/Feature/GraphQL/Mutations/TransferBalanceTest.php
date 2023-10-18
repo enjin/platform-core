@@ -42,7 +42,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'managed' => false,
         ])->create();
 
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $this->defaultAccount,
             $amount = fake()->numberBetween(),
         );
@@ -75,7 +75,7 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_without_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $publicKey = app(Generator::class)->public_key(),
             $amount = fake()->numberBetween(),
         );
@@ -149,7 +149,7 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_with_bigint_amount(): void
     {
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->transferBalance(
             $publicKey = app(Generator::class)->public_key(),
             $amount = Hex::MAX_UINT128,
         );
@@ -183,7 +183,7 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_with_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->TransferBalanceKeepAlive(
+        $encodedData = $this->codec->encoder()->TransferBalanceKeepAlive(
             $publicKey = app(Generator::class)->public_key(),
             $amount = fake()->numberBetween(),
         );
@@ -217,7 +217,7 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_missing_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $publicKey = app(Generator::class)->public_key(),
             $amount = fake()->numberBetween(),
         );
@@ -250,7 +250,7 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_null_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $publicKey = app(Generator::class)->public_key(),
             $amount = fake()->numberBetween(),
         );
@@ -286,7 +286,7 @@ class TransferBalanceTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $publicKey,
             $amount = fake()->numberBetween(),
         );
@@ -327,7 +327,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'public_key' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $publicKey,
             $amount = fake()->numberBetween(),
         );
@@ -365,7 +365,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $this->defaultAccount,
             $amount = fake()->numberBetween(),
         );
@@ -392,7 +392,7 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_signing_wallet_null(): void
     {
-        $encodedData = $this->codec->encode()->TransferBalance(
+        $encodedData = $this->codec->encoder()->TransferBalance(
             $publicKey = app(Generator::class)->public_key(),
             $amount = fake()->numberBetween(),
         );

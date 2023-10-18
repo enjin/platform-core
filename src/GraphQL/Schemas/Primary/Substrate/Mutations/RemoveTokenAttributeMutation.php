@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -120,15 +121,15 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
      */
     public function getMethodName(): string
     {
-        return 'removeAttribute';
+        return 'RemoveAttribute';
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'tokenId' => Arr::get($params, 'tokenId', 0),
-            'key' => Arr::get($params, 'key', '0'),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
+            'key' => HexConverter::stringToHexPrefixed(Arr::get($params, 'key', '0')),
         ];
     }
 

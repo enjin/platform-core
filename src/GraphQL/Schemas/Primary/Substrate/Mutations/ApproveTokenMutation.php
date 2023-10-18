@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -118,7 +119,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             operator: $operatorWallet->public_key,
@@ -145,11 +146,11 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'tokenId' => Arr::get($params, 'tokenId', 0),
-            'operator' => Arr::get($params, 'operator', Account::daemonPublicKey()),
-            'amount' => Arr::get($params, 'amount', 0),
-            'currentAmount' => Arr::get($params, 'currentAmount', 0),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
+            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
+            'amount' => gmp_init(Arr::get($params, 'amount', 0)),
+            'currentAmount' => gmp_init(Arr::get($params, 'currentAmount', 0)),
             'expiration' => Arr::get($params, 'expiration', null),
         ];
     }

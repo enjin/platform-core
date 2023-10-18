@@ -49,7 +49,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection(
+        $encodedData = $this->codec->encoder()->destroyCollection(
             $collectionId = random_int(2000, 3000)
         );
 
@@ -82,7 +82,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection($this->collection->collection_chain_id);
+        $encodedData = $this->codec->encoder()->destroyCollection($this->collection->collection_chain_id);
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -109,7 +109,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_destroy_a_collection(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection($this->collection->collection_chain_id);
+        $encodedData = $this->codec->encoder()->destroyCollection($this->collection->collection_chain_id);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
@@ -219,7 +219,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_destroy_a_collection_with_bigint(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection($this->collection->collection_chain_id);
+        $encodedData = $this->codec->encoder()->destroyCollection($this->collection->collection_chain_id);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,

@@ -80,7 +80,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -124,7 +124,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -164,7 +164,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -204,7 +204,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -251,7 +251,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_without_pass_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -306,7 +306,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -406,7 +406,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_null_signing_wallet(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $this->collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -494,7 +494,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $publicKey,
             $collectionId = $this->collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -556,7 +556,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new SimpleTransferParams(
@@ -615,7 +615,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
+        $encodedData = $this->codec->encoder()->transferToken(
             $recipient = $this->recipient->public_key,
             $collectionId = $collection->collection_chain_id,
             $params = new SimpleTransferParams(

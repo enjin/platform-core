@@ -62,7 +62,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $attributeCount,
@@ -99,7 +99,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $attributeCount,
@@ -131,7 +131,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $attributeCount,
@@ -274,7 +274,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => null,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             1,
@@ -308,7 +308,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => 1,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             null,
             1,
@@ -350,7 +350,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => $attributeCount = 1,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             $this->tokenIdEncoder->encode($token->token_chain_id),
             $attributeCount,
@@ -390,7 +390,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => $attributeCount = 1,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
+        $encodedData = $this->codec->encoder()->removeAllAttributes(
             $collectionId,
             $this->tokenIdEncoder->encode($token->token_chain_id),
             $attributeCount,

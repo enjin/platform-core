@@ -85,7 +85,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService,
         WalletService $walletService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId']
         ));
 
@@ -107,7 +107,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
         ];
     }
 

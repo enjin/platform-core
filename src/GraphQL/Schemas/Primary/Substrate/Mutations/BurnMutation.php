@@ -94,7 +94,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     ): mixed {
         $args['params']['tokenId'] = $this->encodeTokenId($args['params']);
         unset($args['params']['encodeTokenId']);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             burnParams: new BurnParams(...$args['params'])
         ));
@@ -117,8 +117,8 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'params' => Arr::get($params, 'burnParams', new BurnParams(0, 0)),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'params' => Arr::get($params, 'burnParams', new BurnParams(0, 0))->toEncodable(),
         ];
     }
 

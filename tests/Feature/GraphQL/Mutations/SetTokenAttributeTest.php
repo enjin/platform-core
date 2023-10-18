@@ -54,7 +54,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -86,7 +86,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -119,7 +119,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -183,7 +183,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode(),
             $key,
@@ -252,7 +252,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode($token->token_chain_id),
             $key,
@@ -291,7 +291,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $collectionId,
             $this->tokenIdEncoder->encode($tokenId),
             $key,

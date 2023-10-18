@@ -74,7 +74,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = $this->codec->encoder()->unapproveToken(
             collectionId: $collectionId = random_int(1, 1000),
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
@@ -110,7 +110,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = $this->codec->encoder()->unapproveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
@@ -143,7 +143,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token(): void
     {
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = $this->codec->encoder()->unapproveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
@@ -278,7 +278,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'wallet_id' => $operator,
         ])->create();
 
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = $this->codec->encoder()->unapproveToken(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = $operator->public_key,
@@ -338,7 +338,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'wallet_id' => $operator,
         ])->create();
 
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = $this->codec->encoder()->unapproveToken(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = $operator->public_key,

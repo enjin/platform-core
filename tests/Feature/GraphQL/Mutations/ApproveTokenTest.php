@@ -60,7 +60,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $tokenId = random_int(1, 1000),
             operator: $operator = app(Generator::class)->public_key(),
@@ -104,7 +104,7 @@ class ApproveTokenTest extends TestCaseGraphQL
      */
     public function test_it_can_approve_a_token_with_any_operator_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
@@ -141,7 +141,7 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
@@ -178,7 +178,7 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_token_with_any_operator(): void
     {
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
@@ -304,7 +304,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $operator = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator,
@@ -345,7 +345,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         Wallet::factory(['public_key' => $operator = app(Generator::class)->public_key()])->create();
 
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator,
@@ -386,7 +386,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         Block::truncate();
         $block = Block::factory()->create();
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
@@ -439,7 +439,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'token_id' => $token,
         ])->create();
 
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
@@ -488,7 +488,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'token_id' => $token,
         ])->create();
 
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
@@ -535,7 +535,7 @@ class ApproveTokenTest extends TestCaseGraphQL
         $collection = Collection::find($tokenAccount->collection_id);
         $token = Token::find($tokenAccount->token_id);
 
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
@@ -582,7 +582,7 @@ class ApproveTokenTest extends TestCaseGraphQL
         $collection = Collection::find($tokenAccount->collection_id);
         $token = Token::find($tokenAccount->token_id);
 
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = $this->codec->encoder()->approveToken(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),

@@ -68,7 +68,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = random_int(1, 1000),
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
@@ -104,7 +104,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
@@ -137,7 +137,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
@@ -258,7 +258,7 @@ class FreezeTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
@@ -293,7 +293,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION_ACCOUNT,
@@ -330,7 +330,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
@@ -365,7 +365,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
@@ -402,7 +402,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token_with_freeze_state(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
@@ -454,7 +454,7 @@ class FreezeTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
@@ -491,7 +491,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
+        $encodedData = $this->codec->encoder()->freeze(
             $collectionId = $this->collection->collection_chain_id,
             new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN_ACCOUNT,

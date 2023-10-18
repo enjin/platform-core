@@ -39,7 +39,7 @@ class TokenIdManager
         $data = Arr::first($encodableTokenId);
         $type = array_key_first($encodableTokenId);
 
-        Validator::validate($encodableTokenId, $this->encoder($type)::getRules());
+        Validator::validate($encodableTokenId, $this->encoder($type)->getRules());
 
         return $this->encoder($type)->{$method}((object) $data);
     }

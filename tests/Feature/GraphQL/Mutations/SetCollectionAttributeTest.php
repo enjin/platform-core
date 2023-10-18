@@ -81,7 +81,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $this->collection->collection_chain_id,
             null,
             $key,
@@ -142,7 +142,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
+        $encodedData = $this->codec->encoder()->setAttribute(
             $this->collection->collection_chain_id,
             null,
             $key,

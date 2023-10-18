@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -127,15 +128,17 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
      */
     public function getMethodName(): string
     {
-        return 'mint';
+        return 'Mint';
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
-            'recipientId' => Arr::get($params, 'recipientId', Account::daemonPublicKey()),
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'params' => Arr::get($params, 'mintParams', new MintParams(0, 0)),
+            'recipient' => [
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientId', Account::daemonPublicKey())),
+            ],
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'params' => Arr::get($params, 'mintParams', new MintParams(0, 0))->toEncodable(),
         ];
     }
 

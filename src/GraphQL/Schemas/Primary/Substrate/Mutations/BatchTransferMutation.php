@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
@@ -130,8 +131,12 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     public static function getEncodableParams(...$params): array
     {
         return [
-            'collectionId' => Arr::get($params, 'collectionId', 0),
-            'recipients' => Arr::get($params, 'recipients', []),
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'recipients' => collect(Arr::get($params, 'recipients', []))
+                ->map(fn ($recipient) => [
+                    'accountId' => HexConverter::unPrefix($recipient['accountId']),
+                    'params' => $recipient['params']->toEncodable(),
+                ])->toArray(),
         ];
     }
 
@@ -152,7 +157,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
      */
     protected function resolveWithoutContinueOnFailure(string $collectionId, Collection $recipients, SerializationServiceInterface $serializationService): string
     {
-        return $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        return $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $collectionId,
             recipients: $recipients->toArray()
         ));
@@ -164,10 +169,12 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     protected function resolveWithContinueOnFailure(string $collectionId, Collection $recipients, SerializationServiceInterface $serializationService): string
     {
         $encodedData = $recipients->map(
-            fn ($recipient) => $serializationService->encode('transferToken', [
-                'recipient' => $recipient['accountId'],
-                'collectionId' => $collectionId,
-                'params' => $recipient['params'],
+            fn ($recipient) => $serializationService->encode('TransferToken', [
+                'recipient' => [
+                    'Id' => HexConverter::unPrefix($recipient['accountId']),
+                ],
+                'collectionId' => gmp_init($collectionId),
+                'params' => $recipient['params']->toEncodable(),
             ])
         );
 

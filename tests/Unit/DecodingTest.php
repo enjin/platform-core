@@ -18,7 +18,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_system_account()
     {
-        $data = $this->codec->decode()->systemAccount('0x1f00000000000000010000000000000000424ed9cbe55f0b91010000000000000000e65e4b9feedf56000000000000000000000000000000000000000000000000000000000000000000000000000000');
+        $data = $this->codec->decoder()->systemAccount('0x1f00000000000000010000000000000000424ed9cbe55f0b91010000000000000000e65e4b9feedf56000000000000000000000000000000000000000000000000000000000000000000000000000000');
 
         $this->assertEquals(
             [
@@ -39,7 +39,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_create_collection()
     {
-        $data = $this->codec->decode()->createCollection('0x280001ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f');
+        $data = $this->codec->decoder()->createCollection('0x280001ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f');
 
         $this->assertEquals(
             [
@@ -59,7 +59,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_create_collection_other()
     {
-        $data = $this->codec->decode()->createCollection('0x280001ff0000000000000001adde00000000000000000000000000000100');
+        $data = $this->codec->decoder()->createCollection('0x280001ff0000000000000001adde00000000000000000000000000000100');
 
         $this->assertEquals(
             [
@@ -73,7 +73,7 @@ final class DecodingTest extends TestCase
             $data
         );
 
-        $data = $this->codec->decode()->createCollection('0x280001ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f');
+        $data = $this->codec->decoder()->createCollection('0x280001ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f');
 
         $this->assertEquals(
             [
@@ -93,7 +93,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_destroy_collection()
     {
-        $data = $this->codec->decode()->destroyCollection('0x2801b67a0300');
+        $data = $this->codec->decoder()->destroyCollection('0x2801b67a0300');
 
         $this->assertEquals(
             [
@@ -105,7 +105,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_create_token()
     {
-        $data = $this->codec->decode()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000010000c16ff286230000000000000000000101b67a03000000000000');
+        $data = $this->codec->decoder()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000010000c16ff286230000000000000000000101b67a03000000000000');
 
         $this->assertEquals(
             [
@@ -133,7 +133,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_create_token_with_null_unit_price()
     {
-        $data = $this->codec->decode()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000000101b67a03000000000000');
+        $data = $this->codec->decoder()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000000101b67a03000000000000');
 
         $this->assertEquals(
             [
@@ -161,7 +161,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_create_token_with_freeze_state()
     {
-        $data = $this->codec->decode()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000000101b67a0300000001010000');
+        $data = $this->codec->decoder()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000000101b67a0300000001010000');
 
         $this->assertEquals(
             [
@@ -189,7 +189,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_create_token_with_attributes()
     {
-        $data = $this->codec->decode()->mint('0x2804000824170e49c79846e7c0931e64df98605d93fa5f2cd42fec85ce045321071614411f00c90f0400000000000004106e616d652844656d6f20546f6b656e00');
+        $data = $this->codec->decoder()->mint('0x2804000824170e49c79846e7c0931e64df98605d93fa5f2cd42fec85ce045321071614411f00c90f0400000000000004106e616d652844656d6f20546f6b656e00');
 
         $this->assertEquals(
             [
@@ -222,7 +222,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_mint()
     {
-        $data = $this->codec->decode()->mint('0x280300d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0401fd03b67a0300010000c16ff28623000000000000000000');
+        $data = $this->codec->decoder()->mint('0x280300d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0401fd03b67a0300010000c16ff28623000000000000000000');
 
         $this->assertEquals(
             [
@@ -242,7 +242,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_mint_other()
     {
-        $data = $this->codec->decode()->mint('0x280400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d411f01fd03b67a0300010000c16ff28623000000000000000000');
+        $data = $this->codec->decoder()->mint('0x280400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d411f01fd03b67a0300010000c16ff28623000000000000000000');
 
         $this->assertEquals(
             [
@@ -262,7 +262,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_mint_without_unit_price()
     {
-        $data = $this->codec->decode()->mint('0x280400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d411f01fd03b67a030000');
+        $data = $this->codec->decoder()->mint('0x280400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d411f01fd03b67a030000');
 
         $this->assertEquals(
             [
@@ -282,7 +282,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_burn()
     {
-        $data = $this->codec->decode()->burn('0x2804b67a0300fd03040100');
+        $data = $this->codec->decoder()->burn('0x2804b67a0300fd03040100');
 
         $this->assertEquals(
             [
@@ -298,7 +298,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_freeze_collection()
     {
-        $data = $this->codec->decode()->freeze('0x2806b67a030000');
+        $data = $this->codec->decoder()->freeze('0x2806b67a030000');
 
         $this->assertEquals(
             [
@@ -313,7 +313,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_freeze_token()
     {
-        $data = $this->codec->decode()->freeze('0x2807b67a030001ff00000000000000000000000000000000');
+        $data = $this->codec->decoder()->freeze('0x2807b67a030001ff00000000000000000000000000000000');
 
         $this->assertEquals(
             [
@@ -331,7 +331,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_freeze_token_with_freeze_state()
     {
-        $data = $this->codec->decode()->freeze('0x2807b67a030001ff0000000000000000000000000000000101');
+        $data = $this->codec->decoder()->freeze('0x2807b67a030001ff0000000000000000000000000000000101');
 
         $this->assertEquals(
             [
@@ -349,7 +349,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_freeze_collection_account()
     {
-        $data = $this->codec->decode()->freeze('0x2806b67a030002d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+        $data = $this->codec->decoder()->freeze('0x2806b67a030002d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
 
         $this->assertEquals(
             [
@@ -364,7 +364,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_freeze_token_account()
     {
-        $data = $this->codec->decode()->freeze('0x2806b67a030003fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+        $data = $this->codec->decoder()->freeze('0x2806b67a030003fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
 
         $this->assertEquals(
             [
@@ -382,7 +382,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_thaw_collection()
     {
-        $data = $this->codec->decode()->thaw('0x2807b67a030000');
+        $data = $this->codec->decoder()->thaw('0x2807b67a030000');
 
         $this->assertEquals(
             [
@@ -397,7 +397,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_thaw_token()
     {
-        $data = $this->codec->decode()->thaw('0x2808b67a030001ff00000000000000000000000000000000');
+        $data = $this->codec->decoder()->thaw('0x2808b67a030001ff00000000000000000000000000000000');
 
         $this->assertEquals(
             [
@@ -415,7 +415,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_thaw_token_with_freeze_state()
     {
-        $data = $this->codec->decode()->thaw('0x2808b67a030001ff0000000000000000000000000000000102');
+        $data = $this->codec->decoder()->thaw('0x2808b67a030001ff0000000000000000000000000000000102');
 
         $this->assertEquals(
             [
@@ -433,7 +433,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_thaw_collection_account()
     {
-        $data = $this->codec->decode()->thaw('0x2807b67a030002d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+        $data = $this->codec->decoder()->thaw('0x2807b67a030002d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
 
         $this->assertEquals(
             [
@@ -448,7 +448,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_thaw_token_account()
     {
-        $data = $this->codec->decode()->thaw('0x2807b67a030003fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+        $data = $this->codec->decoder()->thaw('0x2807b67a030003fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
 
         $this->assertEquals(
             [
@@ -466,7 +466,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_set_attribute_from_collection()
     {
-        $data = $this->codec->decode()->setAttribute('0x2808b67a030000106e616d6540456e6a696e20436f6c6c656374696f6e');
+        $data = $this->codec->decoder()->setAttribute('0x2808b67a030000106e616d6540456e6a696e20436f6c6c656374696f6e');
 
         $this->assertEquals(
             [
@@ -481,7 +481,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_set_attribute_from_token()
     {
-        $data = $this->codec->decode()->setAttribute('0x2808b67a030001ff000000000000000000000000000000106e616d6530476f6c64656e2053776f7264');
+        $data = $this->codec->decoder()->setAttribute('0x2808b67a030001ff000000000000000000000000000000106e616d6530476f6c64656e2053776f7264');
 
         $this->assertEquals(
             [
@@ -496,7 +496,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_remove_attribute_from_collection()
     {
-        $data = $this->codec->decode()->removeAttribute('0x2809b67a030000106e616d65');
+        $data = $this->codec->decoder()->removeAttribute('0x2809b67a030000106e616d65');
 
         $this->assertEquals(
             [
@@ -510,7 +510,7 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_remove_attribute_from_token()
     {
-        $data = $this->codec->decode()->removeAttribute('0x2809b67a030001ff000000000000000000000000000000106e616d65');
+        $data = $this->codec->decoder()->removeAttribute('0x2809b67a030001ff000000000000000000000000000000106e616d65');
 
         $this->assertEquals(
             [
