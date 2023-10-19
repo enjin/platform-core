@@ -84,9 +84,6 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                     ],
                 ],
                 'resolve' => function ($transaction, $args) {
-                    ray($transaction);
-                    ray($args);
-
                     return Substrate::getSigningPayload($transaction['encoded_data'], $args);
                 },
             ],
