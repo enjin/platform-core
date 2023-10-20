@@ -6,6 +6,8 @@ mutation SetTokenAttribute(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   SetTokenAttribute(
     collectionId: $collectionId
@@ -22,6 +24,7 @@ mutation SetTokenAttribute(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

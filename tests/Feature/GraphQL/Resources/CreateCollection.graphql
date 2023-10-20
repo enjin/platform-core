@@ -7,6 +7,8 @@ mutation CreateCollection(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   CreateCollection(
     mintPolicy: $mintPolicy
@@ -24,6 +26,7 @@ mutation CreateCollection(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

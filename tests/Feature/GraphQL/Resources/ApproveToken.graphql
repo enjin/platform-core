@@ -8,6 +8,8 @@ mutation ApproveToken(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   ApproveToken(
     collectionId: $collectionId
@@ -26,6 +28,7 @@ mutation ApproveToken(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

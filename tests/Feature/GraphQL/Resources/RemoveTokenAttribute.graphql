@@ -5,6 +5,8 @@ mutation RemoveTokenAttribute(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   RemoveTokenAttribute(
     collectionId: $collectionId
@@ -20,6 +22,7 @@ mutation RemoveTokenAttribute(
     method
     state
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     fee
     deposit
     wallet {

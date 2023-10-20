@@ -13,6 +13,7 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -116,6 +117,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $this->collection->collection_chain_id,
             'key' => $key = $this->attribute->key,
+            'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
         $encodedData = $this->codec->encode()->removeAttribute(
@@ -128,6 +130,10 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
             'wallet' => [
                 'account' => [
                     'publicKey' => $this->defaultAccount,

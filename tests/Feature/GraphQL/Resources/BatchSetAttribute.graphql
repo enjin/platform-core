@@ -5,6 +5,8 @@ mutation BatchSetAttribute(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
 ) {
   BatchSetAttribute(
     collectionId: $collectionId
@@ -19,6 +21,7 @@ mutation BatchSetAttribute(
     transactionHash
     method
     encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
     state
     fee
     deposit
