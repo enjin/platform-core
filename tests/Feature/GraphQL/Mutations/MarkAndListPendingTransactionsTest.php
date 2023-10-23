@@ -218,7 +218,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
     protected function generateTransactions(?int $numberOfTransactions = 5): Collection
     {
-        return collect(range(0, $numberOfTransactions))
+        return collect(range(0, $numberOfTransactions - 1))
             ->map(fn () => Transaction::factory([
                 'transaction_chain_id' => null,
                 'transaction_chain_hash' => null,

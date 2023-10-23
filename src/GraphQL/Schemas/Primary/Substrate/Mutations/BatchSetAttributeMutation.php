@@ -39,8 +39,6 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     use HasTransactionDeposit;
     use HasSigningAccountField;
 
-    private SerializationServiceInterface $serializationService;
-
     /**
      * Get the mutation's attributes.
      */
@@ -94,13 +92,20 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
-        $this->serializationService = $serializationService;
+        // Hard-coded to false until we add support for this feature back into the mutations.
+        $continueOnFailure = false;
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $this->encodeTokenId($args),
+            attributes: $args['attributes'],
+            continueOnFailure: $continueOnFailure
+        ));
 
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
                 [
                     'method' => $this->getMutationName(),
-                    'encoded_data' => $this->resolveBatch($args['collectionId'], $this->encodeTokenId($args), $args['attributes'], false, $serializationService),
+                    'encoded_data' => $encodedData,
                     'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
@@ -113,6 +118,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
 
     public static function getEncodableParams(...$params): array
     {
+        $serializationService = resolve(SerializationServiceInterface::class);
         $continueOnFailure = Arr::get($params, 'continueOnFailure', false);
         $collectionId = Arr::get($params, 'collectionId', 0);
         $tokenId = Arr::get($params, 'tokenId', null);
@@ -120,7 +126,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
 
         if ($continueOnFailure) {
             $encodedData = collect($attributes)->map(
-                fn ($attribute) => $this->serializationService->encode('SetAttribute', [
+                fn ($attribute) => $serializationService->encode('SetAttribute', [
                     'collectionId' => gmp_init($collectionId),
                     'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
                     'key' => HexConverter::stringToHexPrefixed($attribute['key']),
@@ -143,28 +149,6 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
                     'value' => HexConverter::stringToHexPrefixed($attribute['value']),
                 ])->toArray(),
         ];
-    }
-
-    /**
-     * Resolve batch set attribute.
-     */
-    protected function resolveBatch(string $collectionId, ?string $tokenId, array $attributes, bool $continueOnFailure, SerializationServiceInterface $serializationService): string
-    {
-        if ($continueOnFailure) {
-            return $serializationService->encode('Batch', static::getEncodableParams(
-                collectionId: $collectionId,
-                tokenId: $tokenId,
-                attributes: $attributes,
-                continueOnFailure: true
-            ));
-        }
-
-        return $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            collectionId: $collectionId,
-            tokenId: $tokenId,
-            attributes: $attributes,
-            continueOnFailure: false
-        ));
     }
 
     /**

@@ -26,7 +26,6 @@ use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterfa
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -124,11 +123,19 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
             }
         );
 
+        // Hard-coded to false until we add support for this feature back into the mutations.
+        $continueOnFailure = false;
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            recipients: $recipients->toArray(),
+            continueOnFailure: $continueOnFailure
+        ));
+
         return Transaction::lazyLoadSelectFields(
             $transactionService->store(
                 [
                     'method' => $this->getMutationName(),
-                    'encoded_data' => $this->resolveBatch($args['collectionId'], $recipients, false, $serializationService),
+                    'encoded_data' => $encodedData,
                     'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
                     'deposit' => $this->getDeposit($args),
                     'simulate' => $args['simulate'],
@@ -141,57 +148,35 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
 
     public static function getEncodableParams(...$params): array
     {
+        $serializationService = resolve(SerializationServiceInterface::class);
+        $continueOnFailure = Arr::get($params, 'continueOnFailure', false);
+        $collectionId = Arr::get($params, 'collectionId', 0);
+        $recipients = Arr::get($params, 'recipients', []);
+
+        if ($continueOnFailure) {
+            $encodedData = $recipients->map(
+                fn ($recipient) => $serializationService->encode('Mint', [
+                    'collectionId' => gmp_init($collectionId),
+                    'recipient' => [
+                        'Id' => HexConverter::unPrefix($recipient['accountId']),
+                    ],
+                    'params' => $recipient['params']->toEncodable(),
+                ])
+            );
+
+            return [
+                'calls' => $encodedData->toArray(),
+                'continueOnFailure' => true,
+            ];
+        }
+
         return [
-            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'recipients' => collect(Arr::get($params, 'recipients', []))->map(fn ($recipient) => [
+            'collectionId' => gmp_init($collectionId),
+            'recipients' => collect($recipients)->map(fn ($recipient) => [
                 'accountId' => HexConverter::unPrefix($recipient['accountId']),
                 'params' => $recipient['params']->toEncodable(),
             ])->toArray(),
         ];
-    }
-
-    /**
-     * Resolve batch mint.
-     */
-    protected function resolveBatch(string $collectionId, Collection $recipients, bool $continueOnFailure, SerializationServiceInterface $serializationService): string
-    {
-        if ($continueOnFailure) {
-            return $this->resolveWithContinueOnFailure($collectionId, $recipients, $serializationService);
-        }
-
-        return $this->resolveWithoutContinueOnFailure($collectionId, $recipients, $serializationService);
-    }
-
-    /**
-     * Resolve batch mint without continue on failure.
-     */
-    protected function resolveWithoutContinueOnFailure(string $collectionId, Collection $recipients, SerializationServiceInterface $serializationService): string
-    {
-        return $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            collectionId: $collectionId,
-            recipients: $recipients->toArray()
-        ));
-    }
-
-    /**
-     * Resolve batch mint with continue on failure.
-     */
-    protected function resolveWithContinueOnFailure(string $collectionId, Collection $recipients, SerializationServiceInterface $serializationService): string
-    {
-        $encodedData = $recipients->map(
-            fn ($recipient) => $serializationService->encode('Mint', [
-                'collectionId' => gmp_init($collectionId),
-                'recipient' => [
-                    'Id' => HexConverter::unPrefix($recipient['accountId']),
-                ],
-                'params' => $recipient['params']->toEncodable(),
-            ])
-        );
-
-        return $serializationService->encode('batch', [
-            'calls' => $encodedData->toArray(),
-            'continueOnFailure' => true,
-        ]);
     }
 
     /**
