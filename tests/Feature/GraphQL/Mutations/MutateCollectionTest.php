@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MutateCollectionMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Wallet;
@@ -46,10 +48,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = random_int(1, 1000),
             owner: $owner = $this->defaultAccount,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -114,10 +116,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner = $this->defaultAccount,
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -147,10 +149,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_owner(): void
     {
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner = $this->defaultAccount,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -259,10 +261,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_explicit_royalty_currencies(): void
     {
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             explicitRoyaltyCurrencies: $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9))
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -294,11 +296,11 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_owner_and_currencies(): void
     {
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner = $this->defaultAccount,
             explicitRoyaltyCurrencies: $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9))
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -335,10 +337,10 @@ class MutateCollectionTest extends TestCaseGraphQL
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             owner: $owner = $this->defaultAccount,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -372,10 +374,10 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $owner = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -413,10 +415,10 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $owner = Wallet::factory()->create();
 
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner->public_key
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -448,10 +450,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_an_empty_list_of_currencies(): void
     {
-        $encodedData = $this->codec->encoder()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             explicitRoyaltyCurrencies: [],
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

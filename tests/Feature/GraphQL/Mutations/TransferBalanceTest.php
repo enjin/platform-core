@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
@@ -42,10 +44,10 @@ class TransferBalanceTest extends TestCaseGraphQL
             'managed' => false,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $this->defaultAccount,
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $this->defaultAccount,
+            value: $amount = fake()->numberBetween(),
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -75,10 +77,10 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_without_keep_alive(): void
     {
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -149,10 +151,10 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_with_bigint_amount(): void
     {
-        $encodedData = $this->codec->encoder()->transferBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $amount = Hex::MAX_UINT128,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            value: $amount = Hex::MAX_UINT128
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -183,10 +185,10 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_with_keep_alive(): void
     {
-        $encodedData = $this->codec->encoder()->TransferBalanceKeepAlive(
-            $publicKey = app(Generator::class)->public_key(),
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode('TransferBalanceKeepAlive', TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -217,10 +219,10 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_missing_keep_alive(): void
     {
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -250,10 +252,10 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_null_keep_alive(): void
     {
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -286,10 +288,10 @@ class TransferBalanceTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $publicKey,
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey,
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -327,10 +329,10 @@ class TransferBalanceTest extends TestCaseGraphQL
             'public_key' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $publicKey,
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey,
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -365,10 +367,10 @@ class TransferBalanceTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $this->defaultAccount,
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $this->defaultAccount,
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($this->defaultAccount),
@@ -392,10 +394,10 @@ class TransferBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_signing_wallet_null(): void
     {
-        $encodedData = $this->codec->encoder()->TransferBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $amount = fake()->numberBetween(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            value: $amount = fake()->numberBetween()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),

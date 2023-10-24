@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\UnapproveTokenMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Token;
@@ -74,11 +76,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encoder()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = random_int(1, 1000),
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -110,11 +112,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -143,11 +145,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token(): void
     {
-        $encodedData = $this->codec->encoder()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -278,11 +280,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'wallet_id' => $operator,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = $operator->public_key,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -338,11 +340,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'wallet_id' => $operator,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = $operator->public_key,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

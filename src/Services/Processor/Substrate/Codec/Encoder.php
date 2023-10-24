@@ -8,15 +8,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageKey;
-use Enjin\Platform\Models\Substrate\BurnParams;
-use Enjin\Platform\Models\Substrate\CreateTokenParams;
-use Enjin\Platform\Models\Substrate\FreezeTypeParams;
-use Enjin\Platform\Models\Substrate\MintParams;
-use Enjin\Platform\Models\Substrate\MintPolicyParams;
-use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
-use Enjin\Platform\Models\Substrate\SimpleTransferParams;
-use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\Metadata;
 use Illuminate\Support\Arr;
@@ -125,42 +117,16 @@ class Encoder
 
     public static function getEncoded(string $type, array $params): string
     {
+        if (isset($params['continueOnFailure']) && true === $params['continueOnFailure']) {
+            return static::batch($params['calls'], true);
+        }
+
         $encoded = static::$scaleInstance->createTypeByTypeString($type)->encode([
             'callIndex' => static::getCallIndex(static::$callIndexKeys[$type]),
             ...$params,
         ]);
 
         return HexConverter::prefix($encoded);
-    }
-
-    public function transferBalance(string $recipient, string $value): string
-    {
-        return static::getEncoded('TransferBalance', [
-            'dest' => [
-                'Id' => HexConverter::unPrefix($recipient),
-            ],
-            'value' => gmp_init($value),
-        ]);
-    }
-
-    public function transferBalanceKeepAlive(string $recipient, string $value): string
-    {
-        return static::getEncoded('TransferBalanceKeepAlive', [
-            'dest' => [
-                'Id' => HexConverter::unPrefix($recipient),
-            ],
-            'value' => gmp_init($value),
-        ]);
-    }
-
-    public function transferAllBalance(string $recipient, ?bool $keepAlive = false): string
-    {
-        return static::getEncoded('TransferAllBalance', [
-            'dest' => [
-                'Id' => HexConverter::unPrefix($recipient),
-            ],
-            'keepAlive' => $keepAlive,
-        ]);
     }
 
     public function systemAccountStorageKey(string $publicKey): string
@@ -172,45 +138,7 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
-    public function approveCollection(string $collectionId, string $operator, ?int $expiration = null): string
-    {
-        return static::getEncoded('ApproveCollection', [
-            'collectionId' => gmp_init($collectionId),
-            'operator' => HexConverter::unPrefix($operator),
-            'expiration' => $expiration,
-        ]);
-    }
-
-    public function unapproveCollection(string $collectionId, string $operator): string
-    {
-        return static::getEncoded('UnapproveCollection', [
-            'collectionId' => gmp_init($collectionId),
-            'operator' => HexConverter::unPrefix($operator),
-        ]);
-    }
-
-    public function approveToken(string $collectionId, string $tokenId, string $operator, string $amount, string $currentAmount, ?int $expiration = null): string
-    {
-        return static::getEncoded('ApproveToken', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => gmp_init($tokenId),
-            'operator' => HexConverter::unPrefix($operator),
-            'amount' => gmp_init($amount),
-            'expiration' => $expiration,
-            'currentAmount' => gmp_init($currentAmount),
-        ]);
-    }
-
-    public function unapproveToken(string $collectionId, string $tokenId, string $operator): string
-    {
-        return static::getEncoded('UnapproveToken', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => gmp_init($tokenId),
-            'operator' => HexConverter::unPrefix($operator),
-        ]);
-    }
-
-    public function batch(array $calls, bool $continueOnFailure): string
+    public static function batch(array $calls, bool $continueOnFailure): string
     {
         $callIndex = static::$callIndexes['MatrixUtility.batch'];
         $numberOfCalls = static::$scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
@@ -219,110 +147,6 @@ class Encoder
         $encoded = $callIndex . $numberOfCalls . $calls . $continueOnFailure;
 
         return HexConverter::prefix($encoded);
-    }
-
-    public function batchSetAttribute(string $collectionId, ?string $tokenId, array $attributes)
-    {
-        return static::getEncoded('BatchSetAttribute', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
-            'attributes' => array_map(
-                fn ($attribute) => [
-                    'key' => HexConverter::stringToHexPrefixed($attribute['key']),
-                    'value' => HexConverter::stringToHexPrefixed($attribute['value']),
-                ],
-                $attributes
-            ),
-        ]);
-    }
-
-    public function batchTransfer(string $collectionId, array $recipients)
-    {
-        return static::getEncoded('BatchTransfer', [
-            'collectionId' => gmp_init($collectionId),
-            'recipients' => array_map(
-                fn ($item) => [
-                    'accountId' => HexConverter::unPrefix($item['accountId']),
-                    'params' => $item['params']->toEncodable(),
-                ],
-                $recipients
-            ),
-        ]);
-    }
-
-    public function transferToken(string $recipient, string $collectionId, SimpleTransferParams|OperatorTransferParams $params): string
-    {
-        return static::getEncoded('Transfer', [
-            'recipient' => [
-                'Id' => HexConverter::unPrefix($recipient),
-            ],
-            'collectionId' => gmp_init($collectionId),
-            'params' => $params->toEncodable(),
-        ]);
-    }
-
-    public function createCollection(MintPolicyParams $mintPolicy, ?RoyaltyPolicyParams $marketPolicy = null, ?array $explicitRoyaltyCurrencies = [], ?array $attributes = []): string
-    {
-        return static::getEncoded('CreateCollection', [
-            'descriptor' => [
-                'policy' => [
-                    'mint' => $mintPolicy->toEncodable(),
-                    'market' => $marketPolicy?->toEncodable(),
-                ],
-                'explicitRoyaltyCurrencies' => array_map(
-                    fn ($multiToken) => [
-                        'collectionId' => gmp_init($multiToken['collectionId']),
-                        'tokenId' => gmp_init($multiToken['tokenId']),
-                    ],
-                    $explicitRoyaltyCurrencies
-                ),
-                'attributes' => array_map(
-                    fn ($attribute) => [
-                        'key' => HexConverter::stringToHexPrefixed($attribute['key']),
-                        'value' => HexConverter::stringToHexPrefixed($attribute['value']),
-                    ],
-                    $attributes
-                ),
-            ],
-        ]);
-    }
-
-    public function destroyCollection(string $collectionId): string
-    {
-        return static::getEncoded('DestroyCollection', [
-            'collectionId' => gmp_init($collectionId),
-        ]);
-    }
-
-    public function mutateCollection(string $collectionId, ?string $owner = null, null|array|RoyaltyPolicyParams $royalty = null, ?array $explicitRoyaltyCurrencies = null): string
-    {
-        return static::getEncoded('MutateCollection', [
-            'collectionId' => gmp_init($collectionId),
-            'mutation' => [
-                'owner' => $owner !== null ? HexConverter::unPrefix($owner) : null,
-                'royalty' => is_array($royalty) ? ['NoMutation' => null] : ['SomeMutation' => $royalty?->toEncodable()],
-                'explicitRoyaltyCurrencies' => $explicitRoyaltyCurrencies !== null ? array_map(
-                    fn ($multiToken) => [
-                        'collectionId' => gmp_init($multiToken['collectionId']),
-                        'tokenId' => gmp_init($multiToken['tokenId']),
-                    ],
-                    $explicitRoyaltyCurrencies
-                ) : null,
-            ],
-        ]);
-    }
-
-    public function mutateToken(string $collectionId, string $tokenId, null|array|TokenMarketBehaviorParams $behavior = null, ?bool $listingForbidden = null): string
-    {
-        return static::getEncoded('MutateToken', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => gmp_init($tokenId),
-            'mutation' => [
-                'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
-                'listingForbidden' => $listingForbidden,
-                'metadata' => null,
-            ],
-        ]);
     }
 
     public static function collectionStorageKey(string $collectionId): string
@@ -369,89 +193,12 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
-    public function mint(string $recipientId, string $collectionId, CreateTokenParams|MintParams $params): string
-    {
-        return static::getEncoded('Mint', [
-            'recipient' => [
-                'Id' => HexConverter::unPrefix($recipientId),
-            ],
-            'collectionId' => gmp_init($collectionId),
-            'params' => $params->toEncodable(),
-        ]);
-    }
-
-    public function batchMint(string $collectionId, array $recipients)
-    {
-        return static::getEncoded('BatchMint', [
-            'collectionId' => gmp_init($collectionId),
-            'recipients' => array_map(
-                fn ($item) => [
-                    'accountId' => HexConverter::unPrefix($item['accountId']),
-                    'params' => $item['params']->toEncodable(),
-                ],
-                $recipients
-            ),
-        ]);
-    }
-
-    public function burn(string $collectionId, BurnParams $params): string
-    {
-        return static::getEncoded('Burn', [
-            'collectionId' => gmp_init($collectionId),
-            'params' => $params->toEncodable(),
-        ]);
-    }
-
-    public function freeze(string $collectionId, FreezeTypeParams $params): string
-    {
-        return static::getEncoded('Freeze', [
-            'collectionId' => gmp_init($collectionId),
-            'freezeType' => $params->toEncodable(),
-        ]);
-    }
-
-    public function thaw(string $collectionId, FreezeTypeParams $params): string
-    {
-        return static::getEncoded('Thaw', [
-            'collectionId' => gmp_init($collectionId),
-            'freezeType' => $params->toEncodable(),
-        ]);
-    }
-
     public function setRoyalty(string $collectionId, ?string $tokenId, RoyaltyPolicyParams $royalty): string
     {
         return static::getEncoded('SetRoyalty', [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId,
             'descriptor' => $royalty->toEncodable(),
-        ]);
-    }
-
-    public function setAttribute(string $collectionId, ?string $tokenId, string $key, string $value): string
-    {
-        return static::getEncoded('SetAttribute', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
-            'key' => HexConverter::stringToHexPrefixed($key),
-            'value' => HexConverter::stringToHexPrefixed($value),
-        ]);
-    }
-
-    public function removeAttribute(string $collectionId, ?string $tokenId, string $key): string
-    {
-        return static::getEncoded('RemoveAttribute', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
-            'key' => HexConverter::stringToHex($key),
-        ]);
-    }
-
-    public function removeAllAttributes(string $collectionId, ?string $tokenId, int $attributeCount): string
-    {
-        return static::getEncoded('RemoveAllAttributes', [
-            'collectionId' => gmp_init($collectionId),
-            'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
-            'attributeCount' => $attributeCount,
         ]);
     }
 

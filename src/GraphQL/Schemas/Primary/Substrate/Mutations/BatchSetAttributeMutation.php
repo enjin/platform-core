@@ -72,6 +72,10 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             'attributes' => [
                 'type' => GraphQL::type('[AttributeInput!]!'),
             ],
+            'continueOnFailure' => [
+                'type' => GraphQL::type('Boolean'),
+                'defaultValue' => false,
+            ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -92,8 +96,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
-        // Hard-coded to false until we add support for this feature back into the mutations.
-        $continueOnFailure = false;
+        $continueOnFailure = $args['continueOnFailure'];
         $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),

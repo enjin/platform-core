@@ -15,7 +15,6 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DistinctMultiAsset;
 use Enjin\Platform\Rules\ValidRoyaltyPercentage;
@@ -24,7 +23,6 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -137,7 +135,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
     public static function getEncodableParams(...$params): array
     {
         $owner = Arr::get($params, 'owner', null);
-        $royalty = Arr::get($params, 'royalty', new RoyaltyPolicyParams(Account::daemonPublicKey(), 0));
+        $royalty = Arr::get($params, 'royalty', null);
         $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', null);
 
         return [

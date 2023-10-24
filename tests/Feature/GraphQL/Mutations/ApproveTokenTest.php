@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\ApproveTokenMutation;
 use Enjin\Platform\Models\Block;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
@@ -60,13 +62,13 @@ class ApproveTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $tokenId = random_int(1, 1000),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -104,13 +106,13 @@ class ApproveTokenTest extends TestCaseGraphQL
      */
     public function test_it_can_approve_a_token_with_any_operator_using_adapter(): void
     {
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -141,13 +143,13 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -178,13 +180,13 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_token_with_any_operator(): void
     {
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -304,13 +306,13 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $operator = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator,
             amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -345,13 +347,13 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         Wallet::factory(['public_key' => $operator = app(Generator::class)->public_key()])->create();
 
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator,
             amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -386,14 +388,14 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         Block::truncate();
         $block = Block::factory()->create();
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
-            expiration: $expiration = fake()->numberBetween($block->number),
-        );
+            expiration: $expiration = fake()->numberBetween($block->number)
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -439,13 +441,13 @@ class ApproveTokenTest extends TestCaseGraphQL
             'token_id' => $token,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $tokenAccount->balance,
-            currentAmount: $currentAmount = $tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -488,13 +490,13 @@ class ApproveTokenTest extends TestCaseGraphQL
             'token_id' => $token,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $tokenAccount->balance,
-            currentAmount: $currentAmount = $tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -535,13 +537,13 @@ class ApproveTokenTest extends TestCaseGraphQL
         $collection = Collection::find($tokenAccount->collection_id);
         $token = Token::find($tokenAccount->token_id);
 
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $tokenAccount->balance,
-            currentAmount: $currentAmount = $tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -582,13 +584,13 @@ class ApproveTokenTest extends TestCaseGraphQL
         $collection = Collection::find($tokenAccount->collection_id);
         $token = Token::find($tokenAccount->token_id);
 
-        $encodedData = $this->codec->encoder()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = fake()->numberBetween(),
-            currentAmount: $currentAmount = $tokenAccount->balance,
-        );
+            currentAmount: $currentAmount = $tokenAccount->balance
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

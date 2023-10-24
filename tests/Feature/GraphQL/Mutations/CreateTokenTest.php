@@ -6,6 +6,8 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateTokenMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
@@ -50,16 +52,16 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = random_int(1, 1000),
-            new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = random_int(1, 1000),
+            createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: $capType = TokenMintCapType::SINGLE_MINT,
                 unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $recipient,
@@ -98,18 +100,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_cap_equals_null_using_adapter(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
 
         $response = $this->graphql($this->method, [
@@ -141,18 +143,18 @@ class CreateTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
@@ -182,18 +184,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_cap_equals_null(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
@@ -318,18 +320,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_unit_price_equals_null(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: null
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
@@ -361,16 +363,16 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_single_mint(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: $capType = TokenMintCapType::SINGLE_MINT,
                 unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $recipient,
@@ -408,15 +410,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_supply_cap(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
-                tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: $capType = TokenMintCapType::SUPPLY,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                supply: $capSupply = fake()->numberBetween($initialSupply)
+        $encodedData = TransactionSerializer::encode(
+            'Mint',
+            CreateTokenMutation::getEncodableParams(
+                recipientAccount: $recipient = $this->recipient->public_key,
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                createTokenParams: new CreateTokenParams(
+                    tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
+                    initialSupply: $initialSupply = fake()->numberBetween(1),
+                    cap: $capType = TokenMintCapType::SUPPLY,
+                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                    supply: $capSupply = fake()->numberBetween($initialSupply)
+                )
             ),
         );
 
@@ -457,15 +462,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_royalty_equals_null(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
-                tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                behavior: null,
+        $encodedData = TransactionSerializer::encode(
+            'Mint',
+            CreateTokenMutation::getEncodableParams(
+                recipientAccount: $recipient = $this->recipient->public_key,
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                createTokenParams: new CreateTokenParams(
+                    tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
+                    initialSupply: $initialSupply = fake()->numberBetween(1),
+                    cap: TokenMintCapType::INFINITE,
+                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                    behavior: null,
+                )
             ),
         );
 
@@ -506,10 +514,10 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_royalty(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
@@ -521,7 +529,7 @@ class CreateTokenTest extends TestCaseGraphQL
                     ),
                 ),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
@@ -565,15 +573,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_listing_forbidden_equals_null(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
-                tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                listingForbidden: null,
+        $encodedData = TransactionSerializer::encode(
+            'Mint',
+            CreateTokenMutation::getEncodableParams(
+                recipientAccount: $recipient = $this->recipient->public_key,
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                createTokenParams: new CreateTokenParams(
+                    tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
+                    initialSupply: $initialSupply = fake()->numberBetween(1),
+                    cap: TokenMintCapType::INFINITE,
+                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                    listingForbidden: null,
+                )
             ),
         );
 
@@ -614,15 +625,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_listing_forbidden(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
-                tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                listingForbidden: $listingForbidden = fake()->boolean(),
+        $encodedData = TransactionSerializer::encode(
+            'Mint',
+            CreateTokenMutation::getEncodableParams(
+                recipientAccount: $recipient = $this->recipient->public_key,
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                createTokenParams: new CreateTokenParams(
+                    tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
+                    initialSupply: $initialSupply = fake()->numberBetween(1),
+                    cap: TokenMintCapType::INFINITE,
+                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                    listingForbidden: $listingForbidden = fake()->boolean(),
+                )
             ),
         );
 
@@ -663,16 +677,16 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_different_types_for_numbers(): void
     {
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $recipient,
@@ -714,21 +728,21 @@ class CreateTokenTest extends TestCaseGraphQL
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply),
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
-        $response = $this->graphql('CreateToken', [
+        $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
@@ -757,18 +771,18 @@ class CreateTokenTest extends TestCaseGraphQL
     {
         $collection = Collection::factory()->create();
 
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode(Hex::MAX_UINT128),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply),
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable(Hex::MAX_UINT128);
 
         $response = $this->graphql($this->method, [
@@ -806,18 +820,18 @@ class CreateTokenTest extends TestCaseGraphQL
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->mint(
-            $recipient,
-            $collectionId = $collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply),
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [

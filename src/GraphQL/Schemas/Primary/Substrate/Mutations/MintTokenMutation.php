@@ -103,9 +103,9 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipientId: $recipientWallet->public_key,
+            recipientAccount: $recipientWallet->public_key,
             collectionId: $args['collectionId'],
-            mintParams: $blockchainService->getMintTokenParams($args['params'])
+            mintTokenParams: $blockchainService->getMintTokenParams($args['params'])
         ));
 
         return Transaction::lazyLoadSelectFields(
@@ -135,10 +135,10 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientId', Account::daemonPublicKey())),
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'params' => Arr::get($params, 'mintParams', new MintParams(0, 0))->toEncodable(),
+            'params' => Arr::get($params, 'mintTokenParams', new MintParams(0, 0))->toEncodable(),
         ];
     }
 

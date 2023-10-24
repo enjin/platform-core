@@ -98,7 +98,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $method = $this->getMutationName() . ($args['keepAlive'] ? 'KeepAlive' : '');
         $encodedData = $serializationService->encode($method, static::getEncodableParams(
-            recipient: $targetWallet->public_key,
+            recipientAccount: $targetWallet->public_key,
             value: $args['amount']
         ));
 
@@ -121,7 +121,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     {
         return [
             'dest' => [
-                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipient', Account::daemonPublicKey())),
+                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'value' => gmp_init(Arr::get($params, 'value', 0)),
         ];

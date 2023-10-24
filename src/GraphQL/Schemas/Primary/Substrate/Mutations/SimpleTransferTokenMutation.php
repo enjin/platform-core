@@ -95,7 +95,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipient: $targetWallet->public_key,
+            recipientAccount: $targetWallet->public_key,
             collectionId: $args['collectionId'],
             simpleTransferParams: $blockchainService->getSimpleTransferParams($args['params']),
         ));
@@ -127,7 +127,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipient', Account::daemonPublicKey())),
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'simpleTransferParams', new SimpleTransferParams('0', '0'))->toEncodable(),

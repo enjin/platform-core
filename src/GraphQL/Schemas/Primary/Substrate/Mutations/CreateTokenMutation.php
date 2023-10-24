@@ -101,7 +101,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipientId: $recipientWallet->public_key,
+            recipientAccount: $recipientWallet->public_key,
             collectionId: $args['collectionId'],
             createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
         ));
@@ -133,7 +133,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientId', Account::daemonPublicKey())),
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0, TokenMintCapType::INFINITE))->toEncodable(),

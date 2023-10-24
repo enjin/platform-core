@@ -6,6 +6,8 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\ThawMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
@@ -65,12 +67,12 @@ class ThawTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = random_int(1, 1000),
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(1, 1000),
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -101,12 +103,12 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -134,12 +136,12 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_collection(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -255,12 +257,12 @@ class ThawTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -290,13 +292,13 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_collection_account(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION_ACCOUNT,
                 account: $account = $this->wallet->public_key,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -327,13 +329,13 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_token_using_adapter(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -362,13 +364,13 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_token(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -412,13 +414,13 @@ class ThawTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode($tokenId),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -449,14 +451,14 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_token_account(): void
     {
-        $encodedData = $this->codec->encoder()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN_ACCOUNT,
                 token: $this->tokenIdEncoder->encode(),
                 account: $account = $this->wallet->public_key,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,

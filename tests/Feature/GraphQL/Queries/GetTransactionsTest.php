@@ -715,7 +715,7 @@ class GetTransactionsTest extends TestCaseGraphQL
 
     protected function generateTransactions(?int $numberOfTransactions = 5): Collection
     {
-        return collect(range(0, $numberOfTransactions))
+        return collect(range(0, $numberOfTransactions - 1))
             ->map(fn () => Transaction::factory([
                 'result' => fake()->randomElement([
                     SystemEventType::EXTRINSIC_SUCCESS->name,

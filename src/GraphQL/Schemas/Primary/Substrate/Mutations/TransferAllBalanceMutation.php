@@ -90,7 +90,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            recipient: $targetWallet->public_key,
+            recipientAccount: $targetWallet->public_key,
             keepAlive: $args['keepAlive']
         ));
 
@@ -113,7 +113,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     {
         return [
             'dest' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipient', Account::daemonPublicKey())),
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'keepAlive' => Arr::get($params, 'keepAlive', false),
         ];

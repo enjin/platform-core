@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferAllBalanceMutation;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
@@ -41,10 +43,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'managed' => false,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $this->defaultAccount,
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $this->defaultAccount,
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($this->defaultAccount),
@@ -69,10 +71,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $address = app(Generator::class)->public_key(),
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $address = app(Generator::class)->public_key(),
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -100,10 +102,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_balance(): void
     {
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $address = app(Generator::class)->public_key(),
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $address = app(Generator::class)->public_key(),
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $address,
@@ -172,9 +174,9 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_missing_keep_alive(): void
     {
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $address = app(Generator::class)->public_key(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $address = app(Generator::class)->public_key()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $address,
@@ -203,9 +205,9 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_null_keep_alive(): void
     {
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $address = app(Generator::class)->public_key(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $address = app(Generator::class)->public_key()
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $address,
@@ -237,10 +239,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $address,
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $address,
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $address,
@@ -278,10 +280,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'public_key' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $publicKey,
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey,
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
@@ -316,10 +318,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $this->defaultAccount,
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $this->defaultAccount,
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($this->defaultAccount),
@@ -343,10 +345,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_passing_the_default_wallet_on_signing_wallet(): void
     {
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $this->defaultAccount,
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $this->defaultAccount,
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($this->defaultAccount),
@@ -370,10 +372,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_signing_wallet_null(): void
     {
-        $encodedData = $this->codec->encoder()->transferAllBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),

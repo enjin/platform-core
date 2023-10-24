@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetCollectionAttributeMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
@@ -81,12 +83,12 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encoder()->setAttribute(
-            $this->collection->collection_chain_id,
-            null,
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            tokenId: null,
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -142,12 +144,12 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encoder()->setAttribute(
-            $this->collection->collection_chain_id,
-            null,
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            tokenId: null,
+            key: $key,
+            value: $value
+        ));
 
         $this->assertIsNumeric($response['deposit']);
         $this->assertArraySubset([

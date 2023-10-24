@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\UnapproveCollectionMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
@@ -70,10 +72,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $encodedData = $this->codec->encoder()->unapproveCollection(
-            $collectionId,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $collectionId,
+            operator: $this->operator->public_key
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -98,10 +100,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encoder()->unapproveCollection(
-            $this->collection->collection_chain_id,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $this->operator->public_key
+        ));
 
         $this->assertArraySubset([
             'id' => null,
@@ -159,10 +161,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encoder()->unapproveCollection(
-            $this->collection->collection_chain_id,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $this->operator->public_key
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -212,10 +214,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
         ]);
 
-        $encodedData = $this->codec->encoder()->unapproveCollection(
-            $this->collection->collection_chain_id,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $this->operator->public_key
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -247,10 +249,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
         ]);
 
-        $encodedData = $this->codec->encoder()->unapproveCollection(
-            $collection->collection_chain_id,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $collection->collection_chain_id,
+            operator: $this->operator->public_key
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

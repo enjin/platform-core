@@ -6,6 +6,8 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchMintMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
@@ -79,20 +81,20 @@ class BatchMintTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = random_int(1, 1000),
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(1, 1000),
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -131,20 +133,20 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_cap_null_using_adapter(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -181,20 +183,20 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -230,20 +232,20 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_cap_null(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -390,20 +392,20 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_single_mint_cap(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::SINGLE_MINT,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -441,21 +443,21 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_supply_cap(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::SUPPLY,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         supply: fake()->numberBetween($supply)
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -495,20 +497,20 @@ class BatchMintTest extends TestCaseGraphQL
     {
         Token::where('token_chain_id', '=', $tokenId = Hex::MAX_UINT128)?->delete();
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -551,20 +553,20 @@ class BatchMintTest extends TestCaseGraphQL
             'collection_chain_id' => $collectionId,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -602,9 +604,9 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_single_token_without_unit_price(): void
     {
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $mintParams = new MintParams(
@@ -613,7 +615,7 @@ class BatchMintTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $mintParams->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -654,9 +656,9 @@ class BatchMintTest extends TestCaseGraphQL
         // TODO: Need to calculate the unitPrice with the previous minted token.
         // Will do that later
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $mintParams = new MintParams(
@@ -666,7 +668,7 @@ class BatchMintTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $mintParams->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -712,9 +714,9 @@ class BatchMintTest extends TestCaseGraphQL
             'collection_id' => $collection,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $mintParams = new MintParams(
@@ -723,7 +725,7 @@ class BatchMintTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $mintParams->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -767,9 +769,9 @@ class BatchMintTest extends TestCaseGraphQL
             'token_chain_id' => $tokenId,
         ])->create();
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $mintParams = new MintParams(
@@ -778,7 +780,7 @@ class BatchMintTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $mintParams->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -826,15 +828,15 @@ class BatchMintTest extends TestCaseGraphQL
                 'params' => new CreateTokenParams(
                     tokenId: $tokenId = $this->tokenIdEncoder->encode($tokenId),
                     initialSupply: $supply = fake()->numberBetween(1),
-                    unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     cap: TokenMintCapType::INFINITE,
+                    unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                 ),
             ]);
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            $recipients->toArray()
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -887,10 +889,10 @@ class BatchMintTest extends TestCaseGraphQL
             ),
         ]);
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            $recipients->toArray()
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -936,8 +938,8 @@ class BatchMintTest extends TestCaseGraphQL
                 'params' => new CreateTokenParams(
                     tokenId: $x + 1,
                     initialSupply: $supply = fake()->numberBetween(1),
-                    unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     cap: TokenMintCapType::INFINITE,
+                    unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                 ),
             ]);
 
@@ -956,10 +958,10 @@ class BatchMintTest extends TestCaseGraphQL
             ])
         );
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            $recipients->toArray(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -1015,15 +1017,15 @@ class BatchMintTest extends TestCaseGraphQL
             'params' => new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId),
                 initialSupply: $supply = fake()->numberBetween(1),
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                 cap: TokenMintCapType::INFINITE,
+                unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
             ),
         ];
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $params = Arr::get($recipient['params']->toArray(), 'CreateToken');
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -1065,16 +1067,16 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $tokenId = fake()->unique()->numberBetween();
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($supply),
                         behavior: new TokenMarketBehaviorParams(
                             hasRoyalty: new RoyaltyPolicyParams(
                                 beneficiary: $beneficiary = $this->defaultAccount,
@@ -1084,7 +1086,7 @@ class BatchMintTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -1134,21 +1136,21 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $tokenId = fake()->unique()->numberBetween();
 
-        $encodedData = $this->codec->encoder()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         initialSupply: $supply = fake()->numberBetween(1),
+                        cap: TokenMintCapType::INFINITE,
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         listingForbidden: fake()->boolean(),
-                        cap: TokenMintCapType::INFINITE,
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);

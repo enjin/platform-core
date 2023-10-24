@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
@@ -76,11 +78,11 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_single_mint(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -180,11 +182,11 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -211,11 +213,11 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_one_create_collection_transaction_is_created_using_idempotency(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
-        );
+        ));
 
         $idempotencyKey = fake()->uuid();
 
@@ -266,12 +268,12 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_max_token_count(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(1, Hex::MAX_UINT64),
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -305,12 +307,12 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_max_token_supply(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenSupply: fake()->numberBetween(1, Hex::MAX_UINT64),
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -339,13 +341,13 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_all_mint_args(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(1, Hex::MAX_UINT64),
                 maxTokenSupply: fake()->numberBetween(1, Hex::MAX_UINT64),
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -374,12 +376,12 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_works_with_big_int_max_token_count(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: Hex::MAX_UINT64,
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -408,12 +410,12 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_works_with_big_int_max_token_supply(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenSupply: Hex::MAX_UINT128,
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -442,15 +444,15 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_royalty(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $mintPolicy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             ),
-            $marketPolicy = new RoyaltyPolicyParams(
+            marketPolicy: $marketPolicy = new RoyaltyPolicyParams(
                 beneficiary: app(Generator::class)->public_key(),
                 percentage: fake()->numberBetween(1, 50)
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $mintPolicy->toArray(),
@@ -482,12 +484,12 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_explicit_royalty_currencies(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $mintPolicy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             ),
             explicitRoyaltyCurrencies: $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9)),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $mintPolicy->toArray(),
@@ -517,12 +519,12 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_empty_array_of_currencies(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $mintPolicy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             ),
             explicitRoyaltyCurrencies: [],
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $mintPolicy->toArray(),
@@ -552,18 +554,18 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_it_works_with_all_args(): void
     {
-        $encodedData = $this->codec->encoder()->createCollection(
-            $mintPolicy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $mintPolicy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(),
                 maxTokenSupply: fake()->numberBetween(),
             ),
-            $marketPolicy = new RoyaltyPolicyParams(
+            marketPolicy: $marketPolicy = new RoyaltyPolicyParams(
                 beneficiary: app(Generator::class)->public_key(),
                 percentage: fake()->numberBetween(1, 50)
             ),
-            $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9)),
-        );
+            explicitRoyaltyCurrencies: $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9)),
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $mintPolicy->toArray(),

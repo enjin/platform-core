@@ -95,7 +95,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipient: $targetWallet->public_key,
+            recipientAccount: $targetWallet->public_key,
             collectionId: $args['collectionId'],
             operatorTransferParams: $blockchainService->getOperatorTransferParams($args['params'])
         ));
@@ -127,7 +127,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipient', Account::daemonPublicKey())),
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0))->toEncodable(),
