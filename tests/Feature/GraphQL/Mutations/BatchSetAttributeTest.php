@@ -159,11 +159,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $collection->collection_chain_id,
-            null,
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            tokenId: null,
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -200,11 +200,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $collection->collection_chain_id,
-            null,
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            tokenId: null,
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

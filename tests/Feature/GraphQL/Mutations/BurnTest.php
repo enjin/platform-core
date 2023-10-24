@@ -242,13 +242,13 @@ class BurnTest extends TestCaseGraphQL
             'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId,
+            burnParams: new BurnParams(
                 tokenId: $tokenId,
                 amount: $amount,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -303,13 +303,13 @@ class BurnTest extends TestCaseGraphQL
             'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId,
+            burnParams: new BurnParams(
                 tokenId: $tokenId,
                 amount: $amount,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

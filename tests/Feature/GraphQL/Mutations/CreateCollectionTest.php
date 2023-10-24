@@ -112,11 +112,11 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
@@ -147,11 +147,11 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->createCollection(
-            $policy = new MintPolicyParams(
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: $policy = new MintPolicyParams(
                 forceSingleMint: fake()->boolean(),
             )
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),

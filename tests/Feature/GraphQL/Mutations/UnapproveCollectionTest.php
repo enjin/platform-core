@@ -130,10 +130,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
-            $this->collection->collection_chain_id,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $this->operator->public_key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -188,10 +188,10 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key,
         ]);
 
-        $encodedData = $this->codec->encode()->unapproveCollection(
-            $this->collection->collection_chain_id,
-            $this->operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $this->operator->public_key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

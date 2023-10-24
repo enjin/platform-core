@@ -60,14 +60,14 @@ class Encoder
 
     public function uint32(string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('u32')->encode($value);
+        $encoded = static::$scaleInstance->createTypeByTypeString('u32')->encode($value);
 
         return HexConverter::prefix($encoded);
     }
 
     public function compact(string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
+        $encoded = static::$scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
 
         return HexConverter::prefix($encoded);
     }

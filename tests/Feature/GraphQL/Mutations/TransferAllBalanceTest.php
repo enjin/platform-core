@@ -140,10 +140,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_balance_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
-            $address = app(Generator::class)->public_key(),
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $address = app(Generator::class)->public_key(),
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => $address,
@@ -399,10 +399,10 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_signing_wallet_empty_and_works_as_daemon(): void
     {
-        $encodedData = $this->codec->encode()->transferAllBalance(
-            $publicKey = app(Generator::class)->public_key(),
-            $keepAlive = fake()->boolean(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
+            recipientAccount: $publicKey = app(Generator::class)->public_key(),
+            keepAlive: $keepAlive = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),

@@ -201,11 +201,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -239,11 +239,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

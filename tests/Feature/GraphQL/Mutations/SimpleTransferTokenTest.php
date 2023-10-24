@@ -365,15 +365,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
@@ -451,15 +451,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_empty_signing_account_and_works_as_daemon(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();

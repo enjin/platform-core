@@ -49,12 +49,12 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $this->collection->collection_chain_id,
-            null,
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            tokenId: null,
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -113,12 +113,12 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $this->collection->collection_chain_id,
-            null,
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            tokenId: null,
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

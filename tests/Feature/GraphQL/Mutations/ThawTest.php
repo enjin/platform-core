@@ -176,12 +176,12 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_collection_with_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -212,12 +212,12 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_collection_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->thaw(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,

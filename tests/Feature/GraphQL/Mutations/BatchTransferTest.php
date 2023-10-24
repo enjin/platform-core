@@ -326,10 +326,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);

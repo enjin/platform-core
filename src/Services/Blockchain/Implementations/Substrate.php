@@ -62,7 +62,7 @@ class Substrate implements BlockchainServiceInterface
 
     public function getSigningPayload(string $call, array $args): string
     {
-        return $this->codec->encode()->signingPayload(
+        return $this->codec->encoder()->signingPayload(
             call: $call,
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),

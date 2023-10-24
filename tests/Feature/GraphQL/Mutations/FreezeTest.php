@@ -179,12 +179,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -215,12 +215,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,

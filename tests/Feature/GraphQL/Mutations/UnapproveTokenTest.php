@@ -185,11 +185,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token_with_signing_account_ss58(): void
     {
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -221,11 +221,11 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token_with_signing_account_public_key(): void
     {
-        $encodedData = $this->codec->encode()->unapproveToken(
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = $this->operator->public_key,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

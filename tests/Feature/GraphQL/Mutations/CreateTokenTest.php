@@ -232,18 +232,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
@@ -276,18 +276,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new CreateTokenParams(
+        $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: TokenMintCapType::INFINITE,
                 unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
             ),
-        );
+        ));
 
-        $params = $params->toArray()['CreateToken'];
+        $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [

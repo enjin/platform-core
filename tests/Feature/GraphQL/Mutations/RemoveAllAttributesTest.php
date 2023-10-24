@@ -189,11 +189,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode($tokenId),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -241,11 +241,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode($tokenId),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

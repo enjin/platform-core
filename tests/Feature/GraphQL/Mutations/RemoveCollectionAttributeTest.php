@@ -122,11 +122,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -196,11 +196,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

@@ -288,20 +288,20 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -340,20 +340,20 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->batchMint(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                         cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
             ]
-        );
+        ));
 
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);

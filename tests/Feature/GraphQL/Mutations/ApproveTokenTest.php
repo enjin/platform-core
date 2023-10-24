@@ -224,13 +224,13 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_token_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -264,13 +264,13 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_token_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->approveToken(
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

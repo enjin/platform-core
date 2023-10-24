@@ -157,7 +157,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->destroyCollection($collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $collection->collection_chain_id
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,
@@ -195,7 +197,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->destroyCollection($collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $collection->collection_chain_id
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,

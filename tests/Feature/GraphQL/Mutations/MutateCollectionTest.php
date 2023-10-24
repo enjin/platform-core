@@ -189,10 +189,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner = $this->defaultAccount,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -225,10 +225,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mutateCollection(
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             owner: $owner = $this->defaultAccount,
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
