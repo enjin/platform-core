@@ -17,11 +17,10 @@ class TokenIdManager
     protected array $encoders = [];
 
     /**
-     * Create a new Cache manager instance.
+     * Create a new Token ID Manager instance.
      */
     public function __construct(protected Application $app)
     {
-        $this->app = $app;
     }
 
     /**

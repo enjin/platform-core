@@ -5,6 +5,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 use Closure;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
@@ -24,7 +25,6 @@ use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -35,6 +35,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -85,29 +86,20 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService,
         WalletService $walletService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId']
-        ));
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(...$args));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
     }
 
     public static function getEncodableParams(...$params): array
     {
+        $collectionId = Arr::get($params, 'collectionId', 0);
+
         return [
-            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'collectionId' => gmp_init($collectionId),
         ];
     }
 

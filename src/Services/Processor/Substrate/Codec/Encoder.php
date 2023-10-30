@@ -53,6 +53,16 @@ class Encoder
         static::$callIndexes = $this->loadCallIndexes();
     }
 
+    public static function getCallIndexKeys(): array
+    {
+        return static::$callIndexKeys;
+    }
+
+    public static function setCallIndexKeys(array $keys): void
+    {
+        static::$callIndexKeys = $keys;
+    }
+
     public function methodSupported($method): bool
     {
         return array_key_exists($method, static::$callIndexKeys);

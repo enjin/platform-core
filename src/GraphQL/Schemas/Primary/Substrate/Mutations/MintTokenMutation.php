@@ -7,6 +7,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -26,7 +27,6 @@ use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MintTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -40,6 +40,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     use HasEncodableTokenId;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -109,16 +110,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
         ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
     }

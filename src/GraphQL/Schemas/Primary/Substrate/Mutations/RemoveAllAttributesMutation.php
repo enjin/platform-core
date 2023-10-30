@@ -7,6 +7,7 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -25,7 +26,6 @@ use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -39,6 +39,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -93,7 +94,6 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
-        $tokenId = $this->encodeTokenId($args);
         if (!Arr::get($args, 'attributeCount')) {
             $args['attributeCount'] = $this->getAttributeCount($args);
             if ($args['attributeCount'] == 0) {
@@ -103,21 +103,12 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
 
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
-            tokenId: $tokenId,
+            tokenId: $this->encodeTokenId($args),
             attributeCount: $args['attributeCount']
         ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
     }

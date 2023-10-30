@@ -6,6 +6,7 @@ use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
@@ -23,7 +24,6 @@ use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -34,6 +34,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -97,16 +98,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
         ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args)
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
     }
