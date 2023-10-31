@@ -28,14 +28,12 @@ class QrController extends Controller
         }
 
         $qrCode = QRCode::format($format)->size($size)->generate($data);
-        $qrCode = base64_encode($qrCode);
-
-        $src = match ($format) {
-            'eps' => "data:application/postscript;base64,{$qrCode}",
-            'png' => "data:image/png;base64,{$qrCode}",
-            default => "data:image/svg+xml;base64,{$qrCode}",
+        $mimeType = match ($format) {
+            'eps' => 'application/postscript',
+            'svg' => 'image/svg+xml',
+            default => 'image/png',
         };
 
-        return response("<img src='{$src}' alt='QR Code'>");
+        return response($qrCode, 200)->header('Content-Type', $mimeType);
     }
 }
