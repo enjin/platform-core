@@ -16,9 +16,8 @@ use Illuminate\Support\Facades\Cache;
 
 class Encoder
 {
+    public ScaleInstance $scaleInstance;
     protected static array $callIndexes = [];
-
-    protected static ScaleInstance $scaleInstance;
 
     protected static array $callIndexKeys = [
         'Batch' => 'MatrixUtility.batch',
@@ -49,7 +48,7 @@ class Encoder
 
     public function __construct(ScaleInstance $scaleInstance)
     {
-        static::$scaleInstance = $scaleInstance;
+        $this->scaleInstance = $scaleInstance;
         static::$callIndexes = $this->loadCallIndexes();
     }
 
@@ -70,21 +69,21 @@ class Encoder
 
     public function uint32(string $value): string
     {
-        $encoded = static::$scaleInstance->createTypeByTypeString('u32')->encode($value);
+        $encoded = $this->scaleInstance->createTypeByTypeString('u32')->encode($value);
 
         return HexConverter::prefix($encoded);
     }
 
     public function compact(string $value): string
     {
-        $encoded = static::$scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
+        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
 
         return HexConverter::prefix($encoded);
     }
 
     public function sequenceLength(string $sequence): string
     {
-        $encoded = static::$scaleInstance->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($sequence)));
+        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode(count(HexConverter::hexToBytes($sequence)));
 
         return HexConverter::prefix($encoded);
     }
@@ -125,13 +124,13 @@ class Encoder
         return $this->sequenceLength($extrinsic) . $extrinsic;
     }
 
-    public static function getEncoded(string $type, array $params): string
+    public function getEncoded(string $type, array $params): string
     {
         if (isset($params['continueOnFailure']) && true === $params['continueOnFailure']) {
             return static::batch($params['calls'], true);
         }
 
-        $encoded = static::$scaleInstance->createTypeByTypeString($type)->encode([
+        $encoded = $this->scaleInstance->createTypeByTypeString($type)->encode([
             'callIndex' => static::getCallIndex(static::$callIndexKeys[$type]),
             ...$params,
         ]);
@@ -148,10 +147,10 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
-    public static function batch(array $calls, bool $continueOnFailure): string
+    public function batch(array $calls, bool $continueOnFailure): string
     {
         $callIndex = static::$callIndexes['MatrixUtility.batch'];
-        $numberOfCalls = static::$scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
+        $numberOfCalls = $this->scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
         $calls = str_replace('0x', '', implode('', $calls));
         $continueOnFailure = $continueOnFailure ? '01' : '00';
         $encoded = $callIndex . $numberOfCalls . $calls . $continueOnFailure;
@@ -186,10 +185,10 @@ class Encoder
     {
         $storageKey = StorageKey::ATTRIBUTES->value . Blake2::hashAndEncode($collectionId);
 
-        $encodedToken = static::$scaleInstance->createTypeByTypeString('Option<u128>')->encode($tokenId);
+        $encodedToken = $this->scaleInstance->createTypeByTypeString('Option<u128>')->encode($tokenId);
         $storageKey .= Blake2::hash($encodedToken, 128) . $encodedToken;
 
-        $encodedKey = static::$scaleInstance->createTypeByTypeString('Bytes')->encode($key);
+        $encodedKey = $this->scaleInstance->createTypeByTypeString('Bytes')->encode($key);
         $storageKey .= Blake2::hash($encodedKey, 128) . $encodedKey;
 
         return HexConverter::prefix($storageKey);
@@ -214,7 +213,7 @@ class Encoder
 
     public function attributeStorage(int $module, int $method): string
     {
-        $encoded = static::$scaleInstance->createTypeByTypeString('AttributeStorage')->encode([
+        $encoded = $this->scaleInstance->createTypeByTypeString('AttributeStorage')->encode([
             'module' => $module,
             'method' => $method,
         ]);
@@ -254,7 +253,7 @@ class Encoder
         return Cache::rememberForever(
             PlatformCache::CALL_INDEXES->key(config('enjin-platform.chains.selected') . config('enjin-platform.chains.network')),
             function () use ($metadata) {
-                $decode = static::$scaleInstance->process('metadata', new ScaleBytes($metadata));
+                $decode = $this->scaleInstance->process('metadata', new ScaleBytes($metadata));
 
                 $callIndexes = collect(Arr::get($decode, 'metadata.call_index'))->mapWithKeys(
                     fn ($call, $key) => [
