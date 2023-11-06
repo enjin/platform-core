@@ -81,7 +81,6 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
         ]);
 
         $totalCount = $response['totalCount'];
-
         $this->generateTransactions();
         $response = $this->graphql($this->method, [
             'markAsProcessing' => true,
@@ -90,8 +89,26 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
         $this->assertTrue(
             $response['totalCount'] > 0
             && $totalCount > 0
-            && $response['totalCount'] < $totalCount
+            && $response['totalCount'] == $totalCount
         );
+    }
+
+    public function test_it_doesnt_return_a_processing_transaction(): void
+    {
+        $wallet = Wallet::factory([
+            'managed' => true,
+        ])->create();
+
+        Transaction::factory([
+            'state' => 'PROCESSING',
+            'transaction_chain_id' => null,
+            'transaction_chain_hash' => null,
+            'wallet_public_key' => $wallet->public_key,
+        ])->create();
+
+        $response = $this->graphql($this->method);
+
+        $this->assertTrue($response['totalCount'] == 5);
     }
 
     public function test_it_can_fetch_with_false_mark_as_processing(): void
