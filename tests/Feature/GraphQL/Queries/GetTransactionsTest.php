@@ -30,7 +30,7 @@ class GetTransactionsTest extends TestCaseGraphQL
                 'public_key' => $this->defaultAccount,
             ])->create();
         }
-        
+
         $this->transactions = $this->generateTransactions();
     }
 
