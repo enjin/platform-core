@@ -23,6 +23,9 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
+
+        Transaction::query()->delete();
+
         $this->transactions = $this->generateTransactions();
     }
 
