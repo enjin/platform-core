@@ -6,6 +6,7 @@ use Closure;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -15,6 +16,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\FreezeTypeParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AccountExistsInCollection;
 use Enjin\Platform\Rules\AccountExistsInToken;
@@ -24,7 +26,7 @@ use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -37,6 +39,7 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -105,24 +108,23 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
         TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'params' => $params,
-        ]);
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            freezeParams: $params
+        ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'freezeType' => Arr::get($params, 'freezeParams', new FreezeTypeParams(FreezeType::TOKEN))->toEncodable(),
+        ];
     }
 
     /**

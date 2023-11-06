@@ -98,7 +98,7 @@ class State
         $codec = $codec ?? new Codec();
         $collectionId = $collection->collection_chain_id;
         $collectionAccount = $this->getParsedStorage(
-            key: $codec->encode()->collectionAccountStorageKey($collectionId, $addressId),
+            key: $codec->encoder()->collectionAccountStorageKey($collectionId, $addressId),
             at: $blockHash,
             parser: 'collectionAccountStorage',
         );
@@ -158,7 +158,7 @@ class State
         $collectionId = $collection->collection_chain_id;
 
         $tokenAccount = $this->getParsedStorage(
-            key: $codec->encode()->tokenAccountStorageKey($addressId, $collectionId, $tokenId),
+            key: $codec->encoder()->tokenAccountStorageKey($addressId, $collectionId, $tokenId),
             at: $blockHash,
             parser: 'tokenAccountStorage',
         );
@@ -215,7 +215,7 @@ class State
         $collectionId = $collection->collection_chain_id;
 
         $token = $this->getParsedStorage(
-            key: $codec->encode()->tokenStorageKey($collectionId, $tokenId),
+            key: $codec->encoder()->tokenStorageKey($collectionId, $tokenId),
             at: $blockHash,
             parser: 'tokenStorage',
         );

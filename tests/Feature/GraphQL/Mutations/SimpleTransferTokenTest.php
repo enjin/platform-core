@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SimpleTransferTokenMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Substrate\SimpleTransferParams;
@@ -80,15 +82,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
@@ -124,15 +126,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -164,15 +166,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -204,15 +206,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -251,14 +253,14 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_without_pass_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -306,15 +308,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
@@ -363,15 +365,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
@@ -406,15 +408,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_null_signing_wallet(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -449,15 +451,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_empty_signing_account_and_works_as_daemon(): void
     {
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -494,15 +496,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $publicKey,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $publicKey,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable();
@@ -556,15 +558,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
@@ -615,15 +617,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->transferToken(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new SimpleTransferParams(
+        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Simple'];
         $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);

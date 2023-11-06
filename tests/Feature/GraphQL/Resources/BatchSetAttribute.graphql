@@ -2,6 +2,7 @@ mutation BatchSetAttribute(
   $collectionId: BigInt!
   $tokenId: EncodableTokenIdInput
   $attributes: [AttributeInput!]!
+  $continueOnFailure: Boolean
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
@@ -12,6 +13,7 @@ mutation BatchSetAttribute(
     collectionId: $collectionId
     tokenId: $tokenId
     attributes: $attributes
+    continueOnFailure: $continueOnFailure
     skipValidation: $skipValidation
     simulate: $simulate
     signingAccount: $signingAccount

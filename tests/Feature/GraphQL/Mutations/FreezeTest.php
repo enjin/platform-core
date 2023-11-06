@@ -7,6 +7,8 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\FreezeMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
@@ -68,12 +70,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = random_int(1, 1000),
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(1, 1000),
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -104,12 +106,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -137,12 +139,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -177,12 +179,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -213,12 +215,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -258,12 +260,12 @@ class FreezeTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -293,13 +295,13 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION_ACCOUNT,
                 account: $account = $this->wallet->public_key,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -330,13 +332,13 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -365,13 +367,13 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -402,14 +404,14 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token_with_freeze_state(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
                 freezeState: $freezeState = FreezeStateType::TEMPORARY,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -454,13 +456,13 @@ class FreezeTest extends TestCaseGraphQL
             'account_count' => 1,
         ])->create();
 
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode($tokenId),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -491,14 +493,14 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_token_account(): void
     {
-        $encodedData = $this->codec->encode()->freeze(
-            $collectionId = $this->collection->collection_chain_id,
-            new FreezeTypeParams(
+        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN_ACCOUNT,
                 token: $this->tokenIdEncoder->encode(),
                 account: $account = $this->wallet->public_key,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,

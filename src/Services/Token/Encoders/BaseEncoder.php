@@ -12,7 +12,6 @@ abstract class BaseEncoder implements Encoder
      */
     public function __construct(protected mixed $data = null)
     {
-        $this->data = $data;
     }
 
     /**

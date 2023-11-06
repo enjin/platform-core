@@ -3,9 +3,11 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -25,7 +27,6 @@ use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterfa
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MutateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -38,6 +39,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -107,28 +109,40 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
             );
         }
 
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'owner' => null !== Arr::get($args, 'mutation.owner')
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            owner: null !== Arr::get($args, 'mutation.owner')
                 ? $walletService->firstOrStore(['account' => $args['mutation']['owner']])->public_key
                 : null,
-            'royalty' => $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
-            'explicitRoyaltyCurrencies' => Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
-        ]);
+            royalty: $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
+            explicitRoyaltyCurrencies: Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
+        ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        $owner = Arr::get($params, 'owner', null);
+        $royalty = Arr::get($params, 'royalty', null);
+        $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', null);
+
+        return [
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'mutation' => [
+                'owner' => $owner !== null ? HexConverter::unPrefix($owner) : null,
+                'royalty' => is_array($royalty) ? ['NoMutation' => null] : ['SomeMutation' => $royalty?->toEncodable()],
+                'explicitRoyaltyCurrencies' => $explicitRoyaltyCurrencies !== null ? collect($explicitRoyaltyCurrencies)
+                    ->map(fn ($multiToken) => [
+                        'collectionId' => gmp_init($multiToken['collectionId']),
+                        'tokenId' => gmp_init($multiToken['tokenId']),
+                    ])->toArray()
+                    : null,
+            ],
+        ];
     }
 
     /**

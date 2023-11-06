@@ -275,7 +275,7 @@ class GetWalletsTest extends TestCaseGraphQL
         $this->mockWebsocketClient(
             'state_getStorage',
             [
-                $this->codec->encode()->systemAccountStorageKey($address),
+                $this->codec->encoder()->systemAccountStorageKey($address),
             ],
             json_encode(
                 [

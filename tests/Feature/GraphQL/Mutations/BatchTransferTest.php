@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
@@ -101,10 +103,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
@@ -145,9 +147,9 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_simple_single_transfer_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new SimpleTransferParams(
@@ -156,7 +158,7 @@ class BatchTransferTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -192,9 +194,9 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new SimpleTransferParams(
@@ -203,7 +205,7 @@ class BatchTransferTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -239,9 +241,9 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_simple_single_transfer(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new SimpleTransferParams(
@@ -250,7 +252,7 @@ class BatchTransferTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -324,10 +326,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
@@ -366,9 +368,9 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_simple_single_transfer_with_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new SimpleTransferParams(
@@ -378,7 +380,7 @@ class BatchTransferTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -417,9 +419,9 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_simple_single_transfer_with_null_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new SimpleTransferParams(
@@ -429,7 +431,7 @@ class BatchTransferTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -468,9 +470,9 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_operator_single_transfer(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new OperatorTransferParams(
@@ -480,7 +482,7 @@ class BatchTransferTest extends TestCaseGraphQL
                     ),
                 ],
             ]
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -519,19 +521,22 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_operator_single_transfer_with_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
-                [
-                    'accountId' => $recipient = $this->recipient->public_key,
-                    'params' => new OperatorTransferParams(
-                        tokenId: $this->tokenIdEncoder->encode(),
-                        source: $source = $this->wallet->public_key,
-                        amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                        keepAlive: $keepAlive = fake()->boolean(),
-                    ),
-                ],
-            ]
+        $encodedData = $this->codec->encoder()->getEncoded(
+            $this->method,
+            BatchTransferMutation::getEncodableParams(
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                recipients: [
+                    [
+                        'accountId' => $recipient = $this->recipient->public_key,
+                        'params' => new OperatorTransferParams(
+                            tokenId: $this->tokenIdEncoder->encode(),
+                            source: $source = $this->wallet->public_key,
+                            amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
+                            keepAlive: $keepAlive = fake()->boolean(),
+                        ),
+                    ],
+                ]
+            )
         );
 
         $response = $this->graphql($this->method, [
@@ -572,19 +577,22 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_operator_single_transfer_with_null_keep_alive(): void
     {
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [
-                [
-                    'accountId' => $recipient = $this->recipient->public_key,
-                    'params' => new OperatorTransferParams(
-                        tokenId: $this->tokenIdEncoder->encode(),
-                        source: $source = $this->wallet->public_key,
-                        amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                        keepAlive: null,
-                    ),
-                ],
-            ]
+        $encodedData = $this->codec->encoder()->getEncoded(
+            $this->method,
+            BatchTransferMutation::getEncodableParams(
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                recipients: [
+                    [
+                        'accountId' => $recipient = $this->recipient->public_key,
+                        'params' => new OperatorTransferParams(
+                            tokenId: $this->tokenIdEncoder->encode(),
+                            source: $source = $this->wallet->public_key,
+                            amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
+                            keepAlive: null,
+                        ),
+                    ],
+                ]
+            )
         );
 
         $response = $this->graphql($this->method, [
@@ -641,10 +649,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ]);
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            $recipients->toArray()
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -696,10 +704,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ]);
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            $recipients->toArray()
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -759,10 +767,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ]),
         ]);
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            $recipients->toArray()
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -838,10 +846,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
@@ -911,10 +919,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $operatorParams = Arr::get($recipient['params']->toArray(), 'Operator');
         $operatorParams['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
@@ -968,10 +976,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ]),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         if (isset($simpleParams)) {
@@ -1050,10 +1058,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ]),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         if (isset($simpleParams)) {
@@ -1131,10 +1139,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ]),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple');
         if (isset($simpleParams)) {
@@ -1196,10 +1204,10 @@ class BatchTransferTest extends TestCaseGraphQL
             ]),
         ];
 
-        $encodedData = $this->codec->encode()->batchTransfer(
-            $collectionId = $this->collection->collection_chain_id,
-            [$recipient]
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [$recipient]
+        ));
 
         $simpleParams = Arr::get($recipient['params']->toArray(), 'Simple') ?? null;
         if (!empty($simpleParams)) {

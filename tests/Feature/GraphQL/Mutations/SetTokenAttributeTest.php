@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetTokenAttributeMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -54,12 +56,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -86,12 +88,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertIsNumeric($response['deposit']);
         $this->assertArraySubset([
@@ -119,12 +121,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -148,12 +150,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -183,12 +185,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -214,12 +216,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key,
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -252,12 +254,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode($token->token_chain_id),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -291,12 +293,12 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
         ]);
 
-        $encodedData = $this->codec->encode()->setAttribute(
-            $collectionId,
-            $this->tokenIdEncoder->encode($tokenId),
-            $key,
-            $value
-        );
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            key: $key,
+            value: $value
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

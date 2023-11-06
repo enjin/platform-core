@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MintTokenMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Token;
@@ -50,14 +52,14 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $tokenId = random_int(1, 1000),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = ['integer' => $tokenId];
@@ -92,14 +94,14 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -131,14 +133,14 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_without_unit_price(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -177,14 +179,14 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -219,14 +221,14 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -261,14 +263,14 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_different_types(): void
     {
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $this->collection->collection_chain_id,
-            new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: new MintParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: $amount = fake()->numberBetween(),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
@@ -311,14 +313,14 @@ class MintTokenTest extends TestCaseGraphQL
             'token_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encode()->mint(
-            $recipient = $this->recipient->public_key,
-            $collectionId = $collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient = $this->recipient->public_key,
+            collectionId: $collectionId = $collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
@@ -354,14 +356,14 @@ class MintTokenTest extends TestCaseGraphQL
     {
         Wallet::where('public_key', '=', $recipient = app(Generator::class)->public_key())?->delete();
 
-        $encodedData = $this->codec->encode()->mint(
-            $recipient,
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new MintParams(
+        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
+            recipientAccount: $recipient,
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            mintTokenParams: $params = new MintParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(),
             ),
-        );
+        ));
 
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();

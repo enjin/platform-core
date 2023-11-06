@@ -3,9 +3,11 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -22,7 +24,7 @@ use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -36,6 +38,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -70,6 +73,10 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             'attributes' => [
                 'type' => GraphQL::type('[AttributeInput!]!'),
             ],
+            'continueOnFailure' => [
+                'type' => GraphQL::type('Boolean'),
+                'defaultValue' => false,
+            ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -90,63 +97,53 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
+        $continueOnFailure = $args['continueOnFailure'];
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $this->encodeTokenId($args),
+            attributes: $args['attributes'],
+            continueOnFailure: $continueOnFailure
+        ));
+
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $this->resolveBatch($args['collectionId'], $this->encodeTokenId($args), $args['attributes'], false, $serializationService),
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
     }
 
-    /**
-     * Resolve batch set attribute.
-     */
-    protected function resolveBatch(string $collectionId, ?string $tokenId, array $attributes, bool $continueOnFailure, SerializationServiceInterface $serializationService): string
+    public static function getEncodableParams(...$params): array
     {
+        $serializationService = resolve(SerializationServiceInterface::class);
+        $continueOnFailure = Arr::get($params, 'continueOnFailure', false);
+        $collectionId = Arr::get($params, 'collectionId', 0);
+        $tokenId = Arr::get($params, 'tokenId', null);
+        $attributes = Arr::get($params, 'attributes', []);
+
         if ($continueOnFailure) {
-            return $this->resolveWithContinueOnFailure($collectionId, $tokenId, $attributes, $serializationService);
+            $encodedData = collect($attributes)->map(
+                fn ($attribute) => $serializationService->encode('SetAttribute', [
+                    'collectionId' => gmp_init($collectionId),
+                    'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+                    'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                    'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                ])
+            );
+
+            return [
+                'calls' => $encodedData->toArray(),
+                'continueOnFailure' => true,
+            ];
         }
 
-        return $this->resolveWithoutContinueOnFailure($collectionId, $tokenId, $attributes, $serializationService);
-    }
-
-    /**
-     * Resolve batch set attribute without continue on failure.
-     */
-    protected function resolveWithoutContinueOnFailure(string $collectionId, ?string $tokenId, array $attributes, SerializationServiceInterface $serializationService): string
-    {
-        return $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $collectionId,
-            'tokenId' => $tokenId,
-            'attributes' => $attributes,
-        ]);
-    }
-
-    /**
-     * Resolve batch set attribute with continue on failure.
-     */
-    protected function resolveWithContinueOnFailure(string $collectionId, ?string $tokenId, array $attributes, SerializationServiceInterface $serializationService): string
-    {
-        $encodedData = collect($attributes)->map(
-            fn ($attribute) => $serializationService->encode('setAttribute', [
-                'collectionId' => $collectionId,
-                'tokenId' => $tokenId,
-                'key' => $attribute['key'],
-                'value' => $attribute['value'],
-            ])
-        );
-
-        return $serializationService->encode('batch', [
-            'calls' => $encodedData->toArray(),
-            'continueOnFailure' => true,
-        ]);
+        return [
+            'collectionId' => gmp_init($collectionId),
+            'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+            'attributes' => collect($attributes)
+                ->map(fn ($attribute) => [
+                    'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                    'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                ])->toArray(),
+        ];
     }
 
     /**

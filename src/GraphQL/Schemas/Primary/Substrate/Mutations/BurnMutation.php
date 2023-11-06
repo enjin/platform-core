@@ -6,6 +6,7 @@ use Closure;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -26,7 +27,6 @@ use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BurnMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -39,6 +39,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -94,24 +95,23 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     ): mixed {
         $args['params']['tokenId'] = $this->encodeTokenId($args['params']);
         unset($args['params']['encodeTokenId']);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'params' => new BurnParams(...$args['params']),
-        ]);
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            burnParams: new BurnParams(...$args['params'])
+        ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'params' => Arr::get($params, 'burnParams', new BurnParams(0, 0))->toEncodable(),
+        ];
     }
 
     /**

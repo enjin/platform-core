@@ -74,7 +74,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_attribute_storage_key()
     {
-        $content = $this->codec->decode()->attributeStorageKey('0xfa7484c926e764ee2a64df96876c8145761e97790c81676703ce25cc0ffeb3773ba80a3778f04ebf45e806d19a0520250100000000000000000000000000000007f95f6b3baacab308323526a6eedc2201adde00000000000000000000000000006eb1501c909e2b877fbd045ffc11bc26106e616d65');
+        $content = $this->codec->decoder()->attributeStorageKey('0xfa7484c926e764ee2a64df96876c8145761e97790c81676703ce25cc0ffeb3773ba80a3778f04ebf45e806d19a0520250100000000000000000000000000000007f95f6b3baacab308323526a6eedc2201adde00000000000000000000000000006eb1501c909e2b877fbd045ffc11bc26106e616d65');
 
         $this->assertEquals(
             [
@@ -94,7 +94,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_collection_storage_key()
     {
-        $content = $this->codec->decode()->collectionStorageKey('0xfa7484c926e764ee2a64df96876c81459200647b8c99af7b8b52752114831bdba68417e9769fad205e3d67e4cef9d822dc050000000000000000000000000000');
+        $content = $this->codec->decoder()->collectionStorageKey('0xfa7484c926e764ee2a64df96876c81459200647b8c99af7b8b52752114831bdba68417e9769fad205e3d67e4cef9d822dc050000000000000000000000000000');
         $this->assertEquals(
             [
                 'collectionId' => '1500',
@@ -105,7 +105,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_collection_storage_data()
     {
-        $content = $this->codec->decode()->collectionStorageData('0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d00000000018eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48025a62020c0017000010a59e86fdde43040000');
+        $content = $this->codec->decoder()->collectionStorageData('0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d00000000018eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48025a62020c0017000010a59e86fdde43040000');
 
         $this->assertEquals(
             [
@@ -134,7 +134,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_storage_key()
     {
-        $content = $this->codec->decode()->tokenStorageKey('0xfa7484c926e764ee2a64df96876c814599971b5749ac43e0235e41b0d37869183ba80a3778f04ebf45e806d19a052025010000000000000000000000000000003d4d415ebb3ec1e0f570a4086ca65d5fff000000000000000000000000000000');
+        $content = $this->codec->decoder()->tokenStorageKey('0xfa7484c926e764ee2a64df96876c814599971b5749ac43e0235e41b0d37869183ba80a3778f04ebf45e806d19a052025010000000000000000000000000000003d4d415ebb3ec1e0f570a4086ca65d5fff000000000000000000000000000000');
         $this->assertEquals(
             [
                 'collectionId' => '1',
@@ -146,7 +146,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_storage_data_with_single_mint()
     {
-        $content = $this->codec->decode()->tokenStorageData('0x0401000004010f0000c16ff286230f0000c16ff2862304000000');
+        $content = $this->codec->decoder()->tokenStorageData('0x0401000004010f0000c16ff286230f0000c16ff2862304000000');
         $this->assertEquals(
             [
                 'supply' => '1',
@@ -168,7 +168,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_storage_data_with_supply()
     {
-        $content = $this->codec->decode()->tokenStorageData('0x214e0101419c0004010f0000c16ff2862317000088b116afe3b50204000000');
+        $content = $this->codec->decoder()->tokenStorageData('0x214e0101419c0004010f0000c16ff2862317000088b116afe3b50204000000');
         $this->assertEquals(
             [
                 'supply' => '5000',
@@ -190,7 +190,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_collection_accounts_storage_key()
     {
-        $content = $this->codec->decode()->collectionAccountStorageKey('0x0bf891b100bbc75a3aaa261402ae0e8bc8511ac575318ec7f93a67d1cdf292da3ba80a3778f04ebf45e806d19a05202501000000000000000000000000000000de1e86a9a8c739864cf3cc5ec2bea59fd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+        $content = $this->codec->decoder()->collectionAccountStorageKey('0x0bf891b100bbc75a3aaa261402ae0e8bc8511ac575318ec7f93a67d1cdf292da3ba80a3778f04ebf45e806d19a05202501000000000000000000000000000000de1e86a9a8c739864cf3cc5ec2bea59fd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
         $this->assertEquals(
             [
                 'collectionId' => '1',
@@ -202,7 +202,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_collection_accounts_storage_data()
     {
-        $content = $this->codec->decode()->collectionAccountStorageData('0x0004d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0004');
+        $content = $this->codec->decoder()->collectionAccountStorageData('0x0004d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0004');
         $this->assertEquals(
             [
                 'isFrozen' => false,
@@ -220,7 +220,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_accounts_storage_key()
     {
-        $content = $this->codec->decode()->tokenAccountStorageKey('0xfa7484c926e764ee2a64df96876c8145091ba7dd8dcd80d727d06b71fe08a1030137310a1fc3eee361a5ba3e0250053c3e0800000000000000000000000000000127b5fce16694cf2ce4e2ada82c2f1a050000000000000000000000000000006693450ba38c572dc228966702d125c12ea037a549132b4f4e8a372c7e288014ac324c8e97e1c647c8e4bac2bb9ddd18');
+        $content = $this->codec->decoder()->tokenAccountStorageKey('0xfa7484c926e764ee2a64df96876c8145091ba7dd8dcd80d727d06b71fe08a1030137310a1fc3eee361a5ba3e0250053c3e0800000000000000000000000000000127b5fce16694cf2ce4e2ada82c2f1a050000000000000000000000000000006693450ba38c572dc228966702d125c12ea037a549132b4f4e8a372c7e288014ac324c8e97e1c647c8e4bac2bb9ddd18');
         $this->assertEquals(
             [
                 'accountId' => '0x2ea037a549132b4f4e8a372c7e288014ac324c8e97e1c647c8e4bac2bb9ddd18',
@@ -233,7 +233,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_accounts_storage_data()
     {
-        $content = $this->codec->decode()->tokenAccountStorageData('0x04000000000880f4bee67ab5c177239bfc89d9d307c65afaf10fb6d7d63487a9a2d9df8f460504009cc25de9d468a701b070397bc63b94a7aa5afb72c33cc2990ae004ce014ab333040150c3000000');
+        $content = $this->codec->decoder()->tokenAccountStorageData('0x04000000000880f4bee67ab5c177239bfc89d9d307c65afaf10fb6d7d63487a9a2d9df8f460504009cc25de9d468a701b070397bc63b94a7aa5afb72c33cc2990ae004ce014ab333040150c3000000');
         $this->assertEquals(
             [
                 'balance' => '1',
@@ -260,7 +260,7 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_accounts_storage_with_named_reserves()
     {
-        $content = $this->codec->decode()->tokenAccountStorageData('0x140c00046d61726b74706c6303000000000000000000000000000000000000');
+        $content = $this->codec->decoder()->tokenAccountStorageData('0x140c00046d61726b74706c6303000000000000000000000000000000000000');
         $this->assertEquals(
             [
                 'balance' => '5',

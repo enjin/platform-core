@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MutateTokenMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
@@ -49,11 +51,11 @@ class MutateTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = random_int(1, 1000),
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(1, 1000),
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -87,11 +89,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_listing_forbidden_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -122,11 +124,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -157,11 +159,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_listing_forbidden(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -199,11 +201,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_ss58_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -237,11 +239,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_public_key_signing_account(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -275,11 +277,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_empty_behavior(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             behavior: [],
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -312,11 +314,11 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_behavior_is_currency(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             behavior: new TokenMarketBehaviorParams(isCurrency: true),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -351,14 +353,14 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_behavior_has_royalty(): void
     {
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             behavior: new TokenMarketBehaviorParams(hasRoyalty: new RoyaltyPolicyParams(
                 beneficiary: $beneficiary = app(Generator::class)->public_key(),
                 percentage: $percentage = fake()->numberBetween(1, 40),
             )),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -405,12 +407,12 @@ class MutateTokenTest extends TestCaseGraphQL
             )),
         ]);
 
-        $encodedData = $this->codec->encode()->mutateToken(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
             behavior: $behavior,
             listingForbidden: $listingForbidden = fake()->boolean(),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

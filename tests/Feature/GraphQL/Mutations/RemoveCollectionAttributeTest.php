@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveCollectionAttributeMutation;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -53,11 +55,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -89,11 +91,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'id' => null,
@@ -120,11 +122,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -159,11 +161,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -194,11 +196,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -229,11 +231,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => $key = $this->attribute->key,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -273,11 +275,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => $key = $attribute->key,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAttribute(
-            $collectionId,
-            null,
-            $key,
-        );
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

@@ -3,9 +3,11 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -25,10 +27,11 @@ use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -42,6 +45,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -116,28 +120,31 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
         WalletService $walletService
     ): mixed {
         $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'collectionId' => $args['collectionId'],
-            'tokenId' => $this->encodeTokenId($args),
-            'operator' => $operatorWallet->public_key,
-            'amount' => $args['amount'],
-            'currentAmount' => $args['currentAmount'],
-            'expiration' => $args['expiration'],
-        ]);
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
+            collectionId: $args['collectionId'],
+            tokenId: $this->encodeTokenId($args),
+            operator: $operatorWallet->public_key,
+            amount: $args['amount'],
+            currentAmount: $args['currentAmount'],
+            expiration: $args['expiration']
+        ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
+            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
+            'amount' => gmp_init(Arr::get($params, 'amount', 0)),
+            'currentAmount' => gmp_init(Arr::get($params, 'currentAmount', 0)),
+            'expiration' => Arr::get($params, 'expiration', null),
+        ];
     }
 
     /**

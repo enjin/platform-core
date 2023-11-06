@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\DestroyCollectionMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
@@ -49,9 +51,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection(
-            $collectionId = random_int(2000, 3000)
-        );
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(2000, 3000)
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -82,7 +84,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection($this->collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -109,7 +113,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_destroy_a_collection(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection($this->collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
@@ -151,7 +157,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->destroyCollection($collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $collection->collection_chain_id
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,
@@ -189,7 +197,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->destroyCollection($collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $collection->collection_chain_id
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,
@@ -219,7 +229,9 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_destroy_a_collection_with_bigint(): void
     {
-        $encodedData = $this->codec->encode()->destroyCollection($this->collection->collection_chain_id);
+        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,

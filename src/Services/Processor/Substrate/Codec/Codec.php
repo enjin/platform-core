@@ -24,12 +24,12 @@ class Codec
         $this->encoder = new Encoder($this->scaleInstance);
     }
 
-    public function decode(): Decoder
+    public function decoder(): Decoder
     {
         return $this->decoder;
     }
 
-    public function encode(): Encoder
+    public function encoder(): Encoder
     {
         return $this->encoder;
     }

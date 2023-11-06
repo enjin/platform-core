@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Enjin\Platform\GraphQL\Base;
 
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Error\ValidationError;
 use Rebing\GraphQL\Support\Mutation as BaseMutation;
 
@@ -15,7 +14,7 @@ abstract class Mutation extends BaseMutation
      */
     public function getMethodName(): string
     {
-        return Str::camel($this->attributes()['name']);
+        return $this->attributes()['name'];
     }
 
     /**

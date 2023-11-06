@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveAllAttributesMutation;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
@@ -62,11 +64,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -99,11 +101,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'id' => null,
@@ -131,11 +133,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -187,11 +189,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode($tokenId),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -239,11 +241,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode($tokenId),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -274,11 +276,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => null,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode(),
-            1,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributeCount: 1,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -308,11 +310,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => 1,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            null,
-            1,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            attributeCount: 1,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -350,11 +352,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => $attributeCount = 1,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode($token->token_chain_id),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -390,11 +392,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'attributeCount' => $attributeCount = 1,
         ]);
 
-        $encodedData = $this->codec->encode()->removeAllAttributes(
-            $collectionId,
-            $this->tokenIdEncoder->encode($token->token_chain_id),
-            $attributeCount,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+            attributeCount: $attributeCount,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,

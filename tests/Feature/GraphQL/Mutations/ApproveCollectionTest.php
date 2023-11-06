@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\ApproveCollectionMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
@@ -54,10 +56,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $collectionId,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $collectionId,
+            operator: $operator
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -82,10 +84,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator
+        ));
 
         $this->assertArraySubset([
             'id' => null,
@@ -112,10 +114,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -143,10 +145,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key()),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -170,10 +172,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key(),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator,
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -202,10 +204,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator->public_key),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator->public_key,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator->public_key
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -238,10 +240,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'public_key' => $operator,
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -265,11 +267,11 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'expiration' => $expiration = fake()->numberBetween(1),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $this->collection->collection_chain_id,
-            $operator,
-            $expiration
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            operator: $operator,
+            expiration: $expiration
+        ));
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -303,15 +305,15 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'owner_wallet_id' => $this->owner->id,
         ]);
 
-        $response = $this->graphql('ApproveCollection', [
+        $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,
             'operator' => SS58Address::encode($operator = app(Generator::class)->public_key()),
         ]);
 
-        $encodedData = $this->codec->encode()->approveCollection(
-            $collection->collection_chain_id,
-            $operator,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $collection->collection_chain_id,
+            operator: $operator
+        ));
 
         $this->assertArraySubset([
             'state' => TransactionState::PENDING->name,

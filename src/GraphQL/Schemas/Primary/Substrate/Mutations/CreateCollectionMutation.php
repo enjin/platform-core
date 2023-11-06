@@ -3,9 +3,11 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -14,6 +16,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DistinctAttributes;
 use Enjin\Platform\Rules\DistinctMultiAsset;
@@ -23,7 +26,7 @@ use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterfa
 use Enjin\Platform\Traits\InheritsGraphQlFields;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -37,6 +40,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -103,18 +107,40 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
         TransactionService $transactionService
     ): mixed {
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $serializationService->encode($this->getMethodName(), $blockchainService->getCollectionPolicies($args)),
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $serializationService->encode($this->getMutationName(), static::getEncodableParams(...$blockchainService->getCollectionPolicies($args)))),
             $resolveInfo
         );
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        $mintPolicy = Arr::get($params, 'mintPolicy', new MintPolicyParams(false));
+        $marketPolicy = Arr::get($params, 'marketPolicy', null);
+        $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', []);
+        $attributes = Arr::get($params, 'attributes', []);
+
+        return [
+            'descriptor' => [
+                'policy' => [
+                    'mint' => $mintPolicy->toEncodable(),
+                    'market' => $marketPolicy?->toEncodable(),
+                ],
+                'explicitRoyaltyCurrencies' => array_map(
+                    fn ($multiToken) => [
+                        'collectionId' => gmp_init($multiToken['collectionId']),
+                        'tokenId' => gmp_init($multiToken['tokenId']),
+                    ],
+                    $explicitRoyaltyCurrencies
+                ),
+                'attributes' => array_map(
+                    fn ($attribute) => [
+                        'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                        'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                    ],
+                    $attributes
+                ),
+            ],
+        ];
     }
 
     /**

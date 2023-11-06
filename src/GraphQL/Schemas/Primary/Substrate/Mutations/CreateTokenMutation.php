@@ -3,8 +3,11 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -13,6 +16,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
 use Enjin\Platform\Rules\MinBigInt;
@@ -21,9 +25,10 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -35,6 +40,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     use HasSimulateField;
     use HasTransactionDeposit;
     use HasSigningAccountField;
+    use StoresTransactions;
 
     /**
      * Get the mutation's attributes.
@@ -95,23 +101,14 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
         WalletService $walletService
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), [
-            'recipientId' => $recipientWallet->public_key,
-            'collectionId' => $args['collectionId'],
-            'params' => $blockchainService->getCreateTokenParams($args['params']),
-        ]);
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+            recipientAccount: $recipientWallet->public_key,
+            collectionId: $args['collectionId'],
+            createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
+        ));
 
         return Transaction::lazyLoadSelectFields(
-            $transactionService->store(
-                [
-                    'method' => $this->getMutationName(),
-                    'encoded_data' => $encodedData,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                    'deposit' => $this->getDeposit($args),
-                    'simulate' => $args['simulate'],
-                ],
-                signingWallet: $this->getSigningAccount($args),
-            ),
+            $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
     }
@@ -121,7 +118,18 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
      */
     public function getMethodName(): string
     {
-        return 'mint';
+        return 'Mint';
+    }
+
+    public static function getEncodableParams(...$params): array
+    {
+        return [
+            'recipient' => [
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+            ],
+            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
+            'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0, TokenMintCapType::INFINITE))->toEncodable(),
+        ];
     }
 
     /**

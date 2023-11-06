@@ -5,6 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BurnMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\BurnParams;
 use Enjin\Platform\Models\Token;
@@ -61,13 +63,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = random_int(2000, 3000),
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(2000, 3000),
+            burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: $amount = 1,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -101,13 +103,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_default_values_using_adapter(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -138,13 +140,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
             ),
-        );
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -175,13 +177,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_default_values(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -240,13 +242,13 @@ class BurnTest extends TestCaseGraphQL
             'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId,
+            burnParams: new BurnParams(
                 tokenId: $tokenId,
                 amount: $amount,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -301,13 +303,13 @@ class BurnTest extends TestCaseGraphQL
             'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId,
-            new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId,
+            burnParams: new BurnParams(
                 tokenId: $tokenId,
                 amount: $amount,
             ),
-        );
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -341,12 +343,15 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_keepalive(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            new BurnParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
-                keepAlive: $keepAlive = fake()->boolean(),
+        $encodedData = TransactionSerializer::encode(
+            $this->method,
+            BurnMutation::getEncodableParams(
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                burnParams: new BurnParams(
+                    tokenId: $this->tokenIdEncoder->encode(),
+                    amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                    keepAlive: $keepAlive = fake()->boolean(),
+                )
             ),
         );
 
@@ -382,12 +387,15 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_remove_token_storage(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            new BurnParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
-                removeTokenStorage: $removeTokenStorage = fake()->boolean(),
+        $encodedData = TransactionSerializer::encode(
+            $this->method,
+            BurnMutation::getEncodableParams(
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                burnParams: new BurnParams(
+                    tokenId: $this->tokenIdEncoder->encode(),
+                    amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                    removeTokenStorage: $removeTokenStorage = fake()->boolean(),
+                )
             ),
         );
 
@@ -421,12 +429,15 @@ class BurnTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
 
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            new BurnParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                amount: 0,
-                removeTokenStorage: true,
+        $encodedData = TransactionSerializer::encode(
+            $this->method,
+            BurnMutation::getEncodableParams(
+                collectionId: $collectionId = $this->collection->collection_chain_id,
+                burnParams: new BurnParams(
+                    tokenId: $this->tokenIdEncoder->encode(),
+                    amount: 0,
+                    removeTokenStorage: true,
+                )
             ),
         );
 
@@ -462,15 +473,15 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_all_args(): void
     {
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $this->collection->collection_chain_id,
-            $params = new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            burnParams: $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(0, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
                 removeTokenStorage: fake()->boolean(),
             ),
-        );
+        ));
 
         $params = $params->toArray();
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
@@ -519,13 +530,13 @@ class BurnTest extends TestCaseGraphQL
             'wallet_id' => $this->wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $collection->collection_chain_id,
-            $params = new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            burnParams: $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(0, $tokenAccount->balance),
             ),
-        );
+        ));
 
         $params = $params->toArray();
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
@@ -575,13 +586,13 @@ class BurnTest extends TestCaseGraphQL
             'balance' => $balance = Hex::MAX_UINT128,
         ])->create();
 
-        $encodedData = $this->codec->encode()->burn(
-            $collectionId = $collection->collection_chain_id,
-            $params = new BurnParams(
+        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            burnParams: $params = new BurnParams(
                 tokenId: $token->token_chain_id,
                 amount: $balance,
             ),
-        );
+        ));
 
         $params = $params->toArray();
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);

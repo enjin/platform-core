@@ -4,6 +4,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchSetAttributeMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
@@ -52,11 +54,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = random_int(1, 1000),
-            null,
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = random_int(1, 1000),
+            tokenId: null,
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -85,11 +87,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_simulate(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -116,11 +118,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_token(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -157,11 +159,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $collection->collection_chain_id,
-            null,
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            tokenId: null,
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -198,11 +200,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'owner_wallet_id' => $wallet,
         ])->create();
 
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $collection->collection_chain_id,
-            null,
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $collection->collection_chain_id,
+            tokenId: null,
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -231,11 +233,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_collection(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $tokenId = null,
-            $attributes = $this->randomAttributes(),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $tokenId = null,
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -268,16 +270,17 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_collection_with_continue_on_failure(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $tokenId = null,
-            $attributes = $this->randomAttributes(),
-            true,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $tokenId = null,
+            attributes: $attributes = $this->randomAttributes(),
+            continueOnFailure: true,
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'attributes' => $attributes,
+            'continueOnFailure' => true,
         ]);
 
         $this->assertArraySubset([
@@ -301,11 +304,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_token_max_amount(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $tokenId = $this->tokenIdEncoder->encode(),
-            $attributes = $this->randomAttributes(20, 20),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $tokenId = $this->tokenIdEncoder->encode(),
+            attributes: $attributes = $this->randomAttributes(20, 20),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -334,11 +337,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_on_collection_max_amount(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $tokenId = null,
-            $attributes = $this->randomAttributes(20, 20),
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $tokenId = null,
+            attributes: $attributes = $this->randomAttributes(20, 20),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -366,12 +369,11 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_batch_set_attribute_with_encoded_token(): void
     {
-        $encodedData = $this->codec->encode()->batchSetAttribute(
-            $collectionId = $this->collection->collection_chain_id,
-            $this->tokenIdEncoder->encode(),
-            $attributes = $this->randomAttributes(),
-            true,
-        );
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributes: $attributes = $this->randomAttributes(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
