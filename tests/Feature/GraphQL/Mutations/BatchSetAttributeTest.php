@@ -70,11 +70,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -108,11 +104,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'fee' => $feeDetails['fakeSum'],
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
     }
 
@@ -134,11 +126,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -253,11 +241,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
                 'nonce' => $nonce,
                 'tip' => '0',
             ]),
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -287,11 +271,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -320,11 +300,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -352,11 +328,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -385,11 +357,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [

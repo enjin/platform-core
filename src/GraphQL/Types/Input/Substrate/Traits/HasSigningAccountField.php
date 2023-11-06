@@ -32,8 +32,12 @@ trait HasSigningAccountField
      */
     public function getSigningAccount(array $args)
     {
-        return WalletService::firstOrStore([
-            'account' => empty($signing = Arr::get($args, 'signingAccount')) ? Account::daemonPublicKey() : $signing,
-        ]);
+        if (!empty($signing = Arr::get($args, 'signingAccount'))) {
+            return WalletService::firstOrStore([
+                'account' => $signing,
+            ]);
+        }
+
+
     }
 }

@@ -81,11 +81,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -125,11 +121,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -172,11 +164,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'fee' => $feeDetails['fakeSum'],
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
@@ -213,11 +201,7 @@ class CreateTokenTest extends TestCaseGraphQL
                 'nonce' => $nonce,
                 'tip' => '0',
             ]),
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -344,11 +328,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -391,11 +371,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -443,11 +419,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -495,11 +467,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -554,11 +522,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -606,11 +570,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -658,11 +618,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -705,11 +661,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -751,11 +703,7 @@ class CreateTokenTest extends TestCaseGraphQL
         $this->assertArraySubset([
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -795,11 +743,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -844,11 +788,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [

@@ -93,11 +93,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -133,11 +129,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'fee' => $feeDetails['fakeSum'],
             'deposit' => null,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
@@ -166,11 +158,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
                 'nonce' => $nonce,
                 'tip' => '0',
             ]),
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -296,11 +284,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -356,11 +340,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
