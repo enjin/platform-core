@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate\Traits;
 
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Support\Account;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
