@@ -717,6 +717,7 @@ class GetTransactionsTest extends TestCaseGraphQL
     {
         return collect(range(0, $numberOfTransactions - 1))
             ->map(fn () => Transaction::factory([
+                'wallet_public_key' => $this->defaultAccount,
                 'result' => fake()->randomElement([
                     SystemEventType::EXTRINSIC_SUCCESS->name,
                     SystemEventType::EXTRINSIC_FAILED->name,

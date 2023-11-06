@@ -97,6 +97,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
     {
         $wallet = Wallet::factory([
             'managed' => true,
+            'public_key' => app(Generator::class)->public_key(),
         ])->create();
 
         Transaction::factory([
