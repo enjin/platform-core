@@ -25,8 +25,14 @@ class TransactionCreated extends PlatformBroadcastEvent
             'idempotencyKey' => $transaction->idempotency_key,
         ];
 
+        $address = $transaction->wallet?->address ?? Account::daemon()->address;
+
+        if ($address == null) {
+            return;
+        }
+
         $this->broadcastChannels = [
-            new Channel($transaction->wallet?->address ?? Account::daemon()->address),
+            new Channel($address),
         ];
     }
 }
