@@ -3,8 +3,8 @@
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate\Traits;
 
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Support\Account;
 use Facades\Enjin\Platform\Services\Database\WalletService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -30,10 +30,14 @@ trait HasSigningAccountField
     /**
      * Get the signing account.
      */
-    public function getSigningAccount(array $args)
+    public function getSigningAccount(array $args): ?Model
     {
-        return WalletService::firstOrStore([
-            'account' => empty($signing = Arr::get($args, 'signingAccount')) ? Account::daemonPublicKey() : $signing,
-        ]);
+        if (!empty($signing = Arr::get($args, 'signingAccount'))) {
+            return WalletService::firstOrStore([
+                'account' => $signing,
+            ]);
+        }
+
+        return null;
     }
 }

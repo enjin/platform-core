@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Events\Global;
 
 use Enjin\Platform\Events\PlatformBroadcastEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,7 +26,7 @@ class TransactionCreated extends PlatformBroadcastEvent
         ];
 
         $this->broadcastChannels = [
-            new Channel($transaction->wallet->address),
+            new Channel($transaction->wallet?->address ?? Account::daemon()->address),
         ];
     }
 }

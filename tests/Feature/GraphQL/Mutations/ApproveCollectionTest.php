@@ -65,11 +65,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -96,11 +92,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'fee' => $feeDetails['fakeSum'],
             'deposit' => null,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
@@ -127,11 +119,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
                 'nonce' => $nonce,
                 'tip' => '0',
             ]),
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -213,11 +201,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -249,11 +233,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -277,11 +257,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -318,11 +294,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
         $this->assertArraySubset([
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
