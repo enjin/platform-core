@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Events\Global;
 
 use Enjin\Platform\Events\PlatformBroadcastEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,8 +28,14 @@ class TransactionUpdated extends PlatformBroadcastEvent
             'idempotencyKey' => $transaction->idempotency_key,
         ];
 
+        $address = $transaction->wallet?->address ?? Account::daemon()->address;
+
+        if ($address == null) {
+            return;
+        }
+
         $this->broadcastChannels = [
-            new Channel($transaction->wallet_address),
+            new Channel($address),
         ];
     }
 }

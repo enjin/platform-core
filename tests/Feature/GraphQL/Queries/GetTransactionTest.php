@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -24,7 +25,15 @@ class GetTransactionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->defaultAccount = Account::daemonPublicKey();
-        $this->transaction = Transaction::factory()->create();
+        if (Wallet::where('public_key', $this->defaultAccount)->doesntExist()) {
+            Wallet::factory([
+                'public_key' => $this->defaultAccount,
+            ])->create();
+        }
+
+        $this->transaction = Transaction::factory([
+            'wallet_public_key' => $this->defaultAccount,
+        ])->create();
     }
 
     // Happy path
@@ -132,6 +141,7 @@ class GetTransactionTest extends TestCaseGraphQL
     public function test_it_can_get_a_transaction_with_result(): void
     {
         $transaction = Transaction::factory([
+            'wallet_public_key' => $this->defaultAccount,
             'result' => fake()->randomElement([
                 SystemEventType::EXTRINSIC_SUCCESS->name,
                 SystemEventType::EXTRINSIC_FAILED->name,

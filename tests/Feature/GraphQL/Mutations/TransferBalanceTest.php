@@ -97,11 +97,7 @@ class TransferBalanceTest extends TestCaseGraphQL
                 'nonce' => $nonce,
                 'tip' => '0',
             ]),
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -166,11 +162,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -200,11 +192,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -233,11 +221,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -267,11 +251,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -302,11 +282,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -343,11 +319,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -409,11 +381,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -436,11 +404,7 @@ class TransferBalanceTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);

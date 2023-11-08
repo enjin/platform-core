@@ -67,11 +67,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -102,11 +98,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'fee' => $feeDetails['fakeSum'],
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
@@ -132,11 +124,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
     }
 
@@ -165,11 +153,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
                 'nonce' => $nonce,
                 'tip' => '0',
             ]),
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -265,11 +249,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -304,11 +284,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
+            'wallet' => null,
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);

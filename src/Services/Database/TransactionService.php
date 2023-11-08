@@ -8,7 +8,6 @@ use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
@@ -38,14 +37,13 @@ class TransactionService
     /**
      * Create a new transaction.
      */
-    public function store(array $data, string|Model|null $signingWallet = null): Model
+    public function store(array $data, Model|null $signingWallet = null): Model
     {
         if ($transaction = Transaction::firstWhere(['idempotency_key' => $data['idempotency_key']])) {
             return $transaction;
         }
 
-        $signingWallet = $signingWallet ?? Account::daemonPublicKey();
-        $data['wallet_public_key'] = is_string($signingWallet) ? $signingWallet : $signingWallet->public_key;
+        $data['wallet_public_key'] = $signingWallet?->public_key;
         $data['method'] = $data['method'] ?? '';
 
         if (Arr::get($data, 'simulate', false)) {
