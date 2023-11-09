@@ -20,7 +20,7 @@ class PlatformController extends Controller
             $packageClass = Package::getPackageClass($package);
 
             $info = [
-                'version' => InstalledVersions::getVersion($package),
+                'version' => InstalledVersions::getPrettyVersion($package),
                 'revision' => InstalledVersions::getReference($package),
             ];
 
