@@ -40,10 +40,9 @@ class Unreserved implements SubstrateEvent
             'pallet' => HexConverter::hexToString($event->reserveId),
         ]);
 
-        if ($namedReserve->amount - $event->amount == 0) {
-            $namedReserve->delete();
-        } else {
-            $namedReserve->decrement('amount', $event->amount);
+        if ($namedReserve != null) {
+            $amountLeft = $namedReserve->amount - $event->amount;
+            $amountLeft > 0 ? $namedReserve->decrement('amount', $event->amount) : $namedReserve->delete();
         }
 
         Log::info(sprintf(
