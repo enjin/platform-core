@@ -29,12 +29,11 @@ class TokenBurned implements SubstrateEvent
         $token = $this->getToken($collection->id, $event->tokenId);
         $token->decrement('supply', $event->amount);
 
-        $tokenAccount = TokenAccount::firstWhere([
+        TokenAccount::firstWhere([
             'wallet_id' => $account->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
-        ]);
-        $tokenAccount->decrement('balance', $event->amount);
+        ])?->decrement('balance', $event->amount);
 
         Log::info(sprintf(
             'Burned %s units of Collection #%s (id: %s), Token #%s (id: %s) from %s (id: %s).',

@@ -26,6 +26,7 @@ class Transferred implements SubstrateEvent
 
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);
+
         $fromAccount = WalletService::firstOrStore(['account' => $event->from]);
         TokenAccount::firstWhere([
             'wallet_id' => $fromAccount->id,
@@ -34,12 +35,11 @@ class Transferred implements SubstrateEvent
         ])?->decrement('balance', $event->amount);
 
         $toAccount = WalletService::firstOrStore(['account' => $event->to]);
-        $toTokenAccount = TokenAccount::firstWhere([
+        TokenAccount::firstWhere([
             'wallet_id' => $toAccount->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
-        ]);
-        $toTokenAccount->increment('balance', $event->amount);
+        ])?->increment('balance', $event->amount);
 
         Log::info(sprintf(
             'Transferred %s units of token #%s (id: %s) in collection #%s (id: %s) to %s (id: %s).',
