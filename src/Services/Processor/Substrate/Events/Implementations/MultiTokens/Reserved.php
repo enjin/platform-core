@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenReserved;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\TokenAccountNamedReserve;
@@ -34,12 +35,13 @@ class Reserved implements SubstrateEvent
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ]);
+        $tokenAccount->decrement('balance', $event->amount);
         $tokenAccount->increment('reserved_balance', $event->amount);
 
         TokenAccountNamedReserve::updateOrCreate(
             [
                 'token_account_id' => $tokenAccount->id,
-                'pallet' => HexConverter::hexToString($event->reserveId),
+                'pallet' => PalletIdentifier::from(HexConverter::hexToString($event->reserveId))->name,
             ],
             [
                 'amount' => $event->amount,

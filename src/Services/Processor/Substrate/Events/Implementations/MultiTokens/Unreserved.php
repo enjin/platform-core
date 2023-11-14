@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\TokenAccountNamedReserve;
 use Enjin\Platform\Models\TokenAccount;
@@ -33,11 +34,12 @@ class Unreserved implements SubstrateEvent
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ]);
+        $tokenAccount->increment('balance', $event->amount);
         $tokenAccount->decrement('reserved_balance', $event->amount);
 
         $namedReserve = TokenAccountNamedReserve::firstWhere([
             'token_account_id' => $tokenAccount->id,
-            'pallet' => HexConverter::hexToString($event->reserveId),
+            'pallet' => PalletIdentifier::from(HexConverter::hexToString($event->reserveId))->name,
         ]);
 
         if ($namedReserve != null) {
