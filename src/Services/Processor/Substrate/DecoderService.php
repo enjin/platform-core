@@ -10,7 +10,7 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
-use Str;
+use Illuminate\Support\Str;
 use Throwable;
 
 class DecoderService
@@ -64,7 +64,7 @@ class DecoderService
         $eventId = is_string($eventId = Arr::get($event, 'event.' . $module)) ? $eventId : array_key_first($eventId);
 
         $class = Package::getClassesThatImplementInterface(PolkadartEvent::class)
-            ->where(fn ($class) => $eventId == Str::afterLast($class, '\\'))
+            ->where(fn ($class) => str_ends_with($class, sprintf('%s\\%s', $module, $eventId)))
             ->first();
 
         return $class ? $class::fromChain($event) : GenericEvent::fromChain($event);

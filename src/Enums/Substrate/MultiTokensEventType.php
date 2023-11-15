@@ -12,6 +12,7 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionMutated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Freeze;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Minted;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Reserved;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Thawed;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenAccountCreated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenAccountDestroyed;
@@ -21,6 +22,7 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenMutated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Transferred;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Unapproved;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Unreserved;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Traits\EnumExtensions;
 
@@ -48,6 +50,10 @@ enum MultiTokensEventType: string
     case TOKEN_MUTATED = 'TokenMutated';
     case COLLECTION_MUTATED = 'CollectionMutated';
 
+    case RESERVED = 'Reserved';
+
+    case UNRESERVED = 'Unreserved';
+
     /**
      * Get the processor for the event.
      */
@@ -73,6 +79,8 @@ enum MultiTokensEventType: string
             self::UNAPPROVED => new Unapproved(),
             self::TOKEN_MUTATED => new TokenMutated(),
             self::COLLECTION_MUTATED => new CollectionMutated(),
+            self::RESERVED => new Reserved(),
+            self::UNRESERVED => new Unreserved(),
         };
     }
 }
