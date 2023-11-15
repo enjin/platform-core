@@ -69,7 +69,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'alias' => 'encoded_data',
             ],
             'signingPayload' => [
-                'type' => GraphQL::type('String!'),
+                'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::type.transaction.field.signingPayload'),
                 'args' => [
                     'nonce' => [
