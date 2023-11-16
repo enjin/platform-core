@@ -69,7 +69,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'alias' => 'encoded_data',
             ],
             'signingPayload' => [
-                'type' => GraphQL::type('String!'),
+                'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::type.transaction.field.signingPayload'),
                 'args' => [
                     'nonce' => [
@@ -86,6 +86,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'resolve' => function ($transaction, $args) {
                     return Substrate::getSigningPayload($transaction['encoded_data'], $args);
                 },
+                'selectable' => false,
             ],
             'fee' => [
                 'type' => GraphQL::type('BigInt'),

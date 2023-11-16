@@ -192,6 +192,7 @@ trait EagerLoadSelectFields
         $select = array_filter([
             'id',
             isset($fields['wallet']) || static::$query == 'GetWallet' ? 'wallet_public_key' : null,
+            isset($fields['signingPayload']) ? 'encoded_data' : null,
             ...TransactionType::getSelectFields($fieldKeys = array_keys($fields)),
         ]);
 
