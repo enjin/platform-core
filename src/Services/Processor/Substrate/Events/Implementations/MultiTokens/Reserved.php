@@ -38,15 +38,20 @@ class Reserved implements SubstrateEvent
         $tokenAccount->decrement('balance', $event->amount);
         $tokenAccount->increment('reserved_balance', $event->amount);
 
-        TokenAccountNamedReserve::updateOrCreate(
-            [
+        $namedReserve = TokenAccountNamedReserve::firstWhere([
+            'token_account_id' => $tokenAccount->id,
+            'pallet' => PalletIdentifier::from(HexConverter::hexToString($event->reserveId))->name,
+        ]);
+
+        if ($namedReserve == null) {
+            TokenAccountNamedReserve::create([
                 'token_account_id' => $tokenAccount->id,
                 'pallet' => PalletIdentifier::from(HexConverter::hexToString($event->reserveId))->name,
-            ],
-            [
                 'amount' => $event->amount,
-            ]
-        );
+            ]);
+        } else {
+            $namedReserve->increment('amount', $event->amount);
+        }
 
         Log::info(sprintf(
             'Created named reserve of Collection %s (id: %s), Token #%s (id: %s) Account %s (id: %s) of amount %s to %s.',

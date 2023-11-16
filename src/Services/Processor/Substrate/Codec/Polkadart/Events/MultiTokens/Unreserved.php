@@ -22,11 +22,11 @@ class Unreserved implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = Arr::get($data, 'event.MultiTokens.Reserved.collection_id');
-        $self->tokenId = Arr::get($data, 'event.MultiTokens.Reserved.token_id');
-        $self->accountId = Arr::get($data, 'event.MultiTokens.Reserved.account_id');
-        $self->amount = Arr::get($data, 'event.MultiTokens.Reserved.amount');
-        $self->reserveId = Arr::get($data, 'event.MultiTokens.Reserved.reserve_id.Some');
+        $self->collectionId = Arr::get($data, 'event.MultiTokens.Unreserved.collection_id');
+        $self->tokenId = Arr::get($data, 'event.MultiTokens.Unreserved.token_id');
+        $self->accountId = Arr::get($data, 'event.MultiTokens.Unreserved.account_id');
+        $self->amount = Arr::get($data, 'event.MultiTokens.Unreserved.amount');
+        $self->reserveId = Arr::get($data, 'event.MultiTokens.Unreserved.reserve_id.Some');
 
         return $self;
     }
