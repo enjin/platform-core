@@ -4,11 +4,12 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
+use Enjin\Platform\Events\Substrate\MultiTokens\TokenUnreserved;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\TokenAccountNamedReserve;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Reserved as UnreservedPolkadart;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Unreserved as UnreservedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
