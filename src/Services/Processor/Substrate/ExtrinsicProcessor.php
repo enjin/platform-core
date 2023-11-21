@@ -50,9 +50,13 @@ class ExtrinsicProcessor
 
     protected function processExtrinsic(PolkadartExtrinsic $extrinsic, int $index)
     {
+        if (empty($extrinsic->signer)) {
+            return;
+        }
+
         $transaction = Transaction::where([
             'transaction_chain_hash' => $extrinsic->hash,
-            'wallet_public_key' => SS58Address::getPublicKey($extrinsic->signer),
+            'wallet_public_key' => HexConverter::prefix(SS58Address::getPublicKey($extrinsic->signer)),
         ])->orderBy('created_at', 'desc')->first();
 
         if ($transaction) {
