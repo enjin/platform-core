@@ -2,7 +2,9 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\Traits;
 
-use Enjin\Platform\Middlewares\OperationDefinitionNodeStore;
+use GraphQL\Language\Parser;
+use Illuminate\Support\Arr;
+use Laragraph\Utils\RequestParser;
 
 trait HasAuthorizableFields
 {
@@ -14,11 +16,30 @@ trait HasAuthorizableFields
             return $fields;
         }
 
+        $requests = resolve(RequestParser::class)->parseRequest(request());
+        $operationName = $requests->operation;
+
+        $names = [];
+        foreach (Arr::wrap($requests) as $operation) {
+            if (!$operation->query) {
+                return false;
+            }
+
+            if ($documentNode = Parser::parse($operation->query)) {
+                $definitions = collect($documentNode->definitions);
+                $definition = $definitions->containsOneItem()
+                                ? $definitions->sole()
+                                : $definitions->filter(
+                                    fn ($definition) => $operationName == $definition?->name?->value
+                                )->first();
+                $names[] = $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value;
+            }
+        }
+
         return collect($fields)
             ->filter(
-                fn ($field) => (auth()->check() || !in_array(OperationDefinitionNodeStore::getOperationName(), $field['excludeFrom'] ?? [])) &&
-                !(($field['authRequired'] ?? false) && !auth()->check())
-            )
-            ->all();
+                fn ($field) => (auth()->check() || empty(array_intersect($names, $field['excludeFrom'] ?? [])))
+                && !(($field['authRequired'] ?? false) && !auth()->check())
+            )->all();
     }
 }
