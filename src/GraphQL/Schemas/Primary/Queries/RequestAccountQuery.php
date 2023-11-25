@@ -50,11 +50,13 @@ class RequestAccountQuery extends Query implements PlatformGraphQlQuery
         $data = $verificationService->generate();
         $verification = $verificationService->store($data);
 
+        $encodedCode = $verification->verification_id . ';epsr:' . $verification->code;
+        $proofUrl = config('enjin-platform.deep_links.proof') . base64_encode($encodedCode);
+
         return [
-            'qrCode' => $verificationService->qr(
-                $verification->verification_id,
-                $verification->code,
-            ),
+            'qrCode' => $verificationService->qr($proofUrl),
+            'proofUrl' => $proofUrl,
+            'proofCode' => $verification->code,
             'verificationId' => $verification->verification_id,
         ];
     }
