@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\Traits;
 
+use Enjin\Platform\Middlewares\OperationDefinitionNodeStore;
 use GraphQL\Language\Parser;
 use Illuminate\Support\Arr;
 use Laragraph\Utils\RequestParser;
@@ -16,23 +17,27 @@ trait HasAuthorizableFields
             return $fields;
         }
 
-        $requests = resolve(RequestParser::class)->parseRequest(request());
-        $operationName = $requests->operation;
+        if (app()->runningUnitTests()) {
+            $names = [OperationDefinitionNodeStore::getOperationName()];
+        } else {
+            $requests = resolve(RequestParser::class)->parseRequest(request());
+            $operationName = $requests->operation;
 
-        $names = [];
-        foreach (Arr::wrap($requests) as $operation) {
-            if (!$operation->query) {
-                return [];
-            }
+            $names = [];
+            foreach (Arr::wrap($requests) as $operation) {
+                if (!$operation->query) {
+                    return [];
+                }
 
-            if ($documentNode = Parser::parse($operation->query)) {
-                $definitions = collect($documentNode->definitions);
-                $definition = $definitions->containsOneItem()
-                                ? $definitions->sole()
-                                : $definitions->filter(
-                                    fn ($definition) => $operationName == $definition?->name?->value
-                                )->first();
-                $names[] = $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value;
+                if ($documentNode = Parser::parse($operation->query)) {
+                    $definitions = collect($documentNode->definitions);
+                    $definition = $definitions->containsOneItem()
+                                    ? $definitions->sole()
+                                    : $definitions->filter(
+                                        fn ($definition) => $operationName == $definition?->name?->value
+                                    )->first();
+                    $names[] = $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value;
+                }
             }
         }
 
