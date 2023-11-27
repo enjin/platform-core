@@ -41,7 +41,6 @@ trait HasAuthorizableFields
             }
         }
 
-
         return collect($fields)
             ->filter(
                 fn ($field) => (auth()->check() || empty(array_intersect($names, $field['excludeFrom'] ?? [])))
