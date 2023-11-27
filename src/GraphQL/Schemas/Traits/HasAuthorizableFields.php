@@ -22,7 +22,7 @@ trait HasAuthorizableFields
         $names = [];
         foreach (Arr::wrap($requests) as $operation) {
             if (!$operation->query) {
-                return false;
+                return [];
             }
 
             if ($documentNode = Parser::parse($operation->query)) {
