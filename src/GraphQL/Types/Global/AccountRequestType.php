@@ -32,6 +32,14 @@ class AccountRequestType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.account_request.field.qrCode'),
             ],
+            'proofUrl' => [
+                'type' => GraphQL::type('String!'),
+                'description' => __('enjin-platform::type.account_request.field.proofUrl'),
+            ],
+            'proofCode' => [
+                'type' => GraphQL::type('String!'),
+                'description' => __('enjin-platform::type.account_request.field.proofCode'),
+            ],
             'verificationId' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.account_request.field.verificationId'),

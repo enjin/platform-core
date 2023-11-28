@@ -120,12 +120,9 @@ class VerificationService
     /**
      * Generate a QR code for a verification.
      */
-    public function qr(string $verificationId, string $code, int $size = 512): string
+    public function qr(string $data, int $size = 512): string
     {
-        $encodedCode = "{$verificationId};epsr:{$code}";
-        $deepLink = config('enjin-platform.deep_links.proof') . base64_encode($encodedCode);
-
-        return Qr::url($deepLink, $size);
+        return Qr::url($data, $size);
     }
 
     /**
