@@ -9,6 +9,7 @@
   },
   "FuelTankAccountStorageData": {
     "tankDeposit": "u128",
-    "userDeposit": "u128"
+    "userDeposit": "u128",
+    "totalReceived": "Compact"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "ScheduleMutateFreezeState": {
+  "MutateFreezeState": {
     "callIndex": "(u8, u8)",
     "tankId": "MultiAddress",
     "ruleSetId": "Option<u32>",
