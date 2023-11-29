@@ -5,7 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
 use Illuminate\Support\Arr;
 
-class ScheduleMutateFreezeState implements PolkadartExtrinsic
+class MutateFreezeState implements PolkadartExtrinsic
 {
     public readonly string $signer;
     public readonly string $hash;
@@ -49,7 +49,7 @@ class ScheduleMutateFreezeState implements PolkadartExtrinsic
         },
         "call": {
             "FuelTanks": {
-                "schedule_mutate_freeze_state": {
+                "mutate_freeze_state": {
                     "tank_id": {
                         "Id": "f8d962353abb6d609d0a7c566d6f4a94271f7ddd68d8f1a1b9c2baf7ae173da8"
                     },

@@ -6,7 +6,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
 
-class MutateFreezeStateScheduled implements PolkadartEvent
+class MutateFreezeState implements PolkadartEvent
 {
     public readonly string $extrinsicIndex;
     public readonly string $module;
@@ -21,9 +21,9 @@ class MutateFreezeStateScheduled implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = is_string($key = Arr::get($data, 'event.FuelTanks.MutateFreezeStateScheduled.tank_id')) ? $key : HexConverter::bytesToHex($key);
-        $self->ruleSetId = Arr::get($data, 'event.FuelTanks.MutateFreezeStateScheduled.rule_set_id.Some');
-        $self->isFrozen = Arr::get($data, 'event.FuelTanks.MutateFreezeStateScheduled.is_frozen');
+        $self->tankId = is_string($key = Arr::get($data, 'event.FuelTanks.MutateFreezeState.tank_id')) ? $key : HexConverter::bytesToHex($key);
+        $self->ruleSetId = Arr::get($data, 'event.FuelTanks.MutateFreezeState.rule_set_id.Some');
+        $self->isFrozen = Arr::get($data, 'event.FuelTanks.MutateFreezeState.is_frozen');
 
         return $self;
     }
@@ -50,7 +50,7 @@ class MutateFreezeStateScheduled implements PolkadartEvent
         },
         "event": {
             "FuelTanks": {
-                "MutateFreezeStateScheduled": {
+                "MutateFreezeState": {
                     "tank_id": "5b1c2bf7e279af55f31ff1c4a95330745efd3916bc2973e0ae377efd06aa3e68",
                     "rule_set_id": {
                         "None": null

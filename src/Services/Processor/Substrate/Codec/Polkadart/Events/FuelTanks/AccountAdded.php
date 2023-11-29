@@ -15,6 +15,7 @@ class AccountAdded implements PolkadartEvent
     public readonly string $userId;
     public readonly string $tankDeposit;
     public readonly string $userDeposit;
+    public readonly string $totalReceived;
 
     public static function fromChain(array $data): self
     {
@@ -26,6 +27,7 @@ class AccountAdded implements PolkadartEvent
         $self->userId = is_string($key = Arr::get($data, 'event.FuelTanks.AccountAdded.user_id')) ? $key : HexConverter::bytesToHex($key);
         $self->tankDeposit = Arr::get($data, 'event.FuelTanks.AccountAdded.tank_deposit');
         $self->userDeposit = Arr::get($data, 'event.FuelTanks.AccountAdded.user_deposit');
+        $self->totalReceived = Arr::get($data, 'event.FuelTanks.AccountAdded.total_received');
 
         return $self;
     }
@@ -42,6 +44,7 @@ class AccountAdded implements PolkadartEvent
             ['type' => 'userId', 'value' => $this->userId],
             ['type' => 'tankDeposit', 'value' => $this->tankDeposit],
             ['type' => 'userDeposit', 'value' => $this->userDeposit],
+            ['type' => 'totalReceived', 'value' => $this->totalReceived],
         ];
     }
 }
