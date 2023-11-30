@@ -159,6 +159,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
     public function test_it_fetches_managed_wallets_tx_without_passing_their_address(): void
     {
+        Transaction::query()->delete();
         Wallet::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => true,
