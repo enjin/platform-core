@@ -81,7 +81,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                         ->whereIn('wallet_public_key', Account::managedPublicKeys(), 'or')
                         ->where('wallet_public_key', '=', null);
                 }
-            )->cursorPaginateWithTotalDesc('id', $args['first'], false);
+            )->cursorPaginateWithTotal('id', $args['first'], false);
 
         if (true === $args['markAsProcessing'] || null === $args['markAsProcessing']) {
             $transactionsToMark = clone $transactions['items']->getCollection();
