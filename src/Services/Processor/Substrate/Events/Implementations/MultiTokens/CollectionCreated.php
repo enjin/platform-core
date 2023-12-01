@@ -49,12 +49,19 @@ class CollectionCreated implements SubstrateEvent
         $params = $extrinsic->params;
 
         if ($extrinsic instanceof Generic) {
-            // TODO: We need to pop the call from the extrinsic
-            $calls = collect(Arr::get($extrinsic->params, 'calls'))->filter(
-                fn ($call) => Arr::get($call, 'MultiTokens.create_collection') !== null
-            )->first();
+            // TODO: Batch extrinsics - We need to pop the call from the extrinsic
+            // For batch we have params.calls
+            if (($calls = Arr::get($extrinsic->params, 'calls')) !== null) {
+                $calls = collect($calls)->filter(
+                    fn ($call) => Arr::get($call, 'MultiTokens.create_collection') !== null
+                )->first();
 
-            $params = Arr::get($calls, 'MultiTokens.create_collection');
+                $params = Arr::get($calls, 'MultiTokens.create_collection');
+            }
+            // For fuel tanks we have params.call
+            else {
+                $params = Arr::get($extrinsic->params, 'call.MultiTokens.create_collection');
+            }
         }
 
         $owner = WalletService::firstOrStore(['account' => Account::parseAccount($event->owner)]);
