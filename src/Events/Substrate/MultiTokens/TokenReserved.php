@@ -13,7 +13,7 @@ class TokenReserved extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $collection, Model $token, Model $wallet, Model $event, ?Model $transaction = null)
+    public function __construct(Model $collection, Model $token, Model $wallet, $event, ?Model $transaction = null)
     {
         parent::__construct();
 
