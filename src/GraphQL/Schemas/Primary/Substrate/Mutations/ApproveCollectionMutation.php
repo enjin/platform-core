@@ -18,6 +18,7 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CollectionHasTokens;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\FutureBlock;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
@@ -124,7 +125,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => [new CollectionHasTokens()],
+            'collectionId' => [new IsCollectionOwner(), new CollectionHasTokens()],
             'operator' => ['filled', new ValidSubstrateAccount(), new DaemonProhibited()],
             'expiration' => ['nullable', 'integer', new FutureBlock()],
         ];

@@ -20,6 +20,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\FutureBlock;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\TokenEncodeExists;
@@ -76,7 +77,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.approve_token.args.collectionId'),
-                'rules' => ['exists:collections,collection_chain_id'],
+                'rules' => [new IsCollectionOwner()],
             ],
             'operator' => [
                 'type' => GraphQL::type('String!'),

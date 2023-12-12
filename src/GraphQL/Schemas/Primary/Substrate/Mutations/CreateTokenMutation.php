@@ -19,6 +19,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -154,7 +155,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id', new CheckTokenCount()],
+            'collectionId' => [new IsCollectionOwner(), new CheckTokenCount()],
             ...$this->getTokenFieldRulesDoesntExist('params'),
         ];
     }

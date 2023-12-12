@@ -17,6 +17,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidRoyaltyPercentage;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -155,7 +156,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             ...$this->getTokenFieldRulesExist(),
         ];
     }

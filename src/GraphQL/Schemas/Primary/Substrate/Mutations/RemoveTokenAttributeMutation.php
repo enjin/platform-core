@@ -19,6 +19,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AttributeExistsInToken;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\TokenEncodeExists;
@@ -131,7 +132,7 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             'key' => ['bail', 'filled', 'alpha_dash', 'max:32', new AttributeExistsInToken()],
             ...$this->getTokenFieldRules(
                 null,

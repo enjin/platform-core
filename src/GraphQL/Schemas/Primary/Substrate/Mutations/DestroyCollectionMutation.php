@@ -109,7 +109,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128), 'exists:collections,collection_chain_id', new IsCollectionOwner(), new NoTokensInCollection()],
+            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128), new IsCollectionOwner(), new NoTokensInCollection()],
         ];
     }
 

@@ -20,6 +20,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
@@ -178,7 +179,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
     {
         return [
             'collectionId' => [
-                'exists:collections,collection_chain_id',
+                new IsCollectionOwner(),
                 new CheckTokenCount(collect($args['recipients'])->pluck('createParams')->filter()->count()),
             ],
             ...$this->getTokenFieldRulesDoesntExist('recipients.*.createParams', $args),

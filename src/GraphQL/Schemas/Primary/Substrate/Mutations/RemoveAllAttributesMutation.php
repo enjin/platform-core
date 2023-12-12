@@ -143,7 +143,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['bail', 'exists:collections,collection_chain_id', new IsCollectionOwner()],
+            'collectionId' => ['bail', new IsCollectionOwner()],
             'attributeCount' => ['nullable', 'integer', 'min:1', 'max:' . Hex::MAX_UINT32],
             ...$this->getOptionalTokenFieldRulesExist(),
         ];

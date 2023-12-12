@@ -19,6 +19,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ApprovalExistsInToken;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\TokenEncodeExists;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
@@ -125,7 +126,7 @@ class UnapproveTokenMutation extends Mutation implements PlatformBlockchainTrans
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             'operator' => ['bail', 'filled', new ValidSubstrateAccount(), new ApprovalExistsInToken()],
             ...$this->getTokenFieldRules(
                 null,

@@ -18,6 +18,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -143,7 +144,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             ...$this->getTokenFieldRulesExist(),
         ];
     }

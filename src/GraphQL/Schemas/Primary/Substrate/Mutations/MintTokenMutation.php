@@ -18,6 +18,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
@@ -75,7 +76,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.mint_token.args.collectionId'),
-                'rules' => ['exists:collections,collection_chain_id'],
+                'rules' => [new IsCollectionOwner()],
             ],
             'params' => [
                 'type' => GraphQL::type('MintTokenParams!'),
