@@ -218,7 +218,9 @@ class ApproveCollectionTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'operator' => SS58Address::encode($operator),
-        ]);
+        ], true);
+
+        dd($response);
 
         $this->assertDatabaseHas('wallets', [
             'public_key' => $operator,
