@@ -27,7 +27,7 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!$collection = Collection::firstWhere('collection_chain_id', '=', $value)) {
-            $fail('validation.exists')->translate(['attribute' => $attribute]);
+            $fail('validation.exists')->translate();
 
             return;
         }
