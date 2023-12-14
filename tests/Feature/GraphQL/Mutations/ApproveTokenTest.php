@@ -44,8 +44,8 @@ class ApproveTokenTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
-        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory(['collection_id' => $this->collection])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
             'collection_id' => $this->collection->id,

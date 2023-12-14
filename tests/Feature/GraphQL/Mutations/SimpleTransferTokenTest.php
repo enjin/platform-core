@@ -13,7 +13,6 @@ use Enjin\Platform\Models\Substrate\SimpleTransferParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -47,23 +46,21 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-
-        $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
+        $this->wallet = Account::daemon();
         $this->recipient = Wallet::factory()->create();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory()->create(['collection_id' => $this->collection]);
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
         ])->create();
-        $this->token = Token::find($this->tokenAccount->token_id);
-        $this->tokenIdInput = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->tokenAccount->collection_id);
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $this->collection,
             'wallet_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
+        $this->tokenIdInput = new Integer($this->token->token_chain_id);
     }
 
     public function test_it_can_skip_validation(): void
@@ -281,11 +278,16 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         $signingWallet = Wallet::factory([
             'managed' => true,
         ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet->id])->create();
+        $token = Token::factory(['collection_id' => $collection])->create();
+        $tokenAccount = TokenAccount::factory([
+            'wallet_id' => $signingWallet,
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
         $tokenAccount = TokenAccount::factory([
             'wallet_id' => $signingWallet,
         ])->create();
-        $token = Token::find($tokenAccount->token_id);
-        $collection = Collection::find($tokenAccount->collection_id);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $signingWallet,
@@ -338,11 +340,13 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         $wallet = Wallet::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $wallet])->create();
+        $token = Token::factory(['collection_id' => $collection])->create();
         $tokenAccount = TokenAccount::factory([
             'wallet_id' => $wallet,
+            'collection_id' => $collection,
+            'token_id' => $token,
         ])->create();
-        $token = Token::find($tokenAccount->token_id);
-        $collection = Collection::find($tokenAccount->collection_id);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $wallet,
@@ -515,6 +519,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -568,7 +573,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_bigint_token_id(): void
     {
-        $collection = Collection::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $this->wallet,

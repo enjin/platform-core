@@ -8,6 +8,7 @@ use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetCollectionAttributeMutation;
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
@@ -25,16 +26,15 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'SetCollectionAttribute';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->collection = Collection::factory()->create();
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
     }
 
     // Happy Path
@@ -72,11 +72,15 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_ss58_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
@@ -98,15 +102,20 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
@@ -128,6 +137,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_simulate(): void

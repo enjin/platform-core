@@ -11,7 +11,6 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
@@ -30,7 +29,6 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     protected string $method = 'UnapproveCollection';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $owner;
     protected Model $operator;
     protected Model $collection;
@@ -42,23 +40,15 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->owner = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
-        $this->collection = Collection::factory()->create([
-            'owner_wallet_id' => $this->owner->id,
-        ]);
-
+        $this->owner = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->owner->id]);
         $this->collectionAccount = CollectionAccount::factory()->create([
             'collection_id' => $this->collection->id,
             'wallet_id' => $this->owner->id,
         ]);
-
         $this->collectionAccountApproval = CollectionAccountApproval::factory()->create([
             'collection_account_id' => $this->collectionAccount->id,
         ]);
-
         $this->operator = Wallet::find($this->collectionAccountApproval->wallet_id);
     }
 
@@ -143,10 +133,14 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_ss58_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'operator' => SS58Address::encode($this->operator->public_key),
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
@@ -166,14 +160,19 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_unapprove_a_collection_with_public_key_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'operator' => SS58Address::encode($this->operator->public_key),
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
@@ -193,6 +192,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_unapprove_a_collection_with_int(): void

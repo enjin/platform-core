@@ -11,7 +11,6 @@ use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -32,7 +31,6 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveAllAttributes';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
@@ -42,16 +40,14 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = (new WalletService())->firstOrStore(['public_key' => $this->defaultAccount]);
-
-        $this->attribute = Attribute::factory()->create();
-        $this->collection = Collection::find($this->attribute->collection_id);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
-        $this->token = Token::find($this->attribute->token_id);
-        $this->token->update(['collection_id' => $this->collection->id]);
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory(['collection_id' => $this->collection])->create();
+        $this->attribute = Attribute::factory()->create([
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
+        ]);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 

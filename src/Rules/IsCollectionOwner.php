@@ -37,7 +37,7 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
         if (!static::$bypass &&
             (!$collection->owner || !SS58Address::isSameAddress(
                 $collection->owner->public_key,
-                Arr::get($this->data, 'signingAccount') ?? Account::daemonPublicKey()
+                Arr::get($this->data, 'signingAccount') ?: Account::daemonPublicKey()
             ))
         ) {
             $fail('enjin-platform::validation.is_collection_owner')->translate();
