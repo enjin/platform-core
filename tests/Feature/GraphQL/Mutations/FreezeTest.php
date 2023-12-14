@@ -15,7 +15,6 @@ use Enjin\Platform\Models\Substrate\FreezeTypeParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -36,7 +35,6 @@ class FreezeTest extends TestCaseGraphQL
 
     protected string $method = 'Freeze';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -47,23 +45,21 @@ class FreezeTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
+        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
         ])->create();
-        $this->collection = Collection::find($collectionId = $this->tokenAccount->collection_id);
-        $this->token = Token::find($this->tokenAccount->token_id);
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $collectionId,
+            'collection_id' => $this->collection,
             'wallet_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
+        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
     // Happy Path
@@ -174,10 +170,14 @@ class FreezeTest extends TestCaseGraphQL
             ),
         ));
 
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -199,6 +199,7 @@ class FreezeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_freeze_a_collection_with_public_key_signing_account(): void
@@ -210,10 +211,14 @@ class FreezeTest extends TestCaseGraphQL
             ),
         ));
 
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -235,12 +240,14 @@ class FreezeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_freeze_a_big_int_collection(): void
     {
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -411,8 +418,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_big_int_token(): void
     {
-        $collection = Collection::factory()->create();
-
+        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
         Token::factory([
             'collection_id' => $collection,
             'token_chain_id' => $tokenId = Hex::MAX_UINT128,

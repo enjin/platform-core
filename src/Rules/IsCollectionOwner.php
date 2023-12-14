@@ -15,6 +15,8 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
 {
     use HasDataAwareRule;
 
+    public static $bypass = false;
+
     /**
      * Determine if the validation rule passes.
      *
@@ -32,11 +34,11 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
             return;
         }
 
-        if (!$collection->owner ||
-            !SS58Address::isSameAddress(
+        if (!static::$bypass &&
+            (!$collection->owner || !SS58Address::isSameAddress(
                 $collection->owner->public_key,
                 Arr::get($this->data, 'signingAccount') ?? Account::daemonPublicKey()
-            )
+            ))
         ) {
             $fail('enjin-platform::validation.is_collection_owner')->translate();
         }

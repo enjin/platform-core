@@ -10,7 +10,6 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\DestroyCollection
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
@@ -39,10 +38,8 @@ class DestroyCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-
         $this->defaultAccount = Account::daemonPublicKey();
-        $this->owner = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
+        $this->owner = Account::daemon();
         $this->collection = Collection::factory()->create([
             'owner_wallet_id' => $this->owner->id,
         ]);

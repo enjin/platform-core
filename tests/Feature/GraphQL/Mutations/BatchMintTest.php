@@ -17,7 +17,6 @@ use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -39,7 +38,6 @@ class BatchMintTest extends TestCaseGraphQL
 
     protected string $method = 'BatchMint';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -53,11 +51,9 @@ class BatchMintTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = (new WalletService())->firstOrStore(['public_key' => $this->defaultAccount]);
-
         $this->recipient = Wallet::factory()->create();
         $this->collection = Collection::factory([
+            'owner_wallet_id' => $this->wallet = Account::daemon(),
             'max_token_supply' => null,
             'max_token_count' => 100,
             'force_single_mint' => false,
@@ -290,6 +286,10 @@ class BatchMintTest extends TestCaseGraphQL
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipients' => [
@@ -298,7 +298,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -320,6 +320,7 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
@@ -342,6 +343,10 @@ class BatchMintTest extends TestCaseGraphQL
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipients' => [
@@ -350,7 +355,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -372,6 +377,7 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_batch_mint_create_single_token_with_single_mint_cap(): void
@@ -523,6 +529,7 @@ class BatchMintTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)?->delete();
         Collection::factory([
             'collection_chain_id' => $collectionId,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
@@ -669,6 +676,7 @@ class BatchMintTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)?->delete();
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         $token = Token::factory([
             'collection_id' => $collection,
@@ -1015,7 +1023,7 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($supply),
                         behavior: new TokenMarketBehaviorParams(
                             hasRoyalty: new RoyaltyPolicyParams(
-                                beneficiary: $beneficiary = $this->defaultAccount,
+                                beneficiary: $beneficiary = Account::daemonPublicKey(),
                                 percentage: $percentage = fake()->numberBetween(1, 50),
                             ),
                         ),

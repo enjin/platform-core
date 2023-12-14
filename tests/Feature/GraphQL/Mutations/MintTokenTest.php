@@ -31,21 +31,21 @@ class MintTokenTest extends TestCaseGraphQL
 
     protected string $method = 'MintToken';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
     protected Model $recipient;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->token = Token::factory()->create();
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory()->create(['collection_id' => $this->collection]);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->token->collection_id);
         $this->recipient = Wallet::factory()->create();
-        $this->defaultAccount = Account::daemonPublicKey();
     }
 
     // Happy Path
@@ -179,11 +179,15 @@ class MintTokenTest extends TestCaseGraphQL
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
 
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -205,6 +209,7 @@ class MintTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_mint_a_token_with_public_key_signing_account(): void
@@ -221,11 +226,15 @@ class MintTokenTest extends TestCaseGraphQL
         $params = $params->toArray()['Mint'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
 
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -247,6 +256,7 @@ class MintTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_mint_a_token_with_different_types(): void
@@ -290,6 +300,7 @@ class MintTokenTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([

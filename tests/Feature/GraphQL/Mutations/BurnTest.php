@@ -12,7 +12,6 @@ use Enjin\Platform\Models\Substrate\BurnParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -33,7 +32,6 @@ class BurnTest extends TestCaseGraphQL
 
     protected $method = 'Burn';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $token;
@@ -45,18 +43,15 @@ class BurnTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
+        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
         ])->create();
-
-        $this->token = Token::find($this->tokenAccount->token_id);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->tokenAccount->collection_id);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     // Happy Path

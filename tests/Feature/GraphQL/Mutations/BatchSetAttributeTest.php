@@ -9,7 +9,6 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchSetAttribute
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -28,7 +27,6 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'BatchSetAttribute';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
@@ -38,12 +36,8 @@ class BatchSetAttributeTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-
-        $this->defaultAccount = Account::daemonPublicKey();
-        $owner = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
         $this->collection = Collection::factory()->create([
-            'owner_wallet_id' => $owner->id,
+            'owner_wallet_id' => Account::daemon(),
         ]);
         $this->token = Token::factory([
             'collection_id' => $this->collection->id,
