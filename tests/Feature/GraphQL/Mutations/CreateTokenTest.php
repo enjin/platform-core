@@ -337,6 +337,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => $params,
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -357,7 +358,6 @@ class CreateTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_create_a_token_with_unit_price_equals_null(): void

@@ -226,6 +226,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -246,8 +247,6 @@ class UnapproveTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_unapprove_a_token_with_signing_account_public_key(): void
@@ -268,6 +267,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -288,7 +288,6 @@ class UnapproveTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_unapprove_a_token_with_big_int_collection_id(): void

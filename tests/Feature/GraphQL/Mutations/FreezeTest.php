@@ -220,6 +220,7 @@ class FreezeTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -240,7 +241,6 @@ class FreezeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_freeze_a_collection_with_public_key_signing_account(): void
@@ -261,6 +261,7 @@ class FreezeTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -281,7 +282,6 @@ class FreezeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_freeze_a_big_int_collection(): void

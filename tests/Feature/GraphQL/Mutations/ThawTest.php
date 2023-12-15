@@ -212,6 +212,7 @@ class ThawTest extends TestCaseGraphQL
                 type: $freezeType = FreezeType::COLLECTION
             ),
         ));
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
@@ -238,7 +239,6 @@ class ThawTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_thaw_a_collection_with_public_key_signing_account(): void
@@ -254,12 +254,12 @@ class ThawTest extends TestCaseGraphQL
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
         $this->collection->update(['owner_wallet_id' => $newOwner->id]);
-
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -280,7 +280,6 @@ class ThawTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_can_thaw_a_big_int_collection(): void

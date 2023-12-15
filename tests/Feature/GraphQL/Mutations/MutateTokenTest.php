@@ -245,6 +245,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -265,7 +266,6 @@ class MutateTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_mutate_a_token_with_public_key_signing_account(): void
@@ -288,6 +288,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -308,7 +309,6 @@ class MutateTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_mutate_a_token_with_empty_behavior(): void

@@ -655,6 +655,7 @@ class BurnTest extends TestCaseGraphQL
                 'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
             ],
         ], true);
+        $this->collection->update(['owner_wallet_id' => $this->wallet]);
 
         $this->assertArraySubset(
             ['collectionId' => ['The collection id provided is not owned by you.']],

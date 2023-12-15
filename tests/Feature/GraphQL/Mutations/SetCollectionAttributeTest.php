@@ -118,6 +118,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
             collectionId: $this->collection->collection_chain_id,
@@ -138,7 +139,6 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
@@ -153,6 +153,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
             collectionId: $this->collection->collection_chain_id,
@@ -173,7 +174,6 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_simulate(): void

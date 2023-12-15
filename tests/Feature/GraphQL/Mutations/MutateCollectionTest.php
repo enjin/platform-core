@@ -235,6 +235,7 @@ class MutateCollectionTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -255,7 +256,6 @@ class MutateCollectionTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_mutate_a_collection_with_public_key_signing_account(): void
@@ -276,6 +276,7 @@ class MutateCollectionTest extends TestCaseGraphQL
             ],
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -296,7 +297,6 @@ class MutateCollectionTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_mutate_a_collection_with_explicit_royalty_currencies(): void

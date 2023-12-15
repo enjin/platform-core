@@ -210,6 +210,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
@@ -230,7 +231,6 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
@@ -246,6 +246,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => $value = fake()->realText(),
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
@@ -266,8 +267,6 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_create_an_attribute_with_bigint_collection_id(): void

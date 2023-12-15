@@ -305,6 +305,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -325,7 +326,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_transfer_token_with_public_key_signing_account(): void
@@ -354,6 +354,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -374,7 +375,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_transfer_token_without_pass_keep_alive(): void
@@ -442,6 +442,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
             'signingAccount' => SS58Address::encode($signingWallet->public_key),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,

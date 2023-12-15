@@ -174,6 +174,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
             collectionId: $this->collection->collection_chain_id,
@@ -192,7 +193,6 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_unapprove_a_collection_with_public_key_signing_account(): void
@@ -206,6 +206,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
             collectionId: $this->collection->collection_chain_id,
@@ -224,7 +225,6 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_unapprove_a_collection_with_int(): void

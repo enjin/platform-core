@@ -192,6 +192,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => $key = $this->attribute->key,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
@@ -218,7 +219,6 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_remove_an_attribute_with_public_key_signing_account(): void
@@ -232,6 +232,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => $key = $this->attribute->key,
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
@@ -258,7 +259,6 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_remove_an_attribute_with_null_token_id(): void
