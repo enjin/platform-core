@@ -12,6 +12,7 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -90,6 +91,42 @@ class ApproveTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            operator: $operator = app(Generator::class)->public_key(),
+            amount: $amount = $this->tokenAccount->balance,
+            currentAmount: $currentAmount = $this->tokenAccount->balance
+        ));
+
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::$bypass = true;
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'amount' => $amount,
+            'currentAmount' => $currentAmount,
+            'operator' => SS58Address::encode($operator),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
     }
 
     /**
@@ -223,6 +260,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -243,7 +281,6 @@ class ApproveTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_approve_a_token_with_public_key_signing_account(): void
@@ -268,6 +305,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -288,7 +326,6 @@ class ApproveTokenTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_approve_a_token_with_operator_doesnt_exist(): void

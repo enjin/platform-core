@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
@@ -67,6 +68,31 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::$bypass = true;
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'operator' => $operator = app(Generator::class)->public_key(),
+        ]);
+
+        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
+            collectionId: $collectionId,
+            operator: $operator
+        ));
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_simulate(): void
@@ -134,6 +160,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => $operator = app(Generator::class)->public_key(),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
             collectionId: $this->collection->collection_chain_id,
@@ -152,7 +179,6 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_approve_with_public_key(): void
@@ -166,6 +192,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => $operator = app(Generator::class)->public_key(),
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
             collectionId: $this->collection->collection_chain_id,
@@ -184,7 +211,6 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_approve_a_collection_with_operator_that_exists_locally(): void
