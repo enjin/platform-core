@@ -43,4 +43,20 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
             $fail('enjin-platform::validation.is_collection_owner')->translate();
         }
     }
+
+    /**
+     * Bypass the validation rule.
+     */
+    public static function bypass(): void
+    {
+        static::$bypass = true;
+    }
+
+    /**
+     * Unbypass the validation rule.
+     */
+    public static function unBypass(): void
+    {
+        static::$bypass = false;
+    }
 }

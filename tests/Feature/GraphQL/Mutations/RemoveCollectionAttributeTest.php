@@ -10,6 +10,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveCollectionA
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
@@ -104,6 +105,45 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'key' => $key = $this->attribute->key,
+            'nonce' => $nonce = fake()->numberBetween(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        IsCollectionOwner::unBypass();
+
+        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: null,
+            key: $key,
+        ));
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_remove_an_attribute(): void

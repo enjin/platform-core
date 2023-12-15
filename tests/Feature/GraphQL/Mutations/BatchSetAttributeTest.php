@@ -9,6 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchSetAttribute
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -30,14 +31,16 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->codec = new Codec();
+        $this->wallet = Account::daemon();
         $this->collection = Collection::factory()->create([
-            'owner_wallet_id' => Account::daemon(),
+            'owner_wallet_id' => $this->wallet,
         ]);
         $this->token = Token::factory([
             'collection_id' => $this->collection->id,
@@ -115,6 +118,39 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'attributes' => $attributes,
         ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            attributes: $attributes = $this->randomAttributes(),
+        ));
+
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'attributes' => $attributes,
+        ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        IsCollectionOwner::unBypass();
 
         $this->assertArraySubset([
             'method' => $this->method,

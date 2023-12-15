@@ -17,6 +17,7 @@ use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -266,6 +267,62 @@ class BatchMintTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: [
+                [
+                    'accountId' => $recipient = $this->recipient->public_key,
+                    'params' => $createParams = new CreateTokenParams(
+                        tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
+                        initialSupply: $supply = fake()->numberBetween(1),
+                        cap: TokenMintCapType::INFINITE,
+                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
+                    ),
+                ],
+            ]
+        ));
+
+        $params = $createParams->toArray()['CreateToken'];
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
+
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($recipient),
+                    'createParams' => $params,
+                ],
+            ],
+            'nonce' => $nonce = fake()->numberBetween(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        IsCollectionOwner::unBypass();
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
@@ -300,6 +357,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -320,7 +378,6 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
@@ -357,6 +414,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
             'signingAccount' => $signingAccount,
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -377,7 +435,6 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     public function test_it_can_batch_mint_create_single_token_with_single_mint_cap(): void

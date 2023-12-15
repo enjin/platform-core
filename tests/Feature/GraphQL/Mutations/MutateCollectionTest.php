@@ -10,6 +10,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MutateCollectionM
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -138,6 +139,46 @@ class MutateCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            owner: $owner = Account::daemonPublicKey(),
+        ));
+
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'mutation' => [
+                'owner' => SS58Address::encode($owner),
+            ],
+            'nonce' => $nonce = fake()->numberBetween(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        IsCollectionOwner::unBypass();
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_mutate_a_collection_with_owner(): void

@@ -9,6 +9,7 @@ use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetCollectionAttributeMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
@@ -38,6 +39,41 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     }
 
     // Happy Path
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'key' => $key = fake()->word(),
+            'value' => $value = fake()->realText(),
+            'simulate' => null,
+            'nonce' => $nonce = fake()->numberBetween(),
+        ]);
+        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        IsCollectionOwner::unBypass();
+
+        $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
+            collectionId: $this->collection->collection_chain_id,
+            tokenId: null,
+            key: $key,
+            value: $value
+        ));
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
+            'wallet' => null,
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
 
     public function test_it_can_create_an_attribute(): void
     {

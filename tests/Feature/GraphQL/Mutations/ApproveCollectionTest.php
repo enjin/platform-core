@@ -73,11 +73,13 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        IsCollectionOwner::$bypass = true;
+        IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $this->collection->collection_chain_id,
             'operator' => $operator = app(Generator::class)->public_key(),
         ]);
+        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
+        IsCollectionOwner::unBypass();
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
             collectionId: $collectionId,
@@ -92,7 +94,6 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
     }
 
     public function test_it_can_simulate(): void

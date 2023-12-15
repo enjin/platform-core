@@ -104,7 +104,7 @@ class ApproveTokenTest extends TestCaseGraphQL
         ));
 
         $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        IsCollectionOwner::$bypass = true;
+        IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
@@ -113,6 +113,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
         $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        IsCollectionOwner::unBypass();
 
         $this->assertArraySubset([
             'method' => $this->method,
