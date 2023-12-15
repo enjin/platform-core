@@ -269,8 +269,9 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
+        $collection = Collection::factory(['owner_wallet_id' => Wallet::factory()->create()])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
@@ -287,7 +288,6 @@ class BatchMintTest extends TestCaseGraphQL
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -299,7 +299,6 @@ class BatchMintTest extends TestCaseGraphQL
             ],
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
         IsCollectionOwner::unBypass();
 
         $this->assertArraySubset([
@@ -325,8 +324,14 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
@@ -343,10 +348,6 @@ class BatchMintTest extends TestCaseGraphQL
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipients' => [
@@ -357,7 +358,6 @@ class BatchMintTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -382,8 +382,14 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
@@ -400,10 +406,6 @@ class BatchMintTest extends TestCaseGraphQL
         $params = $createParams->toArray()['CreateToken'];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipients' => [
@@ -414,7 +416,6 @@ class BatchMintTest extends TestCaseGraphQL
             ],
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,

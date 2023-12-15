@@ -95,15 +95,17 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => Wallet::factory()->create()])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance
         ));
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -112,7 +114,6 @@ class ApproveTokenTest extends TestCaseGraphQL
             'currentAmount' => $currentAmount,
             'operator' => SS58Address::encode($operator),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
         IsCollectionOwner::unBypass();
 
         $this->assertArraySubset([
@@ -241,18 +242,20 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_token_with_ss58_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
         ));
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
@@ -261,7 +264,6 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -286,18 +288,21 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_token_with_public_key_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             tokenId: $this->tokenIdEncoder->encode(),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
         ));
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
@@ -306,7 +311,6 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,

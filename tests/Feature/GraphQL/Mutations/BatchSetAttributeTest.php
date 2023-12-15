@@ -136,20 +136,21 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => Wallet::factory()->create()])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            tokenId: $this->tokenIdEncoder->encode(),
+            collectionId: $collectionId = $collection->collection_chain_id,
+            tokenId: $token->token_chain_id,
             attributes: $attributes = $this->randomAttributes(),
         ));
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'tokenId' => ['integer' => $token->token_chain_id],
             'attributes' => $attributes,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
         IsCollectionOwner::unBypass();
 
         $this->assertArraySubset([
