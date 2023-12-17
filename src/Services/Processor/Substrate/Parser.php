@@ -145,13 +145,7 @@ class Parser
         foreach ($data as [$key, $token]) {
 
             $tokenKey = $this->serializationService->decode('tokenStorageKey', $key);
-            $tokenData = null;
-
-            try {
-                $tokenData = $this->serializationService->decode('tokenStorageData', $token);
-            } catch (\Exception $e) {
-                continue;
-            }
+            $tokenData = $this->serializationService->decode('tokenStorageData', $token);
 
             $collection = $this->getCachedCollection(
                 $tokenKey['collectionId'],
@@ -164,6 +158,7 @@ class Parser
                 )
                 : null;
 
+            //TODO: Implement collapsing supply
             $insertData[] = [
                 'token_chain_id' => $tokenKey['tokenId'],
                 'collection_id' => $collection->id,
