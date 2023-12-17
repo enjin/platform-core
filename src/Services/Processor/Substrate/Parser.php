@@ -143,7 +143,16 @@ class Parser
         $insertData = [];
 
         foreach ($data as [$key, $token]) {
+
             $tokenKey = $this->serializationService->decode('tokenStorageKey', $key);
+            $tokenData = null;
+
+            try {
+                $tokenData = $this->serializationService->decode('tokenStorageData', $token);
+            } catch (\Exception $e) {
+                continue;
+            }
+
             $tokenData = $this->serializationService->decode('tokenStorageData', $token);
             $collection = $this->getCachedCollection(
                 $tokenKey['collectionId'],
