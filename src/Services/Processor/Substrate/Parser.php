@@ -153,7 +153,6 @@ class Parser
                 continue;
             }
 
-            $tokenData = $this->serializationService->decode('tokenStorageData', $token);
             $collection = $this->getCachedCollection(
                 $tokenKey['collectionId'],
                 fn () => Collection::where('collection_chain_id', $tokenKey['collectionId'])->firstOrFail()
