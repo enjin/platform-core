@@ -30,7 +30,8 @@
   "TokenCap": {
     "_enum": {
       "SingleMint": "Null",
-      "Supply": "Compact<u128>"
+      "Supply": "Compact<u128>",
+      "CollapsingSupply": "Compact<u128>"
     }
   },
   "SufficiencyParams": {
