@@ -143,7 +143,6 @@ class Parser
         $insertData = [];
 
         foreach ($data as [$key, $token]) {
-
             $tokenKey = $this->serializationService->decode('tokenStorageKey', $key);
             $tokenData = $this->serializationService->decode('tokenStorageData', $token);
 
