@@ -281,20 +281,34 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
+        $wallet = Wallet::factory()->create();
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $wallet])->create(),
+        ])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $wallet,
+            'account_count' => 1,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $wallet,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
                     'params' => new SimpleTransferParams(
-                        tokenId: $this->tokenIdEncoder->encode(),
-                        amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance)
+                        tokenId: $token->token_chain_id,
+                        amount: $amount = fake()->numberBetween(1, $tokenAccount->balance)
                     ),
                 ],
             ]
         ));
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -302,14 +316,13 @@ class BatchTransferTest extends TestCaseGraphQL
                 [
                     'account' => SS58Address::encode($recipient),
                     'simpleParams' => [
-                        'tokenId' => $this->tokenIdEncoder->toEncodable(),
+                        'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
                         'amount' => $amount,
                     ],
                 ],
             ],
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
         IsCollectionOwner::unBypass();
 
         $this->assertArraySubset([
