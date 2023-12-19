@@ -137,35 +137,23 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $token = Token::factory([
-            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => Wallet::factory()->create()])->create(),
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
         ])->create();
-        $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
-            tokenId: $token->token_chain_id,
-            attributes: $attributes = $this->randomAttributes(),
-        ));
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => ['integer' => $token->token_chain_id],
+            'attributes' => $this->randomAttributes(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
 
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
-            'tokenId' => ['integer' => $token->token_chain_id],
-            'attributes' => $attributes,
-        ]);
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertNotEmpty($response['data'][$this->method]);
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
     }
 
     public function test_it_can_batch_set_attribute_on_token_with_ss58_signing_account(): void

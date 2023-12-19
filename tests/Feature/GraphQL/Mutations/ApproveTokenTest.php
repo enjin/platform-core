@@ -95,40 +95,33 @@ class ApproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        Token::factory([
-            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => Wallet::factory()->create()])->create(),
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
         ])->create();
-        $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
-            tokenId: $this->tokenIdEncoder->encode(),
-            operator: $operator = app(Generator::class)->public_key(),
-            amount: $amount = $this->tokenAccount->balance,
-            currentAmount: $currentAmount = $this->tokenAccount->balance
-        ));
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'amount' => fake()->numberBetween(1, 10),
+            'currentAmount' => fake()->numberBetween(1, 10),
+            'operator' => fake()->text(),
+        ], true);
+
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'operator' => ['The operator is not a valid substrate account.'],
+            ],
+            $response['error']
+        );
 
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'amount' => $amount,
-            'currentAmount' => $currentAmount,
-            'operator' => SS58Address::encode($operator),
-        ]);
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['operator' => ['The operator is not a valid substrate account.']],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
     }
 
     /**

@@ -269,57 +269,40 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $collection = Collection::factory(['owner_wallet_id' => Wallet::factory()->create()])->create();
-        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
-            recipients: [
-                [
-                    'accountId' => $recipient = $this->recipient->public_key,
-                    'params' => $createParams = new CreateTokenParams(
-                        tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
-                        initialSupply: $supply = fake()->numberBetween(1),
-                        cap: TokenMintCapType::INFINITE,
-                        unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
-                    ),
-                ],
-            ]
-        ));
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
 
-        $params = $createParams->toArray()['CreateToken'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
-
-        IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
             'recipients' => [
                 [
-                    'account' => SS58Address::encode($recipient),
-                    'createParams' => $params,
+                    'account' => fake()->text(),
+                    'createParams' => [
+                        'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween(1, 10)),
+                        'cap' => [
+                            'type' => TokenMintCapType::INFINITE->name,
+                        ],
+                    ],
                 ],
             ],
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'recipients.0.account' => ['The recipients.0.account is not a valid substrate account.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['recipients.0.account' => ['The recipients.0.account is not a valid substrate account.']],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void

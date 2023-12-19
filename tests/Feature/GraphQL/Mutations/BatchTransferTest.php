@@ -281,69 +281,38 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $wallet = Wallet::factory()->create();
         $token = Token::factory([
-            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $wallet])->create(),
-        ])->create();
-        CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $wallet,
-            'account_count' => 1,
-        ])->create();
-        $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'wallet_id' => $wallet,
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
         ])->create();
 
-        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
-            recipients: [
-                [
-                    'accountId' => $recipient = $this->recipient->public_key,
-                    'params' => new SimpleTransferParams(
-                        tokenId: $token->token_chain_id,
-                        amount: $amount = fake()->numberBetween(1, $tokenAccount->balance)
-                    ),
-                ],
-            ]
-        ));
-
-        IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
             'recipients' => [
                 [
-                    'account' => SS58Address::encode($recipient),
+                    'account' => SS58Address::encode($this->recipient->public_key),
                     'simpleParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-                        'amount' => $amount,
+                        'amount' => fake()->numberBetween(1, 10),
                     ],
                 ],
             ],
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_batch_simple_single_transfer_with_public_key_signing_account(): void

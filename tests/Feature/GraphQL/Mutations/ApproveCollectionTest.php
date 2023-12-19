@@ -75,26 +75,26 @@ class ApproveCollectionTest extends TestCaseGraphQL
         Token::factory([
             'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
         ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' =>$collection->collection_chain_id,
+            'operator' => fake()->text(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'operator' => ['The operator is not a valid substrate account.'],
+            ],
+            $response['error']
+        );
+
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->collection_chain_id,
-            'operator' => $operator = app(Generator::class)->public_key(),
-        ]);
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['operator' => ['The operator is not a valid substrate account.']],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $collectionId,
-            operator: $operator
-        ));
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'wallet' => null,
-        ], $response);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_simulate(): void

@@ -201,46 +201,33 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            burnParams: new BurnParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
-            ),
-        ));
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
             'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => $amount,
+                'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                'amount' => fake()->numberBetween(1, 10),
             ],
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_can_burn_a_token_with_ss58_signing_account(): void
@@ -639,26 +626,6 @@ class BurnTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             ['collectionId' => ['The selected collection id is invalid.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_invalid_owner(): void
-    {
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_id),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
-            ],
-        ], true);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
-
-        $this->assertArraySubset(
-            ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
 
