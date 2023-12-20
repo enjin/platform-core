@@ -96,7 +96,7 @@ class TokenCreated implements SubstrateEvent
         return Token::create([
             'collection_id' => $collection->id,
             'token_chain_id' => $event->tokenId,
-            'supply' => $initialSupply = Arr::get($params, 'initial_supply'),
+            'supply' => Arr::get($params, 'initial_supply') ?? Arr::get($params, 'amount'),
             'cap' => $cap->name,
             'cap_supply' => $capSupply,
             'is_frozen' => $isFrozen,
