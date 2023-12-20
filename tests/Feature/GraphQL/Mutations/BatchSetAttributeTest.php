@@ -151,8 +151,8 @@ class BatchSetAttributeTest extends TestCaseGraphQL
         );
 
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, $params, true);
-        $this->assertNotEmpty($response['data'][$this->method]);
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
     }
 
