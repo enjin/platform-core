@@ -52,13 +52,15 @@ class TokenCreated implements SubstrateEvent
             // TODO: Batch extrinsics - We need to pop the call from the extrinsic
             // For batch we have params.calls
             if (($calls = Arr::get($extrinsic->params, 'calls')) !== null) {
-                $calls = collect($calls)
+                $call = collect($calls)
                     ->filter(
-                        fn ($call) => Arr::get($call, 'MultiTokens.mint.collection_id') === $event->collectionId
-                            && Arr::get($call, 'MultiTokens.mint.params.CreateToken.token_id') === $event->tokenId
+                        fn ($item) => (Arr::get($item, 'MultiTokens.mint.collection_id') === $event->collectionId
+                                && Arr::get($item, 'MultiTokens.mint.params.CreateToken.token_id') === $event->tokenId)
+                            || (Arr::get($item, 'MultiTokens.force_mint.collection_id') === $event->collectionId
+                                && Arr::get($item, 'MultiTokens.force_mint.params.CreateOrMint.token_id') === $event->tokenId)
                     )->first();
 
-                $params = Arr::get($calls, 'MultiTokens.mint.params.CreateToken');
+                $params = Arr::get($call, 'MultiTokens.mint.params.CreateToken') ?? Arr::get($call, 'MultiTokens.force_mint.params.CreateOrMint');
             }
             // For fuel tanks we have params.call
             else {
