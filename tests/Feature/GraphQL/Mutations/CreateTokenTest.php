@@ -172,10 +172,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $token = Token::factory([
-            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
-        ])->create();
-
+        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
         $response = $this->graphql($this->method, $params = [
             'recipient' => $this->recipient->public_key,
             'collectionId' => $collection->collection_chain_id,

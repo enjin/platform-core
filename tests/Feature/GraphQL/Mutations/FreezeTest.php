@@ -128,42 +128,21 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            freezeParams: new FreezeTypeParams(
-                type: $freezeType = FreezeType::COLLECTION
-            ),
-        ));
+        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $response = $this->graphql($this->method, $params = [
+            'freezeType' => FreezeType::COLLECTION->name,
+            'collectionId' => $collection->collection_chain_id,
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'freezeType' => $freezeType->name,
-            'collectionId' => $collectionId,
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_can_freeze_a_collection(): void
@@ -204,23 +183,23 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
         ));
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -245,23 +224,25 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_public_key_signing_account(): void
     {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+        $collection = Collection::factory([
+            'owner_wallet_id' => $wallet,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
         ));
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,

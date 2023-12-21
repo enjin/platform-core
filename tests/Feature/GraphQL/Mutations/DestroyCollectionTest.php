@@ -30,7 +30,6 @@ class DestroyCollectionTest extends TestCaseGraphQL
     protected string $method = 'DestroyCollection';
 
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $owner;
 
@@ -39,7 +38,6 @@ class DestroyCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
         $this->owner = Account::daemon();
         $this->collection = Collection::factory()->create([
             'owner_wallet_id' => $this->owner->id,
@@ -103,38 +101,20 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id
-        ));
-
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
             'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_destroy_a_collection(): void

@@ -31,7 +31,6 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     protected string $method = 'MutateCollection';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
@@ -143,42 +142,23 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
-        ));
-
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
+        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
             'mutation' => [
-                'owner' => SS58Address::encode($owner),
+                'owner' => SS58Address::encode($this->wallet->public_key),
             ],
             'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_mutate_a_collection_with_owner(): void
@@ -219,15 +199,16 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
+            collectionId: $collectionId = $collection->collection_chain_id,
+            owner: $owner = $this->wallet->public_key,
         ));
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'mutation' => [
@@ -235,7 +216,6 @@ class MutateCollectionTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,

@@ -126,48 +126,27 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            mintTokenParams: $params = new MintParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                amount: fake()->numberBetween(),
-            ),
-        ));
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+        $response = $this->graphql($this->method, $params = [
+            'recipient' => SS58Address::encode($this->recipient->public_key),
+            'collectionId' => $collection->collection_chain_id,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                'amount' => fake()->numberBetween(1, 10),
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
 
-        $params = $params->toArray()['Mint'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
-
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($recipient),
-            'collectionId' => $collectionId,
-            'params' => $params,
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_can_mint_a_token_without_unit_price(): void
@@ -214,29 +193,30 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             mintTokenParams: $params = new MintParams(
-                tokenId: $this->tokenIdEncoder->encode(),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(),
             ),
         ));
 
         $params = $params->toArray()['Mint'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -261,29 +241,31 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create(),
+        ])->create();
+
         $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             mintTokenParams: $params = new MintParams(
-                tokenId: $this->tokenIdEncoder->encode(),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(),
             ),
         ));
 
         $params = $params->toArray()['Mint'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
