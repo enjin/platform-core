@@ -11,6 +11,7 @@ use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
 use Enjin\Platform\Models\Substrate\MintParams;
@@ -21,6 +22,7 @@ use Enjin\Platform\Models\Substrate\SimpleTransferParams;
 use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
@@ -64,6 +66,20 @@ class Substrate implements BlockchainServiceInterface
     {
         return $this->codec->encoder()->signingPayload(
             call: $call,
+            nonce: Arr::get($args, 'nonce'),
+            blockHash: networkConfig('genesis-hash'),
+            genesisHash: networkConfig('genesis-hash'),
+            specVersion: networkConfig('spec-version'),
+            txVersion: networkConfig('transaction-version'),
+            tip: Arr::get($args, 'tip'),
+        );
+    }
+
+    public function getSigningPayloadJSON(Transaction $transaction, array $args): array
+    {
+        return $this->codec->encoder()->signingPayloadJSON(
+            call: $transaction['encoded_data'],
+            address: $transaction['wallet_public_key'] ?? Account::daemonPublicKey(),
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),
             genesisHash: networkConfig('genesis-hash'),
