@@ -11,6 +11,7 @@ use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\Metadata;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
@@ -108,6 +109,42 @@ class Encoder
         $tip = $tip == '0' ? '00' : HexConverter::unPrefix($this->compact(gmp_strval($tip)));
 
         return HexConverter::prefix($call . $era . $nonce . $tip . $specVersion . $txVersion . $genesisHash . $blockHash);
+    }
+
+    public function signingPayloadJSON(
+        string $call,
+        string $address,
+        int $nonce,
+        string $blockHash,
+        string $genesisHash,
+        int $specVersion,
+        int $txVersion,
+        ?string $era = '00',
+        ?string $tip = '00',
+    ): array {
+        return [
+            'address' => SS58Address::encode($address),
+            'blockHash' => $blockHash,
+            'blockNumber' => '0x00000000',
+            'era' => HexConverter::prefix($era),
+            'genesisHash' => $genesisHash,
+            'method' => $call,
+            'nonce' => $this->compact(gmp_strval($nonce)),
+            'signedExtensions' => [
+                'CheckNonZeroSender',
+                'CheckSpecVersion',
+                'CheckTxVersion',
+                'CheckGenesis',
+                'CheckMortality',
+                'CheckNonce',
+                'CheckWeight',
+                'ChargeTransactionPayment',
+            ],
+            'specVersion' => $this->uint32(gmp_strval($specVersion)),
+            'tip' => $this->compact(gmp_strval($tip)),
+            'transactionVersion' => $this->uint32(gmp_strval($txVersion)),
+            'version' => 4,
+        ];
     }
 
     public function addFakeSignature(string $call): string

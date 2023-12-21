@@ -88,6 +88,26 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 },
                 'selectable' => false,
             ],
+            'signingPayloadJson' => [
+                'type' => GraphQL::type('Json'),
+                'description' => __('enjin-platform::type.transaction.field.signingPayload'),
+                'args' => [
+                    'nonce' => [
+                        'type' => GraphQL::type('Int'),
+                        'description' => __('enjin-platform::type.transaction.field.signingPayload.nonce'),
+                        'defaultValue' => 0,
+                    ],
+                    'tip' => [
+                        'type' => GraphQL::type('BigInt'),
+                        'description' => __('enjin-platform::type.transaction.field.signingPayload.tip'),
+                        'defaultValue' => '0',
+                    ],
+                ],
+                'resolve' => function ($transaction, $args) {
+                    return Substrate::getSigningPayloadJSON($transaction, $args);
+                },
+                'selectable' => false,
+            ],
             'fee' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.transaction.field.fee'),
