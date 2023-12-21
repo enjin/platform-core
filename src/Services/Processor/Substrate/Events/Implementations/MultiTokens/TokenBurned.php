@@ -25,6 +25,10 @@ class TokenBurned implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $account = WalletService::firstOrStore(['account' => $event->account]);
         $collection = $this->getCollection($event->collectionId);
 

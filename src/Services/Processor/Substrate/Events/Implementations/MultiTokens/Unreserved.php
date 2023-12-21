@@ -27,6 +27,10 @@ class Unreserved implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $account = WalletService::firstOrStore(['account' => Account::parseAccount($event->accountId)]);
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);

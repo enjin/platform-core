@@ -86,4 +86,20 @@ trait QueryDataOrFail
 
         return $wallet;
     }
+
+    protected function shouldIndexCollection(?string $collectionId): bool
+    {
+        if (!$collectionId) {
+            return false;
+        }
+
+        return $this->shouldIndex('collections', $collectionId);
+    }
+
+    protected function shouldIndex(string $filter, string $value): bool
+    {
+        $indexFilters = collect(config("enjin-platform.indexing.filters.{$filter}", []));
+
+        return $indexFilters->isEmpty() || $indexFilters->contains($value);
+    }
 }

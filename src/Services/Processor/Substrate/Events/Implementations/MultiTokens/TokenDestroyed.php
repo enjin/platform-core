@@ -23,6 +23,10 @@ class TokenDestroyed implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $collection = $this->getCollection($collectionId = $event->collectionId);
         $token = $this->getToken($collection->id, $tokenId = $event->tokenId);
         $token->delete();

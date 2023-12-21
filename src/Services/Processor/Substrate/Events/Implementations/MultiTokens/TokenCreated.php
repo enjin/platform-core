@@ -29,6 +29,10 @@ class TokenCreated implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $token = $this->parseToken($extrinsic, $event);
 

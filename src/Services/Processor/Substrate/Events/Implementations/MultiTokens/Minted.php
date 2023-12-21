@@ -25,6 +25,10 @@ class Minted implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $recipient = WalletService::firstOrStore(['account' => Account::parseAccount($event->recipient)]);
         $collection = $this->getCollection($event->collectionId);
