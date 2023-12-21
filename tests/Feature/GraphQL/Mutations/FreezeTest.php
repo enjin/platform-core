@@ -267,6 +267,8 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_big_int_collection(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = Hex::MAX_UINT128,
             'owner_wallet_id' => $this->wallet,
