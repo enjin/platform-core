@@ -57,9 +57,27 @@ class Substrate implements BlockchainServiceInterface
     /**
      * Call the method in the client service.
      */
-    public function callMethod(string $name, array $args = []): mixed
+    public function callMethod(string $name, array $args = [], ?bool $raw = false): mixed
     {
-        return $this->client->send($name, $args);
+        return $this->client->send($name, $args, $raw);
+    }
+
+    public function createExtrinsic(
+        string $signer,
+        string $signature,
+        string $call,
+        ?string $nonce = '00',
+        ?string $era = '00',
+        ?string $tip = '00'
+    ): string {
+        return $this->codec->encoder()->addSignature(
+            signer: $signer,
+            signature: $signature,
+            call: $call,
+            nonce: $nonce,
+            era: $era,
+            tip: $tip
+        );
     }
 
     public function getSigningPayload(string $call, array $args): string
