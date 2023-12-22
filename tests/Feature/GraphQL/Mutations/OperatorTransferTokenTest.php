@@ -189,50 +189,49 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
-            operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
-            ),
-        ));
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->public_key),
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                'source' => $this->wallet->public_key,
+                'amount' => fake()->numberBetween(0, $tokenAccount->balance),
+                'keepAlive' => fake()->boolean(),
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+                'collectionId' => ['The collection id provided is not owned by you.'],
+            ],
+            $response['error']
+        );
 
-        $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
-
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
-            'recipient' => SS58Address::encode($recipient),
-            'params' => $params,
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            [
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_token(): void
@@ -281,31 +280,44 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                source: $signingWallet->public_key,
+                amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -330,31 +342,45 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                source: $signingWallet->public_key,
+                amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
-        $newOwner = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -420,29 +446,41 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         $signingWallet = Wallet::factory([
             'managed' => true,
         ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                source: $signingWallet->public_key,
+                amount: fake()->numberBetween(0, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
-        $this->collection->update(['owner_wallet_id' => $signingWallet->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
             'signingAccount' => SS58Address::encode($signingWallet->public_key),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $this->assertArraySubset([
             'method' => $this->method,

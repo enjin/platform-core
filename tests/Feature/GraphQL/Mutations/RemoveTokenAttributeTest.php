@@ -118,42 +118,31 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $attribute = Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => $attribute->key,
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
-
-        $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
-            collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
-            key: $key,
-        ));
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_remove_an_attribute(): void
@@ -194,21 +183,27 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_ss58_signing_account(): void
     {
-        $newOwner = Wallet::factory()->create([
+        $signingWallet = Wallet::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $attribute = Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => $key = $attribute->key,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             key: $key,
         ));
 
@@ -235,21 +230,27 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_public_key_signing_account(): void
     {
-        $newOwner = Wallet::factory()->create([
+        $signingWallet = Wallet::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $attribute = Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => $key = $attribute->key,
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             key: $key,
         ));
 

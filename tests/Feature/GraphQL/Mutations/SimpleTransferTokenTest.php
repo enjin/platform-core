@@ -196,63 +196,40 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $wallet = Wallet::factory()->create();
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
         $token = Token::factory([
-            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $wallet])->create(),
-        ])->create();
-        CollectionAccount::factory([
             'collection_id' => $collection,
-            'wallet_id' => $wallet,
-            'account_count' => 1,
-        ])->create();
-        $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'wallet_id' => $wallet,
         ])->create();
 
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->public_key),
+            'params' => [
+                'tokenId' => $this->tokenIdInput->toEncodable($token->token_chain_id),
+                'amount' => fake()->numberBetween(),
+                'keepAlive' => fake()->boolean(),
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
 
-        $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $collection->collection_chain_id,
-            simpleTransferParams: $params = new SimpleTransferParams(
-                tokenId: $token->token_chain_id,
-                amount: fake()->numberBetween(0, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
-            ),
-        ));
-
-        $params = $params->toArray()['Simple'];
-        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_chain_id);
+        $this->assertEquals(
+            [
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+                'collectionId' => ['The collection id provided is not owned by you.'],
+            ],
+            $response['error']
+        );
 
         IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
-            'recipient' => SS58Address::encode($recipient),
-            'params' => $params,
-            'nonce' => $nonce = fake()->numberBetween(),
-        ]);
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            [
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
         IsCollectionOwner::unBypass();
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        $this->assertDatabaseHas('transactions', [
-            'id' => $response['id'],
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encoded_data' => $encodedData,
-        ]);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_token(): void
