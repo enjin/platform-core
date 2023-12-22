@@ -709,7 +709,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)->delete();
 
         $collection = Collection::factory([
             'owner_wallet_id' => $this->wallet->id,

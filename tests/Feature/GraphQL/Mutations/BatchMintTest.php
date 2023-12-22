@@ -567,7 +567,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)->delete();
         Collection::factory([
             'collection_chain_id' => $collectionId,
             'owner_wallet_id' => $this->wallet,
@@ -714,7 +714,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_single_token_with_big_int_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)->delete();
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId,
             'owner_wallet_id' => $this->wallet,

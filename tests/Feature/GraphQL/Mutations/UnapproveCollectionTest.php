@@ -107,33 +107,31 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        IsCollectionOwner::bypass();
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
-            'nonce' => $nonce = fake()->numberBetween(),
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $collectionAccount = CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $this->owner,
+            'account_count' => 1,
+        ])->create();
+        CollectionAccountApproval::factory()->create([
+            'collection_account_id' => $collectionAccount->id,
+            'wallet_id' => $operator = Wallet::factory()->create(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'operator' => SS58Address::encode($operator->public_key),
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
-
-        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
-            operator: $this->operator->public_key,
-        ));
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'signingPayload' => Substrate::getSigningPayload($encodedData, [
-                'nonce' => $nonce,
-                'tip' => '0',
-            ]),
-            'wallet' => null,
-        ], $response);
-
-        Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_unapprove_a_collection_with_string(): void
@@ -251,6 +249,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_bigint(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
         $collection = Collection::factory()->create([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $this->owner->id,

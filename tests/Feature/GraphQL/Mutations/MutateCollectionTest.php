@@ -345,6 +345,8 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_big_int_collection_id(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $this->wallet,

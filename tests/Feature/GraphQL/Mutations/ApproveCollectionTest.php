@@ -303,7 +303,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_collection_with_bigint(): void
     {
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)->delete();
 
         $collection = Collection::factory()->create([
             'collection_chain_id' => Hex::MAX_UINT128,

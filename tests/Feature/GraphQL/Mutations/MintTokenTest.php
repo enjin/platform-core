@@ -327,6 +327,8 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_bigint_collection_id_and_token_id(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $this->wallet,
