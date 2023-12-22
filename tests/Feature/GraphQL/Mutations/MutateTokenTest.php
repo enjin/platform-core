@@ -273,16 +273,17 @@ class MutateTokenTest extends TestCaseGraphQL
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
         $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $token = Token::factory(['collection_id' => $collection])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             listingForbidden: $listingForbidden = fake()->boolean(),
         ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
             'mutation' => [
                 'listingForbidden' => $listingForbidden,
             ],
