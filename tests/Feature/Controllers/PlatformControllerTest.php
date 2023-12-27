@@ -18,6 +18,8 @@ class PlatformControllerTest extends TestCaseGraphQL
                 'chain' => config('enjin-platform.chains.selected'),
                 'network' => config('enjin-platform.chains.network'),
                 'packages' => PlatformController::getPlatformPackages(),
+                'release-diff' => json_decode(PlatformController::getPlatformReleaseDiff(true)->getContent()),
+                'next-release' => json_decode(PlatformController::getPlatformReleaseDiff()->getContent()),
             ],
             $response->json()
         );
