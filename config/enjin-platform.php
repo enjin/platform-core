@@ -215,4 +215,15 @@ return [
     */
     'prune_expired_events' => env('PRUNE_EXPIRED_CLAIMS', 30),
 
+    /*
+    |--------------------------------------------------------------------------
+    | The GitHub personal token, if supplied
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set a GitHub auth token to help increase rate limits when
+    | accessing the GitHub APIs.
+    |
+    */
+    'github_token' => env('GITHUB_TOKEN'),
+
 ];

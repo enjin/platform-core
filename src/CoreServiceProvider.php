@@ -17,6 +17,7 @@ use Enjin\Platform\Providers\Deferred\QrServiceProvider;
 use Enjin\Platform\Providers\Deferred\SerializationServiceProvider;
 use Enjin\Platform\Providers\Deferred\WebsocketClientProvider;
 use Enjin\Platform\Providers\FakerServiceProvider;
+use Enjin\Platform\Providers\GitHubServiceProvider;
 use Enjin\Platform\Providers\GraphQlServiceProvider;
 use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
 use Illuminate\Database\Eloquent\Builder;
@@ -88,6 +89,7 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(GraphQlServiceProvider::class);
         $this->app->register(FakerServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
+        $this->app->register(GitHubServiceProvider::class);
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::synching());
         Event::listen(PlatformSynced::class, fn () => BlockProcessor::synchingDone());

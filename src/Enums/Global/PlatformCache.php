@@ -23,6 +23,7 @@ enum PlatformCache: string implements PlatformCacheable
     case PAGINATION = 'pagination';
     case FEE = 'fee';
     case DEPOSIT = 'deposit';
+    case RELEASE_DIFF = 'releaseDiff';
 
     public function key(?string $suffix = null): string
     {
@@ -36,6 +37,7 @@ enum PlatformCache: string implements PlatformCacheable
             self::CALL_INDEXES,
             self::CUSTOM_TYPES,
             self::MANAGED_ACCOUNTS,
+            self::RELEASE_DIFF,
         ]);
     }
 }

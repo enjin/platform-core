@@ -3,9 +3,11 @@
 namespace Enjin\Platform\Http\Controllers;
 
 use Composer\InstalledVersions;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Package;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class PlatformController extends Controller
 {
@@ -32,6 +34,17 @@ class PlatformController extends Controller
         })->all();
     }
 
+    public static function getPlatformReleaseDiff(): JsonResponse
+    {
+        return response()
+            ->json(static::getReleaseDiffData(), 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+            ->setCache([
+                'public' => true,
+                'max_age' => 3600,
+                's_maxage' => 3600,
+            ]);
+    }
+
     /**
      * Get platform information.
      */
@@ -43,6 +56,8 @@ class PlatformController extends Controller
             'chain' => config('enjin-platform.chains.selected'),
             'network' => config('enjin-platform.chains.network'),
             'packages' => static::getPlatformPackages(),
+            'release-diff' => static::getReleaseDiffData(true),
+            'next-release' => static::getReleaseDiffData(),
         ];
 
         return response()
@@ -52,5 +67,32 @@ class PlatformController extends Controller
                 'max_age' => 10,
                 's_maxage' => 60,
             ]);
+    }
+
+    protected static function getReleaseDiffData(bool $useInstalledRevision = false): array
+    {
+        return Cache::remember(PlatformCache::RELEASE_DIFF->key($useInstalledRevision ? 'current' : ''), now()->addHour(), function () use ($useInstalledRevision) {
+            $installedPackages = Package::getInstalledPlatformPackages();
+            $githubHttp = app('github.http');
+
+            return $installedPackages->mapWithKeys(function ($package) use ($githubHttp, $useInstalledRevision) {
+                $masterSha = $githubHttp->get("repos/{$package}/commits/master");
+                $releaseTags = $githubHttp->get("repos/{$package}/tags");
+                if ($masterSha->ok() && $releaseTags->ok()) {
+                    $masterSha = $useInstalledRevision ? InstalledVersions::getReference($package) : $masterSha->json()['sha'];
+                    $releaseSha = $releaseTags->json()[0]['commit']['sha'];
+
+                    $compare = $useInstalledRevision ? "{$masterSha}...{$releaseSha}" : "{$releaseSha}...{$masterSha}";
+                    $response = $githubHttp->get("repos/{$package}/compare/{$compare}");
+                    if ($response->ok()) {
+                        $commits = collect(json_decode($response->getBody()->getContents(), true)['commits']);
+
+                        return [$package => $commits->map(fn ($commit) => $commit['commit']['message'])->reverse()->flatten()->all()];
+                    }
+                }
+
+                return [];
+            })->all();
+        });
     }
 }
