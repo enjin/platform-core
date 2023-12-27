@@ -15,9 +15,9 @@ class GitHubServiceProvider extends ServiceProvider
     public function register()
     {
         $githubHttp = new Factory();
-        $githubHttp = $githubHttp->baseUrl('https://api.github.com/');
+        $githubHttp = $githubHttp->baseUrl(config('enjin-platform.github.api_url'));
 
-        if ($githubToken = config('enjin-platform.github_token')) {
+        if ($githubToken = config('enjin-platform.github.token')) {
             $githubHttp = $githubHttp->withOptions([
                 'headers' => [
                     'Authorization' => 'Bearer ' . $githubToken,

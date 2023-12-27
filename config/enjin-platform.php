@@ -217,13 +217,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The GitHub personal token, if supplied
+    | The GitHub API access info, if required
     |--------------------------------------------------------------------------
     |
     | Here you may set a GitHub auth token to help increase rate limits when
     | accessing the GitHub APIs.
     |
     */
-    'github_token' => env('GITHUB_TOKEN'),
-
+    'github' => [
+        'api_url' => env('GITHUB_API_URL', 'https://api.github.com/'),
+        'token' => env('GITHUB_TOKEN'),
+    ],
 ];

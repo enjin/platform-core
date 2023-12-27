@@ -8,6 +8,8 @@ use Enjin\Platform\Package;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PlatformController extends Controller
 {
@@ -76,22 +78,28 @@ class PlatformController extends Controller
             $githubHttp = app('github.http');
 
             return $installedPackages->mapWithKeys(function ($package) use ($githubHttp, $useInstalledRevision) {
-                $masterSha = $githubHttp->get("repos/{$package}/commits/master");
-                $releaseTags = $githubHttp->get("repos/{$package}/tags");
-                if ($masterSha->ok() && $releaseTags->ok()) {
-                    $masterSha = $useInstalledRevision ? InstalledVersions::getReference($package) : $masterSha->json()['sha'];
-                    $releaseSha = $releaseTags->json()[0]['commit']['sha'];
+                try {
+                    $masterSha = $githubHttp->get("repos/{$package}/commits/master");
+                    $releaseTags = $githubHttp->get("repos/{$package}/tags");
+                    if ($masterSha->ok() && $releaseTags->ok()) {
+                        $masterSha = $useInstalledRevision ? InstalledVersions::getReference($package) : $masterSha->json()['sha'];
+                        $releaseSha = $releaseTags->json()[0]['commit']['sha'];
 
-                    $compare = $useInstalledRevision ? "{$masterSha}...{$releaseSha}" : "{$releaseSha}...{$masterSha}";
-                    $response = $githubHttp->get("repos/{$package}/compare/{$compare}");
-                    if ($response->ok()) {
-                        $commits = collect(json_decode($response->getBody()->getContents(), true)['commits']);
+                        $compare = $useInstalledRevision ? "{$masterSha}...{$releaseSha}" : "{$releaseSha}...{$masterSha}";
+                        $response = $githubHttp->get("repos/{$package}/compare/{$compare}");
+                        if ($response->ok()) {
+                            $commits = collect(json_decode($response->getBody()->getContents(), true)['commits']);
 
-                        return [$package => $commits->map(fn ($commit) => $commit['commit']['message'])->reverse()->flatten()->all()];
+                            return [$package => $commits->map(fn ($commit) => $commit['commit']['message'])->reverse()->flatten()->all()];
+                        }
                     }
-                }
 
-                return [];
+                    return [];
+                } catch (Throwable $exception) {
+                    Log::error('There was an issue receiving data from the GitHub API: ' . $exception->getMessage());
+
+                    return [];
+                }
             })->all();
         });
     }
