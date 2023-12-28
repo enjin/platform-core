@@ -99,7 +99,7 @@ class TokenIdManager
     /**
      * Resolve the given store.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function resolve(string $name): Encoder
     {

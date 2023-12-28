@@ -215,4 +215,17 @@ return [
     */
     'prune_expired_events' => env('PRUNE_EXPIRED_CLAIMS', 30),
 
+    /*
+    |--------------------------------------------------------------------------
+    | The GitHub API access info, if required
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set a GitHub auth token to help increase rate limits when
+    | accessing the GitHub APIs.
+    |
+    */
+    'github' => [
+        'api_url' => env('GITHUB_API_URL', 'https://api.github.com/'),
+        'token' => env('GITHUB_TOKEN'),
+    ],
 ];
