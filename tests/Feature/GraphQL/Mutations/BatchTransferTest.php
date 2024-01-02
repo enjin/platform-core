@@ -93,6 +93,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'wallet_id' => $signingWallet,
         ])->create();
 
+
         $recipient = [
             'accountId' => Account::daemonPublicKey(),
             'params' => new SimpleTransferParams(
