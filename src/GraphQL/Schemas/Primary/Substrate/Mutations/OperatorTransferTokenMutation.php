@@ -17,6 +17,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
@@ -144,7 +145,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
     }

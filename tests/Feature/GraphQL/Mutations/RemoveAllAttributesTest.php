@@ -11,7 +11,7 @@ use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Database\WalletService;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -32,7 +32,6 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveAllAttributes';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
@@ -42,16 +41,14 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = (new WalletService())->firstOrStore(['public_key' => $this->defaultAccount]);
-
-        $this->attribute = Attribute::factory()->create();
-        $this->collection = Collection::find($this->attribute->collection_id);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
-        $this->token = Token::find($this->attribute->token_id);
-        $this->token->update(['collection_id' => $this->collection->id]);
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory(['collection_id' => $this->collection])->create();
+        $this->attribute = Attribute::factory()->create([
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
+        ]);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
@@ -114,6 +111,30 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'attributeCount' => 1,
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
     }
 
     public function test_it_can_remove_an_attribute(): void

@@ -14,7 +14,7 @@ use Enjin\Platform\Models\Substrate\FreezeTypeParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -35,7 +35,6 @@ class ThawTest extends TestCaseGraphQL
 
     protected string $method = 'Thaw';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -47,21 +46,20 @@ class ThawTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory(['collection_id' => $this->collection])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
+            'collection_id' => $this->collection->id,
+            'token_id' => $this->token->id,
         ])->create();
-        $this->collection = Collection::find($collectionId = $this->tokenAccount->collection_id);
-        $this->token = Token::find($this->tokenAccount->token_id);
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $collectionId,
+            'collection_id' => $this->collection,
             'wallet_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
+        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
     // Happy Path
@@ -126,6 +124,30 @@ class ThawTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'freezeType' => FreezeType::COLLECTION->name,
+            'collectionId' => $collection->collection_chain_id,
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_can_thaw_a_collection(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
@@ -164,8 +186,12 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_collection_with_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -174,7 +200,7 @@ class ThawTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -200,8 +226,12 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_collection_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -210,7 +240,7 @@ class ThawTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -236,8 +266,10 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_big_int_collection(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -373,13 +405,11 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_big_int_token(): void
     {
-        $collection = Collection::factory()->create();
-
+        $collection = Collection::factory(['owner_wallet_id' => $this->wallet])->create();
         Token::factory([
             'collection_id' => $collection,
             'token_chain_id' => $tokenId = Hex::MAX_UINT128,
         ])->create();
-
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $this->wallet,

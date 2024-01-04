@@ -9,6 +9,8 @@ use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetTokenAttributeMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -33,15 +35,16 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->token = Token::factory()->create();
-        $this->collection = Collection::find($this->token->collection_id);
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory()->create(['collection_id' => $this->collection]);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
@@ -128,6 +131,33 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         ], $response);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => fake()->word(),
+            'value' => fake()->realText(),
+            'nonce' => fake()->numberBetween(),
+        ], true);
+
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_it_can_create_an_attribute(): void
     {
         $response = $this->graphql($this->method, [
@@ -161,17 +191,24 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             key: $key,
             value: $value
         ));
@@ -192,17 +229,24 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             key: $key,
             value: $value
         ));
@@ -223,8 +267,11 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_bigint_collection_id(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([
@@ -259,6 +306,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         Token::factory([

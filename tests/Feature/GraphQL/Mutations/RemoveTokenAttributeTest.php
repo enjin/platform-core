@@ -10,6 +10,8 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveTokenAttrib
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -30,23 +32,24 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveTokenAttribute';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
     protected Model $attribute;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-
-        $this->attribute = Attribute::factory()->create();
-        $this->collection = Collection::find($this->attribute->collection_id);
-        $this->token = Token::find($this->attribute->token_id);
-        $this->token->update(['collection_id' => $this->collection->id]);
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory(['collection_id' => $this->collection])->create();
+        $this->attribute = Attribute::factory()->create([
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
+        ]);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
@@ -113,6 +116,35 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $attribute = Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => $attribute->key,
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_it_can_remove_an_attribute(): void
     {
         $response = $this->graphql($this->method, [
@@ -151,16 +183,27 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $attribute = Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => $key = $attribute->key,
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             key: $key,
         ));
 
@@ -187,16 +230,27 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $attribute = Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'key' => $key = $attribute->key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
             key: $key,
         ));
 
@@ -226,6 +280,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         $collectionId = $collection->collection_chain_id;
 
@@ -271,6 +326,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         Token::where('token_chain_id', Hex::MAX_UINT128)->update(['token_chain_id' => random_int(1, 1000)]);

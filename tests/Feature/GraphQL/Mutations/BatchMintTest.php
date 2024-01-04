@@ -17,7 +17,7 @@ use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -39,7 +39,6 @@ class BatchMintTest extends TestCaseGraphQL
 
     protected string $method = 'BatchMint';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -53,11 +52,9 @@ class BatchMintTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = (new WalletService())->firstOrStore(['public_key' => $this->defaultAccount]);
-
         $this->recipient = Wallet::factory()->create();
         $this->collection = Collection::factory([
+            'owner_wallet_id' => $this->wallet = Account::daemon(),
             'max_token_supply' => null,
             'max_token_count' => 100,
             'force_single_mint' => false,
@@ -270,10 +267,54 @@ class BatchMintTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'recipients' => [
+                [
+                    'account' => fake()->text(),
+                    'createParams' => [
+                        'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween(1, 10)),
+                        'cap' => [
+                            'type' => TokenMintCapType::INFINITE->name,
+                        ],
+                    ],
+                ],
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'recipients.0.account' => ['The recipients.0.account is not a valid substrate account.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['recipients.0.account' => ['The recipients.0.account is not a valid substrate account.']],
+            $response['error']
+        );
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
@@ -298,7 +339,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -324,8 +365,14 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->public_key,
@@ -350,7 +397,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -520,9 +567,10 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)->delete();
         Collection::factory([
             'collection_chain_id' => $collectionId,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
@@ -666,9 +714,10 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_single_token_with_big_int_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)->delete();
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         $token = Token::factory([
             'collection_id' => $collection,
@@ -1015,7 +1064,7 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($supply),
                         behavior: new TokenMarketBehaviorParams(
                             hasRoyalty: new RoyaltyPolicyParams(
-                                beneficiary: $beneficiary = $this->defaultAccount,
+                                beneficiary: $beneficiary = Account::daemonPublicKey(),
                                 percentage: $percentage = fake()->numberBetween(1, 50),
                             ),
                         ),

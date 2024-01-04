@@ -12,7 +12,7 @@ use Enjin\Platform\Models\Substrate\BurnParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -33,7 +33,6 @@ class BurnTest extends TestCaseGraphQL
 
     protected $method = 'Burn';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $token;
@@ -45,18 +44,15 @@ class BurnTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
+        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
         ])->create();
-
-        $this->token = Token::find($this->tokenAccount->token_id);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->tokenAccount->collection_id);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
     }
 
     // Happy Path
@@ -103,7 +99,7 @@ class BurnTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
-                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
             ),
         ));
 
@@ -136,7 +132,7 @@ class BurnTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
-                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
             ),
         ));
 
@@ -169,7 +165,7 @@ class BurnTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             burnParams: new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
-                amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
             ),
         ));
 
@@ -203,6 +199,37 @@ class BurnTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                'amount' => fake()->numberBetween(1, 10),
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            $response['error']
+        );
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_can_burn_a_token_with_ss58_signing_account(): void
     {
         $wallet = Wallet::factory([
@@ -223,7 +250,7 @@ class BurnTest extends TestCaseGraphQL
             'collection_id' => $collection,
             'token_id' => $token,
             'wallet_id' => $wallet,
-            'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+            'balance' => $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
@@ -284,7 +311,7 @@ class BurnTest extends TestCaseGraphQL
             'collection_id' => $collection,
             'token_id' => $token,
             'wallet_id' => $wallet,
-            'balance' => $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+            'balance' => $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, BurnMutation::getEncodableParams(
@@ -333,7 +360,7 @@ class BurnTest extends TestCaseGraphQL
                 collectionId: $collectionId = $this->collection->collection_chain_id,
                 burnParams: new BurnParams(
                     tokenId: $this->tokenIdEncoder->encode(),
-                    amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                    amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
                     keepAlive: $keepAlive = fake()->boolean(),
                 )
             ),
@@ -373,7 +400,7 @@ class BurnTest extends TestCaseGraphQL
                 collectionId: $collectionId = $this->collection->collection_chain_id,
                 burnParams: new BurnParams(
                     tokenId: $this->tokenIdEncoder->encode(),
-                    amount: $amount = fake()->numberBetween(0, $this->tokenAccount->balance),
+                    amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
                     removeTokenStorage: $removeTokenStorage = fake()->boolean(),
                 )
             ),
@@ -449,7 +476,7 @@ class BurnTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             burnParams: $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
                 removeTokenStorage: fake()->boolean(),
             ),
@@ -502,7 +529,7 @@ class BurnTest extends TestCaseGraphQL
             collectionId: $collectionId = $collection->collection_chain_id,
             burnParams: $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
-                amount: fake()->numberBetween(0, $tokenAccount->balance),
+                amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
@@ -593,31 +620,12 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
         $this->assertArraySubset(
             ['collectionId' => ['The selected collection id is invalid.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_invalid_owner(): void
-    {
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_id),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
-            ],
-        ], true);
-
-        $this->assertArraySubset(
-            ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
 
@@ -632,7 +640,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -650,7 +658,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => 'not_valid',
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -668,7 +676,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => 'not_valid',
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -686,7 +694,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => -1,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -704,7 +712,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => -1,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -757,7 +765,7 @@ class BurnTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -774,7 +782,7 @@ class BurnTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -809,7 +817,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
                 'keepAlive' => 'invalid',
             ],
         ], true);
@@ -828,7 +836,7 @@ class BurnTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
                 'removeTokenStorage' => 'invalid',
             ],
         ], true);

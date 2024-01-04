@@ -15,6 +15,8 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
 {
     use HasDataAwareRule;
 
+    public static $bypass = false;
+
     /**
      * Determine if the validation rule passes.
      *
@@ -26,9 +28,35 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $owner = Collection::firstWhere('collection_chain_id', '=', $value)?->owner->public_key;
-        if (!SS58Address::isSameAddress($owner, Arr::get($this->data, 'signingAccount') ?? Account::daemonPublicKey())) {
+        if (!$collection = Collection::firstWhere('collection_chain_id', '=', $value)) {
+            $fail('validation.exists')->translate();
+
+            return;
+        }
+
+        if (!static::$bypass &&
+            (!$collection->owner || !SS58Address::isSameAddress(
+                $collection->owner->public_key,
+                Arr::get($this->data, 'signingAccount') ?: Account::daemonPublicKey()
+            ))
+        ) {
             $fail('enjin-platform::validation.is_collection_owner')->translate();
         }
+    }
+
+    /**
+     * Bypass the validation rule.
+     */
+    public static function bypass(): void
+    {
+        static::$bypass = true;
+    }
+
+    /**
+     * Unbypass the validation rule.
+     */
+    public static function unBypass(): void
+    {
+        static::$bypass = false;
     }
 }

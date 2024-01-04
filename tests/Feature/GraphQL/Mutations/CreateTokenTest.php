@@ -14,6 +14,7 @@ use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -34,19 +35,18 @@ class CreateTokenTest extends TestCaseGraphQL
 
     protected string $method = 'CreateToken';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $recipient;
     protected Encoder $tokenIdEncoder;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->codec = new Codec();
-        $this->collection = Collection::factory()->create();
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
         $this->recipient = Wallet::factory()->create();
-        $this->defaultAccount = Account::daemonPublicKey();
         $this->tokenIdEncoder = new Integer(fake()->unique()->numberBetween());
     }
 
@@ -170,6 +170,29 @@ class CreateTokenTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $response = $this->graphql($this->method, $params = [
+            'recipient' => $this->recipient->public_key,
+            'collectionId' => $collection->collection_chain_id,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween(1, 10)),
+                'cap' => ['type' => TokenMintCapType::INFINITE->name],
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_can_create_a_token_with_cap_equals_null(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
@@ -216,9 +239,14 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -234,7 +262,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'recipient' => $recipient,
             'collectionId' => $collectionId,
             'params' => $params,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -260,9 +288,14 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -278,7 +311,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'recipient' => $recipient,
             'collectionId' => $collectionId,
             'params' => $params,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -492,7 +525,7 @@ class CreateTokenTest extends TestCaseGraphQL
                 unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                 behavior: new TokenMarketBehaviorParams(
                     hasRoyalty: new RoyaltyPolicyParams(
-                        beneficiary: $beneficiary = $this->defaultAccount,
+                        beneficiary: $beneficiary = $this->wallet->public_key,
                         percentage: $percentage = fake()->numberBetween(1, 50)
                     ),
                 ),
@@ -676,7 +709,10 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_bigint_collection_id(): void
     {
+        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)->delete();
+
         $collection = Collection::factory([
+            'owner_wallet_id' => $this->wallet->id,
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 
@@ -717,7 +753,7 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_bigint_token_id(): void
     {
-        $collection = Collection::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
 
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
@@ -761,6 +797,7 @@ class CreateTokenTest extends TestCaseGraphQL
         Wallet::where('public_key', '=', $recipient = app(Generator::class)->public_key())?->delete();
 
         $collection = Collection::factory([
+            'owner_wallet_id' => $this->wallet,
             'collection_chain_id' => Hex::MAX_UINT128,
         ])->create();
 

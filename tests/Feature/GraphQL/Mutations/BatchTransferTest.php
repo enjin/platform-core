@@ -14,7 +14,7 @@ use Enjin\Platform\Models\Substrate\SimpleTransferParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Database\WalletService;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -36,7 +36,6 @@ class BatchTransferTest extends TestCaseGraphQL
 
     protected $method = 'BatchTransfer';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -50,22 +49,21 @@ class BatchTransferTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->wallet = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
-
+        $this->wallet = Account::daemon();
         $this->recipient = Wallet::factory()->create();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
+        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
+            'token_id' => $this->token,
+            'collection_id' => $this->collection,
         ])->create();
-        $this->token = Token::find($this->tokenAccount->token_id);
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->tokenAccount->collection_id);
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $this->collection,
             'wallet_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
+        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
     // Happy Path
@@ -95,8 +93,9 @@ class BatchTransferTest extends TestCaseGraphQL
             'wallet_id' => $signingWallet,
         ])->create();
 
+
         $recipient = [
-            'accountId' => $this->defaultAccount,
+            'accountId' => Account::daemonPublicKey(),
             'params' => new SimpleTransferParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance)
@@ -281,6 +280,42 @@ class BatchTransferTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'recipients' => [
+                [
+                    'account' => SS58Address::encode($this->recipient->public_key),
+                    'simpleParams' => [
+                        'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                        'amount' => fake()->numberBetween(1, 10),
+                    ],
+                ],
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            $response['error']
+        );
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_it_can_batch_simple_single_transfer_with_public_key_signing_account(): void
     {
         $signingWallet = Wallet::factory([
@@ -291,6 +326,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $signingWallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -307,7 +343,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ])->create();
 
         $recipient = [
-            'accountId' => $this->defaultAccount,
+            'accountId' => Account::daemonPublicKey(),
             'params' => new SimpleTransferParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance)
@@ -779,6 +815,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $signingWallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -795,7 +832,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ])->create();
 
         $recipient = [
-            'accountId' => $this->defaultAccount,
+            'accountId' => Account::daemonPublicKey(),
             'params' => new SimpleTransferParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance)
@@ -851,6 +888,7 @@ class BatchTransferTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $signingWallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -980,6 +1018,7 @@ class BatchTransferTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -1054,7 +1093,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_transfer_with_big_int_token_id(): void
     {
-        $collection = Collection::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $this->wallet,

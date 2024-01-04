@@ -13,6 +13,7 @@ use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -33,7 +34,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     protected string $method = 'OperatorTransferToken';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $wallet;
     protected Model $collection;
     protected Model $collectionAccount;
@@ -46,21 +46,21 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-
-        $this->wallet = Wallet::factory()->create();
+        $this->wallet = Account::daemon();
         $this->recipient = Wallet::factory()->create();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
+            'collection_id' => $this->collection,
+            'token_id' => $this->token,
             'wallet_id' => $this->wallet,
         ])->create();
-        $this->token = Token::find($this->tokenAccount->token_id);
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->tokenAccount->collection_id);
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $this->collection,
             'wallet_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
+        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
 
     // Happy Path
@@ -76,7 +76,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -121,7 +121,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -158,7 +158,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -187,6 +187,53 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $signingWallet = Wallet::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->public_key),
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                'source' => $this->wallet->public_key,
+                'amount' => fake()->numberBetween(1, $tokenAccount->balance),
+                'keepAlive' => fake()->boolean(),
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            [
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+                'collectionId' => ['The collection id provided is not owned by you.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            [
+                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
+            ],
+            $response['error']
+        );
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_it_can_transfer_token(): void
     {
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
@@ -195,7 +242,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -233,25 +280,43 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                source: $signingWallet->public_key,
+                amount: fake()->numberBetween(1, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -277,26 +342,45 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                source: $signingWallet->public_key,
+                amount: fake()->numberBetween(1, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
+
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
+
 
         $this->assertArraySubset([
             'method' => $this->method,
@@ -327,7 +411,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
             ),
         ));
 
@@ -362,20 +446,34 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         $signingWallet = Wallet::factory([
             'managed' => true,
         ])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $signingWallet,
+            'account_count' => 1,
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $signingWallet,
+        ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode(),
-                source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                source: $signingWallet->public_key,
+                amount: fake()->numberBetween(1, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -413,7 +511,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -453,7 +551,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -495,7 +593,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $this->tokenAccount->balance),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -535,6 +633,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -556,7 +655,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $tokenAccount->balance),
+                amount: fake()->numberBetween(1, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -589,7 +688,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_bigint_token_id(): void
     {
-        $collection = Collection::factory()->create();
+        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $this->wallet,
@@ -612,7 +711,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             operatorTransferParams: $params = new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $this->wallet->public_key,
-                amount: fake()->numberBetween(0, $tokenAccount->balance),
+                amount: fake()->numberBetween(1, $tokenAccount->balance),
                 keepAlive: fake()->boolean(),
             ),
         ));
@@ -655,7 +754,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => SS58Address::encode($this->wallet->public_key),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -675,7 +774,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -695,7 +794,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -714,7 +813,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -734,7 +833,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => SS58Address::encode($this->wallet->public_key),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -754,7 +853,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -773,7 +872,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -795,7 +894,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -815,7 +914,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => 'not_valid',
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -835,7 +934,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => null,
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -854,7 +953,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'recipient' => $this->recipient->public_key,
             'params' => [
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -874,7 +973,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => 'invalid',
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -893,7 +992,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'recipient' => SS58Address::encode($this->recipient->public_key),
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -913,7 +1012,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => null,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
         ], true);
 
@@ -1052,7 +1151,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => $this->wallet->public_key,
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
                 'keepAlive' => 'invalid',
             ],
         ], true);
@@ -1073,7 +1172,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'source' => SS58Address::encode($this->wallet->public_key),
-                'amount' => fake()->numberBetween(0, $this->tokenAccount->balance),
+                'amount' => fake()->numberBetween(1, $this->tokenAccount->balance),
             ],
             'signingAccount' => 'invalid',
         ], true);

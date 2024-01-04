@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -31,21 +32,21 @@ class MintTokenTest extends TestCaseGraphQL
 
     protected string $method = 'MintToken';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
     protected Model $recipient;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->token = Token::factory()->create();
+        $this->wallet = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->token = Token::factory()->create(['collection_id' => $this->collection]);
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
-        $this->collection = Collection::find($this->token->collection_id);
         $this->recipient = Wallet::factory()->create();
-        $this->defaultAccount = Account::daemonPublicKey();
     }
 
     // Happy Path
@@ -123,6 +124,31 @@ class MintTokenTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_bypass_ownership(): void
+    {
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+        $response = $this->graphql($this->method, $params = [
+            'recipient' => SS58Address::encode($this->recipient->public_key),
+            'collectionId' => $collection->collection_chain_id,
+            'params' => [
+                'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+                'amount' => fake()->numberBetween(1, 10),
+            ],
+            'nonce' => fake()->numberBetween(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
+    }
+
     public function test_can_mint_a_token_without_unit_price(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
@@ -167,23 +193,29 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_ss58_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create(),
+        ])->create();
         $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             mintTokenParams: $params = new MintParams(
-                tokenId: $this->tokenIdEncoder->encode(),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(),
             ),
         ));
 
         $params = $params->toArray()['Mint'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArraySubset([
@@ -209,23 +241,30 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_public_key_signing_account(): void
     {
+        $signingWallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ])->create();
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create(),
+        ])->create();
+
         $encodedData = TransactionSerializer::encode('Mint', MintTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $collection->collection_chain_id,
             mintTokenParams: $params = new MintParams(
-                tokenId: $this->tokenIdEncoder->encode(),
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 amount: fake()->numberBetween(),
             ),
         ));
 
         $params = $params->toArray()['Mint'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable();
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_chain_id);
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($recipient),
             'collectionId' => $collectionId,
             'params' => $params,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount,
         ]);
 
         $this->assertArraySubset([
@@ -288,8 +327,11 @@ class MintTokenTest extends TestCaseGraphQL
 
     public function test_can_mint_a_token_with_bigint_collection_id_and_token_id(): void
     {
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
+            'owner_wallet_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([

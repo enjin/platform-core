@@ -9,7 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchSetAttribute
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Database\WalletService;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
@@ -28,22 +28,19 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'BatchSetAttribute';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $collection;
     protected Model $token;
     protected Encoder $tokenIdEncoder;
+    protected Model $wallet;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->codec = new Codec();
-        $walletService = new WalletService();
-
-        $this->defaultAccount = Account::daemonPublicKey();
-        $owner = $walletService->firstOrStore(['public_key' => $this->defaultAccount]);
+        $this->wallet = Account::daemon();
         $this->collection = Collection::factory()->create([
-            'owner_wallet_id' => $owner->id,
+            'owner_wallet_id' => $this->wallet,
         ]);
         $this->token = Token::factory([
             'collection_id' => $this->collection->id,
@@ -135,6 +132,28 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        $token = Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' => $collection->collection_chain_id,
+            'tokenId' => ['integer' => $token->token_chain_id],
+            'attributes' => $this->randomAttributes(),
+        ], true);
+        $this->assertEquals(
+            ['collectionId' => ['The collection id provided is not owned by you.']],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params);
+        $this->assertNotEmpty($response);
+        IsCollectionOwner::unBypass();
     }
 
     public function test_it_can_batch_set_attribute_on_token_with_ss58_signing_account(): void

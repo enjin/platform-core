@@ -20,6 +20,7 @@ use Enjin\Platform\Models\Substrate\FreezeTypeParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AccountExistsInCollection;
 use Enjin\Platform\Rules\AccountExistsInToken;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
@@ -131,7 +132,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $freezeType = FreezeType::getEnumCase($args['freezeType']);
 
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             ...(
                 in_array($freezeType, [FreezeType::TOKEN, FreezeType::TOKEN_ACCOUNT], true)
                     ? $this->getTokenFieldRulesExist(null, [], false)

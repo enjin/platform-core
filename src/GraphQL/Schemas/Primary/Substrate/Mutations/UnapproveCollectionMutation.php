@@ -16,6 +16,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ApprovalExistsInCollection;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
@@ -115,7 +116,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new IsCollectionOwner()],
             'operator' => ['bail', 'filled', new ValidSubstrateAccount(), new ApprovalExistsInCollection()],
         ];
     }

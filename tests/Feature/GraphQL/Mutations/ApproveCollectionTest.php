@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
@@ -29,7 +30,6 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     protected string $method = 'ApproveCollection';
     protected Codec $codec;
-    protected string $defaultAccount;
     protected Model $owner;
     protected Model $collection;
 
@@ -38,12 +38,11 @@ class ApproveCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
-        $this->collection = Collection::factory()->create();
+        $this->owner = Account::daemon();
+        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->owner->id]);
         Token::factory(fake()->numberBetween(1, 2))->create([
             'collection_id' => $this->collection->id,
         ]);
-        $this->owner = Wallet::find($this->collection->owner_wallet_id);
     }
 
     // Happy Path
@@ -69,6 +68,33 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ], $response);
 
         Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_bypass_ownership(): void
+    {
+        Token::factory([
+            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+        ])->create();
+
+        $response = $this->graphql($this->method, $params = [
+            'collectionId' =>$collection->collection_chain_id,
+            'operator' => fake()->text(),
+        ], true);
+        $this->assertEquals(
+            [
+                'collectionId' => ['The collection id provided is not owned by you.'],
+                'operator' => ['The operator is not a valid substrate account.'],
+            ],
+            $response['error']
+        );
+
+        IsCollectionOwner::bypass();
+        $response = $this->graphql($this->method, $params, true);
+        $this->assertEquals(
+            ['operator' => ['The operator is not a valid substrate account.']],
+            $response['error']
+        );
+        IsCollectionOwner::unBypass();
     }
 
     public function test_it_can_simulate(): void
@@ -127,14 +153,20 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_approve_with_signing_account_ss58(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $collection->collection_chain_id,
             'operator' => $operator = app(Generator::class)->public_key(),
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key()),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $collection->collection_chain_id,
             operator: $operator
         ));
 
@@ -154,14 +186,20 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_approve_with_public_key(): void
     {
+        $newOwner = Wallet::factory()->create([
+            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        ]);
+        Token::factory([
+            'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
+        ])->create();
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $collection->collection_chain_id,
             'operator' => $operator = app(Generator::class)->public_key(),
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key(),
+            'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $collection->collection_chain_id,
             operator: $operator,
         ));
 
@@ -265,7 +303,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_collection_with_bigint(): void
     {
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)?->delete();
+        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)->delete();
 
         $collection = Collection::factory()->create([
             'collection_chain_id' => Hex::MAX_UINT128,
@@ -481,6 +519,23 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             ['operator' => ['The operator cannot be set to the daemon account.']],
+            $response['error'],
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_collection_id_non_existent(): void
+    {
+        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'operator' => app(Generator::class)->public_key(),
+        ], true);
+
+        $this->assertArraySubset(
+            ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
 
