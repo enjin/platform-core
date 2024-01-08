@@ -24,6 +24,11 @@ class AttributeSet implements SubstrateEvent
         if (!$event instanceof AttributeSetPolkadart) {
             return;
         }
+
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $collection = $this->getCollection(
             $collectionId = $event->collectionId,
         );

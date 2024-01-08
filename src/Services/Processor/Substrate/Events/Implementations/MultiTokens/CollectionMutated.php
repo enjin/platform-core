@@ -25,6 +25,10 @@ class CollectionMutated implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $collection = $this->getCollection($event->collectionId);
         $attributes = [];
         $royalties = [];

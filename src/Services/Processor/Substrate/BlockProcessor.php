@@ -266,7 +266,7 @@ class BlockProcessor
 
     protected function setBlockEvent(Substrate $blockchain, Block $block): Block
     {
-        if ($events = $blockchain->callMethod('state_getStorage', [StorageKey::EVENTS->value, $block->hash])) {
+        if ($events = $blockchain->callMethod('state_getStorage', [StorageKey::events()->value, $block->hash])) {
             $block->events = State::eventsForBlock(['number' => $block->number, 'events' => $events]) ?? [];
         }
 

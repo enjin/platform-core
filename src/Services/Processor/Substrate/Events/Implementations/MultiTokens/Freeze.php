@@ -28,6 +28,10 @@ class Freeze implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
 

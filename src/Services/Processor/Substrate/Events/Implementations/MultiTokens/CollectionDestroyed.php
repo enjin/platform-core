@@ -22,6 +22,10 @@ class CollectionDestroyed implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $collection = $this->getCollection(
             $collectionId = $event->collectionId
         );

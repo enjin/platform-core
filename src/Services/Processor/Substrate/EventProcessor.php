@@ -51,20 +51,4 @@ class EventProcessor
     {
         $enum::tryFrom(class_basename($event))?->getProcessor()?->run($event, $this->block, $this->codec);
     }
-
-    protected function shouldIndexCollection(?string $collectionId): bool
-    {
-        if (!$collectionId) {
-            return false;
-        }
-
-        return $this->shouldIndex('collections', $collectionId);
-    }
-
-    protected function shouldIndex(string $filter, string $value): bool
-    {
-        $indexFilters = collect(config("enjin-platform.indexing.filters.{$filter}", []));
-
-        return $indexFilters->isEmpty() || $indexFilters->contains($value);
-    }
 }

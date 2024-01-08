@@ -158,7 +158,7 @@ class TransactionChecker extends Command
 
     protected function fetchEvents($block, Substrate $client): mixed
     {
-        if ($events = $client->callMethod('state_getStorage', [StorageKey::EVENTS->value, $block->hash])) {
+        if ($events = $client->callMethod('state_getStorage', [StorageKey::events()->value, $block->hash])) {
             return State::eventsForBlock(['number' => $block->number, 'events' => $events]) ?? [];
         }
 

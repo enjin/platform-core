@@ -16,6 +16,7 @@ use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -129,7 +130,7 @@ class Sync extends Command
         foreach ($storages as $storage) {
             $this->info(sprintf(
                 '%s: %s',
-                ucwords(str_replace('_', ' ', strtolower($storage[0]->name))),
+                ucwords(str_replace('_', ' ', strtolower($storage[0]->type->name))),
                 $storage[2]
             ));
         }
@@ -190,15 +191,34 @@ class Sync extends Command
         );
     }
 
+    protected function getKeys(): array
+    {
+        $collectionFilter = config('enjin-platform.indexing.filters.collections');
+        if (empty($collectionFilter)) {
+            return [
+                StorageKey::collections(),
+                StorageKey::collectionAccounts(),
+                StorageKey::tokens(),
+                StorageKey::tokenAccounts(),
+                StorageKey::attributes(),
+            ];
+        }
+
+        return collect(array_map(
+            fn ($collectionId) => [
+                StorageKey::collections(Encoder::collectionStorageKey($collectionId)),
+                StorageKey::collectionAccounts(Encoder::collectionAccountStorageKey($collectionId)),
+                StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
+                StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),
+                StorageKey::attributes(Encoder::attributeStorageKey($collectionId)),
+            ],
+            $collectionFilter
+        ))->flatten(1)->toArray();
+    }
+
     protected function getStorageKeys(string $blockHash): array
     {
-        $storage = [
-            StorageKey::COLLECTIONS,
-            StorageKey::COLLECTION_ACCOUNTS,
-            StorageKey::TOKENS,
-            StorageKey::TOKEN_ACCOUNTS,
-            StorageKey::ATTRIBUTES,
-        ];
+        $storage = $this->getKeys();
 
         if (class_exists($enum = '\Enjin\Platform\FuelTanks\Enums\Substrate\StorageKey')) {
             $storage = array_merge($storage, [$enum::TANKS, $enum::ACCOUNTS]);

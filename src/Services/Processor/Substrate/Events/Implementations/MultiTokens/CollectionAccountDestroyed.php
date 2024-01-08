@@ -24,6 +24,10 @@ class CollectionAccountDestroyed implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $collection = $this->getCollection($event->collectionId);
         $account = WalletService::firstOrStore(['account' => $event->account]);
         $collectionAccount = CollectionAccount::firstWhere([

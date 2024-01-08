@@ -69,7 +69,7 @@ class ExtrinsicProcessor
                     $blockHash = $rpc->send('chain_getBlockHash', [$this->block->number]);
                 }
 
-                if ($events = $rpc->send('state_getStorage', [StorageKey::EVENTS->value, $blockHash])) {
+                if ($events = $rpc->send('state_getStorage', [StorageKey::events()->value, $blockHash])) {
                     $this->block->events = State::eventsForBlock(['number' => $this->block->number, 'events' => $events]) ?? [];
                 }
             }

@@ -24,6 +24,10 @@ class TokenAccountDestroyed implements SubstrateEvent
             return;
         }
 
+        if (!$this->shouldIndexCollection($event->collectionId)) {
+            return;
+        }
+
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);
         $account = WalletService::firstOrStore(['account' => $event->account]);

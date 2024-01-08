@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec;
 
+use Codec\Base;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
 use Enjin\BlockchainTools\HexConverter;
@@ -179,7 +180,7 @@ class Encoder
     {
         $publicKey = HexConverter::unPrefix($publicKey);
         $keyHashed = Blake2::hash($publicKey, 128);
-        $key = StorageKey::SYSTEM_ACCOUNT->value . $keyHashed . $publicKey;
+        $key = StorageKey::systemAccount()->value . $keyHashed . $publicKey;
 
         return HexConverter::prefix($key);
     }
@@ -198,43 +199,64 @@ class Encoder
     public static function collectionStorageKey(string $collectionId): string
     {
         $hashAndEncode = Blake2::hashAndEncode($collectionId);
-        $key = StorageKey::COLLECTIONS->value . $hashAndEncode;
+        $key = StorageKey::collections()->value . $hashAndEncode;
 
         return HexConverter::prefix($key);
     }
 
-    public static function tokenStorageKey(string $collectionId, string $tokenId): string
+    public static function tokenStorageKey(string $collectionId, ?string $tokenId = null): string
     {
-        $key = StorageKey::TOKENS->value . Blake2::hashAndEncode($collectionId) . Blake2::hashAndEncode($tokenId);
+        $key = StorageKey::tokens()->value . Blake2::hashAndEncode($collectionId);
+
+        if ($tokenId) {
+            $key .= Blake2::hashAndEncode($tokenId);
+        }
 
         return HexConverter::prefix($key);
     }
 
-    public static function collectionAccountStorageKey(string $collectionId, string $accountId): string
+    public static function collectionAccountStorageKey(string $collectionId, ?string $accountId = null): string
     {
-        $accountId = HexConverter::unPrefix($accountId);
-        $key = StorageKey::COLLECTION_ACCOUNTS->value . Blake2::hashAndEncode($collectionId) . Blake2::hash($accountId, 128) . $accountId;
+        $key = StorageKey::collectionAccounts()->value . Blake2::hashAndEncode($collectionId);
+
+        if ($accountId) {
+            $accountId = HexConverter::unPrefix($accountId);
+            $key .= Blake2::hash($accountId, 128) . $accountId;
+        }
 
         return HexConverter::prefix($key);
     }
 
-    public function attributeStorageKey(string $collectionId, ?string $tokenId, string $key): string
+    public static function attributeStorageKey(string $collectionId, ?string $tokenId = null, ?string $key = null): string
     {
-        $storageKey = StorageKey::ATTRIBUTES->value . Blake2::hashAndEncode($collectionId);
+        $storageKey = StorageKey::attributes()->value . Blake2::hashAndEncode($collectionId);
+        $codec = new ScaleInstance(Base::create());
 
-        $encodedToken = $this->scaleInstance->createTypeByTypeString('Option<u128>')->encode($tokenId);
-        $storageKey .= Blake2::hash($encodedToken, 128) . $encodedToken;
+        if ($tokenId) {
+            $encodedToken = $codec->createTypeByTypeString('Option<u128>')->encode($tokenId);
+            $storageKey .= Blake2::hash($encodedToken, 128) . $encodedToken;
+        }
 
-        $encodedKey = $this->scaleInstance->createTypeByTypeString('Bytes')->encode($key);
-        $storageKey .= Blake2::hash($encodedKey, 128) . $encodedKey;
+        if ($key) {
+            $encodedKey = $codec->createTypeByTypeString('Bytes')->encode($key);
+            $storageKey .= Blake2::hash($encodedKey, 128) . $encodedKey;
+        }
 
         return HexConverter::prefix($storageKey);
     }
 
-    public static function tokenAccountStorageKey(string $accountId, string $collectionId, string $tokenId): string
+    public static function tokenAccountStorageKey(string $collectionId, ?string $tokenId = null, ?string $accountId = null): string
     {
-        $accountId = HexConverter::unPrefix($accountId);
-        $key = StorageKey::TOKEN_ACCOUNTS->value . Blake2::hashAndEncode($collectionId) . Blake2::hashAndEncode($tokenId) . Blake2::hash($accountId, 128) . $accountId;
+        $key = StorageKey::tokenAccounts()->value . Blake2::hashAndEncode($collectionId);
+
+        if ($tokenId) {
+            $key .= Blake2::hashAndEncode($tokenId);
+        }
+
+        if ($accountId) {
+            $accountId = HexConverter::unPrefix($accountId);
+            $key .= Blake2::hash($accountId, 128) . $accountId;
+        }
 
         return HexConverter::prefix($key);
     }
