@@ -7,12 +7,14 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidHex;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 
@@ -47,6 +49,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
         return [
             'id' => [
                 'type' => GraphQL::type('Int'),
+                'defaultValue' => null,
             ],
             'signingPayloadJson' => [
                 'type' => GraphQL::type('Object'),
@@ -77,17 +80,38 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
             $payload->tip
         );
 
-        $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
+        $transaction = null;
 
+        if ($txId = $args['id']) {
+            $transaction = Transaction::firstWhere(['id' => $txId]);
+
+            if (!$transaction) {
+                throw new PlatformException(__('enjin-platform::error.transaction_not_found'), 404);
+            }
+        }
+
+        $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
         if (Arr::exists($response, 'error')) {
             throw new PlatformException($response['error']['message']);
         }
 
-        $transactionService->update($transactionService->get($args['id']), [
-            'transaction_chain_hash' => $hash = $response['result'],
-            'state' => TransactionState::BROADCAST->name,
-        ]);
+        if (!$transaction) {
+            $transactionService->store(
+                [
+                    'method' => 'SendTransaction',
+                    'encoded_data' => $payload->method,
+                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                    'transaction_chain_hash' => $response['result'],
+                    'state' => TransactionState::BROADCAST->name,
+                ],
+                signingWallet: $payload->address,
+            );
+        } else {
+            $transaction->transaction_chain_hash = $response['result'];
+            $transaction->state = TransactionState::BROADCAST->name;
+            $transaction->save();
+        }
 
-        return $hash;
+        return $response['result'];
     }
 }
