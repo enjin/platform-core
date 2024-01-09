@@ -23,6 +23,7 @@ return [
     'qr.extension_not_installed' => 'The Imagick PHP extension is required to generate png QR codes.',
     'qr.image_format_not_supported' => 'The requested image format is not supported.',
     'serialization.method_does_not_exist' => "Method ':method' does not exist.",
+    'signing_payload_json_is_invalid' => 'The signing payload json is invalid.',
     'set_either_create_or_mint_param_for_recipient' => 'You need to set either create params or mint params for every recipient.',
     'set_either_simple_and_operator_params_for_recipient' => 'You need to set either simple params or operator params for every recipient.',
     'supply_cap_must_be_greater_than_initial' => 'Supply CAP amount must be greater than or equal to initial supply.',

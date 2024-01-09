@@ -148,6 +148,23 @@ class Encoder
         ];
     }
 
+    public function addSignature(
+        string $signer,
+        string $signature,
+        string $call,
+        ?string $nonce = '00',
+        ?string $era = '00',
+        ?string $tip = '00'
+    ): string {
+        $extrinsic = '84'; // Extra byte
+        $extrinsic .= '00' . HexConverter::unPrefix(SS58Address::getPublicKey($signer)); // MultiAddress
+        $extrinsic .= HexConverter::unPrefix($signature);
+        $extrinsic .= HexConverter::unPrefix($era) . HexConverter::unPrefix($nonce);
+        $extrinsic .= HexConverter::unPrefix($tip) . HexConverter::unPrefix($call);
+
+        return $this->sequenceLength($extrinsic) . $extrinsic;
+    }
+
     public function addFakeSignature(string $call): string
     {
         $extraByte = '84';
