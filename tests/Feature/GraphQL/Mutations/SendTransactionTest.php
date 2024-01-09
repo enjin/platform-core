@@ -208,6 +208,24 @@ class SendTransactionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_will_fail_with_id_doesnt_exists(): void
+    {
+        Transaction::where(['id' => $id = fake()->randomDigit()])->delete();
+
+        $response = $this->graphql($this->method, [
+            'id' => $id,
+            'signature' => $this->signature,
+            'signingPayloadJson' => $this->payload,
+        ], true);
+
+        $this->assertArraySubset(
+            ['id' => ['The selected id is invalid.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
     protected function createExtrinsic(array $payload, string $signature): string
     {
         return Substrate::createExtrinsic(

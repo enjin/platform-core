@@ -50,6 +50,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
         return [
             'id' => [
                 'type' => GraphQL::type('Int'),
+                'rules' => 'nullable|exists:transactions',
                 'defaultValue' => null,
             ],
             'signingPayloadJson' => [
@@ -86,16 +87,6 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
             $payload->tip
         );
 
-        $transaction = null;
-
-        if ($txId = $args['id']) {
-            $transaction = Transaction::firstWhere(['id' => $txId]);
-
-            if (!$transaction) {
-                throw new PlatformException(__('enjin-platform::error.transaction_not_found'), 404);
-            }
-        }
-
         $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
 
         if (Arr::exists($response, 'error')) {
@@ -106,7 +97,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
             'account' => $payload->address,
         ]);
 
-        if (!$transaction) {
+        if (!$args['id']) {
             $transactionService->store(
                 [
                     'method' => 'SendTransaction',
@@ -119,7 +110,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
             );
         } else {
             $transactionService->update(
-                $transaction,
+                Transaction::find($args['id']),
                 [
                     'wallet_public_key' => $wallet->public_key,
                     'transaction_chain_hash' => $response['result'],
