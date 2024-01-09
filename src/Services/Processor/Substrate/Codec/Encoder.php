@@ -130,7 +130,7 @@ class Encoder
             'era' => HexConverter::prefix($era),
             'genesisHash' => $genesisHash,
             'method' => $call,
-            'nonce' => $this->compact(gmp_strval($nonce)),
+            'nonce' => HexConverter::intToHexPrefixed($nonce),
             'signedExtensions' => [
                 'CheckNonZeroSender',
                 'CheckSpecVersion',
@@ -141,9 +141,9 @@ class Encoder
                 'CheckWeight',
                 'ChargeTransactionPayment',
             ],
-            'specVersion' => $this->uint32(gmp_strval($specVersion)),
+            'specVersion' => gmp_strval($specVersion),
             'tip' => $this->compact(gmp_strval($tip)),
-            'transactionVersion' => $this->uint32(gmp_strval($txVersion)),
+            'transactionVersion' => gmp_strval($txVersion),
             'version' => 4,
         ];
     }
