@@ -1,7 +1,7 @@
 mutation SendTransaction(
     $id: Int
     $signature: String!
-    $signingPayloadJson: Object
+    $signingPayloadJson: Object!
 ) {
     SendTransaction(
         id: $id

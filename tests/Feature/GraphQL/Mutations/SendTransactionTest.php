@@ -171,7 +171,7 @@ class SendTransactionTest extends TestCaseGraphQL
         ], true);
 
         $this->assertStringContainsString(
-            'The signing payload json is invalid.',
+            'Variable "$signingPayloadJson" of required type "Object!" was not provided',
             $response['error']
         );
 
@@ -186,7 +186,7 @@ class SendTransactionTest extends TestCaseGraphQL
         ], true);
 
         $this->assertStringContainsString(
-            'The signing payload json is invalid.',
+            'Variable "$signingPayloadJson" of non-null type "Object!" must not be null',
             $response['error']
         );
 

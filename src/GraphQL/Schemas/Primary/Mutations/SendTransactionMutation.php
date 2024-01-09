@@ -54,7 +54,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
                 'defaultValue' => null,
             ],
             'signingPayloadJson' => [
-                'type' => GraphQL::type('Object'),
+                'type' => GraphQL::type('Object!'),
                 'description' => __('enjin-platform::mutation.send_transaction.args.signing_payload_json'),
             ],
             'signature' => [
