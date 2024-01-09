@@ -10,6 +10,16 @@ use Faker\Provider\Base;
 
 class SubstrateProvider extends Base
 {
+    public function hash(): string
+    {
+        return HexConverter::prefix(fake()->sha256());
+    }
+
+    public function signature(): string
+    {
+        return HexConverter::prefix(fake()->sha256() . fake()->sha256());
+    }
+
     public function fee_details(): array
     {
         return [

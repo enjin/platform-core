@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidHex;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
+use Facades\Enjin\Platform\Services\Database\WalletService;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -71,6 +72,11 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, TransactionService $transactionService, Substrate $substrate): mixed
     {
         $payload = Arr::get($args, 'signingPayloadJson');
+
+        if (!Arr::has((array) $payload, ['address', 'method', 'nonce', 'era', 'tip'])) {
+            throw new PlatformException(__('enjin-platform::error.signing_payload_json_is_invalid'));
+        }
+
         $extrinsic = $substrate->createExtrinsic(
             $payload->address,
             Arr::get($args, 'signature'),
@@ -91,25 +97,35 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
         }
 
         $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
+
         if (Arr::exists($response, 'error')) {
             throw new PlatformException($response['error']['message']);
         }
+
+        $wallet = WalletService::firstOrStore([
+            'account' => $payload->address,
+        ]);
 
         if (!$transaction) {
             $transactionService->store(
                 [
                     'method' => 'SendTransaction',
                     'encoded_data' => $payload->method,
-                    'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
+                    'idempotency_key' => Str::uuid()->toString(),
                     'transaction_chain_hash' => $response['result'],
                     'state' => TransactionState::BROADCAST->name,
                 ],
-                signingWallet: $payload->address,
+                signingWallet: $wallet,
             );
         } else {
-            $transaction->transaction_chain_hash = $response['result'];
-            $transaction->state = TransactionState::BROADCAST->name;
-            $transaction->save();
+            $transactionService->update(
+                $transaction,
+                [
+                    'wallet_public_key' => $wallet->public_key,
+                    'transaction_chain_hash' => $response['result'],
+                    'state' => TransactionState::BROADCAST->name,
+                ],
+            );
         }
 
         return $response['result'];

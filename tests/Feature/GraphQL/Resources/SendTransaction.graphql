@@ -1,0 +1,11 @@
+mutation SendTransaction(
+    $id: Int
+    $signature: String!
+    $signingPayloadJson: Object
+) {
+    SendTransaction(
+        id: $id
+        signature: $signature
+        signingPayloadJson: $signingPayloadJson
+    )
+}
