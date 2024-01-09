@@ -226,6 +226,23 @@ class SendTransactionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_will_fail_with_invalid_rpc_response(): void
+    {
+        $this->mockSubmitExtrinsic($this->extrinsic, ['error' => ['message' => 'Blockchain error']]);
+
+        $response = $this->graphql($this->method, [
+            'signature' => $this->signature,
+            'signingPayloadJson' => $this->payload,
+        ], true);
+
+        $this->assertStringContainsString(
+            'Blockchain error',
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
     protected function createExtrinsic(array $payload, string $signature): string
     {
         return Substrate::createExtrinsic(
@@ -249,19 +266,26 @@ class SendTransactionTest extends TestCaseGraphQL
         ];
     }
 
-    protected function mockSubmitExtrinsic(string $extrinsic, string $hash): void
+    protected function mockSubmitExtrinsic(string $extrinsic, array|string $response): void
     {
+        $json = [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+        ];
+
+        if (is_array($response)) {
+            $json = array_merge($json, $response);
+        } else {
+            $json['result'] = $response;
+        }
+
         $this->mockWebsocketClient(
             'author_submitExtrinsic',
             [
                 $extrinsic,
             ],
             json_encode(
-                [
-                    'jsonrpc' => '2.0',
-                    'result' => $hash,
-                    'id' => 1,
-                ],
+                $json,
                 JSON_THROW_ON_ERROR
             )
         );
