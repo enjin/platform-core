@@ -36,11 +36,7 @@ class ApprovalExistsInCollection implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$this->collectionService->approvalExistsInCollection(
-            $this->data['collectionId'],
-            $value,
-            false
-        )) {
+        if (!$this->collectionService->approvalExistsInCollection($this->data['collectionId'], $value, false)) {
             $fail('enjin-platform::validation.approval_exists_in_collection')
                 ->translate([
                     'operator' => $this->data['operator'],
