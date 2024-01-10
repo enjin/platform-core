@@ -220,12 +220,12 @@ class Sync extends Command
     {
         $storage = $this->getKeys();
 
-        if (class_exists($enum = '\Enjin\Platform\FuelTanks\Enums\Substrate\StorageKey')) {
-            $storage = array_merge($storage, [$enum::TANKS, $enum::ACCOUNTS]);
+        if (class_exists($class = '\Enjin\Platform\FuelTanks\Enums\Substrate\StorageKey')) {
+            $storage = array_merge($storage, [$class::tanks(), $class::accounts()]);
         }
 
-        if (class_exists($enum = '\Enjin\Platform\Marketplace\Enums\Substrate\StorageKey')) {
-            $storage = array_merge($storage, [$enum::LISTINGS]);
+        if (class_exists($class = '\Enjin\Platform\Marketplace\Enums\Substrate\StorageKey')) {
+            $storage = array_merge($storage, [$class::listings()]);
         }
 
         return array_map(
