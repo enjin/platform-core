@@ -7,6 +7,7 @@ use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Database\CollectionService;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Arr;
 
 class ApprovalExistsInCollection implements DataAwareRule, ValidationRule
 {
@@ -36,7 +37,11 @@ class ApprovalExistsInCollection implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$this->collectionService->approvalExistsInCollection($this->data['collectionId'], $value)) {
+        if (!$this->collectionService->approvalExistsInCollection(
+            $this->data['collectionId'],
+            $value,
+            !empty(Arr::get($this->data, 'signingAccount'))
+        )) {
             $fail('enjin-platform::validation.approval_exists_in_collection')
                 ->translate([
                     'operator' => $this->data['operator'],
