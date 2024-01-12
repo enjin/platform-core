@@ -134,7 +134,7 @@ class GraphQlServiceProvider extends ServiceProvider
                 && (empty($className::getSchemaNetwork()) || $className::getSchemaNetwork() == config('enjin-platform.chains.selected'))
         );
 
-        $schemaDefaults = config('graphql.schemas.primary');
+        $schemaDefaults = config('graphql.schemas.primary') ?? [];
 
         $schemas = [];
 
