@@ -69,8 +69,8 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->graphqlClasses
             ->filter(
                 fn ($className) => in_array(static::TYPE, class_implements($className))
-                && !empty($className::getSchemaName())
-                && empty($className::getSchemaNetwork())
+                    && !empty($className::getSchemaName())
+                    && empty($className::getSchemaNetwork())
             )
             ->each(fn ($className) => GraphQL::addType($className));
     }
@@ -95,8 +95,8 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->graphqlClasses
             ->filter(
                 fn ($className) => in_array(static::TYPE, class_implements($className))
-                && empty($className::getSchemaName())
-                && empty($className::getSchemaNetwork())
+                    && empty($className::getSchemaName())
+                    && empty($className::getSchemaNetwork())
             )
             ->each(fn ($className) => GraphQL::addType($className));
 
@@ -112,8 +112,8 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->graphqlClasses
             ->filter(
                 fn ($className) => in_array(static::TYPE, class_implements($className))
-                && empty($className::getSchemaName())
-                && $className::getSchemaNetwork() == config('enjin-platform.chains.selected')
+                    && empty($className::getSchemaName())
+                    && $className::getSchemaNetwork() == config('enjin-platform.chains.selected')
             )
             ->each(fn ($className) => GraphQL::addType($className));
     }
@@ -126,15 +126,17 @@ class GraphQlServiceProvider extends ServiceProvider
         // Schema Queries and Mutations
         $queries = $this->graphqlClasses->filter(
             fn ($className) => in_array(static::QUERY, class_implements($className))
-            && (empty($className::getSchemaNetwork()) || $className::getSchemaNetwork() == config('enjin-platform.chains.selected'))
+                && (empty($className::getSchemaNetwork()) || $className::getSchemaNetwork() == config('enjin-platform.chains.selected'))
         );
 
         $mutations = $this->graphqlClasses->filter(
             fn ($className) => in_array(static::MUTATION, class_implements($className))
-            && (empty($className::getSchemaNetwork()) || $className::getSchemaNetwork() == config('enjin-platform.chains.selected'))
+                && (empty($className::getSchemaNetwork()) || $className::getSchemaNetwork() == config('enjin-platform.chains.selected'))
         );
 
-        $schemas = config('graphql.schemas');
+        $schemaDefaults = config('graphql.schemas.primary') ?? [];
+
+        $schemas = [];
 
         $queries->each(function ($query) use (&$schemas) {
             $schemas[$query::getSchemaName()]['query'][] = $query;
@@ -147,8 +149,8 @@ class GraphQlServiceProvider extends ServiceProvider
         // Schema specific Types
         $types = $this->graphqlClasses->filter(
             fn ($className) => in_array(static::TYPE, class_implements($className))
-            && !empty($className::getSchemaName())
-            && $className::getSchemaNetwork() == config('enjin-platform.chains.selected')
+                && !empty($className::getSchemaName())
+                && $className::getSchemaNetwork() == config('enjin-platform.chains.selected')
         );
 
         $types->each(function ($type) use (&$schemas) {
@@ -156,7 +158,7 @@ class GraphQlServiceProvider extends ServiceProvider
         });
 
         foreach ($schemas as $schemaName => $schema) {
-            config(["graphql.schemas.{$schemaName}" => $schema]);
+            config(["graphql.schemas.{$schemaName}" => array_merge_recursive($schemaDefaults, $schema)]);
         }
 
         // Manually add UploadType after schema has been built.
