@@ -4,7 +4,6 @@ namespace Enjin\Platform\Observers;
 
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Models\Laravel\Wallet;
-use Enjin\Platform\Support\Account;
 use Illuminate\Support\Facades\Cache;
 
 class WalletObserver
