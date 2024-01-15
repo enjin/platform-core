@@ -4,16 +4,17 @@ namespace Enjin\Platform\Observers;
 
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Models\Laravel\Wallet;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Facades\Cache;
 
 class WalletObserver
 {
     /**
-     * Listen to the Wallet created event.
+     * Listen to the Wallet saved event.
      */
-    public function saving(Wallet $wallet): void
+    public function saved(Wallet $wallet): void
     {
-        if ($wallet->managed === true) {
+        if ($wallet->managed) {
             Cache::forget(PlatformCache::MANAGED_ACCOUNTS->key());
         }
     }
