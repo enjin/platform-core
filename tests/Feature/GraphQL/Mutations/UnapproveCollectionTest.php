@@ -163,19 +163,27 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_ss58_signing_account(): void
     {
-        $newOwner = Wallet::factory()->create([
+        $signingWallet = Wallet::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collectionAccount = CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $this->owner,
+            'account_count' => 1,
+        ])->create();
+        CollectionAccountApproval::factory()->create([
+            'collection_account_id' => $collectionAccount->id,
+            'wallet_id' => $this->operator,
+        ]);
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $collection->collection_chain_id,
             'operator' => SS58Address::encode($this->operator->public_key),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $collection->collection_chain_id,
             operator: $this->operator->public_key
         ));
 
@@ -195,19 +203,27 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_public_key_signing_account(): void
     {
-        $newOwner = Wallet::factory()->create([
+        $signingWallet = Wallet::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collectionAccount = CollectionAccount::factory([
+            'collection_id' => $collection,
+            'wallet_id' => $this->owner,
+            'account_count' => 1,
+        ])->create();
+        CollectionAccountApproval::factory()->create([
+            'collection_account_id' => $collectionAccount->id,
+            'wallet_id' => $this->operator,
+        ]);
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $collection->collection_chain_id,
             'operator' => SS58Address::encode($this->operator->public_key),
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->owner->id]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $collection->collection_chain_id,
             operator: $this->operator->public_key,
         ));
 
