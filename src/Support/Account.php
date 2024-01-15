@@ -39,8 +39,9 @@ class Account
      */
     public static function managedPublicKeys(): array
     {
-        return Cache::rememberForever(
+        return Cache::remember(
             PlatformCache::MANAGED_ACCOUNTS->key(),
+            now()->addHour(),
             fn () => collect(Wallet::where('managed', '=', true)->get()->pluck('public_key'))
                 ->filter()
                 ->add(static::daemonPublicKey())
