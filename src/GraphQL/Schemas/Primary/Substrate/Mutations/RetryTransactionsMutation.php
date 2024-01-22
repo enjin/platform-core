@@ -13,7 +13,6 @@ use Enjin\Platform\Rules\MinBigInt;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutation
@@ -85,7 +84,13 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 'array',
                 'min:1',
                 'max:1000',
-                Rule::exists('transactions', 'id'),
+                function (string $attribute, mixed $value, Closure $fail) {
+                    if (!Transaction::whereIn('id', $value)
+                        ->where('state', '!=', TransactionState::FINALIZED->name)
+                        ->exists()) {
+                        $fail('validation.exists')->translate();
+                    }
+                },
             ],
             'ids.*' => ['bail', 'distinct', new MinBigInt(), new MaxBigInt()],
             'idempotencyKeys' => [
@@ -94,7 +99,13 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 'array',
                 'min:1',
                 'max:1000',
-                Rule::exists('transactions', 'idempotency_key'),
+                function (string $attribute, mixed $value, Closure $fail) {
+                    if (!Transaction::whereIn('idempotency_key', $value)
+                        ->where('state', '!=', TransactionState::FINALIZED->name)
+                        ->exists()) {
+                        $fail('validation.exists')->translate();
+                    }
+                },
             ],
             'idempotencyKeys.*' => ['bail', 'filled', 'max:255', 'distinct'],
         ];

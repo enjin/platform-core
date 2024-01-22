@@ -36,6 +36,26 @@ class RetryTransactionsTest extends TestCaseGraphQL
         $this->assertNull($transaction->transaction_chain_hash);
     }
 
+    public function test_it_will_fail_with_finalized_state(): void
+    {
+        $transaction = Transaction::factory(['state' => TransactionState::FINALIZED->name])->create();
+        $response = $this->graphql($this->method, [
+            'ids' => [$transaction->id],
+        ], true);
+        $this->assertArraySubset(
+            ['ids' => ['The selected ids is invalid.']],
+            $response['error']
+        );
+
+        $response = $this->graphql($this->method, [
+            'idempotencyKeys' => [$transaction->idempotency_key],
+        ], true);
+        $this->assertArraySubset(
+            ['idempotencyKeys' => ['The selected idempotency keys is invalid.']],
+            $response['error']
+        );
+    }
+
     public function test_it_will_fail_with_invalid_parameter_ids(): void
     {
         $response = $this->graphql($this->method, ['ids' => 'Invalid'], true);
