@@ -85,17 +85,16 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
             throw new PlatformException(__('enjin-platform::error.signing_payload_json_is_invalid'));
         }
 
-        // $extrinsic = $substrate->createExtrinsic(
-        //     $payload->address,
-        //     Arr::get($args, 'signature'),
-        //     $payload->method,
-        //     $payload->nonce,
-        //     $payload->era,
-        //     $payload->tip
-        // );
+        $extrinsic = $substrate->createExtrinsic(
+            $payload->address,
+            Arr::get($args, 'signature'),
+            $payload->method,
+            $payload->nonce,
+            $payload->era,
+            $payload->tip
+        );
 
-        //$response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
-        $response = ['result' => '0x1234567890'];
+        $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
         if (Arr::exists($response, 'error')) {
             throw new PlatformException($response['error']['message']);
         }
