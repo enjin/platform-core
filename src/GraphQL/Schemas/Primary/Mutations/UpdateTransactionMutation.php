@@ -3,6 +3,8 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
+use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Rules\ImmutableTransaction;
@@ -107,6 +109,15 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
             unset($args['signingAccount']);
         }
 
-        return $transactionService->update($transactionService->get($args['id']), Arr::except($args, 'id'));
+        $transaction = $transactionService->get($args['id']);
+        if (Arr::get($args, 'state') === TransactionState::PENDING->name &&
+            Arr::has($args, 'transaction_chain_hash') &&
+            is_null(Arr::get($args, 'transaction_chain_hash')) &&
+            $transaction->state === TransactionState::FINALIZED->name
+        ) {
+            throw new PlatformException(__('enjin-platform::error.cannot_retry_transaction'));
+        }
+
+        return $transactionService->update($transaction, Arr::except($args, 'id'));
     }
 }

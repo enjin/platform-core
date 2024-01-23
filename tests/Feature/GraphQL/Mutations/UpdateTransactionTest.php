@@ -236,6 +236,22 @@ class UpdateTransactionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionUpdated::class);
     }
 
+    public function test_it_cannot_retry_finalized_transaction(): void
+    {
+        $transaction = Transaction::factory()->create(['state' => TransactionState::FINALIZED->name]);
+        $response = $this->graphql($this->method, [
+            'id' => $transaction->id,
+            'state' => TransactionState::PENDING->name,
+            'transactionHash' => null,
+        ], true);
+        $this->assertStringContainsString(
+            'Cannot retry FINALIZED transaction.',
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionUpdated::class);
+    }
+
     public function test_it_will_fail_with_invalid_id(): void
     {
         $response = $this->graphql($this->method, [
