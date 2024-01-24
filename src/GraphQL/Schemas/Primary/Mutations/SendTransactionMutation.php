@@ -50,7 +50,14 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
         return [
             'id' => [
                 'type' => GraphQL::type('Int'),
-                'rules' => 'nullable|exists:transactions',
+                'rules' => [
+                    'nullable',
+                    function (string $attribute, mixed $value, Closure $fail) {
+                        if (!Transaction::find($value)) {
+                            $fail('validation.exists')->translate();
+                        }
+                    },
+                ],
                 'defaultValue' => null,
             ],
             'signingPayloadJson' => [
@@ -88,7 +95,6 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
         );
 
         $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
-
         if (Arr::exists($response, 'error')) {
             throw new PlatformException($response['error']['message']);
         }
