@@ -7,6 +7,7 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\AccountExistsInWallet;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
@@ -54,13 +55,31 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
             'id' => [
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::query.get_wallet.args.id'),
-                'rules' => ['required_without_all:externalId,account', 'nullable', 'bail', 'exists:wallets,id', new DaemonProhibited()],
+                'rules' => [
+                    'required_without_all:externalId,account',
+                    'nullable',
+                    'bail',
+                    function (string $attribute, mixed $value, Closure $fail) {
+                        if (!Wallet::where('id', $value)->exists()) {
+                            $fail('validation.exists')->translate();
+                        }
+                    },
+                    new DaemonProhibited(),
+                ],
                 'singleFilter' => true,
             ],
             'externalId' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::query.get_wallet.args.externalId'),
-                'rules' => ['required_without_all:id,account', 'nullable', 'exists:wallets,external_id'],
+                'rules' => [
+                    'required_without_all:id,account',
+                    'nullable',
+                    function (string $attribute, mixed $value, Closure $fail) {
+                        if (!Wallet::where('external_id', $value)->exists()) {
+                            $fail('validation.exists')->translate();
+                        }
+                    },
+                ],
                 'singleFilter' => true,
             ],
             'newExternalId' => [
