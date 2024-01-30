@@ -98,4 +98,11 @@ class Wallet extends BaseModel
 
         self::observe(new WalletObserver());
     }
+
+    protected function pivotIdentifier(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->id,
+        );
+    }
 }
