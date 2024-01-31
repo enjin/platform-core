@@ -53,7 +53,7 @@ class GetPendingWalletsQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Wallet::query()->where([
+        return Wallet::where([
             'managed' => true,
             'public_key' => null,
         ])->cursorPaginateWithTotal('id', $args['first']);

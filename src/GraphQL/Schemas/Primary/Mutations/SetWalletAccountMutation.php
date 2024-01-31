@@ -49,12 +49,26 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
             'id' => [
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::query.get_wallet.args.id'),
-                'rules' => ['prohibits:externalId', 'exists:wallets,id'],
+                'rules' => [
+                    'prohibits:externalId',
+                    function (string $attribute, mixed $value, Closure $fail) {
+                        if (!Wallet::where('id', $value)->exists()) {
+                            $fail('validation.exists')->translate();
+                        }
+                    },
+                ],
             ],
             'externalId' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::query.get_wallet.args.externalId'),
-                'rules' => ['prohibits:id', 'exists:wallets,external_id'],
+                'rules' => [
+                    'prohibits:id',
+                    function (string $attribute, mixed $value, Closure $fail) {
+                        if (!Wallet::where('external_id', $value)->exists()) {
+                            $fail('validation.exists')->translate();
+                        }
+                    },
+                ],
             ],
             'account' => [
                 'type' => GraphQL::type('String!'),
