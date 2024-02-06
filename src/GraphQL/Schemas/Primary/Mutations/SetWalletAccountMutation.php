@@ -50,7 +50,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::query.get_wallet.args.id'),
                 'rules' => [
-                    'prohibits:externalId',
+                    'required_without:externalId',
                     function (string $attribute, mixed $value, Closure $fail) {
                         if (!Wallet::where('id', $value)->exists()) {
                             $fail('validation.exists')->translate();
@@ -62,7 +62,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::query.get_wallet.args.externalId'),
                 'rules' => [
-                    'prohibits:id',
+                    'required_without:id',
                     function (string $attribute, mixed $value, Closure $fail) {
                         if (!Wallet::where('external_id', $value)->exists()) {
                             $fail('validation.exists')->translate();

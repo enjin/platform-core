@@ -84,6 +84,22 @@ class SetWalletAccountTest extends TestCaseGraphQL
 
     // Exception Path
 
+     public function test_it_will_fail_with_no_id_and_external_id(): void
+     {
+         $wallet = Wallet::factory()->create();
+         $response = $this->graphql($this->method, [
+             'account' => $wallet->public_key,
+         ], true);
+
+         $this->assertArraySubset(
+             [
+                 'id' => ['The id field is required when external id is not present.'],
+                 'externalId' => ['The external id field is required when id is not present.'],
+             ],
+             $response['error']
+         );
+     }
+
     public function test_it_will_fail_with_no_address(): void
     {
         $response = $this->graphql($this->method, [
