@@ -98,6 +98,19 @@ class SetWalletAccountTest extends TestCaseGraphQL
              ],
              $response['error']
          );
+
+         $response = $this->graphql($this->method, [
+             'id' => $wallet->id,
+             'externalId' => $wallet->external_id,
+             'account' => $wallet->public_key,
+         ], true);
+         $this->assertArraySubset(
+             [
+                 'id' => ['The id field prohibits external id from being present.'],
+                 'externalId' => ['The external id field prohibits id from being present.'],
+             ],
+             $response['error']
+         );
      }
 
     public function test_it_will_fail_with_no_address(): void
