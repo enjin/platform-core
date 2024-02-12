@@ -14,6 +14,7 @@ use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenType;
 use Enjin\Platform\GraphQL\Types\Substrate\TransactionType;
 use Enjin\Platform\GraphQL\Types\Substrate\WalletType;
+use Facades\Enjin\Platform\Services\Database\WalletService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -250,10 +251,14 @@ trait EagerLoadSelectFields
         bool $isParent = false
     ): array {
         $fields = Arr::get($selections, $attribute, $selections);
+        $selectedFields = WalletService::processClosures(
+            WalletType::getSelectFields($fieldKeys = array_keys($fields))
+        );
+
         $select = array_filter([
             'id',
             'public_key',
-            ...WalletType::getSelectFields($fieldKeys = array_keys($fields)),
+            ...$selectedFields,
         ]);
 
         $with = [];
@@ -262,7 +267,7 @@ trait EagerLoadSelectFields
         if (!$isParent) {
             $with = [
                 $key => function ($query) use ($select, $args) {
-                    $query->select(array_unique($select))
+                    $query->select($select)
                         ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                         ->when(Arr::get($args, 'transactionIds'), fn ($q) => $q->whereIn('transaction_chain_id', $args['transactionIds']))
                         ->when(Arr::get($args, 'transactionHashes'), fn ($q) => $q->whereIn('transaction_chain_hash', $args['transactionIds']))

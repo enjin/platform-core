@@ -9,6 +9,39 @@ use Illuminate\Database\Eloquent\Model;
 class WalletService
 {
     /**
+     * Adhoc processes for selected fields.
+     */
+    public static array $selectClosures = [];
+
+    /**
+     * Add a select closure.
+     */
+    public static function addSelectClosure(callable $closure): void
+    {
+        static::$selectClosures[] = $closure;
+    }
+
+    /**
+     * Add a select closure.
+     */
+    public static function getSelectClosure(): array
+    {
+        return static::$selectClosures;
+    }
+
+    /**
+     * Process the select closures.
+     */
+    public static function processClosures(array $selectFields)
+    {
+        foreach (static::$selectClosures as $closure) {
+            $selectFields = $closure($selectFields);
+        }
+
+        return $selectFields;
+    }
+
+    /**
      * Get the wallet by column and value.
      */
     public function get($key, string $column = 'id'): Model
