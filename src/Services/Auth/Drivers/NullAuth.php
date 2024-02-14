@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Auth\Drivers;
 
 use Enjin\Platform\Services\Auth\Authenticator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class NullAuth implements Authenticator
 {
@@ -12,7 +13,7 @@ class NullAuth implements Authenticator
      */
     public function authenticate(Request $request): bool
     {
-        return true;
+        return !$this->isProduction();
     }
 
     /**
@@ -25,11 +26,16 @@ class NullAuth implements Authenticator
 
     public function getError(): string
     {
-        return '';
+        return $this->isProduction() ? __('enjin-platform::error.auth.null_driver_not_allowed_in_production') : '';
     }
 
     public static function create(): Authenticator
     {
         return new static();
+    }
+
+    private function isProduction()
+    {
+        return 'production' === Str::lower(config('app.env'));
     }
 }

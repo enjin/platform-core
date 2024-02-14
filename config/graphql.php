@@ -9,13 +9,13 @@ return [
 
         // The controller/method to use in GraphQL request.
         // Also supported array syntax: `[\Rebing\GraphQL\GraphQLController::class, 'query']`
-        'controller' => \Enjin\Platform\Http\Controllers\GraphQLController::class . '@query',
+        'controller' => Enjin\Platform\Http\Controllers\GraphQLController::class . '@query',
 
         // Any middleware for the graphql route group
         // This middleware will apply to all schemas
         'middleware' => [
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Enjin\Platform\Middlewares\Authenticated::class,
+            Illuminate\Session\Middleware\StartSession::class,
+            Enjin\Platform\Middlewares\Authenticated::class,
         ],
 
         // Additional route group attributes
@@ -111,7 +111,7 @@ return [
     'types' => [
         // ExampleType::class,
         // ExampleRelationType::class,
-        \Rebing\GraphQL\Support\UploadType::class,
+        Rebing\GraphQL\Support\UploadType::class,
     ],
 
     // This callable will be passed the Error object for each errors GraphQL catch.
@@ -121,7 +121,7 @@ return [
     //     'message' => '',
     //     'locations' => []
     // ]
-    'error_formatter' => [\Rebing\GraphQL\GraphQL::class, 'formatError'],
+    'error_formatter' => [Rebing\GraphQL\GraphQL::class, 'formatError'],
 
     /*
      * Custom Error Handling
@@ -130,7 +130,7 @@ return [
      *
      * The default handler will pass exceptions to laravel Error Handling mechanism
      */
-    'errors_handler' => [\Rebing\GraphQL\GraphQL::class, 'handleErrors'],
+    'errors_handler' => [Rebing\GraphQL\GraphQL::class, 'handleErrors'],
 
     /*
      * Options to limit the query complexity and depth. See the doc
@@ -147,13 +147,13 @@ return [
      * You can define your own pagination type.
      * Reference \Rebing\GraphQL\Support\PaginationType::class
      */
-    'pagination_type' => \Enjin\Platform\GraphQL\Types\Pagination\ConnectionType::class,
+    'pagination_type' => Enjin\Platform\GraphQL\Types\Pagination\ConnectionType::class,
 
     /*
      * You can define your own simple pagination type.
      * Reference \Rebing\GraphQL\Support\SimplePaginationType::class
      */
-    'simple_pagination_type' => \Rebing\GraphQL\Support\SimplePaginationType::class,
+    'simple_pagination_type' => Rebing\GraphQL\Support\SimplePaginationType::class,
 
     /*
      * Overrides the default field resolver
@@ -211,12 +211,12 @@ return [
      * Execution middlewares
      */
     'execution_middleware' => [
-        \Rebing\GraphQL\Support\ExecutionMiddleware\ValidateOperationParamsMiddleware::class,
-        \Enjin\Platform\Middlewares\OperationDefinitionNodeStore::class,
+        Rebing\GraphQL\Support\ExecutionMiddleware\ValidateOperationParamsMiddleware::class,
+        Enjin\Platform\Middlewares\OperationDefinitionNodeStore::class,
         // AutomaticPersistedQueriesMiddleware listed even if APQ is disabled, see the docs for the `'apq'` configuration
-        \Rebing\GraphQL\Support\ExecutionMiddleware\AutomaticPersistedQueriesMiddleware::class,
-        \Rebing\GraphQL\Support\ExecutionMiddleware\AddAuthUserContextValueMiddleware::class,
+        Rebing\GraphQL\Support\ExecutionMiddleware\AutomaticPersistedQueriesMiddleware::class,
+        Rebing\GraphQL\Support\ExecutionMiddleware\AddAuthUserContextValueMiddleware::class,
         // \Rebing\GraphQL\Support\ExecutionMiddleware\UnusedVariablesMiddleware::class,
-        \Enjin\Platform\Middlewares\UniqueFieldNamesArray::class,
+        Enjin\Platform\Middlewares\UniqueFieldNamesArray::class,
     ],
 ];
