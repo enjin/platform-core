@@ -36,7 +36,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     protected Model $token;
     protected Encoder $tokenIdEncoder;
     protected Model $attribute;
-    protected MOdel $wallet;
+    protected Model $wallet;
 
     protected function setUp(): void
     {

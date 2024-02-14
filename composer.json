@@ -54,7 +54,7 @@
   },
   "require-dev": {
     "dms/phpunit-arraysubset-asserts": "dev-master",
-    "friendsofphp/php-cs-fixer": "^3.0",
+    "friendsofphp/php-cs-fixer": "^v3.48",
     "nunomaduro/collision": "^7.0",
     "nunomaduro/larastan": "^2.0",
     "orchestra/testbench": "^8.0",
