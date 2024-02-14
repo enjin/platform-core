@@ -35,4 +35,14 @@ class AuthServiceTest extends TestCase
         $this->assertEmpty($auth->getError());
         $this->assertTrue($auth->authenticate(request()));
     }
+
+    public function test_it_returns_error_with_null_auth_in_production()
+    {
+        $this->app['config']->set('app.env', 'production');
+        $auth = resolve(AuthManager::class)->driver();
+        $this->assertInstanceOf(NullAuth::class, $auth);
+        $this->assertEmpty($auth->getToken());
+        $this->assertSame(__('enjin-platform::error.auth.null_driver_not_allowed_in_production'), $auth->getError());
+        $this->assertFalse($auth->authenticate(request()));
+    }
 }

@@ -5,6 +5,7 @@ return [
     'auth.auth_not_defined' => 'The auth is not defined.',
     'auth.basic_token.token_not_defined' => 'The basic token is not defined in your .env',
     'auth.driver_not_supported' => 'Driver [:driver] is not supported.',
+    'auth.null_driver_not_allowed_in_production' => 'The Null auth driver cannot be used in production.',
     'cannot_represent_integer_range' => 'Cannot represent following value as integer range: :value',
     'cannot_represent_integer_ranges_array' => 'Cannot represent following value as integer ranges array: :value',
     'cannot_represent_object' => 'Cannot represent following value as object: ',
