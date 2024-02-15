@@ -398,9 +398,10 @@ trait EagerLoadSelectFields
                 break;
             case 'GetTransaction':
             case 'GetTransactions':
+            case 'MarkAndListPendingTransactions':
                 [$select, $with, $withCount] = static::loadTransaction(
                     $queryPlan,
-                    $query == 'GetTransactions' ? 'edges.fields.node.fields' : '',
+                    in_array($query, ['GetTransactions', 'MarkAndListPendingTransactions']) ? 'edges.fields.node.fields' : '',
                     [],
                     null,
                     true

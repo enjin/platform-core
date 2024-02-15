@@ -68,7 +68,8 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, TransactionService $transactionService): mixed
     {
-        $transactions = Transaction::where('state', '=', TransactionState::PENDING->name)
+        $transactions = Transaction::loadSelectFields($resolveInfo, $this->name)
+            ->where('state', '=', TransactionState::PENDING->name)
             ->when(
                 $args['accounts'] ?? false,
                 function (Builder $query) use ($args) {
@@ -84,8 +85,12 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
             )->cursorPaginateWithTotal('id', $args['first'], false);
 
         if (true === $args['markAsProcessing'] || null === $args['markAsProcessing']) {
-            $transactionsToMark = clone $transactions['items']->getCollection();
-            $transactionsToMark->each(fn ($transaction) => $transactionService->update($transaction, ['state' => TransactionState::PROCESSING->name]));
+            $transactions['items']->getCollection()->each(
+                fn ($transaction) => $transactionService->update(
+                    clone $transaction,
+                    ['state' => TransactionState::PROCESSING->name]
+                )
+            );
         }
 
         return $transactions;
