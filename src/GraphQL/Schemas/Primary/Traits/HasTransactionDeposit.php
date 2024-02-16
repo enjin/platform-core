@@ -72,7 +72,7 @@ trait HasTransactionDeposit
         if ($collection = Collection::firstWhere('collection_chain_id', $collectionId)) {
             $token = Token::firstWhere([
                 'collection_id' => $collection->id,
-                'token_chain_id' => $tokenId = $this->encodeTokenId($params),
+                'token_chain_id' => $this->encodeTokenId($params),
             ]);
         }
 
