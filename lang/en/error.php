@@ -52,6 +52,5 @@ return [
     'line_and_file' => 'Line :line in :file',
     'unable_to_process' => "Sorry, we're unable to process your request at this time. Please try again later.",
     'no_collection' => 'Unable to find a collection for token ID :tokenId.',
-    'collection_not_found' => 'Unable to find collection ID :collectionId.',
     'cannot_retry_transaction' => 'Cannot retry FINALIZED transaction.',
 ];
