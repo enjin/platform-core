@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Traits;
 
 use Codec\Utils;
 use Enjin\Platform\Enums\Substrate\TransactionDeposit;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
@@ -68,12 +69,16 @@ trait HasTransactionDeposit
 
     protected function calculateDepositForMint(string $collectionId, array $params): GMP
     {
-        $collection = Collection::firstWhere('collection_chain_id', $collectionId);
-        $tokenId = $this->encodeTokenId($params);
-        $token = Token::firstWhere([
+        if (!$collection = Collection::firstWhere('collection_chain_id', $collectionId)) {
+            throw new PlatformException(__('enjin-platform::error.collection_not_found', ['collectionId' => $collectionId]));
+        }
+        if (!$token = Token::firstWhere([
             'collection_id' => $collection->id,
-            'token_chain_id' => $tokenId,
-        ]);
+            'token_chain_id' => $tokenId = $this->encodeTokenId($params),
+        ])
+        ) {
+            throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $tokenId]));
+        }
 
         $unitPrice = $token?->unit_price ?? TransactionDeposit::TOKEN_ACCOUNT->value;
         $extraUnitPrice = Arr::get($params, 'unitPrice', $unitPrice);
