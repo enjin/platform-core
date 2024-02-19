@@ -68,12 +68,13 @@ trait HasTransactionDeposit
 
     protected function calculateDepositForMint(string $collectionId, array $params): GMP
     {
-        $collection = Collection::firstWhere('collection_chain_id', $collectionId);
-        $tokenId = $this->encodeTokenId($params);
-        $token = Token::firstWhere([
-            'collection_id' => $collection->id,
-            'token_chain_id' => $tokenId,
-        ]);
+        $token = null;
+        if ($collection = Collection::firstWhere('collection_chain_id', $collectionId)) {
+            $token = Token::firstWhere([
+                'collection_id' => $collection->id,
+                'token_chain_id' => $this->encodeTokenId($params),
+            ]);
+        }
 
         $unitPrice = $token?->unit_price ?? TransactionDeposit::TOKEN_ACCOUNT->value;
         $extraUnitPrice = Arr::get($params, 'unitPrice', $unitPrice);
