@@ -72,6 +72,10 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
             'recipients' => [
                 'type' => GraphQL::type('[TransferRecipient!]!'),
             ],
+            'continueOnFailure' => [
+                'type' => GraphQL::type('Boolean'),
+                'defaultValue' => false,
+            ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -115,7 +119,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         );
 
         // Hard-coded to false until we add support for this feature back into the mutations.
-        $continueOnFailure = false;
+        $continueOnFailure = $args['continueOnFailure'];
         $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             recipients: $recipients->toArray(),
@@ -136,7 +140,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         $recipients = Arr::get($params, 'recipients', []);
 
         if ($continueOnFailure) {
-            $encodedData = $recipients->map(
+            $encodedData = collect($recipients)->map(
                 fn ($recipient) => $serializationService->encode('TransferToken', [
                     'recipient' => [
                         'Id' => HexConverter::unPrefix($recipient['accountId']),

@@ -921,6 +921,59 @@ class BatchMintTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_batch_mint_mint_multiple_tokens_with_continue_on_failure(): void
+    {
+        Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
+
+        $tokens = Token::factory([
+            'collection_id' => $this->collection,
+            'cap' => TokenMintCapType::INFINITE->name,
+        ])->count(10)->create();
+
+        $recipients = $tokens->map(fn ($token) => [
+            'accountId' => Wallet::factory()->create()->public_key,
+            'params' => new MintParams(
+                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                amount: fake()->numberBetween(1),
+            ),
+        ]);
+
+        $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => $recipients->map(function ($recipient) {
+                $params = $recipient['params']->toArray()['Mint'];
+                $params['tokenId'] = $this->tokenIdEncoder->toEncodable($params['tokenId']);
+
+                return [
+                    'account' => SS58Address::encode($recipient['accountId']),
+                    'mintParams' => $params,
+                ];
+            })->toArray(),
+            'continueOnFailure' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_mint_mixed_tokens(): void
     {
         Token::where('collection_id', '=', $this->collection->collection_id)?->delete();

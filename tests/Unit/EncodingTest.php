@@ -1214,7 +1214,7 @@ class EncodingTest extends TestCase
         );
     }
 
-    public function test_it_can_encode_efinity_utility_batch()
+    public function test_it_can_encode_matrix_utility_batch()
     {
         $call = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
@@ -1237,6 +1237,33 @@ class EncodingTest extends TestCase
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
             "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000000",
+            $data
+        );
+    }
+
+    public function test_it_can_encode_matrix_utility_batch_with_continue_on_failure()
+    {
+        $call = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
+            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
+            collectionId: '1',
+            createTokenParams: new CreateTokenParams(
+                tokenId: '255',
+                initialSupply: '57005',
+                cap: TokenMintCapType::INFINITE,
+                unitPrice: '10000000000000',
+                behavior: null,
+                listingForbidden: null
+            )
+        ));
+
+        $data = $this->codec->encoder()->batch(
+            calls: [$call, $call],
+            continueOnFailure: true,
+        );
+
+        $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
+        $this->assertEquals(
+            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000001",
             $data
         );
     }

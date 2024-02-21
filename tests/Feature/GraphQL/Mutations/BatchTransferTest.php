@@ -688,6 +688,60 @@ class BatchTransferTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_batch_simple_multiple_transfers_with_continue_on_failure(): void
+    {
+        // TODO: We should validate if the sum of all amount doesn't exceed the total balance
+        // Will do that later
+
+        $recipients = collect(
+            range(
+                0,
+                ($value = fake()->randomNumber(1, $this->tokenAccount->balance)) < 10 ? $value : 9
+            )
+        )->map(fn ($x) => [
+            'accountId' => Wallet::factory()->create()->public_key,
+            'params' => new SimpleTransferParams(
+                tokenId: $this->tokenIdEncoder->encode(),
+                amount: fake()->numberBetween(1, $this->tokenAccount->balance)
+            ),
+        ]);
+
+        $encodedData = TransactionSerializer::encode($this->method, BatchTransferMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipients: $recipients->toArray()
+        ));
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'recipients' => $recipients->map(function ($recipient) {
+                $simpleParams = $recipient['params']->toArray()['Simple'];
+                $simpleParams['tokenId'] = $this->tokenIdEncoder->toEncodable();
+
+                return [
+                    'account' => SS58Address::encode($recipient['accountId']),
+                    'simpleParams' => $simpleParams,
+                ];
+            })->toArray(),
+            'continueOnFailure' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_batch_operator_multiple_transfers(): void
     {
         $recipients = collect(
