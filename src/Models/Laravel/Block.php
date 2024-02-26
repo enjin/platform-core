@@ -5,12 +5,15 @@ namespace Enjin\Platform\Models\Laravel;
 use Enjin\Platform\Database\Factories\BlockFactory;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 
 class Block extends BaseModel
 {
     use HasFactory;
     use EagerLoadSelectFields;
+    use MassPrunable;
 
 
     /**
@@ -37,6 +40,20 @@ class Block extends BaseModel
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * Get the prunable model query.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function prunable(): Builder
+    {
+        if (!is_null($days = config('enjin-platform.prune_blocks'))) {
+            return static::where('created_at', '<=', now()->subDays($days));
+        }
+
+        return static::where('id', 0);
+    }
 
     /**
      * Create a new factory instance for the model.
