@@ -52,7 +52,7 @@ class Block extends BaseModel
             return static::where('created_at', '<=', now()->subDays($days));
         }
 
-        return static::where('id', 0);
+        return static::query();
     }
 
     /**

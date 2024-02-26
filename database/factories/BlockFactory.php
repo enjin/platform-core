@@ -22,7 +22,7 @@ class BlockFactory extends Factory
     public function definition()
     {
         return [
-            'number' => $this->faker->numberBetween(1),
+            'number' => $this->faker->numberBetween(1, 1000000),
             'hash' => $this->faker->unique()->public_key(),
         ];
     }
