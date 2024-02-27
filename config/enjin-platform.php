@@ -228,4 +228,15 @@ return [
         'api_url' => env('GITHUB_API_URL', 'https://api.github.com/'),
         'token' => env('GITHUB_TOKEN'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prune blocks
+    |--------------------------------------------------------------------------
+    |
+    | Here, you can specify the number of days to retain blocks data before pruning.
+    | If set to null or zero, blocks will not be pruned.
+    |
+    */
+    'prune_blocks' => env('PRUNE_BLOCKS', 7),
 ];
