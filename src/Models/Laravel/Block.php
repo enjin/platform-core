@@ -48,7 +48,7 @@ class Block extends BaseModel
      */
     public function prunable(): Builder
     {
-        if (!is_null($days = config('enjin-platform.prune_blocks'))) {
+        if (filled($days = config('enjin-platform.prune_blocks'))) {
             return static::where('created_at', '<=', now()->subDays($days));
         }
 

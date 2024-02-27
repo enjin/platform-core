@@ -56,7 +56,7 @@ class PruneTest extends TestCaseGraphQL
         $this->artisan('model:prune', ['--model' => Block::resolveClassFqn()]);
         $this->assertNotEmpty(Block::count());
 
-        config(['enjin-platform.prune_expired_events' => 0]);
+        config(['enjin-platform.prune_blocks' => 0]);
         $this->artisan('model:prune', ['--model' => Block::resolveClassFqn()]);
         $this->assertNotEmpty(Block::count());
     }
