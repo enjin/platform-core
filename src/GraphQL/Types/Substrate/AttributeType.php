@@ -40,7 +40,7 @@ class AttributeType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.value'),
                 'resolve' => function ($attribute) {
                     if (strtolower($attribute->key) == 'uri' && strpos($attribute->value, '{id}') !== false && $attribute->token_id) {
-                        return str_replace('{id}', $attribute->token->token_chain_id, $attribute->value);
+                        return str_replace('{id}', "{$attribute->token->collection->collection_chain_id}-{$attribute->token->token_chain_id}", $attribute->value);
                     }
 
                     return $attribute->value;
