@@ -142,23 +142,19 @@ class Token extends BaseModel
     {
         return new Attribute(
             get: function () {
-                $tokenUriAttribute = $this->load('attributes')->getRelation('attributes')
-                    ->filter(fn ($attribute) => 'uri' == $attribute->key)
-                    ->first();
+                $tokenUriAttribute = $this->fetchUriAttribute($this);
+                $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::fetch($tokenUriAttribute);
 
-                $metadata = $this->attributes['metadata'] ?? MetadataService::fetch($tokenUriAttribute);
-                if (!$metadata) {
-                    $collectionUriAttribute = $this->collection->load('attributes')->getRelation('attributes')
-                        ->filter(fn ($attribute) => 'uri' == $attribute->key)
-                        ->first();
+                if (!$fetchedMetadata) {
+                    $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
                     if ($collectionUriAttribute && Str::contains($collectionUriAttribute->value, '{id}')) {
                         $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
                     }
 
-                    $metadata = MetadataService::fetch($collectionUriAttribute);
+                    $fetchedMetadata = MetadataService::fetch($collectionUriAttribute);
                 }
 
-                return $metadata;
+                return $fetchedMetadata;
             },
         );
     }
@@ -180,5 +176,12 @@ class Token extends BaseModel
         return Attribute::make(
             get: fn () => "{$collection->collection_chain_id}:{$this->token_chain_id}",
         );
+    }
+
+    private function fetchUriAttribute($model)
+    {
+        return $model->load('attributes')->getRelation('attributes')
+            ->filter(fn ($attribute) => 'uri' == $attribute->key)
+            ->first();
     }
 }
