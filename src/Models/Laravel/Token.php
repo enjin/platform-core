@@ -151,7 +151,7 @@ class Token extends BaseModel
                     $collectionUriAttribute = $this->collection->load('attributes')->getRelation('attributes')
                         ->filter(fn ($attribute) => 'uri' == $attribute->key)
                         ->first();
-                    if ($collectionUriAttribute && Str::contains($collectionUriAttribute, '{id}')) {
+                    if ($collectionUriAttribute && Str::contains($collectionUriAttribute->value, '{id}')) {
                         $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
                     }
 
