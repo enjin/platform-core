@@ -83,7 +83,7 @@ class GetTokenTest extends TestCaseGraphQL
         $this->assertArraySubset([
             'attributes' => [[
                 'key' => 'uri',
-                'value' => 'https://example.com/' . $this->token->token_chain_id,
+                'value' => "https://example.com/{$this->collection->collection_chain_id}-{$this->token->token_chain_id}",
             ],
             ],
         ], $response);

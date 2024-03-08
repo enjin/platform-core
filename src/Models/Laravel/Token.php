@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Laravel\Traits\Token as TokenMethods;
 use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Token extends BaseModel
@@ -140,7 +141,21 @@ class Token extends BaseModel
     protected function metadata(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->attributes['metadata'] ?? MetadataService::fetch($this->getRelation('attributes')->first()),
+            get: function () {
+                $tokenUriAttribute = $this->fetchUriAttribute($this);
+                $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::fetch($tokenUriAttribute);
+
+                if (!$fetchedMetadata) {
+                    $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
+                    if ($collectionUriAttribute && Str::contains($collectionUriAttribute->value, '{id}')) {
+                        $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
+                    }
+
+                    $fetchedMetadata = MetadataService::fetch($collectionUriAttribute);
+                }
+
+                return $fetchedMetadata;
+            },
         );
     }
 
@@ -161,5 +176,12 @@ class Token extends BaseModel
         return Attribute::make(
             get: fn () => "{$collection->collection_chain_id}:{$this->token_chain_id}",
         );
+    }
+
+    private function fetchUriAttribute($model)
+    {
+        return $model->load('attributes')->getRelation('attributes')
+            ->filter(fn ($attribute) => 'uri' == $attribute->key)
+            ->first();
     }
 }

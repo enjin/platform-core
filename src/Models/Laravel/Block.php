@@ -44,7 +44,7 @@ class Block extends BaseModel
     /**
      * Get the prunable model query.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function prunable(): Builder
     {
