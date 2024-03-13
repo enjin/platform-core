@@ -98,8 +98,8 @@ return [
                     'node' => env('SUBSTRATE_ENJIN_RPC', 'wss://rpc.matrix.blockchain.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_ENJIN_SS58_PREFIX', 1110),
                     'genesis-hash' => env('SUBSTRATE_ENJIN_GENESIS_HASH', '0x3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615'),
-                    'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1003),
-                    'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 5),
+                    'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1005),
+                    'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 7),
                 ],
                 'canary' => [
                     'chain-id' => 0,
@@ -109,8 +109,8 @@ return [
                     'node' => env('SUBSTRATE_CANARY_RPC', 'wss://rpc.matrix.canary.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_CANARY_SS58_PREFIX', 9030),
                     'genesis-hash' => env('SUBSTRATE_CANARY_GENESIS_HASH', '0xa37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f'),
-                    'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1003),
-                    'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 5),
+                    'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1005),
+                    'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 7),
                 ],
                 'local' => [
                     'chain-id' => 0,
