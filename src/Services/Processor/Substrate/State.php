@@ -31,7 +31,7 @@ class State
 
     public function extrinsicsForBlock(array $block): mixed
     {
-        if (null === $block['extrinsics']) {
+        if ($block['extrinsics'] === null) {
             return null;
         }
 
@@ -58,7 +58,7 @@ class State
 
     public function eventsForBlock(array $block): mixed
     {
-        if (null === $block['events']) {
+        if ($block['events'] === null) {
             return null;
         }
 
@@ -103,7 +103,7 @@ class State
             parser: 'collectionAccountStorage',
         );
 
-        if (null === $collectionAccount) {
+        if ($collectionAccount === null) {
             $wallet = WalletService::firstOrStore(['account' => $address = $addressId]);
 
             $collectionAccount = CollectionAccount::where([
@@ -141,7 +141,7 @@ class State
     public function getParsedStorage(string $key, string $at, string $parser): mixed
     {
         $data = $this->getStorage($key, $at);
-        if (null === $data) {
+        if ($data === null) {
             return null;
         }
 
@@ -163,10 +163,10 @@ class State
             parser: 'tokenAccountStorage',
         );
 
-        if (null === $tokenAccount) {
+        if ($tokenAccount === null) {
             $wallet = WalletService::firstOrStore(['account' => $address = $addressId]);
 
-            if (null !== $token) {
+            if ($token !== null) {
                 TokenAccount::where([
                     'wallet_id' => $wallet->id,
                     'collection_id' => $collection->id,

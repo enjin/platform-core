@@ -2,12 +2,12 @@
 
 namespace Enjin\Platform\Clients\Implementations;
 
-use function Amp\Websocket\Client\connect;
-
 use Amp\Websocket\Client\WebsocketConnection;
 use Amp\Websocket\Client\WebsocketHandshake;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+
+use function Amp\Websocket\Client\connect;
 
 class AsyncWebsocket
 {

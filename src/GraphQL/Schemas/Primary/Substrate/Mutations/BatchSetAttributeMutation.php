@@ -29,15 +29,15 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
     use HasEncodableTokenId;
     use HasIdempotencyField;
-    use HasTokenIdFields;
-    use HasTokenIdFieldRules;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTokenIdFields;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -123,7 +123,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             $encodedData = collect($attributes)->map(
                 fn ($attribute) => $serializationService->encode('SetAttribute', [
                     'collectionId' => gmp_init($collectionId),
-                    'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+                    'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
                     'key' => HexConverter::stringToHexPrefixed($attribute['key']),
                     'value' => HexConverter::stringToHexPrefixed($attribute['value']),
                 ])
@@ -137,7 +137,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
 
         return [
             'collectionId' => gmp_init($collectionId),
-            'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+            'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
             'attributes' => collect($attributes)
                 ->map(fn ($attribute) => [
                     'key' => HexConverter::stringToHexPrefixed($attribute['key']),

@@ -28,15 +28,15 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFields;
-    use HasTokenIdFieldRules;
     use HasEncodableTokenId;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTokenIdFields;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

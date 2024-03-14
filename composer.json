@@ -54,7 +54,6 @@
   },
   "require-dev": {
     "dms/phpunit-arraysubset-asserts": "dev-master",
-    "friendsofphp/php-cs-fixer": "^3.0",
     "laravel/pint": "^1.14",
     "nunomaduro/collision": "^7.0",
     "nunomaduro/larastan": "^2.0",

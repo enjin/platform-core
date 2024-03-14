@@ -30,14 +30,14 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchTransferMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFieldArrayRules;
     use HasEncodableTokenId;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldArrayRules;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -102,10 +102,10 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
                 $simpleParams = Arr::get($recipient, 'simpleParams');
                 $operatorParams = Arr::get($recipient, 'operatorParams');
 
-                if (null !== $simpleParams && null !== $operatorParams) {
+                if ($simpleParams !== null && $operatorParams !== null) {
                     throw new PlatformException(__('enjin-platform::error.cannot_set_simple_and_operator_params_for_same_recipient'));
                 }
-                if (null === $simpleParams && null === $operatorParams) {
+                if ($simpleParams === null && $operatorParams === null) {
                     throw new PlatformException(__('enjin-platform::error.set_either_simple_and_operator_params_for_recipient'));
                 }
 

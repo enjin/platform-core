@@ -31,12 +31,12 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class TransferBalanceMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
     use HasIdempotencyField;
     use HasSigningAccountField;
-    use HasSkippableRules;
     use HasSimulateField;
+    use HasSkippableRules;
     use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

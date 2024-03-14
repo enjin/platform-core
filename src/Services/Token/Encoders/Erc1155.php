@@ -49,10 +49,7 @@ class Erc1155 extends BaseEncoder
      * Encode an ERC1155 style token ID into an int token ID.
      * Note that the max int value returned for Substrate is 128bits compared to Ethereum's 256bit ids.
      *
-     * @param $data
-     *
      * @throws ValidationException
-     * @return string
      */
     public function encode(mixed $data = null): string
     {
@@ -61,6 +58,7 @@ class Erc1155 extends BaseEncoder
 
     /**
      * Create an integer id from the supplied hex token id and index.
+     *
      * @throws ValidationException
      */
     protected function tokenIdAndIndexToHex(object $data): string

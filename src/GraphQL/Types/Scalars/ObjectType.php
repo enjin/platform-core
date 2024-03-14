@@ -20,7 +20,7 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
     /**
      * Serializes an internal value to include in a response.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      */
     public function serialize($value)
     {
@@ -30,7 +30,7 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
     /**
      * Parses an externally provided value (query variable) to use as an input.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      */
     public function parseValue($value)
     {
@@ -44,11 +44,11 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
      *
-     * @param mixed $valueNode
+     * @param  mixed  $valueNode
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
-        if ('ObjectValue' !== $valueNode->kind) {
+        if ($valueNode->kind !== 'ObjectValue') {
             throw new Error(__('enjin-platform::error.not_valid_object'), [$valueNode]);
         }
 
@@ -59,8 +59,6 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
 
     /**
      * Createt instance.
-     *
-     * @return Type
      */
     public function toType(): Type
     {
@@ -77,7 +75,7 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
                 ->flatMap(fn ($valueNode) => $this->extractDataFromNodeAsCollection($valueNode));
         }
 
-        if (isset($node->value->kind) && 'ListValue' === $node->value->kind) {
+        if (isset($node->value->kind) && $node->value->kind === 'ListValue') {
             return [
                 $node->name->value => collect($node->value->values->getIterator())
                     ->map(fn ($valueNode) => $this->extractDataFromNodeAsCollection($valueNode)),

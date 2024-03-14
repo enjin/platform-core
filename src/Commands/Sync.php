@@ -2,8 +2,6 @@
 
 namespace Enjin\Platform\Commands;
 
-use function Amp\async;
-
 use Amp\Future;
 use Amp\Parallel\Context\ProcessContextFactory;
 use Carbon\Carbon;
@@ -26,6 +24,8 @@ use STS\Backoff\Strategies\PolynomialStrategy;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
+
+use function Amp\async;
 
 class Sync extends Command
 {
@@ -79,7 +79,7 @@ class Sync extends Command
 
         $backoff->setStrategy(new PolynomialStrategy(250, 2))
             ->setWaitCap(600000)
-            ->setErrorHandler(function (Throwable|null $e) {
+            ->setErrorHandler(function (?Throwable $e) {
                 $this->error(__('enjin-platform::error.exception_in_sync'));
                 $this->error($e->getMessage());
                 $this->error($message = __('enjin-platform::error.line_and_file', ['line' => $e->getLine(), 'file' => $e->getFile()]));

@@ -32,15 +32,15 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MintTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFieldRules;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasEncodableTokenId;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTransactionDeposit;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

@@ -17,8 +17,8 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokensQuery extends Query implements PlatformGraphQlQuery
 {
-    use InPrimarySubstrateSchema;
     use HasEncodableTokenId;
+    use InPrimarySubstrateSchema;
 
     protected $middleware = [
         ResolvePage::class,

@@ -32,7 +32,7 @@ trait EagerLoadSelectFields
     /**
      * Lazy load relations.
      */
-    public static function lazyLoadSelectFields(?Model $model, ResolveInfo $resolveInfo, string $query = 'GetTransaction'): Model|null
+    public static function lazyLoadSelectFields(?Model $model, ResolveInfo $resolveInfo, string $query = 'GetTransaction'): ?Model
     {
         if (!$model) {
             return null;
@@ -284,7 +284,7 @@ trait EagerLoadSelectFields
         }
 
         foreach (WalletType::getRelationFields($fieldKeys) as $relation) {
-            switch($relation) {
+            switch ($relation) {
                 case 'collectionAccounts':
                     $withCount[$relation] = fn ($query) => $query->when(
                         Arr::get($args, 'collectionIds'),
@@ -358,7 +358,7 @@ trait EagerLoadSelectFields
         static::$query = $query;
         $queryPlan = $resolveInfo->lookAhead()->queryPlan();
 
-        switch($query) {
+        switch ($query) {
             case 'GetBlocks':
                 $fields = Arr::get($queryPlan, 'edges.fields.node.fields', []);
                 $select = BlockType::getSelectFields(array_keys($fields));
@@ -466,7 +466,7 @@ trait EagerLoadSelectFields
         $key = $parent ? "{$parent}.{$attribute}" : $attribute;
         $alias = static::getAlias($attribute, $parentType);
         $args = Arr::get($selections, $attribute . '.args', []);
-        switch($alias) {
+        switch ($alias) {
             case 'collection':
             case 'collections':
                 $relations = static::loadCollection(

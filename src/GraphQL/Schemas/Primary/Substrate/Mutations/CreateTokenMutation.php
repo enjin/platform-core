@@ -35,12 +35,12 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 class CreateTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
     use HasIdempotencyField;
-    use HasTokenIdFieldRules;
-    use InPrimarySubstrateSchema;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

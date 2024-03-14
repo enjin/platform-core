@@ -77,7 +77,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' =>$collection->collection_chain_id,
+            'collectionId' => $collection->collection_chain_id,
             'operator' => fake()->text(),
         ], true);
         $this->assertEquals(
