@@ -2,13 +2,14 @@
 
 namespace Enjin\Platform\Commands;
 
-use Codec\Base;
-use Codec\ScaleBytes;
-use Codec\Types\ScaleInstance;
-use Enjin\Platform\Clients\Implementations\DecoderClient;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Processor\Substrate\DecoderService;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -43,12 +44,10 @@ class RelayWatcher extends Command
             while (true) {
                 if ($response = $sub->getClient()->receive()) {
                     $result = Arr::get(JSON::decode($response, true), 'params.result');
-                    // block
+                    $block = Arr::get($result, 'changes.0.0'); // block
                     $events = Arr::get($result, 'changes.0.1'); // events
-
-                    $decoded = $decoder->decode('events', $events);
-                    dd($decoded);
-
+                    $decodedEvents = $decoder->decode('events', $events);
+                    $this->findEndowedAccounts($decodedEvents);
                 }
             }
         } finally {
@@ -58,6 +57,35 @@ class RelayWatcher extends Command
         return CommandAlias::SUCCESS;
     }
 
+    protected function findEndowedAccounts(array $events)
+    {
+        $transfers = array_filter(
+            $events,
+            function ($event) {
+                if ($event->module === 'Balances' && $event->name === 'Transfer') {
+                    if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
+                        $this->createDaemonTransaction($account);
+                    }
+                }
+            }
+        );
+    }
+
+    protected function createDaemonTransaction(string $account)
+    {
+        $this->info('Lets create a transaction to teleport the ENJ from: ' . $account);
+
+        $managedWallet = Wallet::firstWhere([
+            'public_key' => $account,
+        ]);
+
+        Transaction::create([
+            'wallet_public_key' => $managedWallet->public_key,
+            'method' => 'Teleport',
+            'state' => TransactionState::PENDING->name,
+            'network' => 'canary-relay',
+            'encoded_data' => '0xa1028400c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e7901a613c2d47d5326d608a9eac8c2476dd6040cd2ddc5fd3d5d7428adc9a9ea056cf72e5d027479e83b6e61db39fa951b81d59822852df2bad5823b4038e7c2ec84b5020400630903000100a10f0300010100c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e79030400000000130000f444829163450000000000',
+            'idempotency_key' => \Str::uuid(),
+        ]);
+    }
 }
-
-
