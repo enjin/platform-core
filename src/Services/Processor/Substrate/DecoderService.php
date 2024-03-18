@@ -17,11 +17,13 @@ class DecoderService
 {
     protected DecoderClient $client;
     protected string $host;
+    protected string $network;
 
-    public function __construct()
+    public function __construct(?string $network = null)
     {
         $this->client = new DecoderClient();
         $this->host = config('enjin-platform.decoder_container');
+        $this->network = $network ?? config('enjin-platform.chains.network');
     }
 
     public function decode(string $type, string|array $bytes): ?array
@@ -29,7 +31,7 @@ class DecoderService
         try {
             $result = $this->client->getClient()->post($this->host, [
                 $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
-                'network' => config('enjin-platform.chains.network'),
+                'network' => $this->network,
             ]);
 
             $data = $this->client->getResponse($result);
