@@ -63,6 +63,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('remove_mint_deposit_from_tokens_table')
             ->hasMigration('add_fee_to_transactions_table')
             ->hasMigration('make_account_nullable_in_transactions')
+            ->hasMigration('add_network_field_in_transactions_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
