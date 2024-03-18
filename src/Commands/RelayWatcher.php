@@ -27,15 +27,6 @@ class RelayWatcher extends Command
 
     public function handle(): int
     {
-        $codec = new ScaleInstance(Base::create());
-        $metadataInstant = $codec->process("metadata", new ScaleBytes(static::$matrixMetadata));
-        $decode = $codec->process("EventRecord", new ScaleBytes("0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7"), $metadataInstant);
-        $this->info($decode);
-
-        return 0;
-
-//        [{phase: {"applyExtrinsic":0}, event: {index: 0x0000, data: [{weight: {refTime: 124414000, proofSize: 0}, class: Mandatory, paysFee: No}]}, topics: []}, {phase: {"applyExtrinsic":1}, event: {index: 0x0000, data: [{weight: {refTime: 258382000, proofSize: 1493}, class: Mandatory, paysFee: Yes}]}, topics: []}]
-//
         $this->warn('Subscribing to any changes on account storage');
         $sub = new Substrate(new SubstrateWebsocket(url: $this->nodeUrl));
         $sub->getClient()->setTimeout(50000);
