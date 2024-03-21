@@ -83,7 +83,7 @@ class Encoder
 
     public function compact(string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
+        $encoded = $this->scaleInstance->createTypeByTypeString('Compact')->encode($value);
 
         return HexConverter::prefix($encoded);
     }

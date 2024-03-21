@@ -124,6 +124,10 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.transaction.field.wallet'),
                 'is_relation' => true,
             ],
+            'network' => [
+                'type' => GraphQL::type('String!'),
+                'description' => __('enjin-platform::type.transaction.field.network'),
+            ],
             'idempotencyKey' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::type.transaction.field.idempotencyKey'),
