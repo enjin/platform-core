@@ -8,11 +8,13 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\DecoderService;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Str;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class RelayWatcher extends Command
@@ -23,11 +25,13 @@ class RelayWatcher extends Command
 
     protected string $nodeUrl = 'wss://rpc.relay.canary.enjin.io';
 
+    protected Codec $codec;
+
     public function __construct()
     {
         parent::__construct();
-
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
+        $this->codec = new Codec();
     }
 
     public function handle(): int
@@ -57,21 +61,22 @@ class RelayWatcher extends Command
         return CommandAlias::SUCCESS;
     }
 
-    protected function findEndowedAccounts(array $events)
+    protected function findEndowedAccounts(array $events): void
     {
-        $transfers = array_filter(
+        array_filter(
             $events,
             function ($event) {
                 if ($event->module === 'Balances' && $event->name === 'Transfer') {
                     if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
-                        $this->createDaemonTransaction($account);
+                        $this->info(json_encode($event));
+                        $this->createDaemonTransaction($account, $event->amount);
                     }
                 }
             }
         );
     }
 
-    protected function createDaemonTransaction(string $account)
+    protected function createDaemonTransaction(string $account, string $amount): void
     {
         $this->info('Lets create a transaction to teleport the ENJ from: ' . $account);
 
@@ -79,13 +84,40 @@ class RelayWatcher extends Command
             'public_key' => $account,
         ]);
 
+        $amount = $this->codec->encoder()->compact($amount);
+        $call = '0x630903000100a10f0300010100' . HexConverter::unPrefix($managedWallet->public_key);
+        $call .= '030400000000' . HexConverter::unPrefix($amount);
+        $call .= '0000000000';
+
+        $this->info($call);
+
+
         Transaction::create([
             'wallet_public_key' => $managedWallet->public_key,
-            'method' => 'Teleport',
+            'method' => 'LimitedTeleportAssets',
             'state' => TransactionState::PENDING->name,
             'network' => 'canary-relay',
-            'encoded_data' => '0xa1028400c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e7901a613c2d47d5326d608a9eac8c2476dd6040cd2ddc5fd3d5d7428adc9a9ea056cf72e5d027479e83b6e61db39fa951b81d59822852df2bad5823b4038e7c2ec84b5020400630903000100a10f0300010100c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e79030400000000130000f444829163450000000000',
-            'idempotency_key' => \Str::uuid(),
+            'encoded_data' => $call,
+            'idempotency_key' => Str::uuid(),
         ]);
+
+
+        // 63 09 = callIndex = (u8; u8)
+        // 03 = dest = XcmVersionedMultiLocation (XcmV3MultiLocation)
+        // 00 = parents = u8
+        // 01 00 a10f = interior = XcmV3Juntions (XcmV3Junction X1) Parachain Compactu32
+        // 03 = beneficiary = XcmVersionedMultiLocation (XcmV3MultiLocation)
+        // 00 = parents = u8
+        // 01 01 = interior = XcmV3Juntions (XcmV3Junction X1) AccountId32
+        // 00 = network = Network = Option<XcmV3JunctionNetworkId>
+        // c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e79 = id = [u8;32]
+        // 03 04 = assets = Vec<XcmV3MultiassetMultiAssets> (V3)
+        // 00 = id = XcmV3MultiassetAssetId (Concrete)
+        // 00 = parents = u8
+        // 00 = interior = XcmV3Junctions (Here)
+        // 00 130000f44482916345 = fun = XcmV3MultiassetFungibility (Fungible) + Amount Compact<u128>
+        // 00000000 = feeAssetItem = u32
+        // 00 = weightLimit = XcmV3WeightLimit (unlimited)
+
     }
 }
