@@ -53,14 +53,14 @@ class TokenService
     public function tokenBalanceForAccount(string $collectionId, string $tokenId, ?string $address = null): string
     {
         $publicKey = !empty($address) ? SS58Address::getPublicKey($address) : Account::daemon()->public_key;
-        if (!($accountWallet = Wallet::firstWhere(['public_key' => $publicKey]))
-            || !($collection = Collection::firstWhere(['collection_chain_id' => $collectionId]))
-            || !($token = Token::firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
+        if (!($accountWallet = Wallet::withoutGlobalScopes()->firstWhere(['public_key' => $publicKey]))
+            || !($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
+            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
         ) {
             return '0';
         }
 
-        $tokenAccount = TokenAccount::whereCollectionId($collection->id)
+        $tokenAccount = TokenAccount::withoutGlobalScopes()->whereCollectionId($collection->id)
             ->whereTokenId($token->id)
             ->whereWalletId($accountWallet->id)
             ->first();
@@ -74,13 +74,13 @@ class TokenService
     public function accountExistsInToken(string $collectionId, string $tokenId, string $account): bool
     {
         $accountWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($account)]);
-        if (!($collection = Collection::firstWhere(['collection_chain_id' => $collectionId]))
-            || !($token = Token::firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
+        if (!($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
+            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
         ) {
             return false;
         }
 
-        return TokenAccount::whereCollectionId($collection->id)
+        return TokenAccount::withoutGlobalScopes()->whereCollectionId($collection->id)
             ->whereTokenId($token->id)
             ->whereWalletId($accountWallet->id)
             ->exists();
@@ -91,13 +91,13 @@ class TokenService
      */
     public function attributeExistsInToken(string $collectionId, string $tokenId, string $key): bool
     {
-        if (!($collection = Collection::firstWhere(['collection_chain_id' => $collectionId]))
-            || !($token = Token::firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
+        if (!($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
+            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
         ) {
             return false;
         }
 
-        return Attribute::whereCollectionId($collection->id)
+        return Attribute::withoutGlobalScopes()->whereCollectionId($collection->id)
             ->whereTokenId($token->id)
             ->where('key', '=', $key)
             ->exists();
@@ -119,13 +119,13 @@ class TokenService
     public function approvalExistsInToken(string $collectionId, string $tokenId, string $operator): bool
     {
         $operatorWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($operator)]);
-        if (!($collection = Collection::firstWhere(['collection_chain_id' => $collectionId]))
-            || !($token = Token::firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
+        if (!($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
+            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
         ) {
             return false;
         }
 
-        $tokenAccount = TokenAccount::whereCollectionId($collection->id)
+        $tokenAccount = TokenAccount::withoutGlobalScopes()->whereCollectionId($collection->id)
             ->whereTokenId($token->id)
             ->where('wallet_id', '=', Account::daemon()->id)
             ->first();
@@ -134,7 +134,7 @@ class TokenService
             return false;
         }
 
-        return TokenAccountApproval::where('token_account_id', $tokenAccount->id)
+        return TokenAccountApproval::withoutGlobalScopes()->where('token_account_id', $tokenAccount->id)
             ->where('wallet_id', $operatorWallet->id)
             ->exists();
     }
@@ -168,6 +168,6 @@ class TokenService
      */
     protected function inCollection($collectionId): Builder
     {
-        return Token::with('collection')->whereRelation('collection', 'collection_chain_id', $collectionId);
+        return Token::withoutGlobalScopes()->with('collection')->whereRelation('collection', 'collection_chain_id', $collectionId);
     }
 }

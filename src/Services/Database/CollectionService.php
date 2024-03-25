@@ -48,7 +48,7 @@ class CollectionService
      */
     public function attributeExistsInCollection(string $collectionId, string $key): bool
     {
-        return Attribute::with('collection')
+        return Attribute::withoutGlobalScopes()->with('collection')
             ->whereRelation('collection', 'collection_chain_id', $collectionId)
             ->where('key', '=', $key)
             ->exists();
@@ -61,7 +61,7 @@ class CollectionService
     {
         $accountWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($account)]);
 
-        return CollectionAccount::with('collection')
+        return CollectionAccount::withoutGlobalScopes()->with('collection')
             ->whereRelation('collection', 'collection_chain_id', $collectionId)
             ->where('wallet_id', '=', $accountWallet->id)
             ->exists();
@@ -77,7 +77,7 @@ class CollectionService
     ): bool {
         $operatorWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($operator)]);
 
-        $collectionAccount = CollectionAccount::with(['collection', 'wallet'])
+        $collectionAccount = CollectionAccount::withoutGlobalScopes()->with(['collection', 'wallet'])
             ->whereRelation('collection', 'collection_chain_id', $collectionId)
             ->when(
                 $hasAccountForDaemon,
@@ -89,7 +89,7 @@ class CollectionService
             return false;
         }
 
-        return CollectionAccountApproval::with(['account', 'wallet'])
+        return CollectionAccountApproval::withoutGlobalScopes()->with(['account', 'wallet'])
             ->whereBelongsTo($collectionAccount, 'account')
             ->whereBelongsTo($operatorWallet, 'wallet')
             ->exists();
