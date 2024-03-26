@@ -82,7 +82,7 @@ class WalletService
      */
     public function accountExistsInWallet(string $account): bool
     {
-        return Wallet::where(['public_key' => SS58Address::getPublicKey($account)])->exists();
+        return Wallet::withoutGlobalScopes()->where(['public_key' => SS58Address::getPublicKey($account)])->exists();
     }
 
     /**
