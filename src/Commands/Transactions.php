@@ -2,8 +2,6 @@
 
 namespace Enjin\Platform\Commands;
 
-use function Amp\async;
-
 use Amp\Future;
 use Amp\Parallel\Context\ProcessContextFactory;
 use Carbon\Carbon;
@@ -18,6 +16,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Symfony\Component\Console\Helper\ProgressBar;
+
+use function Amp\async;
 
 class Transactions extends Command
 {

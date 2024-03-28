@@ -11,8 +11,8 @@ use Rebing\GraphQL\Support\Type;
 
 class TokenAccountNamedReserveType extends Type implements PlatformGraphQlType
 {
-    use InSubstrateSchema;
     use HasSelectFields;
+    use InSubstrateSchema;
 
     /**
      * Get the type's attributes.

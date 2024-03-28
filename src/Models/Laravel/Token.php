@@ -16,10 +16,10 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Token extends BaseModel
 {
-    use HasFactory;
-    use TokenMethods;
     use EagerLoadSelectFields;
     use HasEagerLimit;
+    use HasFactory;
+    use TokenMethods;
 
     /**
      * The attributes that aren't mass assignable.
@@ -181,7 +181,7 @@ class Token extends BaseModel
     private function fetchUriAttribute($model)
     {
         return $model->load('attributes')->getRelation('attributes')
-            ->filter(fn ($attribute) => 'uri' == $attribute->key)
+            ->filter(fn ($attribute) => $attribute->key == 'uri')
             ->first();
     }
 }

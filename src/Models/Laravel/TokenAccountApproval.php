@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TokenAccountApproval extends BaseModel
 {
+    use EagerLoadSelectFields;
     use HasFactory;
     use TokenAccountApprovalMethods;
-    use EagerLoadSelectFields;
 
     /**
      * The attributes that aren't mass assignable.

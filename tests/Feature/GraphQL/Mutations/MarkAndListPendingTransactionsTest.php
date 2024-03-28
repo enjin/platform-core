@@ -196,7 +196,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
             'accounts' => [SS58Address::encode($publicKey)],
         ]);
 
-        $this->assertTrue(1 === $response['totalCount']);
+        $this->assertTrue($response['totalCount'] === 1);
         $this->assertEquals(
             $publicKey,
             $response['edges'][0]['node']['wallet']['account']['publicKey']
@@ -211,7 +211,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
             'accounts' => [SS58Address::encode($publicKey)],
         ]);
 
-        $this->assertTrue(0 === $response['totalCount']);
+        $this->assertTrue($response['totalCount'] === 0);
     }
 
     public function test_it_will_fail_with_invalid_mark_as_processing(): void

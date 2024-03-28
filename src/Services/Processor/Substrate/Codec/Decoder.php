@@ -25,7 +25,7 @@ class Decoder
 
     public function compact(string $data)
     {
-        return $this->codec->process('Compact<u128>', new ScaleBytes($data));
+        return $this->codec->process('Compact', new ScaleBytes($data));
     }
 
     public function systemAccount(?string $data = null): array

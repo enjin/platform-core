@@ -4,6 +4,7 @@ namespace Enjin\Platform;
 
 use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
+use Enjin\Platform\Commands\RelayWatcher;
 use Enjin\Platform\Commands\Sync;
 use Enjin\Platform\Commands\TransactionChecker;
 use Enjin\Platform\Commands\Transactions;
@@ -62,12 +63,14 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('remove_mint_deposit_from_tokens_table')
             ->hasMigration('add_fee_to_transactions_table')
             ->hasMigration('make_account_nullable_in_transactions')
+            ->hasMigration('add_network_field_in_transactions_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
             ->hasCommand(Transactions::class)
             ->hasCommand(ClearCache::class)
             ->hasCommand(TransactionChecker::class)
+            ->hasCommand(RelayWatcher::class)
             ->hasTranslations();
     }
 

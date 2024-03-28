@@ -16,8 +16,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 final class WalletTest extends TestCase
 {
     use ArraySubsetAsserts;
-    use RefreshDatabase;
     use MocksWebsocketClient;
+    use RefreshDatabase;
 
     protected Substrate $blockchainService;
 

@@ -95,7 +95,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'collectionIds' => [$collectionId = $this->collections[0]->collection_chain_id],
         ]);
 
-        $this->assertTrue(1 === $response['totalCount']);
+        $this->assertTrue($response['totalCount'] === 1);
         $this->assertEquals(
             $collectionId,
             $response['edges'][0]['node']['collectionId']
@@ -201,7 +201,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'collectionIds' => [$this->collections[0]->collection_chain_id, $collectionId],
         ]);
 
-        $this->assertTrue(1 === $response['totalCount']);
+        $this->assertTrue($response['totalCount'] === 1);
     }
 
     public function test_it_will_fail_with_collection_id_negative(): void

@@ -14,8 +14,8 @@ use Rebing\GraphQL\Support\Query;
 
 class GetCollectionQuery extends Query implements PlatformGraphQlQuery
 {
-    use InPrimarySubstrateSchema;
     use HasAdhocRules;
+    use InPrimarySubstrateSchema;
 
     /**
      * Get the query's attributes.

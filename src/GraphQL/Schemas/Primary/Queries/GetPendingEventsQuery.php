@@ -62,7 +62,7 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
         $events = PendingEvent::loadSelectFields($resolveInfo, $this->name)
             ->cursorPaginateWithTotal('id', $args['first']);
 
-        if (true === $args['acknowledgeEvents']) {
+        if ($args['acknowledgeEvents'] === true) {
             $eventsToClean = $events['items']->getCollection()->pluck('id')->toArray();
             PendingEvent::query()
                 ->whereIn('id', $eventsToClean)

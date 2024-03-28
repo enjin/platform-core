@@ -179,7 +179,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
         $collection = Collection::factory([
-            'owner_wallet_id'=> $wallet,
+            'owner_wallet_id' => $wallet,
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
         ])->create();
         $token = Token::factory([
@@ -231,7 +231,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
         $collection = Collection::factory([
-            'owner_wallet_id'=> $wallet,
+            'owner_wallet_id' => $wallet,
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
         ])->create();
         $token = Token::factory([
@@ -341,7 +341,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     public function test_it_can_remove_an_attribute_with_bigint_collection_id(): void
     {
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
-        $collection = Collection::factory(['collection_chain_id' => Hex::MAX_UINT128, 'owner_wallet_id'=>$this->wallet->id])->create();
+        $collection = Collection::factory(['collection_chain_id' => Hex::MAX_UINT128, 'owner_wallet_id' => $this->wallet->id])->create();
         $collectionId = $collection->collection_chain_id;
 
         $token = Token::factory(['collection_id' => $collection])->create();
@@ -378,7 +378,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_bigint_token_id(): void
     {
-        $collection = Collection::factory(['owner_wallet_id'=>$this->wallet->id, 'collection_chain_id' => $collectionId = fake()->numberBetween(2000)])->create();
+        $collection = Collection::factory(['owner_wallet_id' => $this->wallet->id, 'collection_chain_id' => $collectionId = fake()->numberBetween(2000)])->create();
         Token::where('token_chain_id', Hex::MAX_UINT128)->update(['token_chain_id' => random_int(1, 1000)]);
         $token = Token::factory(['collection_id' => $collection, 'token_chain_id' => $tokenId = Hex::MAX_UINT128])->create();
         Attribute::factory(['collection_id' => $collection, 'token_id' => $token])->create();

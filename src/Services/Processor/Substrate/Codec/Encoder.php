@@ -78,7 +78,7 @@ class Encoder
 
     public function compact(string $value): string
     {
-        $encoded = $this->scaleInstance->createTypeByTypeString('Compact<u32>')->encode($value);
+        $encoded = $this->scaleInstance->createTypeByTypeString('Compact')->encode($value);
 
         return HexConverter::prefix($encoded);
     }
@@ -182,7 +182,7 @@ class Encoder
 
     public function getEncoded(string $type, array $params): string
     {
-        if (isset($params['continueOnFailure']) && true === $params['continueOnFailure']) {
+        if (isset($params['continueOnFailure']) && $params['continueOnFailure'] === true) {
             return static::batch($params['calls'], true);
         }
 

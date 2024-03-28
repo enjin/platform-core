@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\MassPrunable;
 class PendingEvent extends BaseModel
 {
     use EagerLoadSelectFields;
-    use MassPrunable;
     use HasFactory;
+    use MassPrunable;
 
     /**
      * Indicates if the model should be timestamped.

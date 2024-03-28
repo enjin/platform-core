@@ -11,10 +11,10 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class TokenAccount extends BaseModel
 {
-    use HasFactory;
-    use TokenAccountMethods;
     use EagerLoadSelectFields;
     use HasEagerLimit;
+    use HasFactory;
+    use TokenAccountMethods;
 
     /**
      * The attributes that aren't mass assignable.

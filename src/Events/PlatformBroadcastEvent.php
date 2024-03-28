@@ -67,8 +67,6 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
      */
     public function broadcastOn(): \Illuminate\Broadcasting\Channel|array
     {
@@ -77,8 +75,6 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
 
     /**
      * Get the data that should be sent with the broadcast event.
-     *
-     * @return array
      */
     public function broadcastWith(): array
     {
@@ -106,8 +102,6 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
 
     /**
      * Broadcast the event with the given arguments.
-     *
-     * @return PendingBroadcast
      */
     public static function broadcast(): PendingBroadcast
     {

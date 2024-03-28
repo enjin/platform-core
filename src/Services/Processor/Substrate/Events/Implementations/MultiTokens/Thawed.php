@@ -47,9 +47,7 @@ class Thawed implements SubstrateEvent
     /**
      * Thaw collection.
      *
-     * @param mixed $collection
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function thawCollection($collection, $transaciton = null): void
     {
@@ -73,10 +71,7 @@ class Thawed implements SubstrateEvent
     /**
      * Thaw token.
      *
-     * @param mixed  $collection
-     * @param string $tokenChainId
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function thawToken($collection, string $tokenChainId, ?Model $transaction = null): void
     {
@@ -103,10 +98,7 @@ class Thawed implements SubstrateEvent
     /**
      * Thaw collection account.
      *
-     * @param mixed  $collection
-     * @param string $wallet
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function thawCollectionAccount($collection, string $wallet, ?Model $transaction = null): void
     {
@@ -135,11 +127,7 @@ class Thawed implements SubstrateEvent
     /**
      * Thaw token account.
      *
-     * @param mixed  $collection
-     * @param string $tokenChainId
-     * @param string $wallet
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function thawTokenAccount($collection, string $tokenChainId, string $wallet, ?Model $transaction = null): void
     {

@@ -14,8 +14,8 @@ use Faker\Generator;
 
 class DepositFeeTest extends TestCase
 {
-    use MocksWebsocketClient;
     use HasTransactionDeposit;
+    use MocksWebsocketClient;
     protected static bool $initialized = false;
 
     protected function setUp(): void

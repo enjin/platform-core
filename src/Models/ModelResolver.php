@@ -53,7 +53,7 @@ abstract class ModelResolver extends Model
      */
     public static function resolveClassFqn($classReference = null): string
     {
-        if (null == $classReference) {
+        if ($classReference == null) {
             $classReference = static::class;
         }
 
