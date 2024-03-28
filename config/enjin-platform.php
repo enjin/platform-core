@@ -249,7 +249,7 @@ return [
     |
     */
     'rate_limit' => [
-        'enabled' => env('RATE_LIMIT_ENABLED', true),
+        'enabled' => env('RATE_LIMIT_ENABLED', false),
         'attempts' => env('RATE_LIMIT_ATTEMPTS', 500),
         'time' => env('RATE_LIMIT_TIME', 1), // minutes
     ],
