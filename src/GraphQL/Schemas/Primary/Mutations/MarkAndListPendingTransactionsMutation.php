@@ -78,9 +78,11 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                     return $query->whereIn('wallet_public_key', $publicKeys);
                 },
                 function (Builder $query) {
-                    return $query
-                        ->whereIn('wallet_public_key', Account::managedPublicKeys())
-                        ->orWhereNull('wallet_public_key')->where('state', '=', TransactionState::PENDING->name);
+                    $query->where(
+                        fn ($subquery) => $subquery
+                            ->whereIn('wallet_public_key', Account::managedPublicKeys())
+                            ->orWhereNull('wallet_public_key')
+                    );
                 }
             )->cursorPaginateWithTotal('id', $args['first'], false);
 
