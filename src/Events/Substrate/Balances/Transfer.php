@@ -18,6 +18,7 @@ class Transfer extends PlatformBroadcastEvent
 
         $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
+            'transactionHash' => $transaction?->transaction_chain_hash,
             'from' => $from->address,
             'to' => $to->address,
             'amount' => $amount,
