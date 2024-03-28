@@ -380,7 +380,7 @@ class GetWalletTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['id'] == $id);
-        $this->assertTrue(1 === $response['collectionAccounts']['totalCount']);
+        $this->assertTrue($response['collectionAccounts']['totalCount'] === 1);
         $this->assertArraySubset([
             'accountCount' => $this->collectionAccount->account_count,
             'isFrozen' => $this->collectionAccount->is_frozen,
@@ -398,7 +398,7 @@ class GetWalletTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['id'] == $id);
-        $this->assertTrue(1 === $response['tokenAccounts']['totalCount']);
+        $this->assertTrue($response['tokenAccounts']['totalCount'] === 1);
         $this->assertArraySubset([
             'balance' => $this->tokenAccount->balance,
             'reservedBalance' => $this->tokenAccount->reserved_balance,
@@ -416,7 +416,7 @@ class GetWalletTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['id'] == $id);
-        $this->assertTrue(1 === $response['ownedCollections']['totalCount']);
+        $this->assertTrue($response['ownedCollections']['totalCount'] === 1);
         $this->assertArraySubset([
             'collectionId' => $this->collection->collection_chain_id,
             'maxTokenCount' => $this->collection->max_token_count,
@@ -437,7 +437,7 @@ class GetWalletTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['id'] == $id);
-        $this->assertTrue(0 === $response['transactions']['totalCount']);
+        $this->assertTrue($response['transactions']['totalCount'] === 0);
     }
 
     public function test_it_will_have_null_balance_and_nonce_for_a_wallet_that_doesnt_have_an_address(): void
@@ -451,8 +451,8 @@ class GetWalletTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['id'] == $id);
-        $this->assertTrue(null === $response['nonce']);
-        $this->assertTrue(null === $response['balances']);
+        $this->assertTrue($response['nonce'] === null);
+        $this->assertTrue($response['balances'] === null);
     }
 
     public function test_it_can_get_wallet_by_external_id(): void

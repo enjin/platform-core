@@ -169,7 +169,7 @@ class GraphQlServiceProvider extends ServiceProvider
     {
         $httpMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlHttpMiddleware::class);
 
-        [$globalHttpMiddleware, $schemaHttpMiddleware] = $httpMiddlewares->partition(fn ($middleware) => empty($middleware::forSchema()) || 'global' === $middleware::forSchema());
+        [$globalHttpMiddleware, $schemaHttpMiddleware] = $httpMiddlewares->partition(fn ($middleware) => empty($middleware::forSchema()) || $middleware::forSchema() === 'global');
 
         $globalHttpMiddleware
             ->each(function ($middleware) {
@@ -194,7 +194,7 @@ class GraphQlServiceProvider extends ServiceProvider
     {
         $executionMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlExecutionMiddleware::class);
 
-        [$globalExecutionMiddleware, $schemaExecutionMiddleware] = $executionMiddlewares->partition(fn ($middleware) => empty($middleware::forSchema()) || 'global' === $middleware::forSchema());
+        [$globalExecutionMiddleware, $schemaExecutionMiddleware] = $executionMiddlewares->partition(fn ($middleware) => empty($middleware::forSchema()) || $middleware::forSchema() === 'global');
 
         $globalExecutionMiddleware
             ->each(function ($middleware) {
@@ -246,7 +246,7 @@ class GraphQlServiceProvider extends ServiceProvider
             $graphQlEndpoint = config('graphql.route.prefix', 'graphql');
             $graphiQlEndpoint = config('graphql.graphiql.prefix', 'graphiql');
 
-            if ('Core' != $packageName && $schemas->contains($packageName)) {
+            if ($packageName != 'Core' && $schemas->contains($packageName)) {
                 $graphQlEndpoint .= '/' . $packageName;
                 $graphiQlEndpoint .= '/' . $packageName;
             }

@@ -25,7 +25,7 @@ class Hash extends BaseEncoder
         }
 
         // Only support this for now
-        if ('blake2' != $algo) {
+        if ($algo != 'blake2') {
             throw new InvalidArgumentException(__('enjin-platform::error.token_id_encoder.hash.algo_not_supported', ['algo' => $algo]));
         }
     }

@@ -14,8 +14,8 @@ use Rebing\GraphQL\Support\Contracts\TypeConvertible;
 
 class IntegerRangeType extends ScalarType implements PlatformGraphQlType, TypeConvertible
 {
-    use InGlobalSchema;
     use HasIntegerRanges;
+    use InGlobalSchema;
 
     public function __construct(array $config = [])
     {

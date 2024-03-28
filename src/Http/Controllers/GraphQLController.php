@@ -147,9 +147,9 @@ class GraphQLController extends GraphQLGraphQLController
 
             foreach ($directive['args'] as $k => $arg) {
                 match (true) {
-                    'if' == $arg['name'] && 'include' == $directive['name'] => Arr::set($data, "data.__schema.directives.{$i}.args.{$k}.description", __('enjin-platform::schema.directives.include.args.if')),
-                    'if' == $arg['name'] && 'skip' == $directive['name'] => Arr::set($data, "data.__schema.directives.{$i}.args.{$k}.description", __('enjin-platform::schema.directives.skip.args.if')),
-                    'reason' == $arg['name'] && 'deprecated' == $directive['name'] => Arr::set($data, "data.__schema.directives.{$i}.args.{$k}.description", __('enjin-platform::schema.directives.deprecated.reason')),
+                    $arg['name'] == 'if' && $directive['name'] == 'include' => Arr::set($data, "data.__schema.directives.{$i}.args.{$k}.description", __('enjin-platform::schema.directives.include.args.if')),
+                    $arg['name'] == 'if' && $directive['name'] == 'skip' => Arr::set($data, "data.__schema.directives.{$i}.args.{$k}.description", __('enjin-platform::schema.directives.skip.args.if')),
+                    $arg['name'] == 'reason' && $directive['name'] == 'deprecated' => Arr::set($data, "data.__schema.directives.{$i}.args.{$k}.description", __('enjin-platform::schema.directives.deprecated.reason')),
                     default => ''
                 };
             }
@@ -171,7 +171,7 @@ class GraphQLController extends GraphQLGraphQLController
             }
 
             if ($node = Parser::parse($operation->query)) {
-                if ('__schema' == $node->definitions->offsetGet(0)?->selectionSet?->selections?->offsetGet(0)?->name?->value) {
+                if ($node->definitions->offsetGet(0)?->selectionSet?->selections?->offsetGet(0)?->name?->value == '__schema') {
                     return true;
                 }
             }

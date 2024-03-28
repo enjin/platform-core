@@ -29,7 +29,7 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     /**
      * Serializes an internal value to include in a response.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      *
      * @throws Error
      *
@@ -45,7 +45,7 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
      *
      * In the case of an invalid value this method must throw an Exception
      *
-     * @param mixed $value
+     * @param  mixed  $value
      *
      * @throws Error
      *
@@ -59,16 +59,14 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     /**
      * Validate json data.
      *
-     * @param mixed $data
+     * @param  mixed  $data
      *
      * @throws Exception
-     *
-     * @return array
      */
     public function decodeJson($data): array
     {
         $decoded = JSON::decode($data, true);
-        if (JSON_ERROR_NONE === json_last_error()) {
+        if (json_last_error() === JSON_ERROR_NONE) {
             return $decoded;
         }
 
@@ -80,8 +78,8 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
      *
      * In the case of an invalid node or value this method must throw an Exception
      *
-     * @param Node         $valueNode
-     * @param mixed[]|null $variables
+     * @param  Node  $valueNode
+     * @param  mixed[]|null  $variables
      *
      * @throws Exception
      *

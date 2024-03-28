@@ -182,7 +182,7 @@ class Encoder
 
     public function getEncoded(string $type, array $params): string
     {
-        if (isset($params['continueOnFailure']) && true === $params['continueOnFailure']) {
+        if (isset($params['continueOnFailure']) && $params['continueOnFailure'] === true) {
             return static::batch($params['calls'], true);
         }
 

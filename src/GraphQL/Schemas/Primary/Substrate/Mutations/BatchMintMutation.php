@@ -32,14 +32,14 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchMintMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFieldArrayRules;
-    use HasSkippableRules;
     use HasEncodableTokenId;
-    use HasSimulateField;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldArrayRules;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -106,17 +106,17 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                 $mintParams = Arr::get($recipient, 'mintParams');
 
                 if (Arr::get($createParams, 'cap.type') === TokenMintCapType::SUPPLY->name) {
-                    if (null === Arr::get($createParams, 'cap.amount')) {
+                    if (Arr::get($createParams, 'cap.amount') === null) {
                         throw new PlatformException(__('enjin-platform::error.supply_cap_must_be_set'));
                     }
                     if (Arr::get($createParams, 'cap.amount') < Arr::get($createParams, 'initialSupply')) {
                         throw new PlatformException(__('enjin-platform::error.supply_cap_must_be_greater_than_initial'));
                     }
                 }
-                if (null !== $createParams && null !== $mintParams) {
+                if ($createParams !== null && $mintParams !== null) {
                     throw new PlatformException(__('enjin-platform::error.cannot_set_create_and_mint_params_with_same_recipient'));
                 }
-                if (null === $createParams && null === $mintParams) {
+                if ($createParams === null && $mintParams === null) {
                     throw new PlatformException(__('enjin-platform::error.set_either_create_or_mint_param_for_recipient'));
                 }
 

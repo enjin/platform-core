@@ -73,7 +73,7 @@ class GetPendingWalletsTest extends TestCaseGraphQL
 
         $this->assertEmpty(array_filter(
             $response['edges'],
-            fn ($wallet) => false === $wallet['node']['managed'],
+            fn ($wallet) => $wallet['node']['managed'] === false,
         ));
     }
 

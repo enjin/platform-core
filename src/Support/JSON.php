@@ -7,7 +7,7 @@ class JSON
     /**
      * Decode a JSON string.
      */
-    public static function decode(string|null $data, ?bool $associative = false, int $depth = 512, int $flags = 0): mixed
+    public static function decode(?string $data, ?bool $associative = false, int $depth = 512, int $flags = 0): mixed
     {
         if (!$data) {
             return null;

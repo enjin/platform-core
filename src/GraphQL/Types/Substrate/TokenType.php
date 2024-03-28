@@ -15,8 +15,8 @@ use Rebing\GraphQL\Support\Type;
 
 class TokenType extends Type implements PlatformGraphQlType
 {
-    use InSubstrateSchema;
     use HasSelectFields;
+    use InSubstrateSchema;
 
     /**
      * Get the type's attributes.
@@ -69,7 +69,7 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('Royalty'),
                 'description' => __('enjin-platform::type.token.field.royalty'),
                 'resolve' => function ($token) {
-                    if (null === $token->royaltyBeneficiary) {
+                    if ($token->royaltyBeneficiary === null) {
                         return;
                     }
 
@@ -119,7 +119,7 @@ class TokenType extends Type implements PlatformGraphQlType
                             $token?->accounts,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $token?->accounts_count,
                     ];

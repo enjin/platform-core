@@ -30,15 +30,15 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MutateTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFields;
-    use HasTokenIdFieldRules;
     use HasEncodableTokenId;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTokenIdFields;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -139,7 +139,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
      */
     protected function rulesCommon(array $args): array
     {
-        $isBehaviorEmpty = [] === Arr::get($args, 'mutation.behavior');
+        $isBehaviorEmpty = Arr::get($args, 'mutation.behavior') === [];
 
         return [
             'mutation.behavior' => $isBehaviorEmpty ? [] : ['required_without:mutation.listingForbidden'],

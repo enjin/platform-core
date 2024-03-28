@@ -10,15 +10,11 @@ class ValidVerificationId implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param string $attribute
-     * @param mixed  $value
-     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
-     *
-     * @return void
+     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value) || 66 !== strlen($value) || preg_match('/^0x[a-fA-F0-9]*$/', $value) < 1) {
+        if (!is_string($value) || strlen($value) !== 66 || preg_match('/^0x[a-fA-F0-9]*$/', $value) < 1) {
             $fail('enjin-platform::validation.valid_verification_id')->translate();
         }
     }

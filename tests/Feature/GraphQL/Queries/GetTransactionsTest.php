@@ -320,7 +320,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'ids' => [$transactionId = fake()->randomElement($this->transactions)->id],
         ]);
 
-        $this->assertTrue(1 === $response['totalCount']);
+        $this->assertTrue($response['totalCount'] === 1);
         $this->assertEquals($transactionId, $response['edges'][0]['node']['id']);
     }
 
@@ -330,7 +330,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'transactionIds' => [$transactionId = fake()->randomElement($this->transactions)->transaction_chain_id],
         ]);
 
-        $this->assertTrue(1 === $response['totalCount']);
+        $this->assertTrue($response['totalCount'] === 1);
         $this->assertEquals($transactionId, $response['edges'][0]['node']['transactionId']);
     }
 

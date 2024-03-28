@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Attribute extends BaseModel
 {
-    use HasFactory;
     use AttributeMethods;
     use EagerLoadSelectFields;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.

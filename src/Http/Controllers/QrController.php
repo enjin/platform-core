@@ -23,7 +23,7 @@ class QrController extends Controller
             throw new PlatformException(__('enjin-platform::error.qr.image_format_not_supported'), 501);
         }
 
-        if ('png' == $format && !extension_loaded('Imagick')) {
+        if ($format == 'png' && !extension_loaded('Imagick')) {
             throw new PlatformException(__('enjin-platform::error.qr.extension_not_installed'), 501);
         }
 

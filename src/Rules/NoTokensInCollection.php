@@ -11,17 +11,13 @@ class NoTokensInCollection implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param string $attribute
-     * @param mixed  $value
-     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
-     *
-     * @return void
+     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $collection = Collection::query()->withCount('tokens')->firstWhere('collection_chain_id', '=', $value);
 
-        if (0 !== $collection?->tokens_count) {
+        if ($collection?->tokens_count !== 0) {
             $fail('enjin-platform::validation.no_tokens_in_collection')->translate();
         }
     }

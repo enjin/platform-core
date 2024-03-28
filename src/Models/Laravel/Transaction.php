@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transaction extends BaseModel
 {
+    use EagerLoadSelectFields;
     use HasFactory;
     use TransactionMethods;
-    use EagerLoadSelectFields;
 
     /**
      * The attributes that aren't mass assignable.

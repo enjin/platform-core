@@ -84,7 +84,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                 }
             )->cursorPaginateWithTotal('id', $args['first'], false);
 
-        if (true === $args['markAsProcessing'] || null === $args['markAsProcessing']) {
+        if ($args['markAsProcessing'] === true || $args['markAsProcessing'] === null) {
             $transactions['items']->getCollection()->each(
                 fn ($transaction) => $transactionService->update(
                     clone $transaction,

@@ -37,7 +37,7 @@ class TransactionService
     /**
      * Create a new transaction.
      */
-    public function store(array $data, Model|null $signingWallet = null): Model
+    public function store(array $data, ?Model $signingWallet = null): Model
     {
         if ($transaction = Transaction::firstWhere(['idempotency_key' => $data['idempotency_key']])) {
             return $transaction;

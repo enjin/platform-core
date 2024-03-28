@@ -31,13 +31,13 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class OperatorTransferTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
     use HasIdempotencyField;
-    use HasTokenIdFieldRules;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

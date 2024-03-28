@@ -60,6 +60,7 @@ class AddressTest extends TestCase
 
     /**
      * @test
+     *
      * @define-env usesNullDaemonAccount
      */
     public function test_it_can_get_null_daemon_account()
@@ -71,6 +72,7 @@ class AddressTest extends TestCase
 
     /**
      * @test
+     *
      * @define-env usesEnjinNetwork
      */
     public function test_it_will_encode_matrix_address_if_enjin_is_the_selected_chain()
@@ -82,6 +84,7 @@ class AddressTest extends TestCase
 
     /**
      * @test
+     *
      * @define-env usesLocalNetwork
      */
     public function test_it_will_encode_rocfinity_address_if_developer_is_the_selected_chain()

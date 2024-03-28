@@ -11,8 +11,8 @@ use Rebing\GraphQL\Support\Type as GraphQLType;
 
 class PendingEventType extends GraphQLType implements PlatformGraphQlType
 {
-    use InSubstrateSchema;
     use HasSelectFields;
+    use InSubstrateSchema;
 
     /**
      * Get the type's attributes.

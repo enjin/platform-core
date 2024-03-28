@@ -11,10 +11,10 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Event extends BaseModel
 {
-    use HasFactory;
-    use EventMethods;
     use EagerLoadSelectFields;
+    use EventMethods;
     use HasEagerLimit;
+    use HasFactory;
 
     /**
      * Indicates if the model should be timestamped.
