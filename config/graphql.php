@@ -15,6 +15,7 @@ return [
         // This middleware will apply to all schemas
         'middleware' => [
             Illuminate\Session\Middleware\StartSession::class,
+            Enjin\Platform\Middlewares\RateLimit::class,
             Enjin\Platform\Middlewares\Authenticated::class,
         ],
 

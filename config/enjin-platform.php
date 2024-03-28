@@ -234,9 +234,23 @@ return [
     | Prune blocks
     |--------------------------------------------------------------------------
     |
-    | Here, you can specify the number of days to retain blocks data before pruning.
+    | Here you can specify the number of days to retain blocks data before pruning.
     | If set to null or zero, blocks will not be pruned.
     |
     */
     'prune_blocks' => env('PRUNE_BLOCKS', 7),
+
+    /*
+    |--------------------------------------------------------------------------
+    | API Rate Limiting
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the rate limiting for the APIs
+    |
+    */
+    'rate_limit' => [
+        'enabled' => env('RATE_LIMIT_ENABLED', true),
+        'attempts' => env('RATE_LIMIT_ATTEMPTS', 500),
+        'time' => env('RATE_LIMIT_TIME', 60),
+    ],
 ];
