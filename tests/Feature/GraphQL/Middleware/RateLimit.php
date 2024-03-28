@@ -26,7 +26,7 @@ class RateLimit extends TestCaseGraphQL
             ['query' => static::$queries['GetCollections']],
         );
         $result = $response->getData(true);
-        $this->assertStringContainsString('Too many requests.', Arr::get($result, 'message'));
+        $this->assertStringContainsString('Too Many Attempts.', Arr::get($result, 'message'));
     }
 
     public function test_it_will_not_rate_limit(): void

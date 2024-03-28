@@ -251,6 +251,6 @@ return [
     'rate_limit' => [
         'enabled' => env('RATE_LIMIT_ENABLED', true),
         'attempts' => env('RATE_LIMIT_ATTEMPTS', 500),
-        'time' => env('RATE_LIMIT_TIME', 60),
+        'time' => env('RATE_LIMIT_TIME', 1), // minutes
     ],
 ];

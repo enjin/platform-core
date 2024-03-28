@@ -54,5 +54,4 @@ return [
     'unable_to_process' => "Sorry, we're unable to process your request at this time. Please try again later.",
     'no_collection' => 'Unable to find a collection for token ID :tokenId.',
     'cannot_retry_transaction' => 'Cannot retry FINALIZED transaction.',
-    'too_many_requests' => 'Too many requests. Retry in :num seconds',
 ];

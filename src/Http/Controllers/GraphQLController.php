@@ -16,6 +16,15 @@ use Rebing\GraphQL\GraphQLController as GraphQLGraphQLController;
 
 class GraphQLController extends GraphQLGraphQLController
 {
+    public function __construct()
+    {
+        if (config('enjin-platform.rate_limit.enabled')) {
+            $this->middleware(
+                'throttle:' . config('enjin-platform.rate_limit.attempts') . ',' . config('enjin-platform.rate_limit.time')
+            );
+        }
+    }
+
     /**
      * Handle graphql query.
      */
