@@ -156,7 +156,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                             $transaction?->events,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $transaction?->events_count,
                     ];

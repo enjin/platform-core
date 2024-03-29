@@ -30,11 +30,11 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
     use HasIdempotencyField;
-    use InPrimarySubstrateSchema;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

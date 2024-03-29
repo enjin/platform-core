@@ -30,15 +30,15 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFields;
-    use HasTokenIdFieldRules;
     use HasEncodableTokenId;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTokenIdFields;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -119,7 +119,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'tokenId' => null !== $tokenId ? gmp_init($tokenId) : null,
+            'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
             'attributeCount' => gmp_init(Arr::get($params, 'attributeCount', 0)),
         ];
     }

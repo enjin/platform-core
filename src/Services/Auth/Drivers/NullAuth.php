@@ -36,6 +36,6 @@ class NullAuth implements Authenticator
 
     private function isProduction()
     {
-        return 'production' === Str::lower(config('app.env'));
+        return Str::lower(config('app.env')) === 'production';
     }
 }

@@ -14,8 +14,8 @@ use Rebing\GraphQL\Support\InputType;
 
 class CreateTokenParamsInputType extends InputType implements PlatformGraphQlType
 {
-    use Traits\HasTokenIdFields;
     use InSubstrateSchema;
+    use Traits\HasTokenIdFields;
 
     /**
      * Get the type's attributes.

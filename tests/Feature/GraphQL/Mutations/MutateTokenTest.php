@@ -944,7 +944,7 @@ class MutateTokenTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
-            'tokenId' =>$this->tokenIdEncoder->toEncodable(),
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'mutation' => [
                 'behavior' => [
                     'hasRoyalty' => [

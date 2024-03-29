@@ -2,8 +2,6 @@
 
 namespace Enjin\Platform\Commands;
 
-use function Amp\async;
-
 use Amp\Future;
 use Amp\Parallel\Context\ProcessContextFactory;
 use Carbon\Carbon;
@@ -27,6 +25,8 @@ use Symfony\Component\Console\Command\Command as CommandAlias;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
 
+use function Amp\async;
+
 class Sync extends Command
 {
     /**
@@ -47,11 +47,6 @@ class Sync extends Command
      * The blockchain node url.
      */
     protected string $nodeUrl;
-
-    /**
-     * The progress bar instance.
-     */
-    protected ProgressBar $progressBar;
 
     /**
      * The start time of the sync.
@@ -79,7 +74,7 @@ class Sync extends Command
 
         $backoff->setStrategy(new PolynomialStrategy(250, 2))
             ->setWaitCap(600000)
-            ->setErrorHandler(function (Throwable|null $e) {
+            ->setErrorHandler(function (?Throwable $e) {
                 $this->error(__('enjin-platform::error.exception_in_sync'));
                 $this->error($e->getMessage());
                 $this->error($message = __('enjin-platform::error.line_and_file', ['line' => $e->getLine(), 'file' => $e->getFile()]));
@@ -90,16 +85,6 @@ class Sync extends Command
         PlatformSynced::dispatch();
 
         return CommandAlias::SUCCESS;
-    }
-
-    /**
-     * Display the progress bar.
-     */
-    protected function displayMessageAboveBar(string $message): void
-    {
-        $this->progressBar->clear();
-        $this->info($message);
-        $this->progressBar->display();
     }
 
     /**
@@ -123,9 +108,6 @@ class Sync extends Command
      */
     protected function displayOverview(array $storages): void
     {
-        $this->progressBar->finish();
-        $this->newLine();
-
         $this->info(__('enjin-platform::commands.sync.overview'));
         foreach ($storages as $storage) {
             $this->info(sprintf(
@@ -161,34 +143,44 @@ class Sync extends Command
         ]);
     }
 
+    protected function createAndStartDebugBar(int $steps): ProgressBar
+    {
+        $progress = $this->output->createProgressBar($steps);
+        $progress->setFormat('debug');
+        $progress->start();
+
+        return $progress;
+    }
+
     /**
      * Get the storage at the given block hash.
      */
     protected function getStorageAt(string $blockHash): array
     {
+        $this->info(__('enjin-platform::commands.sync.fetching'));
         $storageKeys = $this->getStorageKeys($blockHash);
+        $progress = $this->createAndStartDebugBar(count($storageKeys));
 
-        $this->progressBar = $this->output->createProgressBar(count($storageKeys) * 2);
-        $this->progressBar->setFormat('debug');
-        $this->progressBar->start();
-        $this->displayMessageAboveBar(__('enjin-platform::commands.sync.fetching'));
-
-        return Future\await(
+        $storages = Future\await(
             array_map(
-                fn ($keyAndHash) => async(function () use ($keyAndHash) {
+                fn ($keyAndHash) => async(function () use ($progress, $keyAndHash) {
                     $storageKey = $keyAndHash[0];
 
                     $context = (new ProcessContextFactory())->start(__DIR__ . '/contexts/get_storage.php');
                     $context->send($keyAndHash);
                     [$storage, $total] = $context->join();
 
-                    $this->progressBar->advance();
+                    $progress->advance();
 
                     return [$storageKey, $storage, $total];
                 }),
                 $storageKeys,
             )
         );
+
+        $progress->finish();
+
+        return $storages;
     }
 
     protected function getKeys(): array
@@ -229,7 +221,7 @@ class Sync extends Command
         }
 
         return array_map(
-            fn ($key) => [$key, $blockHash, $this->nodeUrl],
+            fn ($key) => [$key, $blockHash, $this->nodeUrl, $this->output],
             $storage
         );
     }
@@ -239,15 +231,24 @@ class Sync extends Command
      */
     protected function parseStorages(Block $block, array $storages): void
     {
-        $this->displayMessageAboveBar(__('enjin-platform::commands.sync.decoding'));
+        $this->newLine();
+        $this->info(__('enjin-platform::commands.sync.decoding'));
 
         for ($x = 0; $x < count($storages); $x++) {
             [$storageKey, $storageValues] = $storages[$x];
+
+            $this->info('Parsing and saving ' . $storageKey->type->name);
+            $progress = $this->createAndStartDebugBar(count($storageValues));
+
             foreach ($storageValues as $storagePage) {
                 $facade = $storageKey->parserFacade();
                 $facade::{$storageKey->parser()}($storagePage);
+                $progress->advance();
+
             }
-            $this->progressBar->advance();
+
+            $progress->finish();
+            $this->newLine();
         }
 
         $block->synced = true;

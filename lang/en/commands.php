@@ -4,7 +4,7 @@ return [
     'sync.description' => 'Initialize Platform and sync it with a snapshot of Substrate state.',
     'sync.truncating' => 'Truncating the database before syncing',
     'sync.decoding' => 'Decoding, parsing and saving chain data to the database',
-    'sync.fetching' => 'Starting to fetch storage values from the RPC node',
+    'sync.fetching' => 'Please wait while we fetch the storage values from the RPC node',
     'sync.syncing' => 'Syncing chain state at block #:blockNumber',
     'sync.overview' => '==================== Sync Overview ====================',
     'sync.header' => '==================== Enjin Platform Syncer ====================',

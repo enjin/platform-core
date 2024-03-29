@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\MassPrunable;
 
 class Block extends BaseModel
 {
-    use HasFactory;
     use EagerLoadSelectFields;
+    use HasFactory;
     use MassPrunable;
 
 
@@ -43,8 +43,6 @@ class Block extends BaseModel
 
     /**
      * Get the prunable model query.
-     *
-     * @return Builder
      */
     public function prunable(): Builder
     {

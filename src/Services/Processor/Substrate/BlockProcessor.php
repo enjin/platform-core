@@ -42,7 +42,7 @@ class BlockProcessor
         $this->persistedClient = new Substrate(new SubstrateWebsocket());
     }
 
-    public function latestBlock(): int|null
+    public function latestBlock(): ?int
     {
         try {
             if ($currentBlock = $this->persistedClient->callMethod('chain_getHeader')) {
@@ -104,7 +104,7 @@ class BlockProcessor
                     $result = Arr::get(JSON::decode($response, true), 'params.result');
                     $heightHexed = Arr::get($result, 'number');
 
-                    if (null === $heightHexed) {
+                    if ($heightHexed === null) {
                         continue;
                     }
 
@@ -168,7 +168,7 @@ class BlockProcessor
         $this->fetchPastHeads($currentHeight, $newCurrentHeight);
     }
 
-    public function process(Block $block): Block|null
+    public function process(Block $block): ?Block
     {
         try {
             $blockNumber = $block->number;
@@ -229,7 +229,7 @@ class BlockProcessor
         try {
             $this->fetchPastHeads($lastBlockSynced, $currentHeight);
             $this->subscribeToNewHeads();
-        } catch(RestartIngestException) {
+        } catch (RestartIngestException) {
             $this->startIngest(
                 $this->latestSyncedBlock(),
                 $this->latestBlock()

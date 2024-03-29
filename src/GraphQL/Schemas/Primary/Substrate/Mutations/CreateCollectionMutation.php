@@ -31,15 +31,15 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InheritsGraphQlFields;
-    use InPrimarySubstrateSchema;
     use HasEncodableTokenId;
     use HasIdempotencyField;
-    use HasTokenIdFieldArrayRules;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldArrayRules;
+    use HasTransactionDeposit;
+    use InheritsGraphQlFields;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**

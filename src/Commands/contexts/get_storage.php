@@ -1,11 +1,11 @@
 <?php
 
-use function Amp\async;
-
 use Amp\Future;
 use Amp\Sync\Channel;
 use Enjin\Platform\Clients\Implementations\AsyncWebsocket;
 use Illuminate\Support\Arr;
+
+use function Amp\async;
 
 return function (Channel $channel): array {
     $receivedMessage = $channel->receive();

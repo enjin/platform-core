@@ -18,11 +18,7 @@ class CheckTokenCount implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param string $attribute
-     * @param mixed  $value
-     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
-     *
-     * @return void
+     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -30,7 +26,7 @@ class CheckTokenCount implements ValidationRule
             ->firstWhere('collection_chain_id', '=', $value)
         ) {
             $total = ($collection->tokens_count + $this->offset);
-            if (null !== $collection->max_token_count && (0 === $collection->max_token_count || $total > $collection->max_token_count)) {
+            if ($collection->max_token_count !== null && ($collection->max_token_count === 0 || $total > $collection->max_token_count)) {
                 $fail('enjin-platform::validation.check_token_count')
                     ->translate([
                         'total' => $total,

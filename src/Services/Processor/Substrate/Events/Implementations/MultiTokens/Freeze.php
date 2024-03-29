@@ -47,9 +47,7 @@ class Freeze implements SubstrateEvent
     /**
      * Freeze collection.
      *
-     * @param mixed $collection
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function freezeCollection($collection, ?Model $transaction = null): void
     {
@@ -73,10 +71,7 @@ class Freeze implements SubstrateEvent
     /**
      * Freeze token.
      *
-     * @param mixed  $collection
-     * @param string $tokenChainId
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function freezeToken($collection, string $tokenChainId, ?Model $transaction = null): void
     {
@@ -103,10 +98,7 @@ class Freeze implements SubstrateEvent
     /**
      * Freeze collection account.
      *
-     * @param mixed  $collection
-     * @param string $wallet
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function freezeCollectionAccount($collection, string $wallet, ?Model $transaction = null): void
     {
@@ -135,11 +127,7 @@ class Freeze implements SubstrateEvent
     /**
      * Freeze token account.
      *
-     * @param mixed  $collection
-     * @param string $tokenChainId
-     * @param string $wallet
-     *
-     * @return void
+     * @param  mixed  $collection
      */
     protected function freezeTokenAccount($collection, string $tokenChainId, string $wallet, ?Model $transaction = null): void
     {

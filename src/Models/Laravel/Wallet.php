@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Wallet extends BaseModel
 {
+    use EagerLoadSelectFields;
     use HasFactory;
     use WalletMethods;
-    use EagerLoadSelectFields;
 
     /**
      * The attributes that aren't mass assignable.

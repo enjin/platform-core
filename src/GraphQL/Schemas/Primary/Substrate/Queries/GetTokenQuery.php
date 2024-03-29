@@ -18,11 +18,11 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokenQuery extends Query implements PlatformGraphQlQuery
 {
-    use InPrimarySubstrateSchema;
-    use HasTokenIdFields;
-    use HasTokenIdFieldRules;
-    use HasEncodableTokenId;
     use HasAdhocRules;
+    use HasEncodableTokenId;
+    use HasTokenIdFieldRules;
+    use HasTokenIdFields;
+    use InPrimarySubstrateSchema;
 
     /**
      * Get the query's attributes.

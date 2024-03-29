@@ -83,9 +83,9 @@ class GetAccountVerifiedQuery extends Query implements PlatformGraphQlQuery
         return [
             'account' => [
                 'publicKey' => $publicKey = $verification?->public_key,
-                'address' => null !== $publicKey ? SS58Address::encode($publicKey) : null,
+                'address' => $publicKey !== null ? SS58Address::encode($publicKey) : null,
             ],
-            'verified' => null !== $publicKey,
+            'verified' => $publicKey !== null,
         ];
     }
 }

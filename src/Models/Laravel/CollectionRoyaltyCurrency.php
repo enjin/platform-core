@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CollectionRoyaltyCurrency extends BaseModel
 {
-    use HasFactory;
     use CollectionRoyaltyCurrencyMethods;
     use EagerLoadSelectFields;
+    use HasFactory;
 
     /**
      * The attributes that aren't mass assignable.

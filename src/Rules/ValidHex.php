@@ -17,11 +17,7 @@ class ValidHex implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param string $attribute
-     * @param mixed  $value
-     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
-     *
-     * @return void
+     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -35,7 +31,7 @@ class ValidHex implements ValidationRule
      */
     protected function isValidHex($value): bool
     {
-        if (!is_string($value) || (null !== $this->bytesLength && strlen($value) !== ((2 * $this->bytesLength) + 2))) {
+        if (!is_string($value) || ($this->bytesLength !== null && strlen($value) !== ((2 * $this->bytesLength) + 2))) {
             return false;
         }
 

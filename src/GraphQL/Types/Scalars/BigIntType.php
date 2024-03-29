@@ -40,7 +40,7 @@ class BigIntType extends ScalarType implements PlatformGraphQlType, TypeConverti
     /**
      * Parses an externally provided value (query variable) to use as an input.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      */
     public function parseValue($value)
     {
@@ -54,7 +54,7 @@ class BigIntType extends ScalarType implements PlatformGraphQlType, TypeConverti
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
      *
-     * @param mixed $valueNode
+     * @param  mixed  $valueNode
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {

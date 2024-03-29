@@ -32,14 +32,14 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MutateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
-    use HasIdempotencyField;
-    use HasTokenIdFieldArrayRules;
     use HasEncodableTokenId;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
+    use HasIdempotencyField;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldArrayRules;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -112,7 +112,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
 
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
-            owner: null !== Arr::get($args, 'mutation.owner')
+            owner: Arr::get($args, 'mutation.owner') !== null
                 ? $walletService->firstOrStore(['account' => $args['mutation']['owner']])->public_key
                 : null,
             royalty: $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
@@ -151,8 +151,8 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
      */
     protected function rulesCommon(array $args): array
     {
-        $isOwnerEmpty = '' === Arr::get($args, 'mutation.owner');
-        $isExplicitRoyaltyEmpty = [] === Arr::get($args, 'mutation.explicitRoyaltyCurrencies');
+        $isOwnerEmpty = Arr::get($args, 'mutation.owner') === '';
+        $isExplicitRoyaltyEmpty = Arr::get($args, 'mutation.explicitRoyaltyCurrencies') === [];
         $explicitRoyaltyRules = ['nullable', 'bail', 'array', 'min:0', 'max:10', new DistinctMultiAsset()];
 
         return [

@@ -191,7 +191,7 @@ class EncodingTest extends TestCase
             tokenId: '5050',
             operator: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
             amount: '10',
-            currentAmount:'0',
+            currentAmount: '0',
             expiration: 535000
         ));
 
@@ -209,7 +209,7 @@ class EncodingTest extends TestCase
             tokenId: '57005',
             operator: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
             amount: '500',
-            currentAmount:'10'
+            currentAmount: '10'
         ));
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.approve_token', true);

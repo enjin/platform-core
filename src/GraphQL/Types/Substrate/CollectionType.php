@@ -66,7 +66,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('Royalty'),
                 'description' => __('enjin-platform::type.collection_type.field.royalty'),
                 'resolve' => function ($collection) {
-                    if (null === $collection->royaltyBeneficiary) {
+                    if ($collection->royaltyBeneficiary === null) {
                         return;
                     }
 
@@ -105,7 +105,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                             $collection?->accounts,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $collection?->accounts_count,
                     ];
@@ -122,7 +122,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                             $collection?->tokens,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $collection?->tokens_count,
                     ];

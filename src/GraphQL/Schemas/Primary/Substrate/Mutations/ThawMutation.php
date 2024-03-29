@@ -32,14 +32,14 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class ThawMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use InPrimarySubstrateSchema;
     use HasIdempotencyField;
-    use HasTokenIdFields;
-    use HasTokenIdFieldRules;
-    use HasSkippableRules;
-    use HasSimulateField;
-    use HasTransactionDeposit;
     use HasSigningAccountField;
+    use HasSimulateField;
+    use HasSkippableRules;
+    use HasTokenIdFieldRules;
+    use HasTokenIdFields;
+    use HasTransactionDeposit;
+    use InPrimarySubstrateSchema;
     use StoresTransactions;
 
     /**
@@ -138,8 +138,8 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
                     ? $this->getTokenFieldRulesExist(null, [], false)
                     : ['tokenId' => ['prohibited']]
             ),
-            'collectionAccount' => FreezeType::COLLECTION_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInCollection()] : ['prohibited'],
-            'tokenAccount' => FreezeType::TOKEN_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInToken()] : ['prohibited'],
+            'collectionAccount' => $freezeType === FreezeType::COLLECTION_ACCOUNT ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInCollection()] : ['prohibited'],
+            'tokenAccount' => $freezeType === FreezeType::TOKEN_ACCOUNT ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInToken()] : ['prohibited'],
         ];
     }
 
@@ -156,8 +156,8 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
                     ? $this->getTokenFieldRules()
                     : ['tokenId' => ['prohibited'], 'encodeTokenId.data' => ['prohibited']]
             ),
-            'collectionAccount' => FreezeType::COLLECTION_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount()] : ['prohibited'],
-            'tokenAccount' => FreezeType::TOKEN_ACCOUNT === $freezeType ? ['bail', 'required', new ValidSubstrateAccount()] : ['prohibited'],
+            'collectionAccount' => $freezeType === FreezeType::COLLECTION_ACCOUNT ? ['bail', 'required', new ValidSubstrateAccount()] : ['prohibited'],
+            'tokenAccount' => $freezeType === FreezeType::TOKEN_ACCOUNT ? ['bail', 'required', new ValidSubstrateAccount()] : ['prohibited'],
         ];
     }
 }

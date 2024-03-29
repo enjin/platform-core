@@ -10,8 +10,8 @@ use Rebing\GraphQL\Support\InputType;
 
 class BurnParamsInputType extends InputType implements PlatformGraphQlType
 {
-    use InSubstrateSchema;
     use HasTokenIdFields;
+    use InSubstrateSchema;
 
     /**
      * Get the type's attributes.

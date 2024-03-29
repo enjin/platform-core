@@ -12,10 +12,10 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Collection extends BaseModel
 {
-    use HasFactory;
     use CollectionMethods;
     use EagerLoadSelectFields;
     use HasEagerLimit;
+    use HasFactory;
 
     /**
      * The attributes that aren't mass assignable.

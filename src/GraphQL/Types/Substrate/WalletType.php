@@ -111,7 +111,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             $wallet?->collectionAccounts,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $wallet?->collection_accounts_count,
                     ];
@@ -137,7 +137,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             $wallet?->tokenAccounts,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $wallet?->token_accounts_count,
                     ];
@@ -154,7 +154,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             $wallet?->collectionAccountApprovals,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $wallet?->collection_account_approvals_count,
                     ];
@@ -171,7 +171,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             $wallet?->tokenAccountApprovals,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $wallet?->token_account_approvals_count,
                     ];
@@ -188,7 +188,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             $wallet?->transactions,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $wallet?->transactions_count,
                     ];
@@ -210,7 +210,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                             $wallet?->ownedCollections,
                             $args['first'],
                             Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters'=>['id']]
+                            ['parameters' => ['id']]
                         ),
                         'total' => (int) $wallet?->owned_collections_count,
                     ];

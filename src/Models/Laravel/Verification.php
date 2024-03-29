@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Verification extends BaseModel
 {
+    use EagerLoadSelectFields;
     use HasFactory;
     use VerificationMethods;
-    use EagerLoadSelectFields;
 
     /**
      * The attributes that aren't mass assignable.

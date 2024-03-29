@@ -139,11 +139,11 @@ class Substrate implements BlockchainServiceInterface
         }
 
         $mintPolicy = new MintPolicyParams(...$args['mintPolicy']);
-        if (null !== $args['marketPolicy']) {
+        if ($args['marketPolicy'] !== null) {
             $args['marketPolicy']['royalty']['beneficiary'] = SS58Address::getPublicKey($args['marketPolicy']['royalty']['beneficiary']);
         }
 
-        $marketPolicy = null !== $args['marketPolicy'] ? new RoyaltyPolicyParams(...$args['marketPolicy']['royalty']) : null;
+        $marketPolicy = $args['marketPolicy'] !== null ? new RoyaltyPolicyParams(...$args['marketPolicy']['royalty']) : null;
 
         return [
             'mintPolicy' => $mintPolicy,
@@ -191,7 +191,7 @@ class Substrate implements BlockchainServiceInterface
             $args['initialSupply'],
         ];
 
-        if (null !== $args['cap']) {
+        if ($args['cap'] !== null) {
             $data['cap'] = TokenMintCapType::getEnumCase($args['cap']['type']);
             $data['supply'] = $args['cap']['amount'];
         }
@@ -200,7 +200,7 @@ class Substrate implements BlockchainServiceInterface
             $args['behavior']['hasRoyalty']['beneficiary'] = SS58Address::getPublicKey($beneficiary);
             $data['behavior'] = new TokenMarketBehaviorParams(hasRoyalty: new RoyaltyPolicyParams(...$args['behavior']['hasRoyalty']));
         }
-        if (true === Arr::get($args, 'behavior.isCurrency')) {
+        if (Arr::get($args, 'behavior.isCurrency') === true) {
             $data['behavior'] = new TokenMarketBehaviorParams(isCurrency: true);
         }
 
@@ -224,7 +224,7 @@ class Substrate implements BlockchainServiceInterface
             return null;
         }
 
-        if (null == Arr::get($args, 'royalty.beneficiary') && null == Arr::get($args, 'royalty.percentage')) {
+        if (Arr::get($args, 'royalty.beneficiary') == null && Arr::get($args, 'royalty.percentage') == null) {
             return [];
         }
 
@@ -326,7 +326,7 @@ class Substrate implements BlockchainServiceInterface
             return null;
         }
 
-        if (!is_string($wallet) && null === $wallet->public_key) {
+        if (!is_string($wallet) && $wallet->public_key === null) {
             return $wallet;
         }
 
