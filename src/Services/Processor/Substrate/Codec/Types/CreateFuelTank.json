@@ -33,7 +33,8 @@
       "TankFuelBudget": "TankFuelBudgetRule",
       "RequireToken": "RequireTokenRule",
       "PermittedCalls": "PermittedCallsRule",
-      "PermittedExtrinsics": "PermittedExtrinsicsRule"
+      "PermittedExtrinsics": "PermittedExtrinsicsRule",
+      "WhitelistedPallets": "Vec<Bytes>"
     }
   },
   "UserFuelBudgetRule": {
