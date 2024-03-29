@@ -41,7 +41,8 @@
       "TankFuelBudget",
       "RequireToken",
       "PermittedCalls",
-      "PermittedExtrinsics"
+      "PermittedExtrinsics",
+      "WhitelistedPallets"
     ]
   },
   "DispatchRuleStorage": {
@@ -53,7 +54,8 @@
       "TankFuelBudget": "TankFuelBudgetRuleStorage",
       "RequireToken": "RequireTokenRuleStorage",
       "PermittedCalls": "PermittedCallsRuleStorage",
-      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage"
+      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage",
+      "WhitelistedPallets": "Vec<Bytes>"
     }
   },
   "RequireTokenRuleStorage": {
