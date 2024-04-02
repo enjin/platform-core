@@ -4,8 +4,8 @@ namespace Enjin\Platform\Services\Processor\Substrate;
 
 use Enjin\Platform\Clients\Implementations\DecoderClient;
 use Enjin\Platform\Facades\Package;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Generic as GenericEvent;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Generic as GenericExtrinsic;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
 use Illuminate\Support\Arr;
@@ -26,27 +26,27 @@ class DecoderService
 
     public function decode(string $type, string|array $bytes): ?array
     {
-        try {
-            $result = $this->client->getClient()->post($this->host, [
-                $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
-                'network' => config('enjin-platform.chains.network'),
-            ]);
+        //        try {
+        $result = $this->client->getClient()->post($this->host, [
+            $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
+            'network' => config('enjin-platform.chains.network'),
+        ]);
 
-            $data = $this->client->getResponse($result);
+        $data = $this->client->getResponse($result);
 
-            if (!$data) {
-                Log::critical('Container returned empty response');
+        if (!$data) {
+            Log::critical('Container returned empty response');
 
-                return null;
-            }
-
-            return $this->polkadartSerialize($type, $data);
-        } catch (Throwable $e) {
-            Log::critical('Error when trying to fetch from container: ' . $e->getMessage());
-            Log::critical($e->getTraceAsString());
+            return null;
         }
 
-        return null;
+        return $this->polkadartSerialize($type, $data);
+        //        } catch (Throwable $e) {
+        //            Log::critical('Error when trying to fetch from container: ' . $e->getMessage());
+        //            Log::critical($e->getTraceAsString());
+        //        }
+        //
+        //        return null;
     }
 
     protected function polkadartSerialize($type, $data): array
@@ -60,6 +60,7 @@ class DecoderService
 
     protected function polkadartEvent($event): PolkadartEvent
     {
+        ray($event)->green();
         $module = array_key_first(Arr::get($event, 'event'));
         $eventId = is_string($eventId = Arr::get($event, 'event.' . $module)) ? $eventId : array_key_first($eventId);
 
@@ -67,22 +68,22 @@ class DecoderService
             ->where(fn ($class) => str_ends_with($class, sprintf('%s\\%s', $module, $eventId)))
             ->first();
 
-        return $class ? $class::fromChain($event) : GenericEvent::fromChain($event);
+        return $class ? $class::fromChain($event) : Event::fromChain($event);
     }
 
     protected function polkadartExtrinsic($extrinsic): PolkadartExtrinsic
     {
-        $module = array_key_first(Arr::get($extrinsic, 'call'));
-        $call = is_string($callId = Arr::get($extrinsic, 'call.' . $module)) ? $callId : array_key_first($callId);
+        $module = array_key_first($extrinsic['call'] ?? $extrinsic['calls']);
+        $call = is_string($callId = (Arr::get($extrinsic, 'call.' . $module) ?? Arr::get($extrinsic, 'calls.' . $module))) ? $callId : array_key_first($callId);
 
         if ($module !== 'MultiTokens') {
-            return GenericExtrinsic::fromChain($extrinsic);
+            return Extrinsic::fromChain($extrinsic);
         }
 
         $class = Package::getClassesThatImplementInterface(PolkadartExtrinsic::class)
             ->where(fn ($class) => Str::studly($call) == Str::afterLast($class, '\\'))
             ->first();
 
-        return $class ? $class::fromChain($extrinsic) : GenericExtrinsic::fromChain($extrinsic);
+        return $class ? $class::fromChain($extrinsic) : Extrinsic::fromChain($extrinsic);
     }
 }

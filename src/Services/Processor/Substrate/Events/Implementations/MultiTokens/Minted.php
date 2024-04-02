@@ -29,12 +29,17 @@ class Minted implements SubstrateEvent
             return;
         }
 
+        ray($event);
+
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
+
+        ray($extrinsic);
+
         $recipient = WalletService::firstOrStore(['account' => Account::parseAccount($event->recipient)]);
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);
         $token->update([
-            'supply', $token->supply + $event->amount,
+            'supply', ($token->supply + $event->amount) ?? 0,
         ]);
 
         $tokenAccount = TokenAccount::firstWhere([

@@ -9,7 +9,7 @@ use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenCreated as TokenCreatedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Generic;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\MultiTokens\BatchMint;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\MultiTokens\Mint;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
@@ -43,16 +43,18 @@ class TokenCreated implements SubstrateEvent
         );
     }
 
-    public function parseToken(Mint|BatchMint|Generic $extrinsic, TokenCreatedPolkadart $event): mixed
+    public function parseToken(Mint|BatchMint|Extrinsic $extrinsic, TokenCreatedPolkadart $event): mixed
     {
+        ray($extrinsic);
         $params = Arr::get($extrinsic->params, 'params.CreateToken');
+        ray($params);
 
         if ($extrinsic instanceof BatchMint) {
             $recipient = collect(Arr::get($extrinsic->params, 'recipients'))->firstWhere('params.CreateToken.token_id', $event->tokenId);
             $params = Arr::get($recipient, 'params.CreateToken');
         }
 
-        if ($extrinsic instanceof Generic) {
+        if ($extrinsic instanceof Extrinsic) {
             // TODO: Batch extrinsics - We need to pop the call from the extrinsic
             // For batch we have params.calls
             if (($calls = Arr::get($extrinsic->params, 'calls')) !== null) {
@@ -100,15 +102,15 @@ class TokenCreated implements SubstrateEvent
         return Token::create([
             'collection_id' => $collection->id,
             'token_chain_id' => $event->tokenId,
-            'supply' => Arr::get($params, 'initial_supply') ?? Arr::get($params, 'amount'),
+            'supply' => Arr::get($params, 'initial_supply') ?? Arr::get($params, 'amount') ?? 0,
             'cap' => $cap->name,
             'cap_supply' => $capSupply,
             'is_frozen' => $isFrozen,
             'royalty_wallet_id' => $beneficiary ? WalletService::firstOrStore(['account' => Account::parseAccount($beneficiary)])->id : null,
             'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
             'is_currency' => $isCurrency,
-            'listing_forbidden' => Arr::get($params, 'listing_forbidden'),
-            'unit_price' => gmp_strval($unitPrice),
+            'listing_forbidden' => Arr::get($params, 'listing_forbidden') ?? false,
+            'unit_price' => gmp_strval($unitPrice) ?? '10000000000000000',
             'minimum_balance' => $minBalance,
             'attribute_count' => 0,
         ]);

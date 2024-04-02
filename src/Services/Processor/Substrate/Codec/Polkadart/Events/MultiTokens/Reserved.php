@@ -2,12 +2,15 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
 
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
-class Reserved implements PolkadartEvent
+class Reserved extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $collectionId;
@@ -19,14 +22,15 @@ class Reserved implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = Arr::get($data, 'event.MultiTokens.Reserved.collection_id');
-        $self->tokenId = Arr::get($data, 'event.MultiTokens.Reserved.token_id');
-        $self->accountId = Arr::get($data, 'event.MultiTokens.Reserved.account_id');
-        $self->amount = Arr::get($data, 'event.MultiTokens.Reserved.amount');
-        $self->reserveId = Arr::get($data, 'event.MultiTokens.Reserved.reserve_id.Some');
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
+        $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
+        $self->accountId = SS58Address::getPublicKey($self->getValue($data, ['account_id', 'T::AccountId']));
+        $self->amount = $self->getValue($data, ['amount', 'T::TokenBalance']);
+        $self->reserveId = is_string($value = $self->getValue($data, ['reserve_id.Some', 'Option<T::ReserveIdentifierType>'])) ? $value : HexConverter::bytesToHex($value);
 
         return $self;
     }

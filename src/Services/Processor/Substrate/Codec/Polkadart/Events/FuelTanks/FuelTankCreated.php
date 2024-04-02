@@ -3,12 +3,14 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
-class FuelTankCreated implements PolkadartEvent
+class FuelTankCreated extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $owner;
@@ -18,12 +20,13 @@ class FuelTankCreated implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->owner = Arr::get($data, 'event.FuelTanks.FuelTankCreated.owner');
-        $self->tankName = is_string($key = Arr::get($data, 'event.FuelTanks.FuelTankCreated.name')) ? $key : HexConverter::bytesToHex($key);
-        $self->tankId = is_string($key = Arr::get($data, 'event.FuelTanks.FuelTankCreated.tank_id')) ? $key : HexConverter::bytesToHex($key);
+        $self->owner = SS58Address::getPublicKey($self->getValue($data, ['owner', '0']));
+        $self->tankId = is_string($value = $self->getValue($data, ['tank_id', '1'])) ? $value : HexConverter::bytesToHex($value);
+        $self->tankName = is_string($value = $self->getValue($data, ['name', '2'])) ? $value : HexConverter::bytesToHex($value);
 
         return $self;
     }

@@ -2,15 +2,16 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
 
-class ExtrinsicSuccess implements PolkadartEvent
+class ExtrinsicSuccess extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
-    public readonly array $data;
+    public readonly ?array $data;
 
     public static function fromChain(array $data): self
     {

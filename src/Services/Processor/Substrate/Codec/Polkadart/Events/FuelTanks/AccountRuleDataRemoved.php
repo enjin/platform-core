@@ -3,12 +3,13 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
 
-class AccountRuleDataRemoved implements PolkadartEvent
+class AccountRuleDataRemoved extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $tankId;

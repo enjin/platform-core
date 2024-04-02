@@ -28,6 +28,8 @@ class TokenMutated implements SubstrateEvent
             return;
         }
 
+        ray($event);
+
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);
 

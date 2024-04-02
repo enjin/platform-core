@@ -2,12 +2,13 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
 
-class ReserveRepatriated implements PolkadartEvent
+class ReserveRepatriated extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $from;
@@ -15,8 +16,10 @@ class ReserveRepatriated implements PolkadartEvent
     public readonly string $amount;
     public readonly string $destinationStatus;
 
-    public static function fromChain(array $data): PolkadartEvent
+    public static function fromChain(array $data): self
     {
+        ray($data);
+
         $self = new self();
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));

@@ -15,9 +15,11 @@ class Transfer implements SubstrateEvent
 {
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
-        if (!$event instanceof TransferPolkadart) {
+        if (!$event instanceof TransferPolkadart || is_null($event->extrinsicIndex)) {
             return;
         }
+
+        ray($event);
 
         $fromAccount = WalletService::firstOrStore(['account' => $event->from]);
         $toAccount = WalletService::firstOrStore(['account' => $event->to]);
@@ -31,7 +33,10 @@ class Transfer implements SubstrateEvent
             $toAccount->id,
         ));
 
+        ray($block->extrinsics);
+
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
+        ray($extrinsic);
 
         \Enjin\Platform\Events\Substrate\Balances\Transfer::safeBroadcast(
             $fromAccount,

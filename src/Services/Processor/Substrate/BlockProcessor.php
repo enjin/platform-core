@@ -170,32 +170,34 @@ class BlockProcessor
 
     public function process(Block $block): ?Block
     {
-        try {
-            $blockNumber = $block->number;
-            $syncTime = now();
+        //        try {
+        $blockNumber = $block->number;
+        $syncTime = now();
 
-            if ($block->synced) {
-                $this->info("Block #{$blockNumber} already processed, skipping");
+        if ($block->synced) {
+            $this->info("Block #{$blockNumber} already processed, skipping");
 
-                return $block;
-            }
-
-            $this->info("Processing block #{$blockNumber} ({$block->hash})");
-
-            $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
-            $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
-            if ($hasEventErrors || $hasExtrinsicErrors) {
-                $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
-
-                throw new Exception($errors);
-            }
-
-            $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
-            $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", now()->diffInMilliseconds($syncTime) / 1000));
-        } catch (Throwable $exception) {
-            $this->error("Failed processing block #{$blockNumber}");
-            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
+            return $block;
         }
+
+        $this->info("Processing block #{$blockNumber} ({$block->hash})");
+
+        $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
+        $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
+        if ($hasEventErrors || $hasExtrinsicErrors) {
+            $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
+
+            throw new Exception($errors);
+        }
+
+        $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
+        $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", now()->diffInMilliseconds($syncTime) / 1000));
+        //        } catch (Throwable $exception) {
+        //            $this->error("Failed processing block #{$blockNumber}");
+        //            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
+        //        }
+        //
+        //        return $block;
 
         return $block;
     }
