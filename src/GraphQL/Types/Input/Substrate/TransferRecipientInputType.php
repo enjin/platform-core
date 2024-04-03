@@ -40,6 +40,9 @@ class TransferRecipientInputType extends InputType implements PlatformGraphQlTyp
             'operatorParams' => [
                 'type' => GraphQL::type('OperatorTransferParams'),
             ],
+            'transferBalanceParams' => [
+                'type' => GraphQL::type('TransferBalanceParams'),
+            ],
         ];
     }
 }

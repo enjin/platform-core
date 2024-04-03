@@ -12,6 +12,7 @@ use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\ApproveCollectionMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\ApproveTokenMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchMintMutation;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferBalanceMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BurnMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
@@ -110,6 +111,31 @@ class EncodingTest extends TestCase
         $callIndex = $this->codec->encoder()->getCallIndex('Balances.transfer_keep_alive', true);
         $this->assertEquals(
             "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e238860bfb2b3660b3783b4850a",
+            $data
+        );
+    }
+
+    public function test_it_can_encode_batch_transfer_balance()
+    {
+        $data = TransactionSerializer::encode('Batch', BatchTransferBalanceMutation::getEncodableParams(
+            recipients: [
+                [
+                    'accountId' => '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
+                    'keepAlive' => true,
+                    'value' => 1,
+                ],
+                [
+                    'accountId' => '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
+                    'keepAlive' => false,
+                    'value' => 2,
+                ],
+            ],
+            continueOnFailure: true,
+        ));
+
+        $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
+        $this->assertEquals(
+            "0x{$callIndex}080a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e040a070052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0801",
             $data
         );
     }

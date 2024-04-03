@@ -182,8 +182,8 @@ class Encoder
 
     public function getEncoded(string $type, array $params): string
     {
-        if (isset($params['continueOnFailure']) && $params['continueOnFailure'] === true) {
-            return static::batch($params['calls'], true);
+        if ($type == 'Batch' || (isset($params['continueOnFailure']) && $params['continueOnFailure'] === true)) {
+            return static::batch($params['calls'], $params['continueOnFailure']);
         }
 
         $encoded = $this->scaleInstance->createTypeByTypeString($type)->encode([
