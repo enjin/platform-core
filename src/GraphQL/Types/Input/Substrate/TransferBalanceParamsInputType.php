@@ -1,0 +1,52 @@
+<?php
+
+namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
+
+use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
+use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Hex;
+use Rebing\GraphQL\Support\Facades\GraphQL;
+use Rebing\GraphQL\Support\InputType;
+
+class TransferBalanceParamsInputType extends InputType implements PlatformGraphQlType
+{
+    use InSubstrateSchema;
+
+    public function __construct(
+        protected SerializationServiceInterface $serializationService
+    ) {
+    }
+
+    /**
+     * Get the type's attributes.
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => 'TransferBalanceParams',
+            'description' => __('enjin-platform::input_type.balance_transfer.description'),
+        ];
+    }
+
+    /**
+     * Get the type's fields definition.
+     */
+    public function fields(): array
+    {
+        return [
+            'value' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
+                'rules' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            ],
+            'keepAlive' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
+                'defaultValue' => false,
+            ],
+        ];
+    }
+}

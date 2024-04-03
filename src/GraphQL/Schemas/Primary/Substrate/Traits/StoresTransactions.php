@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 trait StoresTransactions
 {
     /**
-     * Encode token ID.
+     * Store a transaction.
      */
     protected function storeTransaction(array $args, string $encodedData, ?TransactionService $transactionService = null): Model
     {

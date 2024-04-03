@@ -6,11 +6,9 @@ use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
-use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldArrayRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
@@ -18,7 +16,6 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
@@ -28,14 +25,12 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class BatchTransferMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
+class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
-    use HasEncodableTokenId;
     use HasIdempotencyField;
     use HasSigningAccountField;
     use HasSimulateField;
     use HasSkippableRules;
-    use HasTokenIdFieldArrayRules;
     use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
@@ -46,8 +41,8 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     public function attributes(): array
     {
         return [
-            'name' => 'BatchTransfer',
-            'description' => __('enjin-platform::mutation.batch_transfer.description'),
+            'name' => 'BatchTransferBalance',
+            'description' => __('enjin-platform::mutation.batch_transfer_balance.description'),
         ];
     }
 
@@ -65,10 +60,6 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     public function args(): array
     {
         return [
-            'collectionId' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_transfer.args.collectionId'),
-            ],
             'recipients' => [
                 'type' => GraphQL::type('[TransferRecipient!]!'),
             ],
@@ -98,29 +89,25 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         WalletService $walletService
     ): mixed {
         $recipients = collect($args['recipients'])->map(
-            function ($recipient) use ($blockchainService, $walletService) {
-                $simpleParams = Arr::get($recipient, 'simpleParams');
-                $operatorParams = Arr::get($recipient, 'operatorParams');
+            function ($recipient) use ($walletService) {
+                $transferBalanceParams = Arr::get($recipient, 'transferBalanceParams');
 
-                if ($simpleParams !== null && $operatorParams !== null) {
-                    throw new PlatformException(__('enjin-platform::error.cannot_set_simple_and_operator_params_for_same_recipient'));
-                }
-                if ($simpleParams === null && $operatorParams === null) {
-                    throw new PlatformException(__('enjin-platform::error.set_either_simple_and_operator_params_for_recipient'));
+                if ($transferBalanceParams === null) {
+                    throw new PlatformException(__('enjin-platform::error.set_transfer_balance_params_for_recipient'));
                 }
 
                 $targetWallet = $walletService->firstOrStore(['account' => $recipient['account']]);
 
                 return [
                     'accountId' => $targetWallet->public_key,
-                    'params' => $blockchainService->getTransferParams($simpleParams ?? $operatorParams),
+                    'keepAlive' => $transferBalanceParams['keepAlive'],
+                    'value' => $transferBalanceParams['value'],
                 ];
             }
         );
 
         $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId'],
+        $encodedData = $serializationService->encode('Batch', static::getEncodableParams(
             recipients: $recipients->toArray(),
             continueOnFailure: $continueOnFailure
         ));
@@ -135,33 +122,20 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     {
         $serializationService = resolve(SerializationServiceInterface::class);
         $continueOnFailure = Arr::get($params, 'continueOnFailure', false);
-        $collectionId = Arr::get($params, 'collectionId', 0);
         $recipients = Arr::get($params, 'recipients', []);
 
-        if ($continueOnFailure) {
-            $encodedData = collect($recipients)->map(
-                fn ($recipient) => $serializationService->encode('TransferToken', [
-                    'recipient' => [
-                        'Id' => HexConverter::unPrefix($recipient['accountId']),
-                    ],
-                    'collectionId' => gmp_init($collectionId),
-                    'params' => $recipient['params']->toEncodable(),
-                ])
-            );
-
-            return [
-                'calls' => $encodedData->toArray(),
-                'continueOnFailure' => true,
-            ];
-        }
+        $encodedData = collect($recipients)->map(
+            fn ($recipient) => $serializationService->encode($recipient['keepAlive'] ? 'TransferBalanceKeepAlive' : 'TransferBalance', [
+                'dest' => [
+                    'Id' => HexConverter::unPrefix($recipient['accountId']),
+                ],
+                'value' => gmp_init($recipient['value']),
+            ])
+        );
 
         return [
-            'collectionId' => gmp_init($collectionId),
-            'recipients' => collect($recipients)
-                ->map(fn ($recipient) => [
-                    'accountId' => HexConverter::unPrefix($recipient['accountId']),
-                    'params' => $recipient['params']->toEncodable(),
-                ])->toArray(),
+            'calls' => $encodedData->toArray(),
+            'continueOnFailure' => $continueOnFailure,
         ];
     }
 
@@ -180,11 +154,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
      */
     protected function rulesWithValidation(array $args): array
     {
-        return [
-            'collectionId' => [new IsCollectionOwner()],
-            ...$this->getTokenFieldRulesExist('recipients.*.simpleParams', $args),
-            ...$this->getTokenFieldRulesExist('recipients.*.operatorParams', $args),
-        ];
+        return [];
     }
 
     /**
@@ -192,9 +162,6 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
      */
     protected function rulesWithoutValidation(array $args): array
     {
-        return [
-            ...$this->getTokenFieldRules('recipients.*.simpleParams', $args),
-            ...$this->getTokenFieldRules('recipients.*.operatorParams', $args),
-        ];
+        return [];
     }
 }

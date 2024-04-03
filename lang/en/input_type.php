@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'balance_transfer.description' => 'The params to make a balance transfer.',
     'burn_params.description' => 'The params to burn a token.',
     'burn_params.field.removeTokenStorage' => 'If true, the token storage will be removed if no tokens are left. Defaults to False.',
     'collection_mutation.description' => 'The params that can be mutated for a collection.',

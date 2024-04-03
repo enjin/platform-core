@@ -1,0 +1,33 @@
+mutation BatchTransferBalance(
+  $recipients: [TransferRecipient!]!
+  $continueOnFailure: Boolean
+  $skipValidation: Boolean
+  $simulate: Boolean
+  $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
+) {
+  BatchTransferBalance(
+    recipients: $recipients
+    continueOnFailure: $continueOnFailure
+    skipValidation: $skipValidation
+    simulate: $simulate
+    signingAccount: $signingAccount
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
+    fee
+    deposit
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+  }
+}
