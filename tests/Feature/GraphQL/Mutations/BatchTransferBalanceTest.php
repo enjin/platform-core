@@ -75,7 +75,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
         ];
     }
 
-    public static function invalidRecipientDataProvider(...$data): array
+    public static function invalidRecipientDataProvider(): array
     {
         return [
             'no transfer params' => [
