@@ -5,6 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Fue
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
 class AccountRuleDataRemoved extends Event implements PolkadartEvent
@@ -20,13 +21,14 @@ class AccountRuleDataRemoved extends Event implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = is_string($key = Arr::get($data, 'event.FuelTanks.AccountRuleDataRemoved.tank_id')) ? $key : HexConverter::bytesToHex($key);
-        $self->userId = is_string($key = Arr::get($data, 'event.FuelTanks.AccountRuleDataRemoved.user_id')) ? $key : HexConverter::bytesToHex($key);
-        $self->ruleSetId = Arr::get($data, 'event.FuelTanks.AccountRuleDataRemoved.rule_set_id');
-        $self->isFrozen = Arr::get($data, 'event.FuelTanks.AccountRuleDataRemoved.rule_kind');
+        $self->tankId = SS58Address::getPublicKey($self->getValue($data, ['tank_id', '0']));
+        $self->userId = SS58Address::getPublicKey($self->getValue($data, ['user_id', '1']));
+        $self->ruleSetId = $self->getValue($data, ['rule_set_id', '2']);
+        $self->ruleKind = $self->getValue($data, ['rule_kind', '3']);
 
         return $self;
     }
