@@ -1,8 +1,9 @@
 <?php
 
-namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart;
+namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 

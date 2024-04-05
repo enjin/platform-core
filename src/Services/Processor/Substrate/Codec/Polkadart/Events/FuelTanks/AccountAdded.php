@@ -29,7 +29,7 @@ class AccountAdded extends Event implements PolkadartEvent
         $self->userId = SS58Address::getPublicKey($self->getValue($data, ['user_id', '1']));
         $self->tankDeposit = $self->getValue($data, ['tank_deposit', '2']);
         $self->userDeposit = $self->getValue($data, ['user_deposit', '3']);
-        $self->totalReceived = $self->getValue($data, ['total_received', 4]);
+        $self->totalReceived = $self->getValue($data, ['total_received', '4']);
 
         return $self;
     }

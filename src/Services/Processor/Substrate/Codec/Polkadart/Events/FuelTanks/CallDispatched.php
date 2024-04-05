@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
 class CallDispatched extends Event implements PolkadartEvent
@@ -18,11 +18,12 @@ class CallDispatched extends Event implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->caller = is_string($key = Arr::get($data, 'event.FuelTanks.CallDispatched.caller')) ? $key : HexConverter::bytesToHex($key);
-        $self->tankId = is_string($key = Arr::get($data, 'event.FuelTanks.CallDispatched.tank_id')) ? $key : HexConverter::bytesToHex($key);
+        $self->caller = SS58Address::getPublicKey($self->getValue($data, ['caller', '0']));
+        $self->tankId = SS58Address::getPublicKey($self->getValue($data, ['tank_id', '1']));
 
         return $self;
     }

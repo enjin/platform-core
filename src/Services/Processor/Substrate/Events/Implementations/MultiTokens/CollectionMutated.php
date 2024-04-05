@@ -25,6 +25,8 @@ class CollectionMutated implements SubstrateEvent
             return;
         }
 
+        ray($event);
+
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }

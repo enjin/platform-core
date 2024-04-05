@@ -2,8 +2,10 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
 class ListingFilled extends Event implements PolkadartEvent
@@ -21,15 +23,16 @@ class ListingFilled extends Event implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = Arr::get($data, 'event.Marketplace.ListingFilled.listing_id');
-        $self->buyer = Arr::get($data, 'event.Marketplace.ListingFilled.buyer');
-        $self->amountFilled = Arr::get($data, 'event.Marketplace.ListingFilled.amount_filled');
-        $self->amountRemaining = Arr::get($data, 'event.Marketplace.ListingFilled.amount_remaining');
-        $self->protocolFee = Arr::get($data, 'event.Marketplace.ListingFilled.protocol_fee');
-        $self->royalty = Arr::get($data, 'event.Marketplace.ListingFilled.royalty');
+        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', '0'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
+        $self->buyer = SS58Address::getPublicKey($self->getValue($data, ['buyer', '1']));
+        $self->amountFilled = $self->getValue($data, ['amount_filled', '2']);
+        $self->amountRemaining = $self->getValue($data, ['amount_remaining', '3']);
+        $self->protocolFee = $self->getValue($data, ['protocol_fee', '4']);
+        $self->royalty = $self->getValue($data, ['royalty', '5']);
 
         return $self;
     }

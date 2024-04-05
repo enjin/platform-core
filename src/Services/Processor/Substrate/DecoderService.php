@@ -5,13 +5,12 @@ namespace Enjin\Platform\Services\Processor\Substrate;
 use Enjin\Platform\Clients\Implementations\DecoderClient;
 use Enjin\Platform\Facades\Package;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsic;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Throwable;
 
 class DecoderService
 {

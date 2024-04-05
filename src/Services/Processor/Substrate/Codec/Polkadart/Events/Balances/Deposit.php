@@ -17,8 +17,6 @@ class Deposit extends Event implements PolkadartEvent
 
     public static function fromChain(array $data): self
     {
-        ray($data);
-
         $self = new self();
 
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');

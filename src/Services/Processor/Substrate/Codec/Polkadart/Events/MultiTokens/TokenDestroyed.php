@@ -27,7 +27,6 @@ class TokenDestroyed extends Event implements PolkadartEvent
         $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
         $self->caller = SS58Address::getPublicKey($self->getValue($data, ['caller', 'T::AccountId']));
 
-
         return $self;
     }
 

@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Support\SS58Address;
@@ -25,7 +26,7 @@ class AuctionFinalized extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = SS58Address::getPublicKey($self->getValue($data, ['listing_id', '0']));
+        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', '0'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
         $self->winningBidder = SS58Address::getPublicKey($self->getValue($data, ['winning_bid.Some.bidder', '1.bidder']));
         $self->price = $self->getValue($data, ['winning_bid.Some.price', '1.price']);
         $self->protocolFee = $self->getValue($data, ['protocol_fee', '2']);
