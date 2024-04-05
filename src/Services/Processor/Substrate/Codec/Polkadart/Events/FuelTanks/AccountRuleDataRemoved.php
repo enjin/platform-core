@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Support\SS58Address;

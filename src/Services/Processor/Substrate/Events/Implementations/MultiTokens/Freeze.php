@@ -12,16 +12,13 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Frozen as FrozenPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
-class Freeze implements SubstrateEvent
+class Freeze extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof FrozenPolkadart) {

@@ -3,17 +3,17 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
 use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Endowed as EndowedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Events\Substrate\Balances\Endowed as EndowedEvent;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
-class Endowed implements SubstrateEvent
+class Endowed extends SubstrateEvent
 {
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof EndowedPolkadart) {
             return;
@@ -28,12 +28,10 @@ class Endowed implements SubstrateEvent
             $event->freeBalance,
         ));
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-
-        \Enjin\Platform\Events\Substrate\Balances\Endowed::safeBroadcast(
+        EndowedEvent::safeBroadcast(
             $account,
             $event->freeBalance,
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

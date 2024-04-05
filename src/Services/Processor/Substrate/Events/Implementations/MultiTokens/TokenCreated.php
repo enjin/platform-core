@@ -13,16 +13,13 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extri
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\MultiTokens\BatchMint;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\MultiTokens\Mint;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
 
-class TokenCreated implements SubstrateEvent
+class TokenCreated extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof TokenCreatedPolkadart) {

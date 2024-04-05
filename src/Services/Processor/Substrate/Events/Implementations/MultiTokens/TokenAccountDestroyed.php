@@ -9,15 +9,12 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
-class TokenAccountDestroyed implements SubstrateEvent
+class TokenAccountDestroyed extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof TokenAccountDestroyedPolkadart) {
