@@ -24,6 +24,8 @@ class Approved extends SubstrateEvent
             return;
         }
 
+        ray($event);
+
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
@@ -35,7 +37,7 @@ class Approved extends SubstrateEvent
 
 
 
-        
+
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
 

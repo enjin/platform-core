@@ -5,7 +5,6 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Bal
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Support\Account;
-use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
 class Deposit extends Event implements PolkadartEvent

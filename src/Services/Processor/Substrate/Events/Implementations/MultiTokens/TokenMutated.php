@@ -21,11 +21,11 @@ class TokenMutated extends SubstrateEvent
             return;
         }
 
+        ray($event);
+
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
-
-        ray($event);
 
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);

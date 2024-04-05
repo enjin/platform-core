@@ -6,7 +6,6 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Support\Account;
-use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
 class AuctionFinalized extends Event implements PolkadartEvent

@@ -38,8 +38,6 @@ abstract class SubstrateEvent
         return WalletService::firstOrStore(['account' => $account]);
     }
 
-
-
     protected function getCollection(string $collectionChainId): Collection
     {
         if (!$collection = Collection::where('collection_chain_id', $collectionChainId)->first()) {

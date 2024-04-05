@@ -23,6 +23,8 @@ class Unapproved extends SubstrateEvent
             return;
         }
 
+        ray($event);
+
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }

@@ -8,7 +8,6 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Events\Substrate\Balances\Withdraw as WithdrawEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
 class Withdraw extends SubstrateEvent

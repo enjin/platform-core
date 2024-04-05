@@ -21,6 +21,8 @@ class AttributeRemoved extends SubstrateEvent
             return;
         }
 
+        ray($event);
+
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }

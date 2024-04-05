@@ -20,12 +20,15 @@ class CollectionAccountDestroyed extends SubstrateEvent
         if (!$event instanceof CollectionAccountDestroyedPolkadart) {
             return;
         }
+        ray($event);
 
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
         $collection = $this->getCollection($event->collectionId);
+
+
         $account = WalletService::firstOrStore(['account' => $event->account]);
         $collectionAccount = CollectionAccount::firstWhere([
             'wallet_id' => $account->id,
