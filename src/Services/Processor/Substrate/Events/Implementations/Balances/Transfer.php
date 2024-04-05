@@ -19,8 +19,8 @@ class Transfer extends SubstrateEvent
             return;
         }
 
-        $fromAccount = WalletService::firstOrStore(['account' => $event->from]);
-        $toAccount = WalletService::firstOrStore(['account' => $event->to]);
+        $fromAccount = $this->firstOrStoreAccount($event->from);
+        $toAccount = $this->firstOrStoreAccount($event->to);
 
         Log::info(sprintf(
             'Wallet %s (id: %s) has transferred %s to wallet %s (id: %s).',

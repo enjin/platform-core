@@ -5,6 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mar
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -35,7 +36,7 @@ class ListingCreated extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
-        $self->seller = SS58Address::getPublicKey($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller']));
+        $self->seller = Account::parseAccount($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller']));
         $self->makeAssetId = $self->getValue($data, ['listing.make_asset_id', 'ListingOf<T>.make_asset_id']);
         $self->takeAssetId = $self->getValue($data, ['listing.take_asset_id', 'ListingOf<T>.take_asset_id']);
         $self->amount = $self->getValue($data, ['listing.amount', 'ListingOf<T>.amount']);

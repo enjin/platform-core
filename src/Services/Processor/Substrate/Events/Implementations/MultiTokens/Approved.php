@@ -31,7 +31,11 @@ class Approved extends SubstrateEvent
         $collection = $this->getCollection(
             $collectionId = $event->collectionId,
         );
-        $operator = WalletService::firstOrStore(['account' => Account::parseAccount($event->operator)]);
+        $operator = $this->firstOrStoreAccount($event->operator);
+
+
+
+        
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
 

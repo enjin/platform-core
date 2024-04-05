@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mul
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -27,7 +28,7 @@ class Frozen extends Event implements PolkadartEvent
         $self->collectionId = $self->getValue($data, ['collection_id', 'FreezeOf<T>.collection_id']);
         $self->freezeType = is_string($type = $self->getValue($data, ['freeze_type', 'FreezeOf<T>.freeze_type'])) ? $type : array_key_first($type);
         $self->tokenId = $self->getTokenId($data, $self->freezeType);
-        $self->account = SS58Address::getPublicKey($self->getAccount($data, $self->freezeType));
+        $self->account = Account::parseAccount($self->getAccount($data, $self->freezeType));
 
         return $self;
     }

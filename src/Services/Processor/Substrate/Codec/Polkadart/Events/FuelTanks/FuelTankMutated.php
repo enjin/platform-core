@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Fue
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -25,7 +26,7 @@ class FuelTankMutated extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = SS58Address::getPublicKey($self->getValue($data, ['tank_id', 'T::AccountId']));
+        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', 'T::AccountId']));
         $self->userAccountManagement = $self->getValue($data, ['mutation.user_account_management.SomeMutation', 'T::TankMutation.user_account_management.SomeMutation']);
         $self->providesDeposit = $self->getValue($data, ['mutation.provides_deposit.Some', 'T::TankMutation.provides_deposit']);
         $self->accountRules = $self->getValue($data, ['mutation.account_rules.Some', 'T::TankMutation.account_rules']);

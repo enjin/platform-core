@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Fue
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -24,8 +25,8 @@ class AccountRuleDataRemoved extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = SS58Address::getPublicKey($self->getValue($data, ['tank_id', '0']));
-        $self->userId = SS58Address::getPublicKey($self->getValue($data, ['user_id', '1']));
+        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', '0']));
+        $self->userId = Account::parseAccount($self->getValue($data, ['user_id', '1']));
         $self->ruleSetId = $self->getValue($data, ['rule_set_id', '2']);
         $self->ruleKind = $self->getValue($data, ['rule_kind', '3']);
 

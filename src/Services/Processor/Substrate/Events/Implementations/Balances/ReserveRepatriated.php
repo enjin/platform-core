@@ -19,8 +19,8 @@ class ReserveRepatriated extends SubstrateEvent
             return;
         }
 
-        $fromAccount = WalletService::firstOrStore(['account' => $event->from]);
-        $toAccount = WalletService::firstOrStore(['account' => $event->to]);
+        $fromAccount = $this->firstOrStoreAccount($event->from);
+        $toAccount = $this->firstOrStoreAccount($event->to);
 
         Log::info(sprintf(
             'Wallet %s (id: %s) has moved %s from reserve to %s at wallet %s (id: %s).',

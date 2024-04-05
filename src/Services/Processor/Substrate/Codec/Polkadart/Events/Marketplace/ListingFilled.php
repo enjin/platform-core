@@ -5,6 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mar
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -28,7 +29,7 @@ class ListingFilled extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = is_string($value = $self->getValue($data, ['listing_id', '0'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
-        $self->buyer = SS58Address::getPublicKey($self->getValue($data, ['buyer', '1']));
+        $self->buyer = Account::parseAccount($self->getValue($data, ['buyer', '1']));
         $self->amountFilled = $self->getValue($data, ['amount_filled', '2']);
         $self->amountRemaining = $self->getValue($data, ['amount_remaining', '3']);
         $self->protocolFee = $self->getValue($data, ['protocol_fee', '4']);

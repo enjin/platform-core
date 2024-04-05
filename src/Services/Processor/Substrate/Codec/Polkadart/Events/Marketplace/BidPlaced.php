@@ -5,6 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mar
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -25,7 +26,7 @@ class BidPlaced extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
-        $self->bidder = SS58Address::getPublicKey($self->getValue($data, ['bid.bidder', 'BidOf<T>.bidder']));
+        $self->bidder = Account::parseAccount($self->getValue($data, ['bid.bidder', 'BidOf<T>.bidder']));
         $self->price = $self->getValue($data, ['bid.price', 'BidOf<T>.price']);
 
         return $self;

@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mul
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -26,8 +27,8 @@ class Unapproved extends Event implements PolkadartEvent
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->collectionId = $self->getValue($data, ['collection_id', '0']);
         $self->tokenId = $self->getValue($data, ['token_id.Some', '1']);
-        $self->owner = SS58Address::getPublicKey($self->getValue($data, ['owner', '2']));
-        $self->operator = SS58Address::getPublicKey($self->getValue($data, ['operator', '3']));
+        $self->owner = Account::parseAccount($self->getValue($data, ['owner', '2']));
+        $self->operator = Account::parseAccount($self->getValue($data, ['operator', '3']));
 
         return $self;
     }

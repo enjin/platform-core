@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mul
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -33,7 +34,7 @@ class TokenMutated extends Event implements PolkadartEvent
         $self->listingForbidden = $self->getValue($data, ['mutation.listing_forbidden.SomeMutation', 'T::TokenMutation.listing_forbidden.SomeMutation']);
         $self->behaviorMutation = is_string($behavior = $self->getValue($data, ['mutation.behavior', 'T::TokenMutation.behavior'])) ? $behavior : array_key_first($behavior);
         $self->isCurrency = $self->getValue($data, ['mutation.behavior.SomeMutation.Some', 'T::TokenMutation.behavior.SomeMutation.Some']) === 'IsCurrency';
-        $self->beneficiary = SS58Address::getPublicKey($self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary']));
+        $self->beneficiary = Account::parseAccount($self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary']));
         $self->percentage = $self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.percentage', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage']);
 
         if ($self->getValue($data, ['T::TokenMutation.metadata.SomeMutation']) != null) {

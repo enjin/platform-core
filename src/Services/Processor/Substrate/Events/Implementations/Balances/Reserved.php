@@ -19,7 +19,7 @@ class Reserved extends SubstrateEvent
             return;
         }
 
-        $account = WalletService::firstOrStore(['account' => $event->who]);
+        $account = $this->firstOrStoreAccount($event->who);
 
         Log::info(sprintf(
             'Reserved %s in wallet %s (id: %s).',

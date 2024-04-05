@@ -15,6 +15,8 @@ use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Support\SS58Address;
+use Facades\Enjin\Platform\Services\Database\WalletService;
+use Illuminate\Database\Eloquent\Model;
 
 abstract class SubstrateEvent
 {
@@ -30,6 +32,13 @@ abstract class SubstrateEvent
 
         return null;
     }
+
+    public function firstOrStoreAccount(string $account): Model
+    {
+        return WalletService::firstOrStore(['account' => $account]);
+    }
+
+
 
     protected function getCollection(string $collectionChainId): Collection
     {

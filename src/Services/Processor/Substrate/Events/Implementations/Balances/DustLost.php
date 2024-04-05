@@ -19,7 +19,7 @@ class DustLost extends SubstrateEvent
             return;
         }
 
-        $account = WalletService::firstOrStore(['account' => $event->account]);
+        $account = $this->firstOrStoreAccount($event->account);
 
         Log::info(sprintf(
             'Wallet %s (id: %s) lost %s of dust.',

@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mul
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -27,9 +28,9 @@ class CollectionMutated extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->owner = SS58Address::getPublicKey($self->getValue($data, ['mutation.owner.Some', 'T::CollectionMutation.owner']));
+        $self->owner = Account::parseAccount($self->getValue($data, ['mutation.owner.Some', 'T::CollectionMutation.owner']));
         $self->royalty = $self->getRoyalty($data);
-        $self->beneficiary = SS58Address::getPublicKey($self->getBeneficiary($data, $self->royalty));
+        $self->beneficiary = Account::parseAccount($self->getBeneficiary($data, $self->royalty));
         $self->percentage = $self->getPercentage($data, $self->royalty);
         $self->explicitRoyaltyCurrencies = $self->getValue($data, ['mutation.explicit_royalty_currencies.Some', 'T::CollectionMutation.explicit_royalty_currencies']);
 

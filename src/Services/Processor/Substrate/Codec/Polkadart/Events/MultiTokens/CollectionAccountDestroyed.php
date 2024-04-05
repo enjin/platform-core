@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mul
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -23,7 +24,7 @@ class CollectionAccountDestroyed extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->account = SS58Address::getPublicKey($self->getValue($data, ['account_id', 'T::AccountId']));
+        $self->account = Account::parseAccount($self->getValue($data, ['account_id', 'T::AccountId']));
 
         return $self;
     }

@@ -19,7 +19,7 @@ class BalanceSet extends SubstrateEvent
             return;
         }
 
-        $account = WalletService::firstOrStore(['account' => $event->who]);
+        $account = $this->firstOrStoreAccount($event->who);
 
         Log::info(sprintf(
             'Balance of %s (id: %s) set to %s.',

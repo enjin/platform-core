@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Mul
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Support\Arr;
 
@@ -28,9 +29,9 @@ class Transferred extends Event implements PolkadartEvent
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->collectionId = $self->getValue($data, ['collection_id', '0']);
         $self->tokenId = $self->getValue($data, ['token_id', '1']);
-        $self->operator = SS58Address::getPublicKey($self->getValue($data, ['operator', '2']));
-        $self->from = SS58Address::getPublicKey($self->getValue($data, ['from', '3']));
-        $self->to = SS58Address::getPublicKey($self->getValue($data, ['to', '4']));
+        $self->operator = Account::parseAccount($self->getValue($data, ['operator', '2']));
+        $self->from = Account::parseAccount($self->getValue($data, ['from', '3']));
+        $self->to = Account::parseAccount($self->getValue($data, ['to', '4']));
         $self->amount = $self->getValue($data, ['amount', '5']);
 
         return $self;

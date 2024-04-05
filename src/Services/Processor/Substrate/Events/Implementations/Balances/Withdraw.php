@@ -19,7 +19,7 @@ class Withdraw extends SubstrateEvent
             return;
         }
 
-        $account = WalletService::firstOrStore(['account' => $event->who]);
+        $account = $this->firstOrStoreAccount($event->who);
 
         Log::info(sprintf(
             'Withdraw %s from wallet %s (id: %s).',
