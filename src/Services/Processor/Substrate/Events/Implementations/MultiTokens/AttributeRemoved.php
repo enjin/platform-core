@@ -5,43 +5,42 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAttributeRemoved;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAttributeRemoved;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeRemoved as AttributeRemovedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Illuminate\Support\Facades\Log;
 
 class AttributeRemoved extends SubstrateEvent
 {
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    /**
+     * @throws PlatformException
+     */
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof AttributeRemovedPolkadart) {
             return;
         }
 
-        ray($event);
-
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
-        $collection = $this->getCollection(
-            $collectionId = $event->collectionId,
-        );
-
+        // Fails if it doesn't find the collection
+        $collection = $this->getCollection($event->collectionId);
         $token = !is_null($tokenId = $event->tokenId)
+                // Fails if it doesn't find the token
                 ? $this->getToken($collection->id, $tokenId)
                 : null;
 
+        // Fails if it doesn't find the attribute
         $attribute = $this->getAttribute(
             $collection->id,
             $token?->id,
             $key = HexConverter::hexToString($event->key)
         );
-
-        throw new \Exception('stop');
         $attribute->delete();
 
         Log::info(
@@ -49,14 +48,13 @@ class AttributeRemoved extends SubstrateEvent
                 'Attribute "%s" (id %s) of Collection #%s (id %s) %s was removed.',
                 $key,
                 $attribute->id,
-                $collectionId,
+                $event->collectionId,
                 $collection->id,
                 !is_null($tokenId) ? sprintf(' and Token #%s (id %s) ', $tokenId, $token->id) : ''
             )
         );
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
+        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
 
         if ($token) {
             $token->decrement('attribute_count');

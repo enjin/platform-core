@@ -84,10 +84,13 @@ class TokenCreated extends SubstrateEvent
         //        }
 
 
-        $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint';
+        $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint' || Arr::exists(Arr::get($createToken, 'cap'), 'SingleMint');
         $capSupply = $this->getValue($createToken, ['cap.Some.Supply', 'cap.Supply']);
 
         if (Arr::get($createToken, 'cap') !== null && $capSupply === null) {
+            ray($isSingleMint);
+            ray($capSupply);
+
             throw new \Exception('Cap not found');
         }
 

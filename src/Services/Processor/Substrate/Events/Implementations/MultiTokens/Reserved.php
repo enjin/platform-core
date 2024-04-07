@@ -35,7 +35,6 @@ class Reserved extends SubstrateEvent
         $token = $this->getToken($collection->id, $event->tokenId);
         $account = $this->firstOrStoreAccount($event->accountId);
 
-        throw new PlatformException('TokenReserved event is not implemented yet.');
         $tokenAccount = TokenAccount::firstOrFail([
             'wallet_id' => $account->id,
             'collection_id' => $collection->id,
@@ -50,7 +49,7 @@ class Reserved extends SubstrateEvent
             'pallet' => PalletIdentifier::from($event->reserveId)->name,
         ]);
 
-        if ($namedReserve == null) {
+        if ($namedReserve === null) {
             TokenAccountNamedReserve::create([
                 'token_account_id' => $tokenAccount->id,
                 'pallet' => PalletIdentifier::from($event->reserveId)->name,
@@ -72,12 +71,12 @@ class Reserved extends SubstrateEvent
             $event->reserveId,
         ));
 
-        // Missing getTransaction
         TokenReserved::safeBroadcast(
             $collection,
             $token,
             $account,
-            $event
+            $event,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }
