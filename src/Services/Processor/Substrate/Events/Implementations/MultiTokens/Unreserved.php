@@ -38,6 +38,9 @@ class Unreserved extends SubstrateEvent
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ]);
+
+
+        throw new \Exception('stop');
         $tokenAccount->increment('balance', $event->amount);
         $tokenAccount->decrement('reserved_balance', $event->amount);
 

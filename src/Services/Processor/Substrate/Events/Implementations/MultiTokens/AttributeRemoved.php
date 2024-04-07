@@ -40,6 +40,8 @@ class AttributeRemoved extends SubstrateEvent
             $token?->id,
             $key = HexConverter::hexToString($event->key)
         );
+
+        throw new \Exception('stop');
         $attribute->delete();
 
         Log::info(

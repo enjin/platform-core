@@ -37,6 +37,7 @@ class Unapproved extends SubstrateEvent
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
 
+        throw new \Exception('stop');
         if ($tokenId = $event->tokenId) {
             $token = $this->getToken($collection->id, $tokenId);
             $collectionAccount = $this->getTokenAccount(

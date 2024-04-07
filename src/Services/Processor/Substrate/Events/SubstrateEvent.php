@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events;
 
-use Arr;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Block;
@@ -17,10 +16,23 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Support\SS58Address;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 abstract class SubstrateEvent
 {
     abstract public function run(Event $event, Block $block, Codec $codec);
+
+    public function getValue(array $data, array $keys): mixed
+    {
+        foreach ($keys as $key) {
+            if (Arr::has($data, $key)) {
+                return Arr::get($data, $key);
+            }
+        }
+
+        return null;
+    }
 
     public function getTransaction(Block $block, int $extrinsicIndex): ?Transaction
     {
@@ -33,11 +45,18 @@ abstract class SubstrateEvent
         return null;
     }
 
-    public function firstOrStoreAccount(string $account): Model
+    public function firstOrStoreAccount(?string $account): ?Model
     {
+        if (is_null($account)) {
+            return null;
+        }
+
         return WalletService::firstOrStore(['account' => $account]);
     }
 
+    /**
+     * @throws PlatformException
+     */
     protected function getCollection(string $collectionChainId): Collection
     {
         if (!$collection = Collection::where('collection_chain_id', $collectionChainId)->first()) {
@@ -47,6 +66,9 @@ abstract class SubstrateEvent
         return $collection;
     }
 
+    /**
+     * @throws PlatformException
+     */
     protected function getToken(int $collectionId, string $tokenChainId): Token
     {
         if (!$token = Token::where(['collection_id' => $collectionId, 'token_chain_id' => $tokenChainId])->first()) {
@@ -56,6 +78,9 @@ abstract class SubstrateEvent
         return $token;
     }
 
+    /**
+     * @throws PlatformException
+     */
     protected function getAttribute(int $collectionId, ?int $tokenId, string $key): Attribute
     {
         if (!$attribute = Attribute::where([
@@ -89,6 +114,9 @@ abstract class SubstrateEvent
         return $collectionAccount;
     }
 
+    /**
+     * @throws PlatformException
+     */
     protected function getTokenAccount(int $collectionId, int $tokenId, int $walletId): TokenAccount
     {
         if (!$tokenAccount = TokenAccount::where([
@@ -102,6 +130,9 @@ abstract class SubstrateEvent
         return $tokenAccount;
     }
 
+    /**
+     * @throws PlatformException
+     */
     protected function getWallet(string $publicKey): Wallet
     {
         if (!$wallet = Wallet::where(['public_key' => SS58Address::getPublicKey($publicKey)])->first()) {

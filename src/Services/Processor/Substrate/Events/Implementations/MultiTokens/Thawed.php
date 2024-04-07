@@ -33,6 +33,9 @@ class Thawed extends SubstrateEvent
         $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
 
         $collection = $this->getCollection($event->collectionId);
+
+
+        throw new \Exception('stop');
         match (FreezeType::from($event->freezeType)) {
             FreezeType::COLLECTION => $this->thawCollection($collection, $transaction),
             FreezeType::TOKEN => $this->thawToken($collection, $event->tokenId, $transaction),

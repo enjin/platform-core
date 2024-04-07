@@ -6,32 +6,29 @@ use Enjin\Platform\Events\Substrate\MultiTokens\TokenBurned as TokenBurnedEvent;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Burned as BurnedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
 class TokenBurned extends SubstrateEvent
 {
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof BurnedPolkadart) {
             return;
         }
 
-        ray($event);
-
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
-        $account = WalletService::firstOrStore(['account' => $event->account]);
+        // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
+        $token = Token::firstWhere(['collection_id' => $collection->id, 'token_chain_id' => $event->tokenId]);
+        $account = $this->firstOrStoreAccount($event->account);
 
-        $token = Token::where(['collection_id' => $collection->id, 'token_chain_id' => $event->tokenId])->first();
         if ($token) {
             $token->decrement('supply', $event->amount);
 
@@ -48,18 +45,17 @@ class TokenBurned extends SubstrateEvent
                 $token->id,
                 $event->collectionId,
                 $collection->id,
-                $account->address,
-                $account->id
+                $account->address ?? 'unknown',
+                $account->id ?? 'unknown',
             ));
         }
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         TokenBurnedEvent::safeBroadcast(
-            $this->getCollection($event->collectionId),
+            $collection,
             $event->tokenId,
             $event->account,
             $event->amount,
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $this->getTransaction($block, $event->extrinsicIndex)
         );
     }
 }

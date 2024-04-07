@@ -4,37 +4,38 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAttributeSet;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAttributeSet;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeSet as AttributeSetPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Facades\Log;
 
 class AttributeSet extends SubstrateEvent
 {
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    /**
+     * @throws PlatformException
+     */
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof AttributeSetPolkadart) {
             return;
         }
 
-        ray($event);
-
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
-        $collection = $this->getCollection(
-            $collectionId = $event->collectionId,
-        );
-
+        // Fails if it doesn't find the collection
+        $collection = $this->getCollection($event->collectionId);
         $token = !is_null($tokenId = $event->tokenId)
+            // Fails if it doesn't find the token
             ? $this->getToken($collection->id, $tokenId)
             : null;
+
 
         $attribute = Attribute::updateOrCreate(
             [
@@ -52,7 +53,7 @@ class AttributeSet extends SubstrateEvent
                 'Attribute "%s" (id %s) of Collection #%s (id %s) %s was set to "%s".',
                 $key,
                 $attribute->id,
-                $collectionId,
+                $event->collectionId,
                 $collection->id,
                 !is_null($tokenId) ? sprintf('and Token #%s (id %s) ', $tokenId, $token->id) : '',
                 $value,
@@ -60,8 +61,7 @@ class AttributeSet extends SubstrateEvent
         );
 
         if ($attribute->wasRecentlyCreated) {
-            $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-            $transaction = Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
+            $transaction = $this->getTransaction($block, $event->extrinsicIndex);
 
             if ($token) {
                 $token->increment('attribute_count');

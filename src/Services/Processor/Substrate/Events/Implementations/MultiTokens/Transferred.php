@@ -3,41 +3,46 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenTransferred;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Transferred as TransferredPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
 class Transferred extends SubstrateEvent
 {
+    /**
+     * @throws PlatformException
+     */
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof TransferredPolkadart) {
             return;
         }
 
-        ray($event);
-
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
+        // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
+        // Fails if it doesn't find the token
+        ray('Before get token');
         $token = $this->getToken($collection->id, $event->tokenId);
+        ray('After get token');
 
-        $fromAccount = WalletService::firstOrStore(['account' => $event->from]);
+        $fromAccount = $this->firstOrStoreAccount($event->from);
+        $toAccount = $this->firstOrStoreAccount($event->to);
+
         TokenAccount::firstWhere([
             'wallet_id' => $fromAccount->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ])?->decrement('balance', $event->amount);
 
-        $toAccount = WalletService::firstOrStore(['account' => $event->to]);
         TokenAccount::firstWhere([
             'wallet_id' => $toAccount->id,
             'collection_id' => $collection->id,
@@ -51,18 +56,16 @@ class Transferred extends SubstrateEvent
             $token->id,
             $event->collectionId,
             $collection->id,
-            $toAccount->address,
-            $toAccount->id,
+            $toAccount->address ?? 'unknown',
+            $toAccount->id ?? 'unknown',
         ));
-
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
 
         TokenTransferred::safeBroadcast(
             $token,
             $fromAccount,
             $toAccount,
             $event->amount,
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

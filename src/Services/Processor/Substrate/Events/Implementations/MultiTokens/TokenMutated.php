@@ -30,6 +30,7 @@ class TokenMutated extends SubstrateEvent
         $collection = $this->getCollection($event->collectionId);
         $token = $this->getToken($collection->id, $event->tokenId);
 
+        throw new \Exception('stop');
         $attributes = [];
         if ($listingForbidden = $event->listingForbidden) {
             $attributes['listing_forbidden'] = $listingForbidden;

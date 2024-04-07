@@ -59,7 +59,6 @@ class DecoderService
 
     protected function polkadartEvent($event): PolkadartEvent
     {
-        ray($event)->green();
         $module = array_key_first(Arr::get($event, 'event'));
         $eventId = is_string($eventId = Arr::get($event, 'event.' . $module)) ? $eventId : array_key_first($eventId);
 

@@ -32,6 +32,8 @@ class CollectionMutated extends SubstrateEvent
         $attributes = [];
         $royalties = [];
 
+
+        throw new \Exception('stop');
         if ($owner = $event->owner) {
             $attributes['owner_wallet_id'] = WalletService::firstOrStore(['account' => Account::parseAccount($owner)])->id;
         }
