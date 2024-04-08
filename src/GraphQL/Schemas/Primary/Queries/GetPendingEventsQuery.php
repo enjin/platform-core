@@ -50,6 +50,7 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
             'channelFilters' => [
                 'type' => GraphQL::type('[StringFilter!]'),
                 'description' => __('enjin-platform::query.get_pending_events.args.channelFilter'),
+                'defaultValue' => [],
             ],
             'acknowledgeEvents' => [
                 'type' => GraphQL::type('Boolean'),
@@ -71,13 +72,13 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
                 $andFilters = collect($args['channelFilters'])->where('type', FilterType::AND->value)->all();
 
                 foreach ($andFilters as $filter) {
-                    $query->whereRaw('JSON_CONTAINS(channels, ?)', ['"' . $filter['filter'] . '"']);
+                    $query->whereJsonContains('channels', $filter['filter']);
                 }
 
                 if (count($orFilters) > 0) {
                     $query->where(function ($query) use ($orFilters) {
                         foreach ($orFilters as $filter) {
-                            $query->orWhereRaw('JSON_CONTAINS(channels, ?)', ['"' . $filter['filter'] . '"']);
+                            $query->orWhereJsonContains('channels', $filter['filter']);
                         }
                     });
                 }
@@ -85,11 +86,7 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
         })->cursorPaginateWithTotal('id', $args['first']);
 
         if ($args['acknowledgeEvents'] === true) {
-            $eventsToClean = $filteredEvents['items']->getCollection()->pluck('id')->toArray();
-            PendingEvent::query()
-                ->whereIn('id', $eventsToClean)
-                ->get()
-                ->each(fn ($pendingEvent) => $pendingEvent->delete());
+            $filteredEvents['items']->getCollection()->each->delete();
         }
 
         return $filteredEvents;
