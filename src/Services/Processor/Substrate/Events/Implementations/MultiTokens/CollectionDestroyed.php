@@ -27,10 +27,10 @@ class CollectionDestroyed extends SubstrateEvent
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($collectionId = $event->collectionId);
+        $collection = $this->getCollection($event->collectionId);
         $collection->delete();
 
-        Log::info("Collection #{$collectionId} (id {$collection->id}) was destroyed.");
+        Log::info("Collection #{$event->collectionId} (id {$collection->id}) was destroyed.");
 
         CollectionDestroyedEvent::safeBroadcast(
             $collection,

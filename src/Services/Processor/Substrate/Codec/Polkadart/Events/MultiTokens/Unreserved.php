@@ -30,7 +30,11 @@ class Unreserved extends Event implements PolkadartEvent
         $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
         $self->accountId = Account::parseAccount($self->getValue($data, ['account_id', 'T::AccountId']));
         $self->amount = $self->getValue($data, ['amount', 'T::TokenBalance']);
-        $self->reserveId = is_string($value = $self->getValue($data, ['reserve_id.Some', 'Option<T::ReserveIdentifierType>'])) ? $value : HexConverter::bytesToHex($value);
+        $self->reserveId = HexConverter::hexToString(
+            is_string($value = $self->getValue($data, ['reserve_id.Some', 'Option<T::ReserveIdentifierType>']))
+            ? $value
+            : HexConverter::bytesToHex($value)
+        );
 
         return $self;
     }

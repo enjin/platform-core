@@ -70,14 +70,13 @@ class CollectionCreated extends SubstrateEvent
 
 
         $owner = $this->firstOrStoreAccount($event->owner);
-        $beneficiary = $this->getValue($params, ['descriptor.policy.market']);
-        if ($beneficiary != null) {
-            throw new \Exception('Beneficiary not found');
+        $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
+        $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
+
+        if (!empty(Arr::get($params, 'descriptor.explicit_royalty_currencies'))) {
+            throw new \Exception('Royalty currencies not found');
         }
 
-        // Check
-        $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.royalty']);
-        $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage']);
 
         $collection = Collection::create([
             'collection_chain_id' => $event->collectionId,
@@ -93,10 +92,6 @@ class CollectionCreated extends SubstrateEvent
             'total_deposit' => '25000000000000000000',
             'network' => network(),
         ]);
-
-        if (Arr::get($params, 'descriptor.explicit_royalty_currencies')) {
-            throw new \Exception('Royalty currencies not found');
-        }
 
         $this->collectionRoyaltyCurrencies($collection->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));
 

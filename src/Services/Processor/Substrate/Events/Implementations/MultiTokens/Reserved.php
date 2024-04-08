@@ -29,17 +29,19 @@ class Reserved extends SubstrateEvent
             return;
         }
 
+        ray($event);
+
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
         // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $event->tokenId);
         $account = $this->firstOrStoreAccount($event->accountId);
 
-        $tokenAccount = TokenAccount::firstOrFail([
+        $tokenAccount = TokenAccount::where([
             'wallet_id' => $account->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
-        ]);
+        ])->firstOrFail();
 
         $tokenAccount->decrement('balance', $event->amount);
         $tokenAccount->increment('reserved_balance', $event->amount);

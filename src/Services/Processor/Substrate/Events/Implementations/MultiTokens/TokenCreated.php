@@ -13,6 +13,7 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extri
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\MultiTokens\Mint;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
 class TokenCreated extends SubstrateEvent
@@ -29,6 +30,8 @@ class TokenCreated extends SubstrateEvent
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
+
+        ray($event);
 
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         $token = $this->parseToken($extrinsic, $event);
@@ -83,11 +86,10 @@ class TokenCreated extends SubstrateEvent
         //            }
         //        }
 
-
-        $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint' || Arr::exists(Arr::get($createToken, 'cap'), 'SingleMint');
+        $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint' || Arr::has($createToken, 'cap.SingleMint');
         $capSupply = $this->getValue($createToken, ['cap.Some.Supply', 'cap.Supply']);
 
-        if (Arr::get($createToken, 'cap') !== null && $capSupply === null) {
+        if (Arr::get($createToken, 'cap') !== null && $capSupply === null && !$isSingleMint) {
             ray($isSingleMint);
             ray($capSupply);
 
@@ -103,14 +105,15 @@ class TokenCreated extends SubstrateEvent
             $cap = TokenMintCapType::SINGLE_MINT;
         }
 
-        $beneficiary = $this->firstOrStoreAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary']));
+        $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary'])));
+        $percentage = $this->getValue($createToken, ['behavior.Some.HasRoyalty.percentage', 'behavior.HasRoyalty.percentage']);
 
-        if ($beneficiary) {
-            throw new \Exception('Beneficiary not found');
+
+        $isCurrency = Arr::get($createToken, 'behavior.Some') === 'IsCurrency';
+        if (Arr::get($createToken, 'behavior') !== null && Arr::get($createToken, 'behavior.HasRoyalty') === null) {
+            throw new \Exception('Behavior not found');
         }
 
-        $percentage = Arr::get($createToken, 'behavior.Some.HasRoyalty.percentage');
-        $isCurrency = Arr::get($createToken, 'behavior.Some') === 'IsCurrency';
 
         $unitPrice = gmp_init($this->getValue($createToken, ['sufficiency.Insufficient.unit_price.Some', 'sufficiency.Insufficient']) ?? 10 ** 16);
         $minBalance = Arr::get($createToken, 'sufficiency.Sufficient.minimum_balance');
@@ -118,21 +121,12 @@ class TokenCreated extends SubstrateEvent
             throw new \Exception('Minimum balance not found');
         }
 
-
         if (!$minBalance) {
             $minBalance = gmp_div(gmp_pow(10, 16), $unitPrice, GMP_ROUND_PLUSINF);
             $minBalance = gmp_cmp(1, $minBalance) > 0 ? '1' : gmp_strval($minBalance);
         }
 
-        $isFrozen = in_array(Arr::get($createToken, 'freeze_state.Some'), ['Permanent', 'Temporary']);
-        if (Arr::get($createToken, 'freeze_state') != null) {
-            throw new \Exception('Freeze state not found');
-        }
-
-        if (!empty(Arr::get($createToken, 'attributes'))) {
-            throw new \Exception('Attributes not found');
-        }
-
+        $isFrozen = in_array($this->getValue($createToken, ['freeze_state.Some', 'freeze_state']), ['Permanent', 'Temporary']);
 
         return Token::create([
             'collection_id' => $collection->id,

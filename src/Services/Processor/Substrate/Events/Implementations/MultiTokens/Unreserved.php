@@ -2,54 +2,55 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenUnreserved;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Unreserved as UnreservedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Enjin\Platform\Support\Account;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
 class Unreserved extends SubstrateEvent
 {
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    /**
+     * @throws PlatformException
+     */
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof UnreservedPolkadart) {
             return;
         }
 
-        ray($event);
-
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
-        $account = WalletService::firstOrStore(['account' => Account::parseAccount($event->accountId)]);
+        // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
+        // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $event->tokenId);
-        $tokenAccount = TokenAccount::firstWhere([
+        $account = $this->firstOrStoreAccount($event->accountId);
+
+        // Fails if it doesn't find the token account
+        $tokenAccount = TokenAccount::where([
             'wallet_id' => $account->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
-        ]);
+        ])->firstOrFail();
 
-
-        throw new \Exception('stop');
         $tokenAccount->increment('balance', $event->amount);
         $tokenAccount->decrement('reserved_balance', $event->amount);
 
         $namedReserve = TokenAccountNamedReserve::firstWhere([
             'token_account_id' => $tokenAccount->id,
-            'pallet' => PalletIdentifier::from(HexConverter::hexToString($event->reserveId))->name,
+            'pallet' => PalletIdentifier::from($event->reserveId)->name,
         ]);
 
-        if ($namedReserve != null) {
+        if ($namedReserve !== null) {
             $amountLeft = $namedReserve->amount - $event->amount;
             $amountLeft > 0 ? $namedReserve->decrement('amount', $event->amount) : $namedReserve->delete();
         }
@@ -71,6 +72,7 @@ class Unreserved extends SubstrateEvent
             $token,
             $account,
             $event,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }
