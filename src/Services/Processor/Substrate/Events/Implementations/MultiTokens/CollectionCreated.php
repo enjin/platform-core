@@ -2,7 +2,9 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
+use Cache;
 use Carbon\Carbon;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated as CollectionCreatedEvent;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;
@@ -21,6 +23,8 @@ class CollectionCreated extends SubstrateEvent
 {
     public function run(Event $event, Block $block, Codec $codec): void
     {
+        $this->collectionCreatedCountAtBlock($block->number);
+
         if (!$event instanceof CollectionCreatedPolkadart) {
             return;
         }
@@ -30,9 +34,11 @@ class CollectionCreated extends SubstrateEvent
         }
 
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $collection = $this->parseCollection($extrinsic, $event);
+        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block->number}"));
+        $collection = $this->parseCollection($extrinsic, $event, $count - 1);
         $transaction = $this->getTransaction($block, $event->extrinsicIndex);
 
+        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block->number}"));
         Log::info(sprintf('Collection %s (id: %s) was created from transaction %s (id: %s).', $event->collectionId, $collection->id, $transaction?->transaction_chain_hash ?? 'unknown', $transaction?->id ?? 'unknown'));
 
         CollectionCreatedEvent::safeBroadcast(
@@ -41,33 +47,29 @@ class CollectionCreated extends SubstrateEvent
         );
     }
 
-    protected function parseCollection(Extrinsic $extrinsic, CollectionCreatedPolkadart $event): Collection
+    protected function collectionCreatedCountAtBlock(string $block): void
     {
-        ray($extrinsic);
-        $params = $extrinsic->params ?? [];
-        ray($params);
+        $key = PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block}");
+        Cache::add($key, 0, now()->addMinute());
+        Cache::increment($key);
+    }
 
-        // TODO: Batch extrinsics - We need to pop the call from the extrinsic
-        // For batch we have params.calls
+    protected function parseCollection(Extrinsic $extrinsic, CollectionCreatedPolkadart $event, int $count = 0): Collection
+    {
+        $params = $extrinsic->params;
+
+        if ($extrinsic->module === 'FuelTanks') {
+            $params = $this->getValue($params, ['call.MultiTokens.create_collection', 'call.MatrixUtility.batch', 'call.Utility.batch', 'call.Utility.batch_all']);
+        }
+
+        // This is used for CollectionCreated events generated on matrixUtility.batch extrinsics
         if (($calls = Arr::get($params, 'calls')) !== null) {
-            throw new \Exception('Batch extrinsics not supported yet');
             $calls = collect($calls)->filter(
                 fn ($call) => Arr::get($call, 'MultiTokens.create_collection') !== null
-            )->first();
+            )->values();
 
-            $params = Arr::get($calls, 'MultiTokens.create_collection');
+            $params = Arr::get($calls, "{$count}.MultiTokens.create_collection");
         }
-
-        if (Arr::get($params, 'call.MultiTokens.create_collection')) {
-            throw new \Exception('Batch extrinsics not supported yet');
-        }
-
-        // TODO: Check fuel tank creation
-        // For fuel tanks we have params.call
-        //            else {
-        //                $params = Arr::get($params, 'call.MultiTokens.create_collection');
-        //            }
-
 
         $owner = $this->firstOrStoreAccount($event->owner);
         $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);

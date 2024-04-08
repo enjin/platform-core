@@ -23,7 +23,6 @@ class TokenMutated extends Event implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
-        ray($data);
 
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));

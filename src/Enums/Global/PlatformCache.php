@@ -25,6 +25,8 @@ enum PlatformCache: string implements PlatformCacheable
     case DEPOSIT = 'deposit';
     case RELEASE_DIFF = 'releaseDiff';
 
+    case BLOCK_EVENT_COUNT = 'blockEventCount';
+
     public function key(?string $suffix = null): string
     {
         return 'enjin-platform:core:' . $this->value . ($suffix ? ":{$suffix}" : '');
