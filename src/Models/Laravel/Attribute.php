@@ -42,15 +42,4 @@ class Attribute extends BaseModel
     {
         return AttributeFactory::new();
     }
-
-    protected function pivotIdentifier(): self
-    {
-        if (!$collection = $this->collection) {
-            throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
-        }
-
-        return self::make(
-            get: fn () => "{$collection->collection_chain_id}:{$this->token_chain_id}",
-        );
-    }
 }
