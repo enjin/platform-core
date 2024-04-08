@@ -15,6 +15,7 @@ use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +68,8 @@ class Sync extends Command
 
     /**
      * Process the command.
+     *
+     * @throws Exception
      */
     public function handle(Backoff $backoff, SubstrateWebsocket $rpc): int
     {
@@ -89,6 +92,8 @@ class Sync extends Command
 
     /**
      * Start the sync process.
+     *
+     * @throws PlatformException
      */
     protected function startSync(SubstrateWebsocket $rpc): void
     {
@@ -268,7 +273,7 @@ class Sync extends Command
                 fn ($table) => DB::table($table)->truncate(),
                 $this->tablesToTruncate()
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Schema::enableForeignKeyConstraints();
 
             return false;
