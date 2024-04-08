@@ -58,11 +58,12 @@ class CollectionCreated extends SubstrateEvent
     {
         $params = $extrinsic->params;
 
+        // This unwraps any calls from a FuelTank extrinsic
         if ($extrinsic->module === 'FuelTanks') {
             $params = $this->getValue($params, ['call.MultiTokens.create_collection', 'call.MatrixUtility.batch', 'call.Utility.batch', 'call.Utility.batch_all']);
         }
 
-        // This is used for CollectionCreated events generated on matrixUtility.batch extrinsics
+        // This is used for CollectionCreated events generated on matrixUtility.batch or utility.batch extrinsics
         if (($calls = Arr::get($params, 'calls')) !== null) {
             $calls = collect($calls)->filter(
                 fn ($call) => Arr::get($call, 'MultiTokens.create_collection') !== null

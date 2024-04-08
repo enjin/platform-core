@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenCreated as TokenCreatedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
@@ -10,11 +11,11 @@ use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenCreated as TokenCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\MultiTokens\Mint;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 class TokenCreated extends SubstrateEvent
 {
@@ -23,6 +24,8 @@ class TokenCreated extends SubstrateEvent
      */
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
+        $this->tokenCreatedCountAtBlock($block->number);
+
         if (!$event instanceof TokenCreatedPolkadart) {
             return;
         }
@@ -31,10 +34,11 @@ class TokenCreated extends SubstrateEvent
             return;
         }
 
-        ray($event);
-
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $token = $this->parseToken($extrinsic, $event);
+        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block->number}"));
+        $token = $this->parseToken($extrinsic, $event, $count - 1);
+
+        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block->number}"));
 
         TokenCreatedEvent::safeBroadcast(
             $token,
@@ -46,61 +50,43 @@ class TokenCreated extends SubstrateEvent
     /**
      * @throws PlatformException
      */
-    public function parseToken(Extrinsic $extrinsic, TokenCreatedPolkadart $event): mixed
+    public function parseToken(Extrinsic $extrinsic, TokenCreatedPolkadart $event, int $count = 0): mixed
     {
-        ray($extrinsic);
-        ray($event);
-
         // Fails if collection is not found
         $collection = $this->getCollection($event->collectionId);
-        $createToken = Arr::get($extrinsic->params, 'params.CreateToken');
+        $params = $extrinsic->params;
 
-        if ($extrinsic->call === 'batch_mint') {
-            $recipient = collect(Arr::get($extrinsic->params, 'recipients'))->firstWhere('params.CreateToken.token_id', $event->tokenId);
-            $createToken = Arr::get($recipient, 'params.CreateToken');
+        // This unwraps any calls from a FuelTank extrinsic
+        if ($extrinsic->module === 'FuelTanks') {
+            $params = $this->getValue($params, ['call.MultiTokens.mint', 'call.MatrixUtility.batch', 'call.Utility.batch', 'call.Utility.batch_all']);
         }
 
-        ray($createToken);
+        // This is used for TokenCreated events generated on matrixUtility.batch or utility.batch extrinsics
+        if (($calls = Arr::get($params, 'calls')) !== null) {
+            $calls = collect($calls)->filter(
+                fn ($call) => Arr::get($call, 'MultiTokens.mint') !== null
+            )->values();
 
-        if ($extrinsic->module !== 'MultiTokens') {
-            throw new \Exception('Module not found');
+            $params = Arr::get($calls, "{$count}.MultiTokens.mint");
         }
 
-        //        if ($extrinsic instanceof Extrinsic) {
-        //            // TODO: Batch extrinsics - We need to pop the call from the extrinsic
-        //            // For batch we have params.calls
-        //            if (($calls = Arr::get($extrinsic->params, 'calls')) !== null) {
-        //                $call = collect($calls)
-        //                    ->filter(
-        //                        fn ($item) => (Arr::get($item, 'MultiTokens.mint.collection_id') === $event->collectionId
-        //                                && Arr::get($item, 'MultiTokens.mint.params.CreateToken.token_id') === $event->tokenId)
-        //                            || (Arr::get($item, 'MultiTokens.force_mint.collection_id') === $event->collectionId
-        //                                && Arr::get($item, 'MultiTokens.force_mint.params.CreateOrMint.token_id') === $event->tokenId)
-        //                    )->first();
-        //
-        //                $createToken = Arr::get($call, 'MultiTokens.mint.params.CreateToken') ?? Arr::get($call, 'MultiTokens.force_mint.params.CreateOrMint');
-        //            }
-        //            // For fuel tanks we have params.call
-        //            else {
-        //                $createToken = Arr::get($extrinsic->params, 'call.MultiTokens.mint.params.CreateToken');
-        //            }
-        //        }
+        // This gets the correct recipient from multiTokens.batch_mint
+        if ($extrinsic->call === 'batch_mint' || Arr::get($extrinsic->params, 'call.MultiTokens.batch_mint') !== null) {
+            $recipients = $this->getValue($extrinsic->params, ['recipients', 'call.MultiTokens.batch_mint.recipients']);
+            $params = collect($recipients)->firstWhere('params.CreateToken.token_id', $event->tokenId);
+        }
 
+        $createToken = Arr::get($params, 'params.CreateToken');
         $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint' || Arr::has($createToken, 'cap.SingleMint');
         $capSupply = $this->getValue($createToken, ['cap.Some.Supply', 'cap.Supply']);
-
-        if (Arr::get($createToken, 'cap') !== null && $capSupply === null && !$isSingleMint) {
-            ray($isSingleMint);
-            ray($capSupply);
-
-            throw new \Exception('Cap not found');
-        }
-
+        $collapsingSupply = $this->getValue($createToken, ['cap.Some.CollapsingSupply', 'cap.CollapsingSupply']);
 
         $cap = TokenMintCapType::INFINITE;
 
         if ($capSupply !== null) {
             $cap = TokenMintCapType::SUPPLY;
+        } elseif ($collapsingSupply !== null) {
+            $cap = TokenMintCapType::COLLAPSING_SUPPLY;
         } elseif ($isSingleMint) {
             $cap = TokenMintCapType::SINGLE_MINT;
         }
@@ -111,9 +97,6 @@ class TokenCreated extends SubstrateEvent
 
         $unitPrice = gmp_init($this->getValue($createToken, ['sufficiency.Insufficient.unit_price.Some', 'sufficiency.Insufficient']) ?? 10 ** 16);
         $minBalance = Arr::get($createToken, 'sufficiency.Sufficient.minimum_balance');
-        if ($minBalance || Arr::has($createToken, 'sufficiency.Sufficient')) {
-            throw new \Exception('Minimum balance not found');
-        }
 
         if (!$minBalance) {
             $minBalance = gmp_div(gmp_pow(10, 16), $unitPrice, GMP_ROUND_PLUSINF);
@@ -127,7 +110,7 @@ class TokenCreated extends SubstrateEvent
             'token_chain_id' => $event->tokenId,
             'supply' => $this->getValue($createToken, ['initial_supply', 'amount']) ?? 0,
             'cap' => $cap->name,
-            'cap_supply' => $capSupply,
+            'cap_supply' => $capSupply ?? $collapsingSupply,
             'is_frozen' => $isFrozen,
             'royalty_wallet_id' => $beneficiary?->id,
             'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
@@ -137,5 +120,12 @@ class TokenCreated extends SubstrateEvent
             'minimum_balance' => $minBalance,
             'attribute_count' => 0,
         ]);
+    }
+
+    protected function tokenCreatedCountAtBlock(string $block): void
+    {
+        $key = PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block}");
+        Cache::add($key, 0, now()->addMinute());
+        Cache::increment($key);
     }
 }

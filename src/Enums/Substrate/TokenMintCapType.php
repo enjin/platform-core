@@ -10,5 +10,6 @@ enum TokenMintCapType: string
 
     case SINGLE_MINT = 'SingleMint';
     case SUPPLY = 'Supply';
+    case COLLAPSING_SUPPLY = 'CollapsingSupply';
     case INFINITE = 'Infinite';
 }
