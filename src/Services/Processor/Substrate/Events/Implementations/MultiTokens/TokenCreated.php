@@ -107,17 +107,11 @@ class TokenCreated extends SubstrateEvent
 
         $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary'])));
         $percentage = $this->getValue($createToken, ['behavior.Some.HasRoyalty.percentage', 'behavior.HasRoyalty.percentage']);
-
-
-        $isCurrency = Arr::get($createToken, 'behavior.Some') === 'IsCurrency';
-        if (Arr::get($createToken, 'behavior') !== null && Arr::get($createToken, 'behavior.HasRoyalty') === null) {
-            throw new \Exception('Behavior not found');
-        }
-
+        $isCurrency = Arr::get($createToken, 'behavior.Some') === 'IsCurrency' || Arr::has($createToken, 'behavior.IsCurrency');
 
         $unitPrice = gmp_init($this->getValue($createToken, ['sufficiency.Insufficient.unit_price.Some', 'sufficiency.Insufficient']) ?? 10 ** 16);
         $minBalance = Arr::get($createToken, 'sufficiency.Sufficient.minimum_balance');
-        if ($minBalance) {
+        if ($minBalance || Arr::has($createToken, 'sufficiency.Sufficient')) {
             throw new \Exception('Minimum balance not found');
         }
 
@@ -139,7 +133,7 @@ class TokenCreated extends SubstrateEvent
             'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
             'is_currency' => $isCurrency,
             'listing_forbidden' => Arr::get($createToken, 'listing_forbidden') ?? false,
-            'unit_price' => gmp_strval($unitPrice) ?? '10000000000000000',
+            'unit_price' => gmp_strval($unitPrice),
             'minimum_balance' => $minBalance,
             'attribute_count' => 0,
         ]);

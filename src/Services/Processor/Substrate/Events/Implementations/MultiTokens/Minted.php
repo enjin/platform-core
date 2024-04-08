@@ -27,8 +27,6 @@ class Minted extends SubstrateEvent
             return;
         }
 
-        ray($event);
-
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
         // Fails if it doesn't find the token

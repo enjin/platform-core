@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenBurned as TokenBurnedEvent;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\TokenAccount;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Log;
 
 class TokenBurned extends SubstrateEvent
 {
+    /**
+     * @throws PlatformException
+     */
     public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof BurnedPolkadart) {

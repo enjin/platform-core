@@ -30,9 +30,7 @@ class Transferred extends SubstrateEvent
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
         // Fails if it doesn't find the token
-        ray('Before get token');
         $token = $this->getToken($collection->id, $event->tokenId);
-        ray('After get token');
 
         $fromAccount = $this->firstOrStoreAccount($event->from);
         $toAccount = $this->firstOrStoreAccount($event->to);

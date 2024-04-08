@@ -73,11 +73,6 @@ class CollectionCreated extends SubstrateEvent
         $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
         $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
 
-        if (!empty(Arr::get($params, 'descriptor.explicit_royalty_currencies'))) {
-            throw new \Exception('Royalty currencies not found');
-        }
-
-
         $collection = Collection::create([
             'collection_chain_id' => $event->collectionId,
             'owner_wallet_id' => $owner->id,
