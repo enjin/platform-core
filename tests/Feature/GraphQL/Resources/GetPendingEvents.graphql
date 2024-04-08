@@ -2,11 +2,13 @@ query GetPendingEvents(
   $after: String
   $first: Int
   $acknowledgeEvents: Boolean
+  $channelFilters: [StringFilter!]
 ) {
   GetPendingEvents(
     after: $after
     first: $first
     acknowledgeEvents: $acknowledgeEvents
+    channelFilters: $channelFilters
   ) {
     totalCount
     pageInfo {
