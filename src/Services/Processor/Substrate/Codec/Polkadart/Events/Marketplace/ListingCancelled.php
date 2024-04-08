@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace;
 
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
 
-class ListingCancelled implements PolkadartEvent
+class ListingCancelled extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
@@ -15,10 +17,11 @@ class ListingCancelled implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = Arr::get($data, 'event.Marketplace.ListingCancelled.listing_id');
+        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
 
         return $self;
     }

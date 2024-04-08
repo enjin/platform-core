@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class ReserveRepatriated implements PolkadartEvent
+class ReserveRepatriated extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $from;
@@ -15,16 +17,17 @@ class ReserveRepatriated implements PolkadartEvent
     public readonly string $amount;
     public readonly string $destinationStatus;
 
-    public static function fromChain(array $data): PolkadartEvent
+    public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->from = Arr::get($data, 'event.Balances.ReserveRepatriated.from');
-        $self->to = Arr::get($data, 'event.Balances.ReserveRepatriated.to');
-        $self->amount = Arr::get($data, 'event.Balances.ReserveRepatriated.amount');
-        $self->destinationStatus = Arr::get($data, 'event.Balances.ReserveRepatriated.destination_status');
+        $self->from = Account::parseAccount($self->getValue($data, ['from', '0']));
+        $self->to = Account::parseAccount($self->getValue($data, ['to', '1']));
+        $self->amount = $self->getValue($data, ['amount', '2']);
+        $self->destinationStatus = $self->getValue($data, ['destination_status', '3']);
 
         return $self;
     }

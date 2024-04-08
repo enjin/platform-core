@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class TokenMutated implements PolkadartEvent
+class TokenMutated extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $collectionId;
@@ -21,16 +23,21 @@ class TokenMutated implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = Arr::get($data, 'event.MultiTokens.TokenMutated.collection_id');
-        $self->tokenId = Arr::get($data, 'event.MultiTokens.TokenMutated.token_id');
-        $self->listingForbidden = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.listing_forbidden.SomeMutation');
-        $self->behaviorMutation = is_string($behavior = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior')) ? $behavior : array_key_first($behavior);
-        $self->isCurrency = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior.SomeMutation.Some') === 'IsCurrency';
-        $self->beneficiary = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary');
-        $self->percentage = Arr::get($data, 'event.MultiTokens.TokenMutated.mutation.behavior.SomeMutation.Some.HasRoyalty.percentage');
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
+        $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
+        $self->listingForbidden = $self->getValue($data, ['mutation.listing_forbidden.SomeMutation', 'T::TokenMutation.listing_forbidden.SomeMutation']);
+        $self->behaviorMutation = is_string($behavior = $self->getValue($data, ['mutation.behavior', 'T::TokenMutation.behavior'])) ? $behavior : array_key_first($behavior);
+        $self->isCurrency = $self->getValue($data, ['mutation.behavior.SomeMutation.Some', 'T::TokenMutation.behavior.SomeMutation.Some']) === 'IsCurrency';
+        $self->beneficiary = Account::parseAccount($self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary']));
+        $self->percentage = $self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.percentage', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage']);
+
+        if ($self->getValue($data, ['T::TokenMutation.metadata.SomeMutation']) != null) {
+            throw new \Exception('Metadata is not null');
+        }
 
         return $self;
     }

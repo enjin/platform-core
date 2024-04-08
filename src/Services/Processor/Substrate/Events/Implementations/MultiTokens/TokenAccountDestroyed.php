@@ -3,22 +3,21 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedEvent;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
-class TokenAccountDestroyed implements SubstrateEvent
+class TokenAccountDestroyed extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    /**
+     * @throws PlatformException
+     */
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof TokenAccountDestroyedPolkadart) {
             return;
@@ -28,17 +27,21 @@ class TokenAccountDestroyed implements SubstrateEvent
             return;
         }
 
+        // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
+        // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $event->tokenId);
-        $account = WalletService::firstOrStore(['account' => $event->account]);
+
+        $account = $this->firstOrStoreAccount($event->account);
+
         $collectionAccount = $this->getCollectionAccount($collection->id, $account->id);
         $collectionAccount->decrement('account_count');
-        $tokenAccount = TokenAccount::firstWhere([
+
+        TokenAccount::where([
             'wallet_id' => $account->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
-        ]);
-        $tokenAccount->delete();
+        ])->delete();
 
         Log::info(
             sprintf(
@@ -47,17 +50,15 @@ class TokenAccountDestroyed implements SubstrateEvent
                 $collection->id,
                 $event->tokenId,
                 $token->id,
-                $account->address,
+                $account->address ?? 'unknown',
             )
         );
-
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
 
         TokenAccountDestroyedEvent::safeBroadcast(
             $collection,
             $token,
             $account,
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

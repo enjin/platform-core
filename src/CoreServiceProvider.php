@@ -91,9 +91,9 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(GitHubServiceProvider::class);
 
-        Event::listen(PlatformSyncing::class, fn () => BlockProcessor::synching());
-        Event::listen(PlatformSynced::class, fn () => BlockProcessor::synchingDone());
-        Event::listen(PlatformSyncError::class, fn () => BlockProcessor::synchingDone());
+        Event::listen(PlatformSyncing::class, fn () => BlockProcessor::syncing());
+        Event::listen(PlatformSynced::class, fn () => BlockProcessor::syncingDone());
+        Event::listen(PlatformSyncError::class, fn () => BlockProcessor::syncingDone());
 
         Builder::macro('cursorPaginateWithTotal', function ($order, $limit, $cache = true) {
             if ($cache) {

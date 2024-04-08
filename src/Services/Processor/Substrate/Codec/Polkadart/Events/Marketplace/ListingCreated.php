@@ -2,12 +2,15 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace;
 
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class ListingCreated implements PolkadartEvent
+class ListingCreated extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
@@ -21,28 +24,29 @@ class ListingCreated implements PolkadartEvent
     public readonly int $creationBlock;
     public readonly string $deposit;
     public readonly array $salt;
-    public readonly string|array $data;
+    public readonly ?array $data;
     public readonly array $state;
 
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = Arr::get($data, 'event.Marketplace.ListingCreated.listing_id');
-        $self->seller = Arr::get($data, 'event.Marketplace.ListingCreated.listing.seller');
-        $self->makeAssetId = Arr::get($data, 'event.Marketplace.ListingCreated.listing.make_asset_id');
-        $self->takeAssetId = Arr::get($data, 'event.Marketplace.ListingCreated.listing.take_asset_id');
-        $self->amount = Arr::get($data, 'event.Marketplace.ListingCreated.listing.amount');
-        $self->price = Arr::get($data, 'event.Marketplace.ListingCreated.listing.price');
-        $self->minTakeValue = Arr::get($data, 'event.Marketplace.ListingCreated.listing.min_take_value');
-        $self->feeSide = Arr::get($data, 'event.Marketplace.ListingCreated.listing.fee_side');
-        $self->creationBlock = Arr::get($data, 'event.Marketplace.ListingCreated.listing.creation_block');
-        $self->deposit = Arr::get($data, 'event.Marketplace.ListingCreated.listing.deposit');
-        $self->salt = Arr::get($data, 'event.Marketplace.ListingCreated.listing.salt');
-        $self->data = Arr::get($data, 'event.Marketplace.ListingCreated.listing.data');
-        $self->state = Arr::get($data, 'event.Marketplace.ListingCreated.listing.state');
+        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
+        $self->seller = Account::parseAccount($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller']));
+        $self->makeAssetId = $self->getValue($data, ['listing.make_asset_id', 'ListingOf<T>.make_asset_id']);
+        $self->takeAssetId = $self->getValue($data, ['listing.take_asset_id', 'ListingOf<T>.take_asset_id']);
+        $self->amount = $self->getValue($data, ['listing.amount', 'ListingOf<T>.amount']);
+        $self->price = $self->getValue($data, ['listing.price', 'ListingOf<T>.price']);
+        $self->minTakeValue = $self->getValue($data, ['listing.min_take_value', 'ListingOf<T>.min_take_value']);
+        $self->feeSide = $self->getValue($data, ['listing.fee_side', 'ListingOf<T>.fee_side']);
+        $self->creationBlock = $self->getValue($data, ['listing.creation_block', 'ListingOf<T>.creation_block']);
+        $self->deposit = $self->getValue($data, ['listing.deposit', 'ListingOf<T>.deposit']);
+        $self->salt = $self->getValue($data, ['listing.salt', 'ListingOf<T>.salt']);
+        $self->data = $self->getValue($data, ['listing.data', 'ListingOf<T>.data']);
+        $self->state = $self->getValue($data, ['listing.state', 'ListingOf<T>.state']);
 
         return $self;
     }

@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class CollectionMutated implements PolkadartEvent
+class CollectionMutated extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $collectionId;
@@ -20,15 +22,16 @@ class CollectionMutated implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = Arr::get($data, 'event.MultiTokens.CollectionMutated.collection_id');
-        $self->owner = Arr::get($data, 'event.MultiTokens.CollectionMutated.mutation.owner.Some');
-        $self->royalty = $royalty = self::getRoyalty($data);
-        $self->beneficiary = self::getBeneficiary($data, $royalty);
-        $self->percentage = self::getPercentage($data, $royalty);
-        $self->explicitRoyaltyCurrencies = Arr::get($data, 'event.MultiTokens.CollectionMutated.mutation.explicit_royalty_currencies.Some');
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
+        $self->owner = Account::parseAccount($self->getValue($data, ['mutation.owner.Some', 'T::CollectionMutation.owner']));
+        $self->royalty = $self->getRoyalty($data);
+        $self->beneficiary = Account::parseAccount($self->getBeneficiary($data, $self->royalty));
+        $self->percentage = $self->getPercentage($data, $self->royalty);
+        $self->explicitRoyaltyCurrencies = $self->getValue($data, ['mutation.explicit_royalty_currencies.Some', 'T::CollectionMutation.explicit_royalty_currencies']);
 
         return $self;
     }
@@ -53,9 +56,9 @@ class CollectionMutated implements PolkadartEvent
         ];
     }
 
-    protected static function getRoyalty($data): string
+    protected function getRoyalty($data): string
     {
-        $royalty = Arr::get($data, 'event.MultiTokens.CollectionMutated.mutation.royalty');
+        $royalty = $this->getValue($data, ['mutation.royalty', 'T::CollectionMutation.royalty']);
 
         if ($royalty === null || $royalty === 'NoMutation') {
             return 'NoMutation';
@@ -64,22 +67,22 @@ class CollectionMutated implements PolkadartEvent
         return array_key_first($royalty);
     }
 
-    protected static function getBeneficiary($data, $royalty): ?string
+    protected function getBeneficiary($data, $royalty): string|array|null
     {
         if ($royalty === 'NoMutation') {
             return null;
         }
 
-        return Arr::get($data, 'event.MultiTokens.CollectionMutated.mutation.royalty.SomeMutation.Some.beneficiary');
+        return $this->getValue($data, ['mutation.royalty.SomeMutation.Some.beneficiary', 'T::CollectionMutation.royalty.SomeMutation.beneficiary']);
     }
 
-    protected static function getPercentage($data, $royalty): ?string
+    protected function getPercentage($data, $royalty): ?string
     {
         if ($royalty === 'NoMutation') {
             return null;
         }
 
-        return Arr::get($data, 'event.MultiTokens.CollectionMutated.mutation.royalty.SomeMutation.Some.percentage');
+        return $this->getValue($data, ['mutation.royalty.SomeMutation.Some.percentage', 'T::CollectionMutation.royalty.SomeMutation.percentage']);
     }
 }
 

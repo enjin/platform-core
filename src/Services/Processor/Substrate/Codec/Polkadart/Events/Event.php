@@ -5,7 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
 
-class Generic implements PolkadartEvent
+class Event implements PolkadartEvent
 {
     public readonly ?string $extrinsicIndex;
     public readonly string $module;
@@ -21,6 +21,27 @@ class Generic implements PolkadartEvent
         $self->data = Arr::get($data, 'event.' . $self->module . '.' . $self->name);
 
         return $self;
+    }
+
+    public function getValue(array $data, array $keys): mixed
+    {
+        foreach ($keys as $key) {
+            if (Arr::has($data, $k = "event.{$this->getKey($key)}")) {
+                return Arr::get($data, $k);
+            }
+        }
+
+        return null;
+    }
+
+    public function getKey(string $key): string
+    {
+        return $this->getModule() . '.' . $key;
+    }
+
+    public function getModule(): string
+    {
+        return $this->module . '.' . $this->name;
     }
 
     public function getPallet(): string

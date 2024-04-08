@@ -157,7 +157,6 @@ class Parser
                 )
                 : null;
 
-            //TODO: Implement collapsing supply
             $insertData[] = [
                 'token_chain_id' => $tokenKey['tokenId'],
                 'collection_id' => $collection->id,

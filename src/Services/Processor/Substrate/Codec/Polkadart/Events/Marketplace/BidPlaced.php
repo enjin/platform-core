@@ -2,12 +2,15 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace;
 
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class BidPlaced implements PolkadartEvent
+class BidPlaced extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
@@ -17,12 +20,13 @@ class BidPlaced implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = Arr::get($data, 'event.Marketplace.BidPlaced.listing_id');
-        $self->bidder = Arr::get($data, 'event.Marketplace.BidPlaced.bid.bidder');
-        $self->price = Arr::get($data, 'event.Marketplace.BidPlaced.bid.price');
+        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
+        $self->bidder = Account::parseAccount($self->getValue($data, ['bid.bidder', 'BidOf<T>.bidder']));
+        $self->price = $self->getValue($data, ['bid.price', 'BidOf<T>.price']);
 
         return $self;
     }

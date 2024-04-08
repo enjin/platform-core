@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class Burned implements PolkadartEvent
+class Burned extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $collectionId;
@@ -18,13 +20,14 @@ class Burned implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = Arr::get($data, 'event.MultiTokens.Burned.collection_id');
-        $self->tokenId = Arr::get($data, 'event.MultiTokens.Burned.token_id');
-        $self->account = Arr::get($data, 'event.MultiTokens.Burned.account_id');
-        $self->amount = Arr::get($data, 'event.MultiTokens.Burned.amount');
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
+        $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
+        $self->account = Account::parseAccount($self->getValue($data, ['account_id', 'T::AccountId']));
+        $self->amount = $self->getValue($data, ['amount', 'T::TokenBalance']);
 
         return $self;
     }

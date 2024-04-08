@@ -9,21 +9,20 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionMutated as CollectionMutatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
-class CollectionMutated implements SubstrateEvent
+class CollectionMutated extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof CollectionMutatedPolkadart) {
             return;
         }
+
+        ray($event);
 
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
@@ -33,6 +32,8 @@ class CollectionMutated implements SubstrateEvent
         $attributes = [];
         $royalties = [];
 
+
+        throw new \Exception('stop');
         if ($owner = $event->owner) {
             $attributes['owner_wallet_id'] = WalletService::firstOrStore(['account' => Account::parseAccount($owner)])->id;
         }

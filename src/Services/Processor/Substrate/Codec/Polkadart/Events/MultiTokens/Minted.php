@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
 
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class Minted implements PolkadartEvent
+class Minted extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $collectionId;
@@ -19,14 +21,15 @@ class Minted implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = Arr::get($data, 'event.MultiTokens.Minted.collection_id');
-        $self->tokenId = Arr::get($data, 'event.MultiTokens.Minted.token_id');
-        $self->issuer = Arr::get($data, 'event.MultiTokens.Minted.issuer.Signed');
-        $self->recipient = Arr::get($data, 'event.MultiTokens.Minted.recipient');
-        $self->amount = Arr::get($data, 'event.MultiTokens.Minted.amount');
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
+        $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
+        $self->issuer = Account::parseAccount($self->getValue($data, ['issuer.Signed', 'RootOrSigned<T::AccountId>.Signed']));
+        $self->recipient = Account::parseAccount($self->getValue($data, ['recipient', 'T::AccountId']));
+        $self->amount = $self->getValue($data, ['amount', 'T::TokenBalance']);
 
         return $self;
     }

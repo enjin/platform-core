@@ -197,7 +197,9 @@ class Decoder
     public function tokenStorageData(string $data): array
     {
         $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
+
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first()) ?? TokenMintCapType::INFINITE;
+        $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
         $isCurrency = Arr::exists(Arr::get($decoded, 'marketBehavior') ?: [], 'IsCurrency');
         $isFrozen = in_array(Arr::get($decoded, 'freezeState'), ['Permanent', 'Temporary']);
         $unitPrice = Arr::get($decoded, 'sufficiency.Insufficient');
@@ -205,7 +207,7 @@ class Decoder
         return [
             'supply' => gmp_strval(Arr::get($decoded, 'supply')),
             'cap' => $cap,
-            'capSupply' => ($supply = Arr::get($decoded, 'cap.Supply')) !== null ? gmp_strval($supply) : null,
+            'capSupply' => $capSupply !== null ? gmp_strval($capSupply) : null,
             'isFrozen' => $isFrozen,
             'royaltyBeneficiary' => ($beneficiary = Arr::get($decoded, 'marketBehavior.HasRoyalty.beneficiary')) !== null ? HexConverter::prefix($beneficiary) : null,
             'royaltyPercentage' => ($percentage = Arr::get($decoded, 'marketBehavior.HasRoyalty.percentage')) !== null ? $percentage / 10 ** 7 : null,

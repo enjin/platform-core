@@ -3,22 +3,21 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAccountCreated as CollectionAccountCreatedEvent;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionAccountCreated as CollectionAccountCreatedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
-class CollectionAccountCreated implements SubstrateEvent
+class CollectionAccountCreated extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    /**
+     * @throws PlatformException
+     */
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof CollectionAccountCreatedPolkadart) {
             return;
@@ -28,10 +27,12 @@ class CollectionAccountCreated implements SubstrateEvent
             return;
         }
 
+        // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
-        $account = WalletService::firstOrStore(['account' => $event->account]);
+        $account = $this->firstOrStoreAccount($event->account);
+
         $collectionAccount = CollectionAccount::create([
-            'wallet_id' => $account->id,
+            'wallet_id' => $account->id ?? null,
             'collection_id' => $collection->id,
             'is_frozen' => false,
             'account_count' => 0,
@@ -43,16 +44,14 @@ class CollectionAccountCreated implements SubstrateEvent
                 $collectionAccount->id,
                 $event->collectionId,
                 $collection->id,
-                $account->address,
+                $account->address ?? 'unknown',
             )
         );
-
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
 
         CollectionAccountCreatedEvent::safeBroadcast(
             $event->collectionId,
             $account,
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

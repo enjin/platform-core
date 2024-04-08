@@ -3,22 +3,20 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenMinted;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Minted as MintedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Traits;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Enjin\Platform\Support\Account;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
-class Minted implements SubstrateEvent
+class Minted extends SubstrateEvent
 {
-    use Traits\QueryDataOrFail;
-
+    /**
+     * @throws PlatformException
+     */
     public function run(PolkadartEvent $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof MintedPolkadart) {
@@ -29,12 +27,16 @@ class Minted implements SubstrateEvent
             return;
         }
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $recipient = WalletService::firstOrStore(['account' => Account::parseAccount($event->recipient)]);
+        // Fails if it doesn't find the collection
         $collection = $this->getCollection($event->collectionId);
+        // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $event->tokenId);
+
+        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
+        $recipient = $this->firstOrStoreAccount($event->recipient);
+
         $token->update([
-            'supply', $token->supply + $event->amount,
+            'supply', gmp_strval(gmp_add($token->supply, $event->amount)) ?? 0,
         ]);
 
         $tokenAccount = TokenAccount::firstWhere([
@@ -51,16 +53,16 @@ class Minted implements SubstrateEvent
             $collection->id,
             $event->tokenId,
             $token->id,
-            $recipient->address,
-            $recipient->id,
+            $recipient->address ?? 'unknown',
+            $recipient->id ?? 'unknown',
         ));
 
         TokenMinted::safeBroadcast(
             $token,
-            WalletService::firstOrStore(['account' => Account::parseAccount($event->issuer)]),
+            $this->firstOrStoreAccount($event->issuer),
             $recipient,
             $event->amount,
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $transaction,
         );
     }
 }

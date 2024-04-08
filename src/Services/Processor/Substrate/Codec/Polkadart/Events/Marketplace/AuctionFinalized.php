@@ -2,12 +2,15 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace;
 
+use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class AuctionFinalized implements PolkadartEvent
+class AuctionFinalized extends Event implements PolkadartEvent
 {
-    public readonly string $extrinsicIndex;
+    public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
@@ -19,14 +22,15 @@ class AuctionFinalized implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
+
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = Arr::get($data, 'event.Marketplace.AuctionFinalized.listing_id');
-        $self->winningBidder = Arr::get($data, 'event.Marketplace.AuctionFinalized.winning_bid.Some.bidder');
-        $self->price = Arr::get($data, 'event.Marketplace.AuctionFinalized.winning_bid.Some.price');
-        $self->protocolFee = Arr::get($data, 'event.Marketplace.AuctionFinalized.protocol_fee');
-        $self->royalty = Arr::get($data, 'event.Marketplace.AuctionFinalized.royalty');
+        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', '0'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
+        $self->winningBidder = Account::parseAccount($self->getValue($data, ['winning_bid.Some.bidder', '1.bidder']));
+        $self->price = $self->getValue($data, ['winning_bid.Some.price', '1.price']);
+        $self->protocolFee = $self->getValue($data, ['protocol_fee', '2']);
+        $self->royalty = $self->getValue($data, ['royalty', '3']);
 
         return $self;
     }
