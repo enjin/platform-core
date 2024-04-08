@@ -26,11 +26,11 @@ class EventProcessor
         $errors = [];
 
         foreach ($events as $event) {
-            //            try {
-            $this->processEvent($event);
-            //            } catch (Throwable $exception) {
-            //                $errors[] = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
-            //            }
+            try {
+                $this->processEvent($event);
+            } catch (Throwable $exception) {
+                $errors[] = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
+            }
         }
 
         return $errors;

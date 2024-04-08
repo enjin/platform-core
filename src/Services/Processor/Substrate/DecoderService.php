@@ -11,6 +11,7 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class DecoderService
 {
@@ -25,27 +26,27 @@ class DecoderService
 
     public function decode(string $type, string|array $bytes): ?array
     {
-        //        try {
-        $result = $this->client->getClient()->post($this->host, [
-            $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
-            'network' => config('enjin-platform.chains.network'),
-        ]);
+        try {
+            $result = $this->client->getClient()->post($this->host, [
+                $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
+                'network' => config('enjin-platform.chains.network'),
+            ]);
 
-        $data = $this->client->getResponse($result);
+            $data = $this->client->getResponse($result);
 
-        if (!$data) {
-            Log::critical('Container returned empty response');
+            if (!$data) {
+                Log::critical('Container returned empty response');
 
-            return null;
+                return null;
+            }
+
+            return $this->polkadartSerialize($type, $data);
+        } catch (Throwable $e) {
+            Log::critical('Error when trying to fetch from container: ' . $e->getMessage());
+            Log::critical($e->getTraceAsString());
         }
 
-        return $this->polkadartSerialize($type, $data);
-        //        } catch (Throwable $e) {
-        //            Log::critical('Error when trying to fetch from container: ' . $e->getMessage());
-        //            Log::critical($e->getTraceAsString());
-        //        }
-        //
-        //        return null;
+        return null;
     }
 
     protected function polkadartSerialize($type, $data): array

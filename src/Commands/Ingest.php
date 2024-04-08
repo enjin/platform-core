@@ -39,26 +39,23 @@ class Ingest extends Command
      */
     public function handle(Backoff $backoff, BlockProcessor $processor): int
     {
+        try {
+            $backoff->setStrategy(new PolynomialStrategy(300))
+                ->setMaxAttempts(10)
+                ->setErrorHandler(function (?Throwable $e, int $attempt) {
+                    Log::error('We got an exception in the ingest process...');
+                    if ($e) {
+                        Log::error("On run {$attempt} error in {$e->getFile()}:{$e->getLine()}: {$e->getMessage()}");
+                    }
+                })
+                ->run(fn () => $processor->ingest());
+        } catch (Throwable $e) {
+            Log::error('We got another exception in the ingest... Restarting the service.');
+            Log::error("Error in {$e->getFile()}:{$e->getLine()}: {$e->getMessage()}");
+        }
 
-        $processor->ingest();
-
-        //        try {
-        //            $backoff->setStrategy(new PolynomialStrategy(300))
-        //                ->setMaxAttempts(10)
-        //                ->setErrorHandler(function (?Throwable $e, int $attempt) {
-        //                    Log::error('We got an exception in the ingest process...');
-        //                    if ($e) {
-        //                        Log::error("On run {$attempt} error in {$e->getFile()}:{$e->getLine()}: {$e->getMessage()}");
-        //                    }
-        //                })
-        //                ->run(fn () => $processor->ingest());
-        //        } catch (Throwable $e) {
-        //            Log::error('We got another exception in the ingest... Restarting the service.');
-        //            Log::error("Error in {$e->getFile()}:{$e->getLine()}: {$e->getMessage()}");
-        //        }
-        //
-        //        // We will sleep for three minutes to avoid rate limits
-        //        sleep(180);
+        // We will sleep for three minutes to avoid rate limits
+        sleep(180);
 
         return self::FAILURE;
     }

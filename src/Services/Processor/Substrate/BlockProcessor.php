@@ -115,7 +115,7 @@ class BlockProcessor
                     $blockNumber = HexConverter::hexToUInt($heightHexed);
                     $blockHash = $this->getHashWhenBlockIsFinalized($blockNumber);
 
-                    $this->pauseWhenSynching();
+                    $this->pauseWhenSyncing();
 
                     $block = Block::updateOrCreate(
                         ['number' => $blockNumber],
@@ -170,58 +170,56 @@ class BlockProcessor
 
     public function process(Block $block): ?Block
     {
-        //        try {
-        $blockNumber = $block->number;
-        $syncTime = now();
+        try {
+            $blockNumber = $block->number;
+            $syncTime = now();
 
-        if ($block->synced) {
-            $this->info("Block #{$blockNumber} already processed, skipping");
+            if ($block->synced) {
+                $this->info("Block #{$blockNumber} already processed, skipping");
 
-            return $block;
+                return $block;
+            }
+
+            $this->info("Processing block #{$blockNumber} ({$block->hash})");
+
+            $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
+            $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
+            if ($hasEventErrors || $hasExtrinsicErrors) {
+                $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
+
+                throw new Exception($errors);
+            }
+
+            $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
+            $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", now()->diffInMilliseconds($syncTime) / 1000));
+        } catch (Throwable $exception) {
+            $this->error("Failed processing block #{$blockNumber}");
+            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
         }
-
-        $this->info("Processing block #{$blockNumber} ({$block->hash})");
-
-        $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
-        $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
-        if ($hasEventErrors || $hasExtrinsicErrors) {
-            $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
-
-            throw new Exception($errors);
-        }
-
-        $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
-        $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", now()->diffInMilliseconds($syncTime) / 1000));
-        //        } catch (Throwable $exception) {
-        //            $this->error("Failed processing block #{$blockNumber}");
-        //            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
-        //        }
-        //
-        //        return $block;
 
         return $block;
     }
 
     /**
-     * Check if synching is in progress.
+     * Check if syncing is in progress.
      */
-    public static function isSynching(): bool
+    public static function isSyncing(): bool
     {
         return (bool) Cache::get(PlatformCache::SYNCING_IN_PROGRESS->key());
     }
 
     /**
-     * Set flag to indicate synching is in progress.
+     * Set flag to indicate syncing is in progress.
      */
-    public static function synching(): void
+    public static function syncing(): void
     {
         Cache::put(PlatformCache::SYNCING_IN_PROGRESS->key(), true);
     }
 
     /**
-     * Remove flag to indicate synching is done.
+     * Remove flag to indicate syncing is done.
      */
-    public static function synchingDone(): void
+    public static function syncingDone(): void
     {
         Cache::forget(PlatformCache::SYNCING_IN_PROGRESS->key());
     }
@@ -242,7 +240,7 @@ class BlockProcessor
     protected function fetchPreviousBlockHeads(int $blockNumber, int $blockLimit): void
     {
         while ($blockNumber <= $blockLimit) {
-            $this->pauseWhenSynching();
+            $this->pauseWhenSyncing();
 
             $syncTime = now();
             $block = Block::updateOrCreate(
@@ -308,12 +306,12 @@ class BlockProcessor
     /**
      * Pause the ingest process when the sync is running.
      */
-    protected function pauseWhenSynching(): void
+    protected function pauseWhenSyncing(): void
     {
-        if (static::isSynching()) {
+        if (static::isSyncing()) {
             $this->info('Pausing ingest, waiting for sync to complete...');
             $counter = 1;
-            while (static::isSynching()) {
+            while (static::isSyncing()) {
                 sleep(static::SYNC_WAIT_DELAY);
                 if ($counter * static::SYNC_WAIT_DELAY >= config('enjin-platform.sync_max_wait_timeout')) {
                     $this->warn('Sync has taken too long, forcing to restart ingest...');
@@ -324,7 +322,7 @@ class BlockProcessor
                     });
                     if ($result->successful() && empty($result->output())) {
                         $this->warn('Sync is not running, updating flag to false...');
-                        static::synchingDone();
+                        static::syncingDone();
                     }
 
                     break;

@@ -17,13 +17,13 @@ class Processor
 
     public function withMetadata(string $type, string|array $bytes, int $blockNumber): null|array|PolkadartExtrinsic
     {
-        //        try {
-        return $this->decoder->decode($type, $bytes);
-        //        } catch (Throwable $e) {
-        //            Log::error('Failed to process ' . $type . ' on block #' . $blockNumber . ': ' . $bytes);
-        //            Log::error("The reason was: {$e->getMessage()}");
-        //        }
-        //
-        //        return null;
+        try {
+            return $this->decoder->decode($type, $bytes);
+        } catch (Throwable $e) {
+            Log::error('Failed to process ' . $type . ' on block #' . $blockNumber . ': ' . $bytes);
+            Log::error("The reason was: {$e->getMessage()}");
+        }
+
+        return null;
     }
 }
