@@ -178,6 +178,17 @@ class Token extends BaseModel
         );
     }
 
+    protected function modelOwner(): Attribute
+    {
+        if (!$collection = $this->collection) {
+            throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
+        }
+
+        return Attribute::make(
+            get: fn () => $this->collection->owner_wallet_id,
+        );
+    }
+
     private function fetchUriAttribute($model)
     {
         return $model->load('attributes')->getRelation('attributes')

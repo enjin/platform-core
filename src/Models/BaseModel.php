@@ -13,4 +13,11 @@ abstract class BaseModel extends Model
             get: fn () => '',
         );
     }
+
+    protected function modelOwner(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->owner_wallet_id,
+        );
+    }
 }
