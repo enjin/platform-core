@@ -14,7 +14,7 @@ abstract class BaseModel extends Model
         );
     }
 
-    protected function modelOwner(): Attribute
+    protected function ownerId(): Attribute
     {
         return Attribute::make(
             get: fn () => $this->owner_wallet_id,

@@ -178,9 +178,9 @@ class Token extends BaseModel
         );
     }
 
-    protected function modelOwner(): Attribute
+    protected function ownerId(): Attribute
     {
-        if (!$collection = $this->collection) {
+        if (!$this->collection) {
             throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
         }
 
