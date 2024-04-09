@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Queries;
 
 use Closure;
+use Enjin\Platform\Enums\Global\FilterType;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
@@ -46,6 +47,11 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
     public function args(): array
     {
         return ConnectionInput::args([
+            'channelFilters' => [
+                'type' => GraphQL::type('[StringFilter!]'),
+                'description' => __('enjin-platform::query.get_pending_events.args.channelFilter'),
+                'defaultValue' => [],
+            ],
             'acknowledgeEvents' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::query.get_pending_events.args.acknowledgeEvents'),
@@ -59,17 +65,30 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        $events = PendingEvent::loadSelectFields($resolveInfo, $this->name)
-            ->cursorPaginateWithTotal('id', $args['first']);
+        $events = PendingEvent::loadSelectFields($resolveInfo, $this->name);
+        $filteredEvents = $events->when($args['channelFilters'] ?? false, function ($query) use ($args) {
+            $query->where(function ($query) use ($args) {
+                $orFilters = collect($args['channelFilters'])->where('type', FilterType::OR->value)->all();
+                $andFilters = collect($args['channelFilters'])->where('type', FilterType::AND->value)->all();
+
+                foreach ($andFilters as $filter) {
+                    $query->whereJsonContains('channels', $filter['filter']);
+                }
+
+                if (count($orFilters) > 0) {
+                    $query->where(function ($query) use ($orFilters) {
+                        foreach ($orFilters as $filter) {
+                            $query->orWhereJsonContains('channels', $filter['filter']);
+                        }
+                    });
+                }
+            });
+        })->cursorPaginateWithTotal('id', $args['first']);
 
         if ($args['acknowledgeEvents'] === true) {
-            $eventsToClean = $events['items']->getCollection()->pluck('id')->toArray();
-            PendingEvent::query()
-                ->whereIn('id', $eventsToClean)
-                ->get()
-                ->each(fn ($pendingEvent) => $pendingEvent->delete());
+            $filteredEvents['items']->getCollection()->each->delete();
         }
 
-        return $events;
+        return $filteredEvents;
     }
 }
