@@ -185,7 +185,7 @@ class Token extends BaseModel
         }
 
         return Attribute::make(
-            get: fn () => $this->collection->owner_wallet_id,
+            get: fn () => $this->loadMissing('collection')->collection?->owner_wallet_id,
         );
     }
 
