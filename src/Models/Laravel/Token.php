@@ -180,7 +180,7 @@ class Token extends BaseModel
 
     protected function ownerId(): Attribute
     {
-        if (!$this->collection) {
+        if (!$this->loadMissing('collection')->collection) {
             throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
         }
 
