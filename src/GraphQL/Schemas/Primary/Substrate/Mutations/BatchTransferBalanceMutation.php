@@ -140,6 +140,14 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
     }
 
     /**
+     * Get the serialization service method name.
+     */
+    public function getMethodName(): string
+    {
+        return 'Batch';
+    }
+
+    /**
      * Get the common rules.
      */
     protected function rulesCommon(array $args): array
