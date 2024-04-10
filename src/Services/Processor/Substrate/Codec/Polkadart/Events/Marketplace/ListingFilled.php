@@ -27,7 +27,7 @@ class ListingFilled extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', '0'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', '0'])) ? $value : HexConverter::bytesToHex($value));
         $self->buyer = Account::parseAccount($self->getValue($data, ['buyer', '1']));
         $self->amountFilled = $self->getValue($data, ['amount_filled', '2']);
         $self->amountRemaining = $self->getValue($data, ['amount_remaining', '3']);
