@@ -23,7 +23,7 @@ class ListingCreated extends Event implements PolkadartEvent
     public readonly string $feeSide;
     public readonly int $creationBlock;
     public readonly string $deposit;
-    public readonly array $salt;
+    public readonly string $salt;
     public readonly ?array $data;
     public readonly array $state;
 
@@ -34,7 +34,7 @@ class ListingCreated extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? HexConverter::prefix($value) : HexConverter::bytesToHex($value);
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
         $self->seller = Account::parseAccount($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller']));
         $self->makeAssetId = $self->getValue($data, ['listing.make_asset_id', 'ListingOf<T>.make_asset_id']);
         $self->takeAssetId = $self->getValue($data, ['listing.take_asset_id', 'ListingOf<T>.take_asset_id']);
@@ -44,7 +44,7 @@ class ListingCreated extends Event implements PolkadartEvent
         $self->feeSide = $self->getValue($data, ['listing.fee_side', 'ListingOf<T>.fee_side']);
         $self->creationBlock = $self->getValue($data, ['listing.creation_block', 'ListingOf<T>.creation_block']);
         $self->deposit = $self->getValue($data, ['listing.deposit', 'ListingOf<T>.deposit']);
-        $self->salt = $self->getValue($data, ['listing.salt', 'ListingOf<T>.salt']);
+        $self->salt = HexConverter::bytesToHexPrefixed($self->getValue($data, ['listing.salt', 'ListingOf<T>.salt']));
         $self->data = $self->getValue($data, ['listing.data', 'ListingOf<T>.data']);
         $self->state = $self->getValue($data, ['listing.state', 'ListingOf<T>.state']);
 
