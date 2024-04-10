@@ -25,8 +25,8 @@ class FuelTankCreated extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->owner = Account::parseAccount($self->getValue($data, ['owner', '0']));
-        $self->tankId = is_string($value = $self->getValue($data, ['tank_id', '1'])) ? $value : HexConverter::bytesToHex($value);
-        $self->tankName = is_string($value = $self->getValue($data, ['name', '2'])) ? $value : HexConverter::bytesToHex($value);
+        $self->tankName = HexConverter::prefix(is_string($value = $self->getValue($data, ['name', '1'])) ? $value : HexConverter::bytesToHex($value));
+        $self->tankId = HexConverter::prefix(is_string($value = $self->getValue($data, ['tank_id', '2'])) ? $value : HexConverter::bytesToHex($value));
 
         return $self;
     }
