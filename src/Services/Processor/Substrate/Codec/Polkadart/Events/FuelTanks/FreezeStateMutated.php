@@ -14,7 +14,7 @@ class FreezeStateMutated extends Event implements PolkadartEvent
     public readonly string $name;
     public readonly string $tankId;
     public readonly ?int $ruleSetId;
-    public readonly string $isFrozen;
+    public readonly bool $isFrozen;
 
     public static function fromChain(array $data): self
     {
@@ -25,7 +25,7 @@ class FreezeStateMutated extends Event implements PolkadartEvent
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', 'T::AccountId']));
         $self->ruleSetId = $self->getValue($data, ['rule_set_id.Some', 'Option<T::RuleSetId>']);
-        $self->isFrozen = $self->getValue($data, ['is_frozen', 'bool']);
+        $self->isFrozen = $self->getValue($data, ['is_frozen', 'bool']) ?? false;
 
         return $self;
     }
