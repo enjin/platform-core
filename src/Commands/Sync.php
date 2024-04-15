@@ -175,6 +175,9 @@ class Sync extends Command
                     $context->send($keyAndHash);
                     [$storage, $total] = $context->join();
 
+                    $this->newLine();
+                    $this->info('Finished to fetch: ' . $storageKey->type->name . ' storage');
+
                     $progress->advance();
 
                     return [$storageKey, $storage, $total];

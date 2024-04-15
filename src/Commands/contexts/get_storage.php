@@ -21,15 +21,19 @@ return function (Channel $channel): array {
     $asyncQueries = [];
 
     while (true) {
-        $keys = $rpcKey->send(
-            'state_getKeysPaged',
-            [
-                $storageKey->value,
-                1000,
-                $startKey ?? null,
-                $blockHash,
-            ]
-        );
+        try {
+            $keys = $rpcKey->send(
+                'state_getKeysPaged',
+                [
+                    $storageKey->value,
+                    1000,
+                    $startKey ?? null,
+                    $blockHash,
+                ]
+            );
+        } catch (Throwable) {
+            continue;
+        }
 
         if (empty($keys)) {
             break;
