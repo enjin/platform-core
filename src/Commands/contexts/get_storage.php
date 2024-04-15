@@ -22,7 +22,6 @@ return function (Channel $channel): array {
 
     while (true) {
         try {
-
             $keys = $rpcKey->send(
                 'state_getKeysPaged',
                 [
@@ -35,7 +34,6 @@ return function (Channel $channel): array {
         } catch (Throwable) {
             continue;
         }
-
 
         if (empty($keys)) {
             break;
