@@ -64,10 +64,10 @@ class TokenCreated extends SubstrateEvent
         // This is used for TokenCreated events generated on matrixUtility.batch or utility.batch extrinsics
         if (($calls = Arr::get($params, 'calls')) !== null) {
             $calls = collect($calls)->filter(
-                fn ($call) => Arr::get($call, 'MultiTokens.mint') !== null
+                fn ($call) => Arr::get($call, 'MultiTokens.mint') !== null || Arr::get($call, 'MultiTokens.force_mint') !== null
             )->values();
 
-            $params = Arr::get($calls, "{$count}.MultiTokens.mint");
+            $params = Arr::get($calls, "{$count}.MultiTokens.mint") ?? Arr::get($calls, "{$count}.MultiTokens.force_mint");
         }
 
         // This gets the correct recipient from multiTokens.batch_mint
@@ -76,7 +76,7 @@ class TokenCreated extends SubstrateEvent
             $params = collect($recipients)->firstWhere('params.CreateToken.token_id', $event->tokenId);
         }
 
-        $createToken = Arr::get($params, 'params.CreateToken');
+        $createToken = Arr::get($params, 'params.CreateToken') ?? Arr::get($params, 'params.CreateOrMint');
         $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint' || Arr::has($createToken, 'cap.SingleMint');
         $capSupply = $this->getValue($createToken, ['cap.Some.Supply', 'cap.Supply']);
         $collapsingSupply = $this->getValue($createToken, ['cap.Some.CollapsingSupply', 'cap.CollapsingSupply']);
