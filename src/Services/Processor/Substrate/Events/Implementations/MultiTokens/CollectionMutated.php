@@ -5,42 +5,36 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionMutated as CollectionMutatedEvent;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\CollectionRoyaltyCurrency;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionMutated as CollectionMutatedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Enjin\Platform\Support\Account;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Facades\Log;
 
 class CollectionMutated extends SubstrateEvent
 {
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
         if (!$event instanceof CollectionMutatedPolkadart) {
             return;
         }
 
-        ray($event);
-
         if (!$this->shouldIndexCollection($event->collectionId)) {
             return;
         }
 
+        // Fails if collection is not found
         $collection = $this->getCollection($event->collectionId);
         $attributes = [];
         $royalties = [];
 
-
-        throw new \Exception('stop');
         if ($owner = $event->owner) {
-            $attributes['owner_wallet_id'] = WalletService::firstOrStore(['account' => Account::parseAccount($owner)])->id;
+            $attributes['owner_wallet_id'] = $this->firstOrStoreAccount($owner)->id;
         }
 
         if ($event->royalty === 'SomeMutation') {
             if ($beneficiary = $event->beneficiary) {
-                $attributes['royalty_wallet_id'] = WalletService::firstOrStore(['account' => Account::parseAccount($beneficiary)])->id;
+                $attributes['royalty_wallet_id'] = $this->firstOrStoreAccount($beneficiary)->id;
                 $attributes['royalty_percentage'] = number_format($event->percentage / 1000000000, 9);
             } else {
                 $attributes['royalty_wallet_id'] = null;
@@ -61,14 +55,13 @@ class CollectionMutated extends SubstrateEvent
         }
 
         $collection->fill($attributes)->save();
-        Log::info("Collection #{$event->collectionId} (id {$collection->id}) was updated.");
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
+        Log::info("Collection #{$event->collectionId} (id {$collection->id}) was updated.");
 
         CollectionMutatedEvent::safeBroadcast(
             $collection,
             $event->getParams(),
-            Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash])
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }
