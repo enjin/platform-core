@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Events\Substrate\MultiTokens;
 
 use Enjin\Platform\Channels\PlatformAppChannel;
+use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +23,7 @@ class TokenReserved extends PlatformBroadcastEvent
             'tokenId' => $token->token_chain_id,
             'wallet' => $wallet->address,
             'amount' => $event->amount,
-            'reserveId' => $event->reserveId,
+            'reserveId' => PalletIdentifier::from($event->reserveId)->name,
         ];
 
         $this->broadcastChannels = [
