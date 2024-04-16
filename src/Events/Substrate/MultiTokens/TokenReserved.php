@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Events\Substrate\MultiTokens;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
@@ -23,7 +22,7 @@ class TokenReserved extends PlatformBroadcastEvent
             'tokenId' => $token->token_chain_id,
             'wallet' => $wallet->address,
             'amount' => $event->amount,
-            'reserveId' => HexConverter::hexToString($event->reserveId),
+            'reserveId' => $event->reserveId,
         ];
 
         $this->broadcastChannels = [
