@@ -33,7 +33,6 @@ class CollectionMutated extends SubstrateEvent
         }
 
         if ($event->royalty === 'SomeMutation') {
-            throw new \Exception('Royalty mutation not implemented.');
             if ($beneficiary = $event->beneficiary) {
                 $attributes['royalty_wallet_id'] = $this->firstOrStoreAccount($beneficiary)->id;
                 $attributes['royalty_percentage'] = number_format($event->percentage / 1000000000, 9);
