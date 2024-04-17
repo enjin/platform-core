@@ -10,6 +10,7 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionCreated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionDestroyed;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionMutated;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionTransferred;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Freeze;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Minted;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Reserved;
@@ -32,6 +33,8 @@ enum MultiTokensEventType: string
 
     case COLLECTION_CREATED = 'CollectionCreated';
     case COLLECTION_DESTROYED = 'CollectionDestroyed';
+    case COLLECTION_MUTATED = 'CollectionMutated';
+    case COLLECTION_TRANSFERRED = 'CollectionTransferred';
     case COLLECTION_ACCOUNT_CREATED = 'CollectionAccountCreated';
     case COLLECTION_ACCOUNT_DESTROYED = 'CollectionAccountDestroyed';
     case TOKEN_CREATED = 'TokenCreated';
@@ -48,7 +51,6 @@ enum MultiTokensEventType: string
     case APPROVED = 'Approved';
     case UNAPPROVED = 'Unapproved';
     case TOKEN_MUTATED = 'TokenMutated';
-    case COLLECTION_MUTATED = 'CollectionMutated';
 
     case RESERVED = 'Reserved';
 
@@ -62,6 +64,8 @@ enum MultiTokensEventType: string
         return match ($this) {
             self::COLLECTION_CREATED => new CollectionCreated(),
             self::COLLECTION_DESTROYED => new CollectionDestroyed(),
+            self::COLLECTION_MUTATED => new CollectionMutated(),
+            self::COLLECTION_TRANSFERRED => new CollectionTransferred(),
             self::COLLECTION_ACCOUNT_CREATED => new CollectionAccountCreated(),
             self::COLLECTION_ACCOUNT_DESTROYED => new CollectionAccountDestroyed(),
             self::TOKEN_CREATED => new TokenCreated(),
@@ -78,7 +82,6 @@ enum MultiTokensEventType: string
             self::APPROVED => new Approved(),
             self::UNAPPROVED => new Unapproved(),
             self::TOKEN_MUTATED => new TokenMutated(),
-            self::COLLECTION_MUTATED => new CollectionMutated(),
             self::RESERVED => new Reserved(),
             self::UNRESERVED => new Unreserved(),
         };
