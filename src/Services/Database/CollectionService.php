@@ -44,6 +44,17 @@ class CollectionService
     }
 
     /**
+     * Update ot insert a collection.
+     */
+    public function updateOrInsert(array $data, array $keys): bool
+    {
+        return Collection::updateOrInsert(
+            $keys,
+            $data
+        );
+    }
+
+    /**
      * Check if the attribute key exists in the collection.
      */
     public function attributeExistsInCollection(string $collectionId, string $key): bool

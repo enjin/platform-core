@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events;
 
+use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Block;
@@ -11,6 +12,7 @@ use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\Laravel\TokenAccount;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Laravel\Wallet;
+use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Support\SS58Address;
@@ -142,19 +144,24 @@ abstract class SubstrateEvent
         return $wallet;
     }
 
-    protected function shouldIndexCollection(?string $collectionId): bool
+    protected function shouldSyncCollection(?string $collectionId): bool
     {
         if (!$collectionId) {
             return false;
         }
 
-        return $this->shouldIndex('collections', $collectionId);
+        return $this->shouldSync(ModelType::COLLECTION->value, $collectionId);
     }
 
-    protected function shouldIndex(string $filter, string $value): bool
+    protected function shouldSync(string $model, string $value): bool
     {
-        $indexFilters = collect(config("enjin-platform.indexing.filters.{$filter}", []));
+        if (config('enjin-platform.sync.all')) {
+            return true;
+        }
 
-        return $indexFilters->isEmpty() || $indexFilters->contains($value);
+        return Syncable::query()
+            ->where('syncable_type', $model)
+            ->where('syncable_id', $value)
+            ->exists();
     }
 }

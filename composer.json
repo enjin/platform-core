@@ -86,6 +86,7 @@
   "scripts": {
     "build-sr25519": "cd vendor/gmajor/sr25519-bindings/go && go build -buildmode=c-shared -o sr25519.so . && mv sr25519.so ../src/Crypto/sr25519.so",
     "analyse": "vendor/bin/phpstan analyse",
+    "fix": "vendor/bin/pint",
     "test": "vendor/bin/phpunit",
     "test-coverage": "vendor/bin/phpunit --coverage-html ../../temp/coverage",
     "post-autoload-dump": [

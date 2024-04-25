@@ -187,16 +187,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The indexing IDs
+    | The sync settings
     |--------------------------------------------------------------------------
     |
-    | Here you may set the collection chain IDs for the indexer.
+    | Here you can set whether to sync everything from the blockchain.
     |
     */
-    'indexing' => [
-        'filters' => [
-            'collections' => array_filter(explode(',', env('INDEX_COLLECTIONS', ''))),
-        ],
+    'sync' => [
+        'all' => env('SYNC_ALL', false),
     ],
 
     /*

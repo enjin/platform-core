@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'add_to_tracked.description' => 'Add on-chain data to track.  Use this to limit which collections and tokens are synced and tracked on the platform.  If existing data exists on chain it will be imported.',
+    'add_to_tracked.args.model_type' => 'The model type, e.g. COLLECTION',
+    'add_to_tracked.args.chain_ids' => 'The on-chain model IDs to track, e.g. the collection IDs.',
+    'removed_from_tracked.description' => 'Remove on-chain data from being tracked.  Use this to remove collections and tokens from being track on the platform.  Already synced data will remain on the platform until synced again, but will not receive further updates from on-chain events.',
     'args.skipValidation' => 'Skip all validation rules, use with caution. Defaults to false.',
     'args.signingAccount' => 'The signing wallet for this transaction. Defaults to wallet daemon.',
     'acknowledge_events.args.uuids' => 'The event UUIDs to acknowledge.',

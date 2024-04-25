@@ -8,12 +8,14 @@ use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Commands\contexts\Truncate;
+use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
 use Exception;
 use Illuminate\Console\Command;
@@ -193,7 +195,11 @@ class Sync extends Command
 
     protected function getKeys(): array
     {
-        $collectionFilter = config('enjin-platform.indexing.filters.collections');
+        $collectionFilter = Syncable::query()
+            ->where('syncable_type', ModelType::COLLECTION)
+            ->pluck('syncable_id')
+            ->toArray();
+
         if (empty($collectionFilter)) {
             return [
                 StorageKey::collections(),
