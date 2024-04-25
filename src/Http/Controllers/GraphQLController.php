@@ -35,6 +35,10 @@ class GraphQLController extends GraphQLGraphQLController
             return $this->translateVendorTexts($response);
         }
 
+        if (Arr::has($response->original, 'errors')) {
+            $response->setStatusCode(400);
+        }
+
         return $response;
     }
 
