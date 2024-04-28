@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Providers\Deferred;
 
+use Enjin\Platform\Enums\Global\ChainType;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Contracts\Support\DeferrableProvider;
@@ -15,10 +16,10 @@ class SerializationServiceProvider extends ServiceProvider implements Deferrable
     public function register()
     {
         $map = [
-            'substrate' => Substrate::class,
+            ChainType::SUBSTRATE->value => Substrate::class,
         ];
 
-        $driverKey = config('enjin-platform.chains.selected');
+        $driverKey = chain()->value;
         $driverClass = $map[$driverKey];
         $this->app->singleton(
             SerializationServiceInterface::class,

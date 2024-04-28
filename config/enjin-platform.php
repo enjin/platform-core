@@ -1,5 +1,9 @@
 <?php
 
+use Enjin\Platform\Enums\Global\ChainType;
+use Enjin\Platform\Enums\Global\NetworkType;
+use Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter;
+
 // config for Platform/Core
 
 return [
@@ -90,7 +94,7 @@ return [
     'chains' => [
         'supported' => [
             'substrate' => [
-                'enjin' => [
+                NetworkType::ENJIN_MATRIX->value => [
                     'chain-id' => 0,
                     'network-id' => 2000,
                     'testnet' => false,
@@ -101,7 +105,7 @@ return [
                     'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1005),
                     'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 7),
                 ],
-                'canary' => [
+                NetworkType::CANARY_MATRIX->value => [
                     'chain-id' => 0,
                     'network-id' => 2010,
                     'testnet' => true,
@@ -112,7 +116,7 @@ return [
                     'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1006),
                     'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 7),
                 ],
-                'local' => [
+                NetworkType::LOCAL_MATRIX->value => [
                     'chain-id' => 0,
                     'network-id' => 104,
                     'testnet' => true,
@@ -123,12 +127,21 @@ return [
                     'spec-version' => env('SUBSTRATE_LOCAL_SPEC_VERSION', 1003),
                     'transaction-version' => env('SUBSTRATE_LOCAL_TRANSACTION_VERSION', 5),
                 ],
+                NetworkType::ENJIN_RELAY->value => [
+
+                ],
+                NetworkType::CANARY_RELAY->value => [
+
+                ],
+                NetworkType::LOCAL_RELAY->value => [
+
+                ],
             ],
         ],
 
-        'selected' => env('CHAIN', 'substrate'),
+        'selected' => env('CHAIN', ChainType::SUBSTRATE->value),
 
-        'network' => env('NETWORK', 'enjin'),
+        'network' => env('NETWORK', NetworkType::ENJIN_MATRIX->value),
 
         'daemon-account' => env('DAEMON_ACCOUNT') ?: '0x0000000000000000000000000000000000000000000000000000000000000000',
     ],
@@ -189,7 +202,7 @@ return [
     |
     */
     'qr' => [
-        'adapter' => Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter::class,
+        'adapter' => PlatformQrAdapter::class,
         'size' => env('QR_CODE_SIZE', 512),
         'format' => env('QR_CODE_FORMAT', 'png'),
     ],

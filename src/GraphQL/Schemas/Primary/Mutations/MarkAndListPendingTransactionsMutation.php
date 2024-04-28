@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
+use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
@@ -56,6 +57,10 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                 'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform::mutation.mark_and_list_pending_transactions.args.accounts'),
             ],
+            'network' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::mutation.mark_and_list_pending_transactions.args.network'),
+            ],
             'markAsProcessing' => [
                 'type' => GraphQL::type('Boolean'),
                 'defaultValue' => true,
@@ -70,6 +75,19 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     {
         $transactions = Transaction::loadSelectFields($resolveInfo, $this->name)
             ->where('state', '=', TransactionState::PENDING->name)
+            ->when(
+                $args['network'] ?? false,
+                function (Builder $query) use ($args) {
+                    $isRelay = $args['network'] === 'relay';
+                    if ($isRelay) {
+                        $network = mainnet() ? NetworkType::ENJIN_RELAY : NetworkType::CANARY_RELAY;
+
+                        return $query->where('network', '=', $network->name);
+                    }
+
+                    return $query->where('network', '=', network()->name);
+                },
+            )
             ->when(
                 $args['accounts'] ?? false,
                 function (Builder $query) use ($args) {

@@ -337,7 +337,7 @@ class Encoder
         }
 
         return Cache::rememberForever(
-            PlatformCache::CALL_INDEXES->key(config('enjin-platform.chains.selected') . config('enjin-platform.chains.network')),
+            PlatformCache::CALL_INDEXES->key(chain()->value . network()->value),
             function () use ($metadata) {
                 $decode = $this->scaleInstance->process('metadata', new ScaleBytes($metadata));
                 $callIndexes = collect(Arr::get($decode, 'metadata.call_index'))->mapWithKeys(

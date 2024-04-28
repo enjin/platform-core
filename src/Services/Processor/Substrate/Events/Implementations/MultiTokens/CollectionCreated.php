@@ -88,7 +88,7 @@ class CollectionCreated extends SubstrateEvent
             'token_count' => '0',
             'attribute_count' => '0',
             'total_deposit' => '25000000000000000000',
-            'network' => network(),
+            'network' => network()->name,
         ]);
 
         $this->collectionRoyaltyCurrencies($collection->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));

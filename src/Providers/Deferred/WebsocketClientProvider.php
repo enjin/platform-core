@@ -15,10 +15,10 @@ class WebsocketClientProvider extends ServiceProvider implements DeferrableProvi
     public function register()
     {
         $map = [
-            'substrate' => SubstrateWebsocket::class,
+            chain()->value => SubstrateWebsocket::class,
         ];
 
-        $driverKey = config('enjin-platform.chains.selected');
+        $driverKey = chain()->value;
         $driverClass = $map[$driverKey];
         $this->app->singleton(
             WebsocketAbstract::class,

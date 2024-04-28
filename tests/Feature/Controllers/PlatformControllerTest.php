@@ -24,8 +24,8 @@ class PlatformControllerTest extends TestCaseGraphQL
             [
                 'root' => 'enjin/platform-core',
                 'url' => trim(config('app.url'), '/'),
-                'chain' => config('enjin-platform.chains.selected'),
-                'network' => config('enjin-platform.chains.network'),
+                'chain' => chain()->value,
+                'network' => network()->value,
                 'packages' => PlatformController::getPlatformPackages(),
                 'release-diff' => [],
                 'next-release' => [],

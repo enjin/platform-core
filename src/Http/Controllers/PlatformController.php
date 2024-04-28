@@ -55,8 +55,8 @@ class PlatformController extends Controller
         $platformData = [
             'root' => 'enjin/platform-core',
             'url' => trim(config('app.url'), '/'),
-            'chain' => config('enjin-platform.chains.selected'),
-            'network' => config('enjin-platform.chains.network'),
+            'chain' => chain()->value,
+            'network' => network()->value, // TODO: Might need to use the old values
             'packages' => static::getPlatformPackages(),
             'release-diff' => static::getReleaseDiffData(true),
             'next-release' => static::getReleaseDiffData(),

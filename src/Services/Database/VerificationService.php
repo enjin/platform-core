@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class VerificationService
 {
+    protected WalletService $walletService;
+
+    protected BlockchainServiceInterface $blockchainService;
     private string $alphanumerics = 'ABCDEFGHJKLMNPQRTUVWXYZ0123456789';
     private string $letters = 'ABCDEFGHJKLMNPQRTUVWXYZ';
     private ?string $network;
@@ -23,15 +26,11 @@ class VerificationService
      * Create a new instance.
      */
     public function __construct(
-        protected WalletService $walletService,
-        protected BlockchainServiceInterface $blockchainService
+        WalletService $walletService,
+        BlockchainServiceInterface $blockchainService
     ) {
-        $chain = config('enjin-platform.chains.selected');
-        $network = config('enjin-platform.chains.network');
-
-        $this->network = config("enjin-platform.chains.supported.{$chain}.{$network}.network-id");
-        $this->platform = config("enjin-platform.chains.supported.{$chain}.{$network}.platform-id");
-
+        $this->network = networkConfig('network-id');
+        $this->platform = networkConfig('platform-id');
         $this->walletService = $walletService;
         $this->blockchainService = $blockchainService;
     }

@@ -62,7 +62,7 @@ class Sync extends Command
         parent::__construct();
 
         $this->description = __('enjin-platform::commands.sync.description');
-        $this->nodeUrl = config(sprintf('enjin-platform.chains.supported.substrate.%s.node', config('enjin-platform.chains.network')));
+        $this->nodeUrl = networkConfig('node');
         $this->start = now();
     }
 

@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Providers\Deferred;
 
+use Enjin\Platform\Enums\Global\ChainType;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Illuminate\Contracts\Support\DeferrableProvider;
@@ -15,10 +16,10 @@ class BlockchainServiceProvider extends ServiceProvider implements DeferrablePro
     public function register()
     {
         $map = [
-            'substrate' => Substrate::class,
+            ChainType::SUBSTRATE->value => Substrate::class,
         ];
 
-        $driverKey = config('enjin-platform.chains.selected');
+        $driverKey = chain()->value;
         $driverClass = $map[$driverKey];
         $this->app->singleton(
             BlockchainServiceInterface::class,
