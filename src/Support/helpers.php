@@ -13,15 +13,56 @@ if (!function_exists('network')) {
     }
 }
 
-if (!function_exists('mainnet')) {
+if (!function_exists('isMainnet')) {
     /**
      * Check if the network is mainnet.
      */
-    function mainnet(): bool
+    function isMainnet(): bool
     {
         return match (network()) {
             NetworkType::ENJIN_MATRIX, NetworkType::ENJIN_RELAY => true,
             default => false,
+        };
+    }
+}
+
+if (!function_exists('isTestnet')) {
+    /**
+     * Check if the network is testnet.
+     */
+    function isTestnet(): bool
+    {
+        return match (network()) {
+            NetworkType::ENJIN_MATRIX, NetworkType::ENJIN_RELAY => false,
+            default => true,
+        };
+    }
+}
+
+if (!function_exists('currentRelay')) {
+    /**
+     * Get the equivalent relaychain for the current used network.
+     */
+    function currentRelay(): NetworkType
+    {
+        return match (network()) {
+            NetworkType::ENJIN_MATRIX, NetworkType::ENJIN_RELAY => NetworkType::ENJIN_RELAY,
+            NetworkType::CANARY_MATRIX, NetworkType::CANARY_RELAY => NetworkType::CANARY_RELAY,
+            NetworkType::LOCAL_MATRIX, NetworkType::LOCAL_RELAY => NetworkType::LOCAL_RELAY,
+        };
+    }
+}
+
+if (!function_exists('currentMatrix')) {
+    /**
+     * Get the equivalent matrixchain for the current used network.
+     */
+    function currentMatrix(): NetworkType
+    {
+        return match (network()) {
+            NetworkType::ENJIN_MATRIX, NetworkType::ENJIN_RELAY => NetworkType::ENJIN_MATRIX,
+            NetworkType::CANARY_MATRIX, NetworkType::CANARY_RELAY => NetworkType::CANARY_MATRIX,
+            NetworkType::LOCAL_MATRIX, NetworkType::LOCAL_RELAY => NetworkType::LOCAL_MATRIX,
         };
     }
 }

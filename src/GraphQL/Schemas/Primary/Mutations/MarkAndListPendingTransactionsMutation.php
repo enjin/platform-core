@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
-use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
@@ -78,14 +77,11 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
             ->when(
                 $args['network'] ?? false,
                 function (Builder $query) use ($args) {
-                    $isRelay = $args['network'] === 'relay';
-                    if ($isRelay) {
-                        $network = mainnet() ? NetworkType::ENJIN_RELAY : NetworkType::CANARY_RELAY;
-
-                        return $query->where('network', '=', $network->name);
-                    }
-
-                    return $query->where('network', '=', network()->name);
+                    return $query->where(
+                        'network',
+                        '=',
+                        $args['network'] === 'relay' ? currentRelay()->name : currentMatrix()->name
+                    );
                 },
             )
             ->when(

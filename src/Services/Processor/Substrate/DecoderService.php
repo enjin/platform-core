@@ -23,7 +23,7 @@ class DecoderService
     {
         $this->client = new DecoderClient();
         $this->host = config('enjin-platform.decoder_container');
-        $this->network = $network ?? config('enjin-platform.chains.network');
+        $this->network = $network ?? network()->value;
     }
 
     public function decode(string $type, string|array $bytes): ?array

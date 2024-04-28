@@ -23,30 +23,29 @@ class RelayWatcher extends Command
 
     public $description;
 
-    protected string $nodeUrl = 'wss://rpc.relay.canary.enjin.io';
-
     protected Codec $codec;
+
+    protected Substrate $rpc;
 
     public function __construct()
     {
         parent::__construct();
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->codec = new Codec();
+        $this->rpc = new Substrate(new SubstrateWebsocket('wss://rpc.relay.canary.enjin.io'));
     }
 
     public function handle(): int
     {
         $this->warn('Subscribing to any changes on account storage');
-        $sub = new Substrate(new SubstrateWebsocket(url: $this->nodeUrl));
-        $sub->getClient()->setTimeout(50000);
+        $this->rpc->getClient()->setTimeout(50000);
 
         $decoder = new DecoderService(network: 'canary-relaychain');
 
-
         try {
-            $sub->callMethod('state_subscribeStorage', [['0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7']]);
+            $this->rpc->callMethod('state_subscribeStorage', [['0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7']]);
             while (true) {
-                if ($response = $sub->getClient()->receive()) {
+                if ($response = $this->rpc->getClient()->receive()) {
                     $result = Arr::get(JSON::decode($response, true), 'params.result');
                     $block = Arr::get($result, 'changes.0.0'); // block
                     $events = Arr::get($result, 'changes.0.1'); // events
@@ -55,7 +54,7 @@ class RelayWatcher extends Command
                 }
             }
         } finally {
-            $sub->getClient()->close();
+            $this->rpc->getClient()->close();
         }
 
         return CommandAlias::SUCCESS;
@@ -67,6 +66,8 @@ class RelayWatcher extends Command
             $events,
             function ($event) {
                 if ($event->module === 'Balances' && $event->name === 'Transfer') {
+                    $this->info('Transfer event found: ' . json_encode($event));
+
                     if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
                         $this->info(json_encode($event));
                         $this->createDaemonTransaction($account, $event->amount);
@@ -96,7 +97,7 @@ class RelayWatcher extends Command
             'wallet_public_key' => $managedWallet->public_key,
             'method' => 'LimitedTeleportAssets',
             'state' => TransactionState::PENDING->name,
-            'network' => 'canary-relay',
+            'network' => currentRelay()->name,
             'encoded_data' => $call,
             'idempotency_key' => Str::uuid(),
         ]);
