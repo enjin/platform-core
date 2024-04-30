@@ -1,0 +1,9 @@
+mutation RemoveFromTracked(
+    $type: ModelType!
+    $chainIds: [BigInt!]!
+) {
+    RemoveFromTracked(
+        type: $type
+        chainIds: $chainIds
+    )
+}

@@ -71,7 +71,14 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
             );
 
             if ($args['hotSync']) {
-                $collectionService->hotSync($id);
+                switch (ModelType::getEnumCase($args['type'])) {
+                    case ModelType::COLLECTION:
+                        $collectionService->hotSync($id);
+
+                        break;
+                    default:
+                        break;
+                }
             }
         });
 

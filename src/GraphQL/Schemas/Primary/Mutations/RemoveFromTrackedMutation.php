@@ -46,7 +46,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
                 'type' => GraphQL::type('ModelType!'),
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.model_type'),
             ],
-            'chain_ids' => [
+            'chainIds' => [
                 'type' => GraphQL::type('[BigInt!]!'),
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.chain_ids'),
             ],
@@ -58,7 +58,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        collect($args['chain_ids'])->map(function ($id) use ($args) {
+        collect($args['chainIds'])->map(function ($id) use ($args) {
             Syncable::query()->where(
                 ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
             )->delete();
@@ -73,7 +73,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
     protected function rules(array $args = []): array
     {
         return [
-            'chain_ids.*' => [new MinBigInt(2000)],
+            'chainIds.*' => [new MinBigInt(2000)],
         ];
     }
 }
