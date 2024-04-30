@@ -18,6 +18,7 @@ use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
 use Enjin\Platform\Support\Hex;
+use Illuminate\Support\Arr;
 
 class Parser
 {
@@ -49,7 +50,7 @@ class Parser
     /**
      * Store collections.
      */
-    public function collectionsStorages(array $data): void
+    public function collectionsStorages(array $data, bool $hotSync = false): void
     {
         $insertData = [];
         $insertRoyaltyCurrencies = [];
@@ -93,7 +94,13 @@ class Parser
             ];
         }
 
-        $this->collectionService->insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                $this->collectionService->updateOrInsert(Arr::only($data, ['collection_chain_id']), $data);
+            }
+        } else {
+            $this->collectionService->insert($insertData);
+        }
 
         $this->collectionsRoyaltyCurrencies($insertRoyaltyCurrencies);
     }
@@ -150,7 +157,7 @@ class Parser
     /**
      * Store tokens.
      */
-    public function tokensStorages(array $data): void
+    public function tokensStorages(array $data, bool $hotSync = false): void
     {
         $insertData = [];
 
@@ -188,7 +195,13 @@ class Parser
             ];
         }
 
-        $this->tokenService->insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                $this->tokenService->updateOrInsert(Arr::only($data, ['token_chain_id', 'collection_id']), $data);
+            }
+        } else {
+            $this->tokenService->insert($insertData);
+        }
     }
 
     /**
@@ -231,7 +244,7 @@ class Parser
     /**
      * Store collection accounts.
      */
-    public function collectionsAccountsStorages(array $data): void
+    public function collectionsAccountsStorages(array $data, bool $hotSync = false): void
     {
         $insertData = [];
         $insertApprovals = [];
@@ -267,7 +280,13 @@ class Parser
             ];
         }
 
-        CollectionAccount::insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                CollectionAccount::updateOrInsert(Arr::only($data, ['collection_id', 'wallet_id']), $data);
+            }
+        } else {
+            CollectionAccount::insert($data, $data);
+        }
 
         $this->collectionsAccountsApprovals($insertApprovals);
     }
@@ -308,7 +327,7 @@ class Parser
     /**
      * Store token accounts.
      */
-    public function tokensAccountsStorages(array $data): void
+    public function tokensAccountsStorages(array $data, bool $hotSync = false): void
     {
         $insertData = [];
         $insertApprovals = [];
@@ -351,7 +370,13 @@ class Parser
             ];
         }
 
-        TokenAccount::insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                TokenAccount::updateOrInsert(Arr::only($data, ['wallet_id', 'collection_id', 'token_id']), $data);
+            }
+        } else {
+            TokenAccount::insert($insertData, $insertData);
+        }
 
         $this->tokensAccountsApprovals($insertApprovals);
     }
@@ -398,7 +423,7 @@ class Parser
     /**
      * Store attributes.
      */
-    public function attributesStorages(array $data): void
+    public function attributesStorages(array $data, bool $hotSync = false): void
     {
         $insertData = [];
 
@@ -423,7 +448,13 @@ class Parser
             ];
         }
 
-        Attribute::insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                Attribute::updateOrInsert(Arr::except($data, 'value'), $data);
+            }
+        } else {
+            Attribute::insert($insertData);
+        }
     }
 
     /**
@@ -515,7 +546,7 @@ class Parser
     /**
      * Store collections royalty currencies.
      */
-    protected function collectionsRoyaltyCurrencies(array $data): void
+    protected function collectionsRoyaltyCurrencies(array $data, bool $hotSync = false): void
     {
         if (empty($data)) {
             return;
@@ -539,7 +570,13 @@ class Parser
             }
         }
 
-        CollectionRoyaltyCurrency::insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                CollectionRoyaltyCurrency::updateOrInsert(Arr::only($data, ['collection_id', 'currency_collection_chain_id', 'currency_token_chain_id']), $data);
+            }
+        } else {
+            CollectionRoyaltyCurrency::insert($insertData);
+        }
     }
 
     /**
@@ -565,7 +602,7 @@ class Parser
     /**
      * Store token accounts approvals.
      */
-    protected function tokensAccountsApprovals(array $data): void
+    protected function tokensAccountsApprovals(array $data, bool $hotSync = false): void
     {
         if (empty($data)) {
             return;
@@ -594,7 +631,13 @@ class Parser
             }
         }
 
-        TokenAccountApproval::insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                TokenAccountApproval::updateOrInsert(Arr::only($data, ['token_account_id', 'wallet_id']), $data);
+            }
+        } else {
+            TokenAccountApproval::insert($insertData);
+        }
     }
 
     /**
@@ -623,7 +666,7 @@ class Parser
     /**
      * Store collection accounts approvals.
      */
-    protected function collectionsAccountsApprovals(array $data): void
+    protected function collectionsAccountsApprovals(array $data, bool $hotSync = false): void
     {
         if (empty($data)) {
             return;
@@ -653,7 +696,13 @@ class Parser
             }
         }
 
-        CollectionAccountApproval::insert($insertData);
+        if ($hotSync) {
+            foreach ($insertData as $data) {
+                CollectionAccountApproval::updateOrInsert(Arr::only($data, ['collection_account_id', 'wallet_id']), $data);
+            }
+        } else {
+            CollectionAccountApproval::insert($insertData);
+        }
     }
 
     /**

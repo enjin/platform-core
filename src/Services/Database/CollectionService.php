@@ -2,10 +2,12 @@
 
 namespace Enjin\Platform\Services\Database;
 
+use Enjin\Platform\Jobs\HotSync;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Model;
@@ -46,12 +48,19 @@ class CollectionService
     /**
      * Update ot insert a collection.
      */
-    public function updateOrInsert(array $data, array $keys): bool
+    public function updateOrInsert(array $keys, array $data)
     {
         return Collection::updateOrInsert(
             $keys,
             $data
         );
+    }
+
+    public function hotSync(string $collectionId): void
+    {
+        $storageKeys = Substrate::getStorageKeysForCollectionId($collectionId);
+
+        HotSync::dispatch($storageKeys);
     }
 
     /**

@@ -8,6 +8,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Services\Database\CollectionService;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -46,9 +47,14 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
                 'type' => GraphQL::type('ModelType!'),
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.model_type'),
             ],
-            'chain_ids' => [
+            'chainIds' => [
                 'type' => GraphQL::type('[BigInt!]!'),
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.chain_ids'),
+            ],
+            'hotSync' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::mutation.add_to_tracked.args.hot_sync'),
+                'defaultValue' => true,
             ],
         ];
     }
@@ -56,13 +62,17 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
     /**
      * Resolve the mutation's request.
      */
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, CollectionService $collectionService): mixed
     {
-        collect($args['chain_ids'])->map(function ($id) use ($args) {
+        collect($args['chainIds'])->each(function ($id) use ($args, $collectionService) {
             Syncable::query()->updateOrInsert(
                 ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
                 ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
             );
+
+            if ($args['hotSync']) {
+                $collectionService->hotSync($id);
+            }
         });
 
         return true;
@@ -74,7 +84,7 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
     protected function rules(array $args = []): array
     {
         return [
-            'chain_ids.*' => [new MinBigInt(2000)],
+            'chainIds.*' => [new MinBigInt(2000)],
         ];
     }
 }

@@ -9,6 +9,7 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
+use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Laravel\Transaction;
@@ -22,10 +23,12 @@ use Enjin\Platform\Models\Substrate\SimpleTransferParams;
 use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class Substrate implements BlockchainServiceInterface
@@ -52,6 +55,36 @@ class Substrate implements BlockchainServiceInterface
     public function getClient(): WebsocketAbstract
     {
         return $this->client;
+    }
+
+    public static function getStorageKeys()
+    {
+        return [
+            StorageKey::collections(),
+            StorageKey::collectionAccounts(),
+            StorageKey::tokens(),
+            StorageKey::tokenAccounts(),
+            StorageKey::attributes(),
+        ];
+    }
+
+    public static function getStorageKeysForCollectionId(string $collectionId): array
+    {
+        return [
+            StorageKey::collections(Encoder::collectionStorageKey($collectionId)),
+            StorageKey::collectionAccounts(Encoder::collectionAccountStorageKey($collectionId)),
+            StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
+            StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),
+            StorageKey::attributes(Encoder::attributeStorageKey($collectionId)),
+        ];
+    }
+
+    public static function getStorageKeysForCollectionIds(array|Collection $collectionIds): array
+    {
+        return collect($collectionIds)
+            ->map(fn ($collectionId) => self::getStorageKeysForCollectionId($collectionId))
+            ->flatten(1)
+            ->toArray();
     }
 
     /**

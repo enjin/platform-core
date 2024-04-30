@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\GraphQL\Enums;
 
-use Enjin\Platform\Enums\Global\FilterType;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Interfaces\PlatformGraphQlEnum;
 use Rebing\GraphQL\Support\EnumType;
