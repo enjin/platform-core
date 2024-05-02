@@ -50,7 +50,7 @@ class PendingEvent extends BaseModel
     public function prunable()
     {
         if ($days = config('enjin-platform.prune_expired_events')) {
-            return static::where('sent', '<', now()->addDays($days));
+            return static::where('sent', '<=', now()->subDays($days));
         }
 
         return static::where('id', 0);
