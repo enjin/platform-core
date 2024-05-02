@@ -213,7 +213,7 @@ return [
     | When set to null or zero, expired events will not be pruned.
     |
     */
-    'prune_expired_events' => env('PRUNE_EXPIRED_CLAIMS', 30),
+    'prune_expired_events' => env('PRUNE_EXPIRED_EVENTS', 30),
 
     /*
     |--------------------------------------------------------------------------

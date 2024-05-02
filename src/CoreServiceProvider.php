@@ -86,7 +86,7 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(SerializationServiceProvider::class);
         $this->app->register(BlockchainServiceProvider::class);
         $this->app->register(WebsocketClientProvider::class);
-        $this->app->register(GraphQlServiceProvider::class);
+        //$this->app->register(GraphQlServiceProvider::class);
         $this->app->register(FakerServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(GitHubServiceProvider::class);
