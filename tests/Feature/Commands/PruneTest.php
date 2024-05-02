@@ -18,6 +18,14 @@ class PruneTest extends TestCaseGraphQL
         );
         $this->artisan('model:prune', ['--model' => PendingEvent::resolveClassFqn()]);
         $this->assertDatabaseCount('pending_events', 0);
+
+        PendingEvent::insert(
+            PendingEvent::factory(1)->make([
+                'sent' => now()->toDateTimeString(),
+            ])->toArray()
+        );
+        $this->artisan('model:prune', ['--model' => PendingEvent::resolveClassFqn()]);
+        $this->assertDatabaseCount('pending_events', 1);
     }
 
     public function test_it_cannot_prune_expired_events(): void
