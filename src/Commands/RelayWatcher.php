@@ -5,6 +5,7 @@ namespace Enjin\Platform\Commands;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -26,52 +27,149 @@ class RelayWatcher extends Command
     protected Codec $codec;
 
     protected Substrate $rpc;
+    protected DecoderService $decoder;
 
     public function __construct()
     {
         parent::__construct();
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->codec = new Codec();
-        $this->rpc = new Substrate(new SubstrateWebsocket('wss://rpc.relay.canary.enjin.io'));
+        $this->rpc = new Substrate(new SubstrateWebsocket(networkConfig('node', currentRelay())));
+        $this->decoder = new DecoderService(network: currentRelay()->value);
     }
 
     public function handle(): int
     {
-        $this->warn('Subscribing to any changes on account storage');
-        $this->rpc->getClient()->setTimeout(50000);
-
-        $decoder = new DecoderService(network: 'canary-relaychain');
+        $sub = new Substrate(new SubstrateWebsocket('wss://rpc.relay.canary.enjin.io'));
+        $this->warn('Starting subscription to new heads');
 
         try {
-            $this->rpc->callMethod('state_subscribeStorage', [['0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7']]);
+            $sub->callMethod('chain_subscribeNewHeads');
+            $sub->callMethod('state_subscribeStorage', [['0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7']]);
             while (true) {
-                if ($response = $this->rpc->getClient()->receive()) {
-                    $result = Arr::get(JSON::decode($response, true), 'params.result');
-                    $block = Arr::get($result, 'changes.0.0'); // block
-                    $events = Arr::get($result, 'changes.0.1'); // events
-                    $decodedEvents = $decoder->decode('events', $events);
-                    $this->findEndowedAccounts($decodedEvents);
+                if ($response = $sub->getClient()->receive()) {
+                    $data = JSON::decode($response, true);
+                    ray($data);
+
+                    $method = Arr::get($data, 'method');
+
+                    if ($method === 'chain_newHead') {
+                        $this->processNewHead($data);
+                    }
+
+                    if ($method === 'state_storage') {
+                        $this->getEvents($data);
+                    }
                 }
             }
         } finally {
-            $this->rpc->getClient()->close();
+            $sub->getClient()->close();
         }
+
+
+        //        $this->getBlocks();
+        //        $this->getEvents();
 
         return CommandAlias::SUCCESS;
     }
 
-    protected function findEndowedAccounts(array $events): void
+    public function getHashWhenBlockIsFinalized(int $blockNumber): string
     {
+        while (true) {
+            $blockHash = $this->rpc->callMethod('chain_getBlockHash', [$blockNumber]);
+            if ($blockHash) {
+                $this->rpc->getClient()->close();
+
+                return $blockHash;
+            }
+            usleep(100000);
+        }
+    }
+
+    protected function processNewHead($data)
+    {
+        $syncTime = now();
+        $result = Arr::get($data, 'params.result');
+        $heightHexed = Arr::get($result, 'number');
+
+        if ($heightHexed === null) {
+            return;
+        }
+
+        $blockNumber = HexConverter::hexToUInt($heightHexed);
+        $blockHash = $this->getHashWhenBlockIsFinalized($blockNumber);
+
+        $this->info(sprintf('Ingested header for block #%s in %s seconds', $blockNumber, now()->diffInMilliseconds($syncTime) / 1000));
+
+        $this->fetchExtrinsics($blockHash, $blockNumber);
+    }
+
+    protected function fetchExtrinsics(string $blockHash, $blockNumber): void
+    {
+        ray('Fetching block for hash ' . $blockHash);
+        $data = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
+        //        ray($data);
+
+        if ($extrinsics = Arr::get($data, 'block.extrinsics')) {
+            for ($i = 0; $i < count($extrinsics); $i++) {
+                $decodedExtrinsic = Arr::first($this->decoder->decode('Extrinsics', [$extrinsics[$i]]));
+                ray($decodedExtrinsic);
+
+                $module = $decodedExtrinsic?->module;
+                $call = $decodedExtrinsic?->call;
+
+                if ($module === 'XcmPallet' && $call === 'limited_teleport_assets') {
+                    $hash = $decodedExtrinsic->hash;
+                    $signer = $decodedExtrinsic->signer;
+
+                    $tx = Transaction::firstWhere([
+                        'transaction_chain_hash' => $hash,
+                        'wallet_public_key' => $signer,
+                    ]);
+
+                    $tx->transaction_chain_id = $blockNumber . '-' . $i;
+                    $tx->state = TransactionState::FINALIZED->name;
+                    $tx->save();
+
+                    ray($tx);
+
+                }
+
+                $this->warn('Module: ' . $module);
+                $this->warn('Call: ' . $call);
+            }
+
+
+        }
+
+        //        ray($extrinsics);
+    }
+
+    protected function getEvents($data): void
+    {
+        $this->warn('Subscribing to any changes on account storage');
+        $result = Arr::get($data, 'params.result');
+        $block = Arr::get($result, 'changes.0.0'); // block
+        $events = Arr::get($result, 'changes.0.1'); // events
+        $decodedEvents = $this->decoder->decode('events', $events);
+        $this->findEndowedAccounts($decodedEvents, $block);
+    }
+
+    protected function findEndowedAccounts(array $events, string $block): void
+    {
+        ray($events);
         array_filter(
             $events,
-            function ($event) {
+            function ($event) use ($block) {
                 if ($event->module === 'Balances' && $event->name === 'Transfer') {
-                    $this->info('Transfer event found: ' . json_encode($event));
-
                     if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
                         $this->info(json_encode($event));
                         $this->createDaemonTransaction($account, $event->amount);
                     }
+                }
+
+                if ($event->module === 'XcmPallet' && $event->name === 'Attempted') {
+                    $this->info('The block is: ' . $block);
                 }
             }
         );

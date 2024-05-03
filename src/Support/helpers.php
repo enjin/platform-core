@@ -82,8 +82,8 @@ if (!function_exists('networkConfig')) {
     /**
      * Get the network config.
      */
-    function networkConfig(string $config): mixed
+    function networkConfig(string $config, ?NetworkType $network = null): mixed
     {
-        return config(sprintf('enjin-platform.chains.supported.%s.%s.%s', chain()->value, network()->value, $config));
+        return config(sprintf('enjin-platform.chains.supported.%s.%s.%s', chain()->value, $network?->value ?? network()->value, $config));
     }
 }
