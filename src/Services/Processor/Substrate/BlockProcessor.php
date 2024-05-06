@@ -283,10 +283,24 @@ class BlockProcessor
         return $block;
     }
 
+    protected function waitIfEmpty(int $try, int $blockNumber, string $action): void
+    {
+        if ($try > 0) {
+            usleep($sleep = 250000 * $try ** 2);
+            $this->warn(sprintf('Retrying to fetch %s for block #%s in %s seconds', $action, $blockNumber, $sleep / 1000000));
+        }
+    }
+
     protected function fetchEvents(Block $block): Block
     {
         $syncTime = now();
-        $block = $this->setBlockEvent($this->persistedClient, $block);
+        $try = 0;
+
+        while (empty($block->events)) {
+            $this->waitIfEmpty($try, $block->number, 'events');
+            $block = $this->setBlockEvent($this->persistedClient, $block);
+            $try++;
+        }
 
         $this->info(sprintf('Ingested events for block #%s in %s seconds', $block->number, now()->diffInMilliseconds($syncTime) / 1000));
 
@@ -296,7 +310,13 @@ class BlockProcessor
     protected function fetchExtrinsics(Block $block): Block
     {
         $syncTime = now();
-        $block = $this->setBlockExtrinsic($this->persistedClient, $block);
+        $try = 0;
+
+        while (empty($block->extrinsics)) {
+            $this->waitIfEmpty($try, $block->number, 'extrinsics');
+            $block = $this->setBlockExtrinsic($this->persistedClient, $block);
+            $try++;
+        }
 
         $this->info(sprintf('Ingested extrinsics for block #%s in %s seconds', $block->number, now()->diffInMilliseconds($syncTime) / 1000));
 
