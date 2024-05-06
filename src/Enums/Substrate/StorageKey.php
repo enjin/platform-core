@@ -15,6 +15,11 @@ class StorageKey
         return new self(StorageType::COLLECTIONS, $value ?? '0xfa7484c926e764ee2a64df96876c81459200647b8c99af7b8b52752114831bdb');
     }
 
+    public static function pendingCollectionTransfers(?string $value = null): self
+    {
+        return new self(StorageType::PENDING_COLLECTION_TRANSFERS, $value ?? '0xfa7484c926e764ee2a64df96876c8145ec71cb5fb8f048d4d001b5efa87fcf5b');
+    }
+
     public static function collectionAccounts(?string $value = null): self
     {
         return new self(StorageType::COLLECTION_ACCOUNTS, $value ?? '0xfa7484c926e764ee2a64df96876c814555aac77eef55f610e609e395282fe9a2');
@@ -52,6 +57,7 @@ class StorageKey
     {
         return match ($this->type) {
             StorageType::COLLECTIONS => 'collectionsStorages',
+            StorageType::PENDING_COLLECTION_TRANSFERS => 'pendingCollectionTransfersStorages',
             StorageType::COLLECTION_ACCOUNTS => 'collectionsAccountsStorages',
             StorageType::TOKENS => 'tokensStorages',
             StorageType::TOKEN_ACCOUNTS => 'tokensAccountsStorages',

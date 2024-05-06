@@ -32,6 +32,7 @@ class Collection extends BaseModel
     protected $fillable = [
         'collection_chain_id',
         'owner_wallet_id',
+        'pending_transfer',
         'max_token_count',
         'max_token_supply',
         'force_single_mint',

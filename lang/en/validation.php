@@ -36,4 +36,5 @@ return [
     'numeric' => 'The :attribute must be numeric.',
     'collection_has_tokens' => "The collection doesn't have any tokens.",
     'unused_verification_id' => 'The verification ID is already in use.',
+    'account_waiting_collection_transfer' => 'There is no pending collection transfer for the account :account at collection :collectionId.',
 ];

@@ -27,6 +27,7 @@ class CollectionTransferred extends SubstrateEvent
         $owner = $this->firstOrStoreAccount($event->owner);
 
         $collection->owner_wallet_id = $owner->id;
+        $collection->pending_transfer = null;
         $collection->save();
 
         Log::info("Collection #{$event->collectionId} (id {$collection->id}) owner changed to {$owner->public_key} (id {$owner->id}).");

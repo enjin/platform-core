@@ -98,6 +98,18 @@ class Parser
         $this->collectionsRoyaltyCurrencies($insertRoyaltyCurrencies);
     }
 
+    public function pendingCollectionTransfersStorages(array $data): void
+    {
+        foreach ($data as [$key, $account]) {
+            $pendingTransferKey = $this->serializationService->decode('pendingCollectionTransferStorageKey', $key);
+            $pendingTransferData = $this->serializationService->decode('pendingCollectionTransferStorageData', $account);
+
+            $collection = $this->collectionService->get($pendingTransferKey['collectionId']);
+            $collection->pending_transfer = $pendingTransferData['accountId'];
+            $collection->save();
+        }
+    }
+
     /**
      * Store collection.
      */

@@ -154,6 +154,24 @@ class Decoder
         ];
     }
 
+    public function pendingCollectionTransferStorageKey(string $data): array
+    {
+        $decoded = $this->codec->process('PendingCollectionTransfersStorageKey', new ScaleBytes($data));
+
+        return [
+            'collectionId' => gmp_strval(Arr::get($decoded, 'collectionId')),
+        ];
+    }
+
+    public function pendingCollectionTransferStorageData(string $data): array
+    {
+        $decoded = $this->codec->process('PendingCollectionTransfersStorageData', new ScaleBytes($data));
+
+        return [
+            'accountId' => HexConverter::prefix(Arr::get($decoded, 'account')),
+        ];
+    }
+
     public function collectionStorageKey(string $data): array
     {
         $decoded = $this->codec->process('CollectionStorageKey', new ScaleBytes($data));

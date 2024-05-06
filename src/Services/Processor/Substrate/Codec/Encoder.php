@@ -46,6 +46,11 @@ class Encoder
         'SetAttribute' => 'MultiTokens.set_attribute',
         'RemoveAttribute' => 'MultiTokens.remove_attribute',
         'RemoveAllAttributes' => 'MultiTokens.remove_all_attributes',
+        'AcceptCollectionTransfer' => 'MultiTokens.accept_collection_transfer',
+    ];
+
+    protected static array $overrideCallIndex = [
+        'MultiTokens.accept_collection_transfer' => [40, 41],
     ];
 
     public function __construct(ScaleInstance $scaleInstance)
@@ -304,6 +309,10 @@ class Encoder
             return static::$callIndexes[$call];
         }
 
+        if (isset(static::$overrideCallIndex[$call])) {
+            return static::$overrideCallIndex[$call];
+        }
+
         $index = str_split(static::$callIndexes[$call], 2);
 
         return [HexConverter::hexToInt($index[0]), HexConverter::hexToInt($index[1])];
@@ -313,7 +322,7 @@ class Encoder
     {
         $metadata = Cache::remember(PlatformCache::METADATA->key(), 3600, function () {
             if (app()->runningUnitTests()) {
-                return Metadata::v1000();
+                return Metadata::v1006();
             }
 
             $blockchain = new SubstrateWebsocket();
@@ -331,7 +340,6 @@ class Encoder
             PlatformCache::CALL_INDEXES->key(config('enjin-platform.chains.selected') . config('enjin-platform.chains.network')),
             function () use ($metadata) {
                 $decode = $this->scaleInstance->process('metadata', new ScaleBytes($metadata));
-
                 $callIndexes = collect(Arr::get($decode, 'metadata.call_index'))->mapWithKeys(
                     fn ($call, $key) => [
                         sprintf('%s.%s', Arr::get($call, 'module.name'), Arr::get($call, 'call.name')) => $key,
