@@ -210,9 +210,11 @@ class BurnTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
                 'amount' => fake()->numberBetween(1, 10),
+                'removeTokenStorage' => true,
             ],
             'nonce' => fake()->numberBetween(),
         ], true);
+
         $this->assertEquals(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
@@ -458,6 +460,69 @@ class BurnTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_burn_a_token_without_being_collection_owner(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        $collection = Collection::factory([
+            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+            'owner_wallet_id' => $this->wallet,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collection,
+            'token_chain_id' => $tokenId = fake()->numberBetween(),
+        ])->create();
+
+        TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $wallet,
+            'balance' => $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
+        ])->create();
+
+        $encodedData = TransactionSerializer::encode(
+            $this->method,
+            BurnMutation::getEncodableParams(
+                collectionId: $collectionId,
+                burnParams: new BurnParams(
+                    tokenId: $tokenId,
+                    amount: $amount,
+                    removeTokenStorage: false,
+                )
+            ),
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => [
+                    'integer' => $tokenId,
+                ],
+                'amount' => $amount,
+                'removeTokenStorage' => false,
+            ],
+            'signingAccount' => $signingAccount,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
         ], $response);
 
         $this->assertDatabaseHas('transactions', [
@@ -878,6 +943,48 @@ class BurnTest extends TestCaseGraphQL
             ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_fails_burn_a_token_with_remove_storage_without_being_collection_owner(): void
+    {
+        $wallet = Wallet::factory([
+            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
+        $collection = Collection::factory([
+            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
+            'owner_wallet_id' => $this->wallet,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collection,
+            'token_chain_id' => $tokenId = fake()->numberBetween(),
+        ])->create();
+
+        TokenAccount::factory([
+            'collection_id' => $collection,
+            'token_id' => $token,
+            'wallet_id' => $wallet,
+            'balance' => $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
+        ])->create();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'params' => [
+                'tokenId' => [
+                    'integer' => $tokenId,
+                ],
+                'amount' => $amount,
+                'removeTokenStorage' => true,
+            ],
+            'signingAccount' => $signingAccount,
+        ], true);
+
+        $this->assertArraySubset([
+            'collectionId' => ['The collection id provided is not owned by you.'],
+        ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
     }
