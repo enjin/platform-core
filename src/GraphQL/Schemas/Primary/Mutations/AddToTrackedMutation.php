@@ -4,10 +4,10 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
 use Enjin\Platform\Enums\Global\ModelType;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasContextSensitiveRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Syncable;
-use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Database\CollectionService;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -16,6 +16,7 @@ use Rebing\GraphQL\Support\Mutation;
 
 class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
 {
+    use HasContextSensitiveRules;
     use InPrimarySchema;
 
     /**
@@ -48,7 +49,7 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.model_type'),
             ],
             'chainIds' => [
-                'type' => GraphQL::type('[BigInt!]!'),
+                'type' => GraphQL::type('[String!]!'),
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.chain_ids'),
             ],
             'hotSync' => [
@@ -71,14 +72,10 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
             );
 
             if ($args['hotSync']) {
-                switch (ModelType::getEnumCase($args['type'])) {
-                    case ModelType::COLLECTION:
-                        $collectionService->hotSync($id);
-
-                        break;
-                    default:
-                        break;
-                }
+                match (ModelType::getEnumCase($args['type'])) {
+                    ModelType::COLLECTION => $collectionService->hotSync($id),
+                    default => null,
+                };
             }
         });
 
@@ -90,8 +87,6 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
      */
     protected function rules(array $args = []): array
     {
-        return [
-            'chainIds.*' => [new MinBigInt(2000)],
-        ];
+        return $this->getContextSensitiveRules(ModelType::getEnumCase($args['type'])->name);
     }
 }

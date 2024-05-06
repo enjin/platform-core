@@ -18,7 +18,6 @@ use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
 use Enjin\Platform\Support\Hex;
-use Illuminate\Support\Arr;
 
 class Parser
 {
@@ -95,9 +94,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                $this->collectionService->updateOrInsert(Arr::only($data, ['collection_chain_id']), $data);
-            }
+            Collection::upsert($insertData, uniqueBy: ['collection_chain_id']);
         } else {
             $this->collectionService->insert($insertData);
         }
@@ -196,9 +193,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                $this->tokenService->updateOrInsert(Arr::only($data, ['token_chain_id', 'collection_id']), $data);
-            }
+            Token::upsert($insertData, uniqueBy: ['token_chain_id', 'collection_id']);
         } else {
             $this->tokenService->insert($insertData);
         }
@@ -281,9 +276,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                CollectionAccount::updateOrInsert(Arr::only($data, ['collection_id', 'wallet_id']), $data);
-            }
+            CollectionAccount::upsert($insertData, uniqueBy: ['collection_id', 'wallet_id']);
         } else {
             CollectionAccount::insert($data, $data);
         }
@@ -371,9 +364,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                TokenAccount::updateOrInsert(Arr::only($data, ['wallet_id', 'collection_id', 'token_id']), $data);
-            }
+            TokenAccount::upsert($insertData, uniqueBy: ['wallet_id', 'collection_id', 'token_id']);
         } else {
             TokenAccount::insert($insertData, $insertData);
         }
@@ -449,9 +440,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                Attribute::updateOrInsert(Arr::except($data, 'value'), $data);
-            }
+            Attribute::upsert($insertData, uniqueBy: ['collection_id', 'token_id', 'key']);
         } else {
             Attribute::insert($insertData);
         }
@@ -571,9 +560,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                CollectionRoyaltyCurrency::updateOrInsert(Arr::only($data, ['collection_id', 'currency_collection_chain_id', 'currency_token_chain_id']), $data);
-            }
+            CollectionRoyaltyCurrency::upsert($insertData, uniqueBy: ['collection_id', 'currency_collection_chain_id', 'currency_token_chain_id']);
         } else {
             CollectionRoyaltyCurrency::insert($insertData);
         }
@@ -632,9 +619,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                TokenAccountApproval::updateOrInsert(Arr::only($data, ['token_account_id', 'wallet_id']), $data);
-            }
+            TokenAccountApproval::upsert($insertData, uniqueBy: ['token_account_id', 'wallet_id']);
         } else {
             TokenAccountApproval::insert($insertData);
         }
@@ -697,9 +682,7 @@ class Parser
         }
 
         if ($hotSync) {
-            foreach ($insertData as $data) {
-                CollectionAccountApproval::updateOrInsert(Arr::only($data, ['collection_account_id', 'wallet_id']), $data);
-            }
+            CollectionAccountApproval::upsert($insertData, uniqueBy: ['collection_account_id', 'wallet_id']);
         } else {
             CollectionAccountApproval::insert($insertData);
         }

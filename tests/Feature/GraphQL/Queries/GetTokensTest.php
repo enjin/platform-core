@@ -310,6 +310,12 @@ class GetTokensTest extends TestCaseGraphQL
 
     protected function generateTokens(?int $numberOfTokens = 5): CollectionSupport
     {
+        CollectionAccount::factory([
+            'collection_id' => $this->collection,
+            'wallet_id' => $this->wallet,
+            'account_count' => 1,
+        ])->create();
+
         return collect(range(0, $numberOfTokens))
             ->map(fn () => $this->createToken());
     }
@@ -319,11 +325,6 @@ class GetTokensTest extends TestCaseGraphQL
         $token = Token::factory([
             'collection_id' => $this->collection,
             'attribute_count' => 1,
-        ])->create();
-        CollectionAccount::factory([
-            'collection_id' => $this->collection,
-            'wallet_id' => $this->wallet,
-            'account_count' => 1,
         ])->create();
         $tokenAccount = TokenAccount::factory([
             'collection_id' => $this->collection,

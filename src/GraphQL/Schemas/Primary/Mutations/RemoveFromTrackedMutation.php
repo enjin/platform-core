@@ -58,11 +58,13 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        collect($args['chainIds'])->map(function ($id) use ($args) {
-            Syncable::query()->where(
-                ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
-            )->delete();
-        });
+        Syncable::query()->whereIn(
+            'syncable_id',
+            $args['chainIds']
+        )->where(
+            'syncable_type',
+            ModelType::getEnumCase($args['type'])->value
+        )->delete();
 
         return true;
     }

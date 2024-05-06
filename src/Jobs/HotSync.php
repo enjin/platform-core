@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Jobs;
 
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,28 +21,45 @@ class HotSync implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected array $storageKeys)
+    public function __construct(protected array $storageKeys, protected ?int $keysPerPage = 1000)
     {
     }
 
     /**
      * Execute the job.
      */
-    public function handle(SubstrateWebsocket $websocket): void
+    public function handle(WebsocketAbstract $websocket): void
     {
-        collect($this->storageKeys)->each(function ($key) use ($websocket) {
+        collect($this->storageKeys)->each(function ($storageKey) use ($websocket) {
             try {
-                $keys = $websocket->send('state_getKeysPaged', [$key->value, 1000, null]);
-                if (empty($keys)) {
-                    return;
+                $storageValues = [];
+
+                while (true) {
+                    try {
+                        $keys = $websocket->send('state_getKeysPaged', [$storageKey->value, $this->keysPerPage, $startKey ?? null]);
+                    } catch (\Throwable $e) {
+                        ray($e->getMessage());
+
+                        throw $e;
+                    }
+
+                    if (empty($keys)) {
+                        break;
+                    }
+
+                    $storage = $websocket->send('state_queryStorageAt', [$keys]);
+                    $storageValues[] = Arr::get($storage, '0.changes');
+
+                    $startKey = Arr::last($keys);
                 }
 
-                $response = $websocket->send('state_queryStorageAt', [$keys]);
-                $values = Arr::get($response, '0.changes');
-                $facade = $key->parserFacade();
-                $facade::{$key->parser()}($values, true);
+                $websocket->close();
+
+                collect($storageValues)->each(function ($storageValue) use ($storageKey) {
+                    ParseChainData::dispatch($storageKey, $storageValue);
+                });
             } catch (\Throwable $e) {
-                Log::error("There was an error hot syncing {$key->type->name} {$key->value} : {$e->getMessage()}");
+                Log::error("There was an error hot syncing {$storageKey->type->name} {$storageKey->value} : {$e->getMessage()}");
 
                 throw $e;
             }
