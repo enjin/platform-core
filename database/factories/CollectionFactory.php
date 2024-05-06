@@ -25,6 +25,7 @@ class CollectionFactory extends Factory
         return [
             'collection_chain_id' => (string) fake()->unique()->numberBetween(2000),
             'owner_wallet_id' => Wallet::factory(),
+            'pending_transfer' => null,
             'max_token_count' => fake()->numberBetween(1),
             'max_token_supply' => (string) fake()->numberBetween(1),
             'force_single_mint' => fake()->boolean(),

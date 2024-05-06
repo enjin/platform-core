@@ -5,6 +5,8 @@ return [
     'args.signingAccount' => 'The signing wallet for this transaction. Defaults to wallet daemon.',
     'acknowledge_events.args.uuids' => 'The event UUIDs to acknowledge.',
     'acknowledge_events.description' => 'Use this mutation to acknowledge cached events and remove them from the cache.',
+    'accept_collection_transfer.args.collectionId' => 'The collection that will be accepted.',
+    'accept_collection_transfer.description' => 'Accept a collection transfer request.',
     'approve_collection.args.collectionId' => 'The collection that will be approved.',
     'approve_collection.args.operator' => 'The account that will be approved to operate the collection.',
     'approve_collection.description' => 'Approve another account to transfer any tokens from a collection account. You can also specify a block number where this approval will expire.',

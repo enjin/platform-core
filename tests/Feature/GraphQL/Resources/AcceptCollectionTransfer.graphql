@@ -1,0 +1,31 @@
+mutation AcceptCollectionTransfer(
+  $collectionId: BigInt!
+  $skipValidation: Boolean
+  $simulate: Boolean
+  $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
+) {
+  AcceptCollectionTransfer(
+    collectionId: $collectionId
+    skipValidation: $skipValidation
+    simulate: $simulate
+    signingAccount: $signingAccount
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
+    fee
+    deposit
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+  }
+}

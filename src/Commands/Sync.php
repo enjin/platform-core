@@ -197,6 +197,7 @@ class Sync extends Command
         if (empty($collectionFilter)) {
             return [
                 StorageKey::collections(),
+                StorageKey::pendingCollectionTransfers(),
                 StorageKey::collectionAccounts(),
                 StorageKey::tokens(),
                 StorageKey::tokenAccounts(),
@@ -207,6 +208,7 @@ class Sync extends Command
         return collect(array_map(
             fn ($collectionId) => [
                 StorageKey::collections(Encoder::collectionStorageKey($collectionId)),
+                StorageKey::pendingCollectionTransfers(Encoder::collectionStorageKey($collectionId)),
                 StorageKey::collectionAccounts(Encoder::collectionAccountStorageKey($collectionId)),
                 StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
                 StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),

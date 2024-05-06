@@ -28,6 +28,10 @@ class CollectionMutated extends SubstrateEvent
         $attributes = [];
         $royalties = [];
 
+        if (!is_null($event->owner)) {
+            $attributes['pending_transfer'] = $event->owner;
+        }
+
         if ($event->royalty === 'SomeMutation') {
             if ($beneficiary = $event->beneficiary) {
                 $attributes['royalty_wallet_id'] = $this->firstOrStoreAccount($beneficiary)->id;

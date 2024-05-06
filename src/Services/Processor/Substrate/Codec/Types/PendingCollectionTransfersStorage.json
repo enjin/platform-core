@@ -1,0 +1,11 @@
+{
+  "PendingCollectionTransfersStorageKey": {
+    "pallet": "u128",
+    "storage": "u128",
+    "hashCollectionId": "u64",
+    "collectionId": "u128"
+  },
+  "PendingCollectionTransfersStorageData": {
+    "account": "AccountId"
+  }
+}
