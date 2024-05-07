@@ -35,7 +35,6 @@ class DecoderService
             ]);
 
             $data = $this->client->getResponse($result);
-            ray($data);
 
             if (!$data) {
                 Log::critical('Container returned empty response');
