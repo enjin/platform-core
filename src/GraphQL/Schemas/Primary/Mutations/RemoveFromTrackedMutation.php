@@ -7,7 +7,9 @@ use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Syncable;
+use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -76,7 +78,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
     {
         return [
             'chainIds' => ['required', 'array', 'max:1000'],
-            'chainIds.*' => [new MinBigInt(2000)],
+            'chainIds.*' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }

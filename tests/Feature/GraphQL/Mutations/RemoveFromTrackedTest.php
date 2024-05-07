@@ -5,6 +5,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Models\Syncable;
+use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
 
@@ -94,6 +95,11 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
                 static::getInputData(chainIds: [100]),
                 'chainIds.0',
                 'The chainIds.0 is too small, the minimum value it can be is 2000.',
+            ],
+            'chain ids too large' => [
+                self::getInputData(chainIds: [Hex::MAX_UINT256]),
+                'chainIds.0',
+                'The chainIds.0 is too large, the maximum value it can be is 340282366920938463463374607431768211455.',
             ],
         ];
     }
