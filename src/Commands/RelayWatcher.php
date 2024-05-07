@@ -47,7 +47,6 @@ class RelayWatcher extends Command
     public function handle(): int
     {
         $sub = new Substrate(new SubstrateWebsocket(currentRelayUrl()));
-        $this->warn('Starting subscription to new heads');
 
         try {
             $this->warn('Subscribing to new heads');
@@ -89,7 +88,7 @@ class RelayWatcher extends Command
         }
     }
 
-    protected function processNewHead($data)
+    protected function processNewHead($data): void
     {
         $syncTime = now();
         $result = Arr::get($data, 'params.result');
