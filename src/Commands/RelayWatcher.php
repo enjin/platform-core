@@ -2,14 +2,19 @@
 
 namespace Enjin\Platform\Commands;
 
+use Cache;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System\ExtrinsicFailed;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System\ExtrinsicSuccess;
 use Enjin\Platform\Services\Processor\Substrate\DecoderService;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
@@ -32,25 +37,27 @@ class RelayWatcher extends Command
     public function __construct()
     {
         parent::__construct();
+
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->codec = new Codec();
-        $this->rpc = new Substrate(new SubstrateWebsocket(networkConfig('node', currentRelay())));
+        $this->rpc = new Substrate(new SubstrateWebsocket(currentRelayUrl()));
         $this->decoder = new DecoderService(network: currentRelay()->value);
     }
 
     public function handle(): int
     {
-        $sub = new Substrate(new SubstrateWebsocket('wss://rpc.relay.canary.enjin.io'));
+        $sub = new Substrate(new SubstrateWebsocket(currentRelayUrl()));
         $this->warn('Starting subscription to new heads');
 
         try {
+            $this->warn('Subscribing to new heads');
             $sub->callMethod('chain_subscribeNewHeads');
-            $sub->callMethod('state_subscribeStorage', [['0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7']]);
+            $this->warn('Subscribing to any changes on account storage');
+            $sub->callMethod('state_subscribeStorage', [[StorageKey::events()->value]]);
+
             while (true) {
                 if ($response = $sub->getClient()->receive()) {
                     $data = JSON::decode($response, true);
-                    ray($data);
-
                     $method = Arr::get($data, 'method');
 
                     if ($method === 'chain_newHead') {
@@ -65,10 +72,6 @@ class RelayWatcher extends Command
         } finally {
             $sub->getClient()->close();
         }
-
-
-        //        $this->getBlocks();
-        //        $this->getEvents();
 
         return CommandAlias::SUCCESS;
     }
@@ -106,22 +109,17 @@ class RelayWatcher extends Command
 
     protected function fetchExtrinsics(string $blockHash, $blockNumber): void
     {
-        ray('Fetching block for hash ' . $blockHash);
         $data = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
-        //        ray($data);
 
         if ($extrinsics = Arr::get($data, 'block.extrinsics')) {
             for ($i = 0; $i < count($extrinsics); $i++) {
                 $decodedExtrinsic = Arr::first($this->decoder->decode('Extrinsics', [$extrinsics[$i]]));
-                ray($decodedExtrinsic);
-
                 $module = $decodedExtrinsic?->module;
                 $call = $decodedExtrinsic?->call;
 
                 if ($module === 'XcmPallet' && $call === 'limited_teleport_assets') {
                     $hash = $decodedExtrinsic->hash;
                     $signer = $decodedExtrinsic->signer;
-
                     $tx = Transaction::firstWhere([
                         'transaction_chain_hash' => $hash,
                         'wallet_public_key' => $signer,
@@ -131,36 +129,30 @@ class RelayWatcher extends Command
                     $tx->state = TransactionState::FINALIZED->name;
                     $tx->save();
 
-                    ray($tx);
+                    $this->updateExtrinsicResult($blockHash, $i, $tx->id, null);
 
                 }
 
                 $this->warn('Module: ' . $module);
                 $this->warn('Call: ' . $call);
             }
-
-
         }
-
-        //        ray($extrinsics);
     }
 
     protected function getEvents($data): void
     {
-        $this->warn('Subscribing to any changes on account storage');
         $result = Arr::get($data, 'params.result');
-        $block = Arr::get($result, 'changes.0.0'); // block
-        $events = Arr::get($result, 'changes.0.1'); // events
+        $block = Arr::get($result, 'block');
+        $events = Arr::get($result, 'changes.0.1');
         $decodedEvents = $this->decoder->decode('events', $events);
         $this->findEndowedAccounts($decodedEvents, $block);
     }
 
-    protected function findEndowedAccounts(array $events, string $block): void
+    protected function findEndowedAccounts(array $events, string $blockHash): void
     {
-        ray($events);
         array_filter(
             $events,
-            function ($event) use ($block) {
+            function ($event) use ($blockHash, $events) {
                 if ($event->module === 'Balances' && $event->name === 'Transfer') {
                     if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
                         $this->info(json_encode($event));
@@ -169,10 +161,49 @@ class RelayWatcher extends Command
                 }
 
                 if ($event->module === 'XcmPallet' && $event->name === 'Attempted') {
-                    $this->info('The block is: ' . $block);
+                    $this->info('The block is: ' . $blockHash);
+                    $extrinsicIndex = $event->extrinsicIndex;
+                    $successOrFailed = collect($events)->firstWhere(
+                        fn ($event) => ($event instanceof ExtrinsicSuccess || $event instanceof ExtrinsicFailed)
+                        && $event->extrinsicIndex === $extrinsicIndex
+                    );
+
+                    $blockNumber = $this->getBlockNumber($blockHash);
+                    $this->updateExtrinsicResult($blockNumber, $extrinsicIndex, null, $successOrFailed);
                 }
             }
         );
+    }
+
+    protected function getBlockNumber($blockHash): int
+    {
+        while (true) {
+            $block = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
+            if ($block) {
+                return HexConverter::hexToUInt(Arr::get($block, 'block.header.number'));
+            }
+
+            usleep(100000);
+        }
+    }
+
+    protected function updateExtrinsicResult($blockNumber, $extrinsicIndex, $transactionId, $success): void
+    {
+        $extrinsicIdentifier = Cache::remember(
+            PlatformCache::BLOCK_TRANSACTION->key($txId = $blockNumber . '-' . $extrinsicIndex),
+            now()->addMinute(),
+            fn () => $txId . ':' . $success->name,
+        );
+
+        if ($transactionId) {
+            $tx = Transaction::find($transactionId);
+            $explode = explode(':', $extrinsicIdentifier);
+
+            if ($tx->transaction_chain_id === $explode[0]) {
+                $tx->result = $explode[1] === 'ExtrinsicSuccess' ? SystemEventType::EXTRINSIC_SUCCESS->name : SystemEventType::EXTRINSIC_FAILED->name;
+                $tx->save();
+            }
+        }
     }
 
     protected function createDaemonTransaction(string $account, string $amount): void
@@ -188,9 +219,6 @@ class RelayWatcher extends Command
         $call .= '030400000000' . HexConverter::unPrefix($amount);
         $call .= '0000000000';
 
-        $this->info($call);
-
-
         Transaction::create([
             'wallet_public_key' => $managedWallet->public_key,
             'method' => 'LimitedTeleportAssets',
@@ -199,7 +227,6 @@ class RelayWatcher extends Command
             'encoded_data' => $call,
             'idempotency_key' => Str::uuid(),
         ]);
-
 
         // 63 09 = callIndex = (u8; u8)
         // 03 = dest = XcmVersionedMultiLocation (XcmV3MultiLocation)
@@ -217,6 +244,5 @@ class RelayWatcher extends Command
         // 00 130000f44482916345 = fun = XcmV3MultiassetFungibility (Fungible) + Amount Compact<u128>
         // 00000000 = feeAssetItem = u32
         // 00 = weightLimit = XcmV3WeightLimit (unlimited)
-
     }
 }

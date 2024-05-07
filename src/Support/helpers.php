@@ -39,6 +39,17 @@ if (!function_exists('isTestnet')) {
     }
 }
 
+if (!function_exists('currentRelayUrl')) {
+    /**
+     * Get the equivalent relaychain url for the current used network.
+     */
+    function currentRelayUrl(): string
+    {
+        return networkConfig('node', currentRelay());
+    }
+
+}
+
 if (!function_exists('currentRelay')) {
     /**
      * Get the equivalent relaychain for the current used network.
