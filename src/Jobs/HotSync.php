@@ -38,7 +38,7 @@ class HotSync implements ShouldQueue
                     try {
                         $keys = $websocket->send('state_getKeysPaged', [$storageKey->value, $this->keysPerPage, $startKey ?? null]);
                     } catch (\Throwable $e) {
-                        ray($e->getMessage());
+                        Log::error($e->getMessage());
 
                         throw $e;
                     }

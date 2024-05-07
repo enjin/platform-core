@@ -79,8 +79,16 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
             ],
             'no chain ids supplied' => [
                 ['type' => ModelType::COLLECTION->name],
-                'chainsIds',
+                'chainIds',
                 'Variable "$chainIds" of required type "[BigInt!]!" was not provided.',
+            ],
+            'too many chain ids supplied' => [
+                [
+                    'type' => ModelType::COLLECTION->name,
+                    'chainIds' => array_map(fn () => (string) fake()->unique()->numberBetween(2000), array_fill(0, 1001, null)),
+                ],
+                'chainIds',
+                'The chain ids field must not have more than 1000 items.',
             ],
             'chain ids too low' => [
                 static::getInputData(chainIds: [100]),

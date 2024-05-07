@@ -83,6 +83,23 @@ class AddToTrackedTest extends TestCaseGraphQL
                 'chainsIds',
                 'Variable "$chainIds" of required type "[String!]!" was not provided.',
             ],
+            'too many chain ids supplied with hot sync' => [
+                [
+                    'type' => ModelType::COLLECTION->name,
+                    'chainIds' => array_map(fn () => (string) fake()->unique()->numberBetween(2000), array_fill(0, 11, null)),
+                ],
+                'chainIds',
+                'The chain ids field must not have more than 10 items.',
+            ],
+            'too many chain ids supplied without hot sync' => [
+                [
+                    'type' => ModelType::COLLECTION->name,
+                    'chainIds' => array_map(fn () => (string) fake()->unique()->numberBetween(2000), array_fill(0, 1001, null)),
+                    'hotSync' => false,
+                ],
+                'chainIds',
+                'The chain ids field must not have more than 1000 items.',
+            ],
             'chain ids too low' => [
                 self::getInputData(chainIds: ['100']),
                 'chainIds.0',

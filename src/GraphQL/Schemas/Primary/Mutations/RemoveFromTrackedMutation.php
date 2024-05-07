@@ -75,6 +75,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
     protected function rules(array $args = []): array
     {
         return [
+            'chainIds' => ['required', 'array', 'max:1000'],
             'chainIds.*' => [new MinBigInt(2000)],
         ];
     }

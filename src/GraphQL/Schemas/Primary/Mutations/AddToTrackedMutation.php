@@ -87,6 +87,9 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
      */
     protected function rules(array $args = []): array
     {
-        return $this->getContextSensitiveRules(ModelType::getEnumCase($args['type'])->name);
+        return [
+            'chainIds' => ['required', 'array', $args['hotSync'] ? 'max:10' : 'max:1000'],
+            ...$this->getContextSensitiveRules(ModelType::getEnumCase($args['type'])->name),
+        ];
     }
 }
