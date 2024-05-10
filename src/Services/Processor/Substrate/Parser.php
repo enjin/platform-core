@@ -18,6 +18,7 @@ use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
 use Enjin\Platform\Support\Hex;
+use Illuminate\Support\Arr;
 
 class Parser
 {
@@ -440,7 +441,12 @@ class Parser
         }
 
         if ($hotSync) {
-            Attribute::upsert($insertData, uniqueBy: ['collection_id', 'token_id', 'key']);
+            foreach ($insertData as $data) {
+                Attribute::updateOrInsert(
+                    Arr::except($data, 'value'),
+                    $data
+                );
+            }
         } else {
             Attribute::insert($insertData);
         }

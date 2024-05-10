@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
@@ -51,8 +50,6 @@ return new class () extends Migration {
 
         try {
             Schema::table('attributes', function (Blueprint $table) {
-                $this->removeDuplicateAttributes();
-
                 $table->dropIndex('attributes_collection_id_token_id_key_index');
                 $table->unique(['collection_id', 'token_id', 'key']);
             });
@@ -158,35 +155,6 @@ return new class () extends Migration {
             });
         } catch (Throwable $e) {
             Log::error($e->getMessage());
-        }
-    }
-
-    protected function removeDuplicateAttributes()
-    {
-        // Get all duplicate attributes records
-        $duplicates = DB::table('attributes')
-            ->select('collection_id', 'token_id', 'key')
-            ->groupBy('collection_id', 'token_id', 'key')
-            ->havingRaw('COUNT(*) > 1')
-            ->get();
-
-        foreach ($duplicates as $duplicate) {
-            // Get all records for this duplicate set, ordered by id
-            $records = DB::table('attributes')
-                ->where('collection_id', $duplicate->collection_id)
-                ->where('token_id', $duplicate->token_id)
-                ->where('key', $duplicate->key)
-                ->orderBy('id', 'asc')
-                ->get();
-
-            // Since we ordered by `id` ascending,
-            // We need to keep the last record and delete all others
-            $records->pop();
-
-            // Delete the remaining records
-            DB::table('attributes')
-                ->whereIn('id', $records->pluck('id')->toArray())
-                ->delete();
         }
     }
 };
