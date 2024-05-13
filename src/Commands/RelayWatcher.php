@@ -131,9 +131,6 @@ class RelayWatcher extends Command
                     $this->updateExtrinsicResult($blockHash, $i, $tx->id, null);
 
                 }
-
-                $this->warn('Module: ' . $module);
-                $this->warn('Call: ' . $call);
             }
         }
     }
@@ -160,7 +157,6 @@ class RelayWatcher extends Command
                 }
 
                 if ($event->module === 'XcmPallet' && $event->name === 'Attempted') {
-                    $this->info('The block is: ' . $blockHash);
                     $extrinsicIndex = $event->extrinsicIndex;
                     $successOrFailed = collect($events)->firstWhere(
                         fn ($event) => ($event instanceof ExtrinsicSuccess || $event instanceof ExtrinsicFailed)
@@ -207,7 +203,7 @@ class RelayWatcher extends Command
 
     protected function createDaemonTransaction(string $account, string $amount): void
     {
-        $this->info('Lets create a transaction to teleport the ENJ from: ' . $account);
+        $this->info('Creating transaction to teleport ENJ from: ' . $account);
 
         $managedWallet = Wallet::firstWhere([
             'public_key' => $account,
