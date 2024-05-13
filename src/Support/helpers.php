@@ -9,7 +9,21 @@ if (!function_exists('network')) {
      */
     function network(): NetworkType
     {
-        return NetworkType::tryFrom(config('enjin-platform.chains.network')) ?? NetworkType::ENJIN_MATRIX;
+        $network = config('enjin-platform.chains.network');
+
+        if ($network === 'enjin') {
+            return NetworkType::ENJIN_MATRIX;
+        }
+
+        if ($network === 'canary') {
+            return NetworkType::CANARY_MATRIX;
+        }
+
+        if ($network === 'local') {
+            return NetworkType::LOCAL_MATRIX;
+        }
+
+        return NetworkType::tryFrom($network) ?? NetworkType::ENJIN_MATRIX;
     }
 }
 

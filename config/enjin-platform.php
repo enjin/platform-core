@@ -94,7 +94,7 @@ return [
     'chains' => [
         'supported' => [
             'substrate' => [
-                NetworkType::ENJIN_MATRIX->value => [
+                NetworkType::ENJIN_MATRIX->value => $enjin = [
                     'chain-id' => 0,
                     'network-id' => 2000,
                     'testnet' => false,
@@ -105,7 +105,8 @@ return [
                     'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1005),
                     'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 7),
                 ],
-                NetworkType::CANARY_MATRIX->value => [
+                'enjin' => $enjin,
+                NetworkType::CANARY_MATRIX->value => $canary = [
                     'chain-id' => 0,
                     'network-id' => 2010,
                     'testnet' => true,
@@ -116,7 +117,8 @@ return [
                     'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1006),
                     'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 7),
                 ],
-                NetworkType::LOCAL_MATRIX->value => [
+                'canary' => $canary,
+                NetworkType::LOCAL_MATRIX->value => $local = [
                     'chain-id' => 0,
                     'network-id' => 104,
                     'testnet' => true,
@@ -127,6 +129,7 @@ return [
                     'spec-version' => env('SUBSTRATE_LOCAL_SPEC_VERSION', 1003),
                     'transaction-version' => env('SUBSTRATE_LOCAL_TRANSACTION_VERSION', 5),
                 ],
+                'local' => $local,
                 NetworkType::ENJIN_RELAY->value => [
                     'chain-id' => 1,
                     'network-id' => 2000,
