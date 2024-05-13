@@ -11,7 +11,7 @@ class SubstrateWebsocket extends WebsocketAbstract
      */
     public function __construct(?string $url = null)
     {
-        $host = $url ?? config(sprintf('enjin-platform.chains.supported.substrate.%s.node', config('enjin-platform.chains.network')));
+        $host = $url ?? networkConfig('node');
 
         parent::__construct($host);
     }

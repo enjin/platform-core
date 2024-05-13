@@ -1,5 +1,9 @@
 <?php
 
+use Enjin\Platform\Enums\Global\ChainType;
+use Enjin\Platform\Enums\Global\NetworkType;
+use Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter;
+
 // config for Platform/Core
 
 return [
@@ -90,7 +94,7 @@ return [
     'chains' => [
         'supported' => [
             'substrate' => [
-                'enjin' => [
+                NetworkType::ENJIN_MATRIX->value => $enjin = [
                     'chain-id' => 0,
                     'network-id' => 2000,
                     'testnet' => false,
@@ -101,7 +105,8 @@ return [
                     'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1006),
                     'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 7),
                 ],
-                'canary' => [
+                'enjin' => $enjin,
+                NetworkType::CANARY_MATRIX->value => $canary = [
                     'chain-id' => 0,
                     'network-id' => 2010,
                     'testnet' => true,
@@ -112,7 +117,8 @@ return [
                     'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1006),
                     'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 7),
                 ],
-                'local' => [
+                'canary' => $canary,
+                NetworkType::LOCAL_MATRIX->value => $local = [
                     'chain-id' => 0,
                     'network-id' => 104,
                     'testnet' => true,
@@ -123,12 +129,46 @@ return [
                     'spec-version' => env('SUBSTRATE_LOCAL_SPEC_VERSION', 1003),
                     'transaction-version' => env('SUBSTRATE_LOCAL_TRANSACTION_VERSION', 5),
                 ],
+                'local' => $local,
+                NetworkType::ENJIN_RELAY->value => [
+                    'chain-id' => 1,
+                    'network-id' => 2000,
+                    'testnet' => false,
+                    'platform-id' => env('SUBSTRATE_ENJIN_RELAY_PLATFORM_ID', 0),
+                    'node' => env('SUBSTRATE_ENJIN_RELAY_RPC', 'wss://rpc.relay.blockchain.enjin.io'),
+                    'ss58-prefix' => env('SUBSTRATE_ENJIN_RELAY_SS58_PREFIX', 2135),
+                    'genesis-hash' => env('SUBSTRATE_ENJIN_RELAY_GENESIS_HASH', '0xd8761d3c88f26dc12875c00d3165f7d67243d56fc85b4cf19937601a7916e5a9'),
+                    'spec-version' => env('SUBSTRATE_ENJIN_RELAY_SPEC_VERSION', 1026),
+                    'transaction-version' => env('SUBSTRATE_ENJIN_RELAY_TRANSACTION_VERSION', 7),
+                ],
+                NetworkType::CANARY_RELAY->value => [
+                    'chain-id' => 1,
+                    'network-id' => 2010,
+                    'testnet' => true,
+                    'platform-id' => env('SUBSTRATE_CANARY_RELAY_PLATFORM_ID', 0),
+                    'node' => env('SUBSTRATE_CANARY_RELAY_RPC', 'wss://rpc.relay.canary.enjin.io'),
+                    'ss58-prefix' => env('SUBSTRATE_CANARY_RELAY_SS58_PREFIX', 69),
+                    'genesis-hash' => env('SUBSTRATE_CANARY_RELAY_GENESIS_HASH', '0x735d8773c63e74ff8490fee5751ac07e15bfe2b3b5263be4d683c48dbdfbcd15'),
+                    'spec-version' => env('SUBSTRATE_CANARY_RELAY_SPEC_VERSION', 1026),
+                    'transaction-version' => env('SUBSTRATE_CANARY_RELAY_TRANSACTION_VERSION', 11),
+                ],
+                NetworkType::LOCAL_RELAY->value => [
+                    'chain-id' => 1,
+                    'network-id' => 104,
+                    'testnet' => true,
+                    'platform-id' => env('SUBSTRATE_LOCAL_RELAY_PLATFORM_ID', 0),
+                    'node' => env('SUBSTRATE_LOCAL_RELAY_RPC', 'ws://localhost:10010'),
+                    'ss58-prefix' => env('SUBSTRATE_LOCAL_RELAY_SS58_PREFIX', 195),
+                    'genesis-hash' => env('SUBSTRATE_LOCAL_RELAY_GENESIS_HASH', '0xa37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f'),
+                    'spec-version' => env('SUBSTRATE_LOCAL_RELAY_SPEC_VERSION', 1003),
+                    'transaction-version' => env('SUBSTRATE_LOCAL_RELAY_TRANSACTION_VERSION', 5),
+                ],
             ],
         ],
 
-        'selected' => env('CHAIN', 'substrate'),
+        'selected' => env('CHAIN', ChainType::SUBSTRATE->value),
 
-        'network' => env('NETWORK', 'enjin'),
+        'network' => env('NETWORK', NetworkType::ENJIN_MATRIX->value),
 
         'daemon-account' => env('DAEMON_ACCOUNT') ?: '0x0000000000000000000000000000000000000000000000000000000000000000',
     ],
@@ -189,7 +229,7 @@ return [
     |
     */
     'qr' => [
-        'adapter' => Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter::class,
+        'adapter' => PlatformQrAdapter::class,
         'size' => env('QR_CODE_SIZE', 512),
         'format' => env('QR_CODE_FORMAT', 'png'),
     ],

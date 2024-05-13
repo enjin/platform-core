@@ -45,6 +45,7 @@ class TransactionService
 
         $data['wallet_public_key'] = $signingWallet?->public_key;
         $data['method'] = $data['method'] ?? '';
+        $data['network'] = network()->name;
 
         if (Arr::get($data, 'simulate', false)) {
             $data['created_at'] = $data['updated_at'] = Carbon::now();

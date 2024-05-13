@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Http\Controllers;
 
 use Composer\InstalledVersions;
+use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Package;
 use Illuminate\Http\JsonResponse;
@@ -55,8 +56,8 @@ class PlatformController extends Controller
         $platformData = [
             'root' => 'enjin/platform-core',
             'url' => trim(config('app.url'), '/'),
-            'chain' => config('enjin-platform.chains.selected'),
-            'network' => config('enjin-platform.chains.network'),
+            'chain' => chain()->value,
+            'network' => network() === NetworkType::ENJIN_MATRIX ? 'enjin' : 'canary',
             'packages' => static::getPlatformPackages(),
             'release-diff' => static::getReleaseDiffData(true),
             'next-release' => static::getReleaseDiffData(),

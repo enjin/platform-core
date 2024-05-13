@@ -66,6 +66,11 @@ class GetWalletsQuery extends Query implements PlatformGraphQlQuery
                 'type' => GraphQL::type('[String!]'),
                 'description' => __('enjin-platform::query.get_wallet.args.account'),
             ],
+            'managed' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::query.get_wallet.args.managed'),
+                'defaultValue' => false,
+            ],
         ]);
     }
 
@@ -79,6 +84,7 @@ class GetWalletsQuery extends Query implements PlatformGraphQlQuery
             ->when($externalIds = Arr::get($args, 'externalIds'), fn (Builder $query) => $query->whereIn('external_id', $externalIds))
             ->when($verificationIds = Arr::get($args, 'verificationIds'), fn (Builder $query) => $query->whereIn('verification_id', $verificationIds))
             ->when($accounts = Arr::get($args, 'accounts'), fn (Builder $query) => $query->whereIn('public_key', collect($accounts)->map(fn ($val) => SS58Address::getPublicKey($val))->toArray()))
+            ->when($managed = Arr::get($args, 'managed'), fn (Builder $query) => $query->where('managed', $managed))
             ->cursorPaginateWithTotalDesc('id', $args['first']);
 
         $fields = Arr::get($resolveInfo->lookAhead()->queryPlan(), 'edges.fields.node.fields', []);
@@ -90,7 +96,7 @@ class GetWalletsQuery extends Query implements PlatformGraphQlQuery
     }
 
     /**
-     * Get the validatio rules.
+     * Get the validate rules.
      */
     protected function rules(array $args = []): array
     {
@@ -115,8 +121,7 @@ class GetWalletsQuery extends Query implements PlatformGraphQlQuery
                 'min:1',
                 'max:100',
             ],
-            'verificationIds.*' => ['bail', 'filled', new ValidVerificationId()],
-            'verificationIds.*' => ['bail', 'filled', 'max:1000'],
+            'verificationIds.*' => ['bail', 'filled', 'max:1000', new ValidVerificationId()],
             'accounts' => [
                 Rule::prohibitedIf(!empty($args['verificationIds']) || !empty($args['externalIds']) || !empty($args['ids'])),
                 'array',
@@ -124,6 +129,7 @@ class GetWalletsQuery extends Query implements PlatformGraphQlQuery
                 'max:100',
             ],
             'accounts.*' => ['bail', 'filled', 'max:255', new ValidSubstrateAccount()],
+            'managed' => ['boolean'],
         ];
     }
 }

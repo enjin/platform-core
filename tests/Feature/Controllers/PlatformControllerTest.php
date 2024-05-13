@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Tests\Feature\Controllers;
 
+use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Http\Controllers\PlatformController;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Facades\Cache;
@@ -24,8 +25,8 @@ class PlatformControllerTest extends TestCaseGraphQL
             [
                 'root' => 'enjin/platform-core',
                 'url' => trim(config('app.url'), '/'),
-                'chain' => config('enjin-platform.chains.selected'),
-                'network' => config('enjin-platform.chains.network'),
+                'chain' => chain()->value,
+                'network' => network() === NetworkType::ENJIN_MATRIX ? 'enjin' : 'canary',
                 'packages' => PlatformController::getPlatformPackages(),
                 'release-diff' => [],
                 'next-release' => [],

@@ -40,6 +40,7 @@ class Transaction extends BaseModel
         'encoded_data',
         'fee',
         'deposit',
+        'network',
         'idempotency_key',
         'signed_at_block',
         'created_at',

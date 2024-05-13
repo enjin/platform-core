@@ -56,6 +56,10 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                 'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform::mutation.mark_and_list_pending_transactions.args.accounts'),
             ],
+            'network' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::mutation.mark_and_list_pending_transactions.args.network'),
+            ],
             'markAsProcessing' => [
                 'type' => GraphQL::type('Boolean'),
                 'defaultValue' => true,
@@ -70,6 +74,16 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     {
         $transactions = Transaction::loadSelectFields($resolveInfo, $this->name)
             ->where('state', '=', TransactionState::PENDING->name)
+            ->when(
+                $args['network'] ?? false,
+                function (Builder $query) use ($args) {
+                    return $query->where(
+                        'network',
+                        '=',
+                        $args['network'] === 'relay' ? currentRelay()->name : currentMatrix()->name
+                    );
+                },
+            )
             ->when(
                 $args['accounts'] ?? false,
                 function (Builder $query) use ($args) {

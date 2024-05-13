@@ -26,7 +26,7 @@ class AsyncWebsocket
      */
     public function __construct(?string $url = null)
     {
-        $this->host = $url ?? config(sprintf('enjin-platform.chains.supported.%s.%s.node', config('enjin-platform.chains.selected'), config('enjin-platform.chains.network')));
+        $this->host = $url ?? networkConfig('node');
         $this->client = $this->connect();
     }
 

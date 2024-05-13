@@ -27,6 +27,8 @@ enum PlatformCache: string implements PlatformCacheable
 
     case BLOCK_EVENT_COUNT = 'blockEventCount';
 
+    case BLOCK_TRANSACTION = 'blockTransaction';
+
     public function key(?string $suffix = null): string
     {
         return 'enjin-platform:core:' . $this->value . ($suffix ? ":{$suffix}" : '');
