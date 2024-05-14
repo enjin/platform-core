@@ -8,7 +8,10 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasContextSensitiveR
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Syncable;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Database\CollectionService;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -18,6 +21,13 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
 {
     use HasContextSensitiveRules;
     use InPrimarySchema;
+
+    public function __construct()
+    {
+        self::addContextSensitiveRule(ModelType::COLLECTION->name, [
+            'chainIds.*' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+        ]);
+    }
 
     /**
      * Get the mutation's attributes.

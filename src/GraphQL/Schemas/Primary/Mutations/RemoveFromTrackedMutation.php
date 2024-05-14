@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
 use Enjin\Platform\Enums\Global\ModelType;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasContextSensitiveRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Syncable;
@@ -17,7 +18,15 @@ use Rebing\GraphQL\Support\Mutation;
 
 class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutation
 {
+    use HasContextSensitiveRules;
     use InPrimarySchema;
+
+    public function __construct()
+    {
+        self::addContextSensitiveRule(ModelType::COLLECTION->name, [
+            'chainIds.*' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+        ]);
+    }
 
     /**
      * Get the mutation's attributes.
@@ -78,7 +87,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
     {
         return [
             'chainIds' => ['required', 'array', 'max:1000'],
-            'chainIds.*' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getContextSensitiveRules($args['type']),
         ];
     }
 }

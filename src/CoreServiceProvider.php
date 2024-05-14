@@ -8,12 +8,10 @@ use Enjin\Platform\Commands\RelayWatcher;
 use Enjin\Platform\Commands\Sync;
 use Enjin\Platform\Commands\TransactionChecker;
 use Enjin\Platform\Commands\Transactions;
-use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
-use Enjin\Platform\GraphQL\Schemas\Primary\Mutations\AddToTrackedMutation;
 use Enjin\Platform\Providers\AuthServiceProvider;
 use Enjin\Platform\Providers\Deferred\BlockchainServiceProvider;
 use Enjin\Platform\Providers\Deferred\QrServiceProvider;
@@ -22,10 +20,7 @@ use Enjin\Platform\Providers\Deferred\WebsocketClientProvider;
 use Enjin\Platform\Providers\FakerServiceProvider;
 use Enjin\Platform\Providers\GitHubServiceProvider;
 use Enjin\Platform\Providers\GraphQlServiceProvider;
-use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
-use Enjin\Platform\Support\Hex;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -98,10 +93,6 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(FakerServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(GitHubServiceProvider::class);
-
-        AddToTrackedMutation::addContextSensitiveRule(ModelType::COLLECTION->name, [
-            'chainIds.*' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
-        ]);
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::syncing());
         Event::listen(PlatformSynced::class, fn () => BlockProcessor::syncingDone());

@@ -6,13 +6,13 @@ trait HasContextSensitiveRules
 {
     public static array $contextSensitiveRules = [];
 
-    public static function addContextSensitiveRule(string $model, array $rules)
+    public static function addContextSensitiveRule(string $context, array $rules)
     {
-        static::$contextSensitiveRules[$model] = $rules;
+        static::$contextSensitiveRules[$context] = $rules;
     }
 
-    public function getContextSensitiveRules(string $model): array
+    public function getContextSensitiveRules(string $context): array
     {
-        return static::$contextSensitiveRules[$model] ?? [];
+        return static::$contextSensitiveRules[$context] ?? [];
     }
 }
