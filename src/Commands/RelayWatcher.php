@@ -232,7 +232,7 @@ class RelayWatcher extends Command
         // 03 = beneficiary = XcmVersionedMultiLocation (XcmV3MultiLocation)
         // 00 = parents = u8
         // 01 01 = interior = XcmV3Juntions (XcmV3Junction X1) AccountId32
-        // 00 = network = Network = Option<\\]=lslslsllsllaldlsdp;0lsls>
+        // 00 = network = Network = Option<XcmV3JunctionNetworkId>
         // c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e79 = id = [u8;32]
         // 03 04 = assets = Vec<XcmV3MultiassetMultiAssets> (V3)
         // 00 = id = XcmV3MultiassetAssetId (Concrete)
