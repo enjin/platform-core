@@ -9,6 +9,7 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
+use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -129,7 +130,6 @@ class RelayWatcher extends Command
                     $tx->save();
 
                     $this->updateExtrinsicResult($blockHash, $i, $tx->id, null);
-
                 }
             }
         }
@@ -214,7 +214,7 @@ class RelayWatcher extends Command
         $call .= '030400000000' . HexConverter::unPrefix($amount);
         $call .= '0000000000';
 
-        Transaction::create([
+        $transaction = Transaction::create([
             'wallet_public_key' => $managedWallet->public_key,
             'method' => 'LimitedTeleportAssets',
             'state' => TransactionState::PENDING->name,
@@ -222,6 +222,8 @@ class RelayWatcher extends Command
             'encoded_data' => $call,
             'idempotency_key' => Str::uuid(),
         ]);
+
+        TransactionCreated::safeBroadcast($transaction);
 
         // 63 09 = callIndex = (u8; u8)
         // 03 = dest = XcmVersionedMultiLocation (XcmV3MultiLocation)
