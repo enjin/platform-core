@@ -9,6 +9,7 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
+use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -129,7 +130,6 @@ class RelayWatcher extends Command
                     $tx->save();
 
                     $this->updateExtrinsicResult($blockHash, $i, $tx->id, null);
-
                 }
             }
         }
@@ -214,7 +214,7 @@ class RelayWatcher extends Command
         $call .= '030400000000' . HexConverter::unPrefix($amount);
         $call .= '0000000000';
 
-        Transaction::create([
+        $transaction = Transaction::create([
             'wallet_public_key' => $managedWallet->public_key,
             'method' => 'LimitedTeleportAssets',
             'state' => TransactionState::PENDING->name,
@@ -223,6 +223,8 @@ class RelayWatcher extends Command
             'idempotency_key' => Str::uuid(),
         ]);
 
+        TransactionCreated::safeBroadcast($transaction);
+
         // 63 09 = callIndex = (u8; u8)
         // 03 = dest = XcmVersionedMultiLocation (XcmV3MultiLocation)
         // 00 = parents = u8
@@ -230,7 +232,7 @@ class RelayWatcher extends Command
         // 03 = beneficiary = XcmVersionedMultiLocation (XcmV3MultiLocation)
         // 00 = parents = u8
         // 01 01 = interior = XcmV3Juntions (XcmV3Junction X1) AccountId32
-        // 00 = network = Network = Option<XcmV3JunctionNetworkId>
+        // 00 = network = Network = Option<\\]=lslslsllsllaldlsdp;0lsls>
         // c660fef4c0926e382839d20caee6d4e3adb4d27ec66b223ed6456845196e3e79 = id = [u8;32]
         // 03 04 = assets = Vec<XcmV3MultiassetMultiAssets> (V3)
         // 00 = id = XcmV3MultiassetAssetId (Concrete)
