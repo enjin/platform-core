@@ -9,13 +9,13 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
+use Enjin\Platform\Enums\Substrate\XcmOutcome;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Events\Substrate\Balances\Teleport;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System\ExtrinsicFailed;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System\ExtrinsicSuccess;
 use Enjin\Platform\Services\Processor\Substrate\DecoderService;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
@@ -125,11 +125,13 @@ class RelayWatcher extends Command
                         'wallet_public_key' => $signer,
                     ]);
 
-                    $tx->transaction_chain_id = $blockNumber . '-' . $i;
-                    $tx->state = TransactionState::FINALIZED->name;
-                    $tx->save();
+                    if ($tx) {
+                        $tx->transaction_chain_id = $blockNumber . '-' . $i;
+                        $tx->state = TransactionState::FINALIZED->name;
+                        $tx->save();
 
-                    $this->updateExtrinsicResult($blockHash, $i, $tx->id, null);
+                        $this->updateExtrinsicResult($blockNumber, $i, $tx->id, null);
+                    }
                 }
             }
         }
@@ -146,9 +148,11 @@ class RelayWatcher extends Command
 
     protected function findEndowedAccounts(array $events, string $blockHash): void
     {
+        $blockNumber = $this->getBlockNumber($blockHash);
+
         array_filter(
             $events,
-            function ($event) use ($blockHash, $events) {
+            function ($event) use ($blockNumber) {
                 if ($event->module === 'Balances' && $event->name === 'Transfer') {
                     if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
                         $this->info(json_encode($event));
@@ -157,14 +161,12 @@ class RelayWatcher extends Command
                 }
 
                 if ($event->module === 'XcmPallet' && $event->name === 'Attempted') {
-                    $extrinsicIndex = $event->extrinsicIndex;
-                    $successOrFailed = collect($events)->firstWhere(
-                        fn ($event) => ($event instanceof ExtrinsicSuccess || $event instanceof ExtrinsicFailed)
-                        && $event->extrinsicIndex === $extrinsicIndex
-                    );
+                    $successOrFailed = $event->outcome === XcmOutcome::COMPLETE;
+                    $this->updateExtrinsicResult($blockNumber, $event->extrinsicIndex, null, $successOrFailed);
+                }
 
-                    $blockNumber = $this->getBlockNumber($blockHash);
-                    $this->updateExtrinsicResult($blockNumber, $extrinsicIndex, null, $successOrFailed);
+                if ($event->module === 'System' && $event->name === 'ExtrinsicFailed') {
+                    $this->updateExtrinsicResult($blockNumber, $event->extrinsicIndex, null, false);
                 }
             }
         );
@@ -186,18 +188,37 @@ class RelayWatcher extends Command
     {
         $extrinsicIdentifier = Cache::remember(
             PlatformCache::BLOCK_TRANSACTION->key($txId = $blockNumber . '-' . $extrinsicIndex),
-            now()->addMinute(),
-            fn () => $txId . ':' . $success->name,
+            now()->addMinutes(5),
+            fn () => $txId . ':' . $success,
         );
 
-        if ($transactionId) {
-            $tx = Transaction::find($transactionId);
-            $explode = explode(':', $extrinsicIdentifier);
-
-            if ($tx->transaction_chain_id === $explode[0]) {
-                $tx->result = $explode[1] === 'ExtrinsicSuccess' ? SystemEventType::EXTRINSIC_SUCCESS->name : SystemEventType::EXTRINSIC_FAILED->name;
-                $tx->save();
+        if ($transactionId != null) {
+            $tx = Transaction::firstWhere('id', $transactionId);
+            if (!$tx) {
+                return;
             }
+
+            $explode = explode(':', $extrinsicIdentifier);
+            if ($tx->transaction_chain_id !== $explode[0]) {
+                return;
+            }
+
+            if ($explode[1]) {
+                $tx->result = SystemEventType::EXTRINSIC_SUCCESS->name;
+                Teleport::safeBroadcast(
+                    $wallet = Wallet::firstWhere('public_key', $tx->wallet_public_key),
+                    $wallet,
+                    $tx->amount,
+                    currentMatrix()->value,
+                    $tx,
+                );
+            }
+
+            if (!$explode[1]) {
+                $tx->result = SystemEventType::EXTRINSIC_FAILED->name;
+            }
+
+            $tx->save();
         }
     }
 
