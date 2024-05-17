@@ -1294,6 +1294,50 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_will_fail_with_invalid_key_length(): void
+    {
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => fake()->boolean(),
+            ],
+            'attributes' => [
+                [
+                    'key' => fake()->numerify(str_repeat('#', 257)),
+                    'value' => fake()->realText(),
+                ],
+            ],
+        ], true);
+
+        $this->assertArraySubset(
+            ['attributes.0.key' =>  ['The attributes.0.key field is too large.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_invalid_value_length(): void
+    {
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => fake()->boolean(),
+            ],
+            'attributes' => [
+                [
+                    'key' => fake()->word(),
+                    'value' => fake()->asciify(str_repeat('*', 1025)),
+                ],
+            ],
+        ], true);
+
+        $this->assertArraySubset(
+            ['attributes.0.value' =>  ['The attributes.0.value field is too large.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
     public function test_it_will_fail_with_duplicate_attributes(): void
     {
         $response = $this->graphql($this->method, [

@@ -16,6 +16,7 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\StringMaxByteLength;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -125,8 +126,8 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     protected function rulesCommon(array $args): array
     {
         return [
-            'key' => ['filled', 'alpha_dash', 'max:32'],
-            'value' => ['filled', 'max:255'],
+            'key' => ['filled', 'alpha_dash', new StringMaxByteLength(256)],
+            'value' => ['filled', new StringMaxByteLength(1024)],
         ];
     }
 

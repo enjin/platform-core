@@ -198,6 +198,37 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     }
 
     // Exception Path
+    public function test_it_will_fail_with_invalid_key_length(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'key' => fake()->numerify(str_repeat('#', 257)),
+            'value' => fake()->realText(),
+        ], true);
+
+        $this->assertArraySubset(
+            ['key' =>  ['The key field is too large.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_invalid_value_length(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'key' => fake()->word(),
+            'value' => fake()->asciify(str_repeat('*', 1025)),
+        ], true);
+
+        $this->assertArraySubset(
+            ['value' =>  ['The value field is too large.']],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
 
     public function test_it_fail_with_for_collection_that_doesnt_exists(): void
     {
