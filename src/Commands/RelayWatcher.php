@@ -230,7 +230,9 @@ class RelayWatcher extends Command
             'public_key' => $account,
         ]);
 
-        $transferableAmount = $this->codec->encoder()->compact(gmp_sub(gmp_init($amount), gmp_init(100000000000000000)));
+        $transferableAmount = $this->codec->encoder()->compact(
+            gmp_strval(gmp_sub($amount, '100000000000000000'))
+        );
         $call = '0x630903000100a10f0300010100' . HexConverter::unPrefix($managedWallet->public_key);
         $call .= '030400000000' . HexConverter::unPrefix($transferableAmount);
         $call .= '0000000000';
