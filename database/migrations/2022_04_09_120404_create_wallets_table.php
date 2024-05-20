@@ -15,7 +15,7 @@ return new class () extends Migration {
             $table->string('external_id')->unique()->nullable();
             $table->string('verification_id')->unique()->nullable();
             $table->string('public_key')->unique()->nullable();
-            $table->boolean('managed')->default(false)->index();
+            $table->boolean('managed')->default(false);
             $table->string('network');
             $table->string('linking_code', 9)->unique()->nullable();
             $table->timestamps();

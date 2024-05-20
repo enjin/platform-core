@@ -13,13 +13,11 @@ return new class () extends Migration {
         Schema::create('attributes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('collection_id')
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignId('token_id')
                 ->nullable()
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
@@ -27,7 +25,6 @@ return new class () extends Migration {
             $table->text('value');
             $table->timestamps();
 
-            $table->index(['collection_id', 'token_id']);
             $table->index(['collection_id', 'token_id', 'key']);
         });
     }

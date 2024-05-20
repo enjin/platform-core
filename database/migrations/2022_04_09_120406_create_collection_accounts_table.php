@@ -13,12 +13,10 @@ return new class () extends Migration {
         Schema::create('collection_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignId('collection_id')
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();

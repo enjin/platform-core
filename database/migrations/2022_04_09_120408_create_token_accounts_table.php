@@ -13,17 +13,14 @@ return new class () extends Migration {
         Schema::create('token_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignId('collection_id')
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignId('token_id')
-                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
@@ -32,7 +29,6 @@ return new class () extends Migration {
             $table->boolean('is_frozen')->default(false);
             $table->timestamps();
 
-            $table->index(['wallet_id', 'collection_id']);
             $table->index(['wallet_id', 'collection_id', 'token_id']);
         });
     }
