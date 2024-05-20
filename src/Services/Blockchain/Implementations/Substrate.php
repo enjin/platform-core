@@ -73,7 +73,7 @@ class Substrate implements BlockchainServiceInterface
     {
         return [
             StorageKey::collections(Encoder::collectionStorageKey($collectionId)),
-            StorageKey::pendingCollectionTransfers(Encoder::collectionStorageKey($collectionId)),
+            StorageKey::pendingCollectionTransfers(Encoder::pendingCollectionTransfersStorageKey($collectionId)),
             StorageKey::collectionAccounts(Encoder::collectionAccountStorageKey($collectionId)),
             StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
             StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),

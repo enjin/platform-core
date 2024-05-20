@@ -279,7 +279,7 @@ class Parser
         if ($hotSync) {
             CollectionAccount::upsert($insertData, uniqueBy: ['collection_id', 'wallet_id']);
         } else {
-            CollectionAccount::insert($data, $data);
+            CollectionAccount::insert($insertData, $insertData);
         }
 
         $this->collectionsAccountsApprovals($insertApprovals);
@@ -448,7 +448,7 @@ class Parser
                 );
             }
         } else {
-            Attribute::insert($insertData);
+            Attribute::insert($insertData, $insertData);
         }
     }
 

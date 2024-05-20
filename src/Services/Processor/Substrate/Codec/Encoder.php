@@ -11,8 +11,10 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Support\Blake2;
+use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\Metadata;
 use Enjin\Platform\Support\SS58Address;
+use Enjin\Platform\Support\Twox;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
@@ -223,6 +225,18 @@ class Encoder
     {
         $hashAndEncode = Blake2::hashAndEncode($collectionId);
         $key = StorageKey::collections()->value . $hashAndEncode;
+
+        return HexConverter::prefix($key);
+    }
+
+    public static function pendingCollectionTransfersStorageKey(string $collectionId): string
+    {
+        $hasher = new Twox();
+
+        $hexedNumber = HexConverter::uintToHex($collectionId, 32);
+        $reversed = Hex::reverseEndian($hexedNumber);
+        $hashAndEncode = $hasher->ByHasherName('Twox64Concat', HexConverter::prefix($reversed));
+        $key = StorageKey::pendingCollectionTransfers()->value . $hashAndEncode;
 
         return HexConverter::prefix($key);
     }
