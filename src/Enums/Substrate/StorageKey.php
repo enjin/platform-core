@@ -12,42 +12,42 @@ class StorageKey
 
     public static function collections(?string $value = null): self
     {
-        return new self(StorageType::COLLECTIONS, $value ?? '0xfa7484c926e764ee2a64df96876c81459200647b8c99af7b8b52752114831bdb');
+        return new self(StorageType::COLLECTIONS, $value ?? StorageType::COLLECTIONS->value);
     }
 
     public static function pendingCollectionTransfers(?string $value = null): self
     {
-        return new self(StorageType::PENDING_COLLECTION_TRANSFERS, $value ?? '0xfa7484c926e764ee2a64df96876c8145ec71cb5fb8f048d4d001b5efa87fcf5b');
+        return new self(StorageType::PENDING_COLLECTION_TRANSFERS, $value ?? StorageType::PENDING_COLLECTION_TRANSFERS->value);
     }
 
     public static function collectionAccounts(?string $value = null): self
     {
-        return new self(StorageType::COLLECTION_ACCOUNTS, $value ?? '0xfa7484c926e764ee2a64df96876c814555aac77eef55f610e609e395282fe9a2');
+        return new self(StorageType::COLLECTION_ACCOUNTS, $value ?? StorageType::COLLECTION_ACCOUNTS->value);
     }
 
     public static function tokens(?string $value = null): self
     {
-        return new self(StorageType::TOKENS, $value ?? '0xfa7484c926e764ee2a64df96876c814599971b5749ac43e0235e41b0d3786918');
+        return new self(StorageType::TOKENS, $value ?? StorageType::TOKENS->value);
     }
 
     public static function tokenAccounts(?string $value = null): self
     {
-        return new self(StorageType::TOKEN_ACCOUNTS, $value ?? '0xfa7484c926e764ee2a64df96876c8145091ba7dd8dcd80d727d06b71fe08a103');
+        return new self(StorageType::TOKEN_ACCOUNTS, $value ?? StorageType::TOKEN_ACCOUNTS->value);
     }
 
     public static function attributes(?string $value = null): self
     {
-        return new self(StorageType::ATTRIBUTES, $value ?? '0xfa7484c926e764ee2a64df96876c8145761e97790c81676703ce25cc0ffeb377');
+        return new self(StorageType::ATTRIBUTES, $value ?? StorageType::ATTRIBUTES->value);
     }
 
     public static function events(?string $value = null): self
     {
-        return new self(StorageType::EVENTS, $value ?? '0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7');
+        return new self(StorageType::EVENTS, $value ?? StorageType::EVENTS->value);
     }
 
     public static function systemAccount(?string $value = null): self
     {
-        return new self(StorageType::SYSTEM_ACCOUNT, $value ?? '0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9');
+        return new self(StorageType::SYSTEM_ACCOUNT, $value ?? StorageType::SYSTEM_ACCOUNT->value);
     }
 
     /**

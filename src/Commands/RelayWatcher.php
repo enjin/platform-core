@@ -7,7 +7,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
-use Enjin\Platform\Enums\Substrate\StorageKey;
+use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Enums\Substrate\XcmOutcome;
 use Enjin\Platform\Events\Global\TransactionCreated;
@@ -53,7 +53,7 @@ class RelayWatcher extends Command
             $this->warn('Subscribing to new heads');
             $sub->callMethod('chain_subscribeNewHeads');
             $this->warn('Subscribing to any changes on account storage');
-            $sub->callMethod('state_subscribeStorage', [[StorageKey::events()->value]]);
+            $sub->callMethod('state_subscribeStorage', [[StorageType::EVENTS->value]]);
 
             while (true) {
                 if ($response = $sub->getClient()->receive()) {

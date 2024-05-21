@@ -4,7 +4,7 @@ namespace Enjin\Platform\Commands;
 
 use Carbon\Carbon;
 use Enjin\Platform\Enums\Global\TransactionState;
-use Enjin\Platform\Enums\Substrate\StorageKey;
+use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -158,7 +158,7 @@ class TransactionChecker extends Command
 
     protected function fetchEvents($block, Substrate $client): mixed
     {
-        if ($events = $client->callMethod('state_getStorage', [StorageKey::events()->value, $block->hash])) {
+        if ($events = $client->callMethod('state_getStorage', [StorageType::EVENTS->value, $block->hash])) {
             return State::eventsForBlock(['number' => $block->number, 'events' => $events]) ?? [];
         }
 
