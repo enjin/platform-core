@@ -13,6 +13,7 @@ return new class () extends Migration {
         Schema::create('tokens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('collection_id')
+                ->index()
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
@@ -22,6 +23,7 @@ return new class () extends Migration {
             $table->string('cap_supply')->nullable();
             $table->foreignId('royalty_wallet_id')
                 ->nullable()
+                ->index()
                 ->constrained('wallets')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
