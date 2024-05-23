@@ -43,9 +43,7 @@ class DecoderService
             }
 
             return $this->polkadartSerialize($type, $data);
-        } catch (Throwable $e) {
-            Log::critical('Error when trying to fetch from container: ' . $e->getMessage());
-            Log::critical($e->getTraceAsString());
+        } catch (Throwable) {
         }
 
         return null;
