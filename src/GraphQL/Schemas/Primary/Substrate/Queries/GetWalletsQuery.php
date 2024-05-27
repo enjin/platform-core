@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 
 use Closure;
+use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
@@ -24,6 +25,10 @@ use Rebing\GraphQL\Support\Query;
 class GetWalletsQuery extends Query implements PlatformGraphQlQuery
 {
     use InPrimarySubstrateSchema;
+
+    protected $middleware = [
+        ResolvePage::class,
+    ];
 
     /**
      * Get the query's attributes.
