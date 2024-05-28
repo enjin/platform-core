@@ -25,27 +25,19 @@ class TokenCreated extends SubstrateEvent
      */
     public function run(): void
     {
-        $this->tokenCreatedCountAtBlock($block->number);
+        $this->tokenCreatedCountAtBlock($this->block->number);
 
-        if (!$event instanceof TokenCreatedPolkadart) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
-        if (!$this->shouldSyncCollection($event->collectionId)) {
-            return;
-        }
+        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
+        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
+        $token = $this->parseToken($extrinsic, $this->event, $count - 1);
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block->number}"));
-        $token = $this->parseToken($extrinsic, $event, $count - 1);
+        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
 
-        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block->number}"));
 
-        TokenCreatedEvent::safeBroadcast(
-            $token,
-            $this->firstOrStoreAccount($event->issuer),
-            $this->getTransaction($block, $event->extrinsicIndex)
-        );
     }
 
     /**
@@ -123,14 +115,18 @@ class TokenCreated extends SubstrateEvent
         ]);
     }
 
-    public function log()
+    public function log(): void
     {
         // TODO: Implement log() method.
     }
 
-    public function broadcast()
+    public function broadcast(): void
     {
-        // TODO: Implement broadcast() method.
+        TokenCreatedEvent::safeBroadcast(
+            $token,
+            $this->firstOrStoreAccount($event->issuer),
+            $this->getTransaction($block, $event->extrinsicIndex)
+        );
     }
 
     protected function tokenCreatedCountAtBlock(string $block): void

@@ -21,40 +21,46 @@ class TokenBurned extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof BurnedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $token = Token::firstWhere(['collection_id' => $collection->id, 'token_chain_id' => $event->tokenId]);
-        $account = $this->firstOrStoreAccount($event->account);
+        $collection = $this->getCollection($this->event->collectionId);
+        $token = Token::firstWhere(['collection_id' => $collection->id, 'token_chain_id' => $this->event->tokenId]);
+        $account = $this->firstOrStoreAccount($this->event->account);
 
         if ($token) {
-            $token->decrement('supply', $event->amount);
+            $token->decrement('supply', $this->event->amount);
 
             TokenAccount::firstWhere([
                 'wallet_id' => $account->id,
                 'collection_id' => $collection->id,
                 'token_id' => $token->id,
-            ])?->decrement('balance', $event->amount);
+            ])?->decrement('balance', $this->event->amount);
 
-            Log::info(sprintf(
-                'Burned %s units of Collection #%s (id: %s), Token #%s (id: %s) from %s (id: %s).',
-                $event->amount,
-                $event->tokenId,
-                $token->id,
-                $event->collectionId,
-                $collection->id,
-                $account->address ?? 'unknown',
-                $account->id ?? 'unknown',
-            ));
+
         }
 
+
+    }
+
+    public function log(): void
+    {
+        Log::info(sprintf(
+            'Burned %s units of Collection #%s (id: %s), Token #%s (id: %s) from %s (id: %s).',
+            $event->amount,
+            $event->tokenId,
+            $token->id,
+            $event->collectionId,
+            $collection->id,
+            $account->address ?? 'unknown',
+            $account->id ?? 'unknown',
+        ));
+    }
+
+    public function broadcast(): void
+    {
         TokenBurnedEvent::safeBroadcast(
             $collection,
             $event->tokenId,
@@ -62,15 +68,5 @@ class TokenBurned extends SubstrateEvent
             $event->amount,
             $this->getTransaction($block, $event->extrinsicIndex)
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

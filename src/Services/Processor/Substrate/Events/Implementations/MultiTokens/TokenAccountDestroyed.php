@@ -20,20 +20,16 @@ class TokenAccountDestroyed extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof TokenAccountDestroyedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
+        $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $event->tokenId);
+        $token = $this->getToken($collection->id, $this->event->tokenId);
 
-        $account = $this->firstOrStoreAccount($event->account);
+        $account = $this->firstOrStoreAccount($this->event->account);
 
         $collectionAccount = $this->getCollectionAccount($collection->id, $account->id);
         $collectionAccount->decrement('account_count');
@@ -43,7 +39,10 @@ class TokenAccountDestroyed extends SubstrateEvent
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ])->delete();
+    }
 
+    public function log(): void
+    {
         Log::info(
             sprintf(
                 'TokenAccount of Collection #%s (id %s), Token #%s (id %s) and account %s was deleted.',
@@ -54,22 +53,15 @@ class TokenAccountDestroyed extends SubstrateEvent
                 $account->address ?? 'unknown',
             )
         );
+    }
 
+    public function broadcast(): void
+    {
         TokenAccountDestroyedEvent::safeBroadcast(
             $collection,
             $token,
             $account,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

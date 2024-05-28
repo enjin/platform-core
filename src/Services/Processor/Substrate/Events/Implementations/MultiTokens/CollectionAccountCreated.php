@@ -20,49 +20,40 @@ class CollectionAccountCreated extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof CollectionAccountCreatedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $account = $this->firstOrStoreAccount($event->account);
+        $collection = $this->getCollection($this->event->collectionId);
+        $account = $this->firstOrStoreAccount($this->event->account);
 
-        $collectionAccount = CollectionAccount::create([
+        CollectionAccount::updateOrCreate([
             'wallet_id' => $account->id ?? null,
             'collection_id' => $collection->id,
+        ], [
             'is_frozen' => false,
             'account_count' => 0,
         ]);
+    }
 
+    public function log(): void
+    {
         Log::info(
             sprintf(
-                'CollectionAccount (id %s) of Collection #%s (id %s) and account %s was created.',
-                $collectionAccount->id,
-                $event->collectionId,
-                $collection->id,
-                $account->address ?? 'unknown',
+                'Account %s of Collection %s was created.',
+                $this->event->account,
+                $this->event->collectionId,
             )
         );
+    }
 
+    public function broadcast(): void
+    {
         CollectionAccountCreatedEvent::safeBroadcast(
-            $event->collectionId,
-            $account,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->collectionId,
+            $this->event->account,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

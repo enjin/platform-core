@@ -19,53 +19,49 @@ class TokenMutated extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof TokenMutatedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
+        $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $event->tokenId);
+        $token = $this->getToken($collection->id, $this->event->tokenId);
         $attributes = [];
 
-        if ($event->listingForbidden) {
-            $attributes['listing_forbidden'] = $event->listingForbidden;
+        if ($this->event->listingForbidden) {
+            $attributes['listing_forbidden'] = $this->event->listingForbidden;
         }
 
-        if ($event->behaviorMutation === 'SomeMutation') {
-            $attributes['is_currency'] = $event->isCurrency;
+        if ($this->event->behaviorMutation === 'SomeMutation') {
+            $attributes['is_currency'] = $this->event->isCurrency;
             $attributes['royalty_wallet_id'] = null;
             $attributes['royalty_percentage'] = null;
 
-            if ($event->beneficiary) {
-                $attributes['royalty_wallet_id'] = $this->firstOrStoreAccount($event->beneficiary)?->id;
-                $attributes['royalty_percentage'] = number_format($event->percentage / 1000000000, 9);
+            if ($this->event->beneficiary) {
+                $attributes['royalty_wallet_id'] = $this->firstOrStoreAccount($this->event->beneficiary)?->id;
+                $attributes['royalty_percentage'] = number_format($this->event->percentage / 1000000000, 9);
             }
         }
 
         $token->fill($attributes)->save();
 
+
+
+    }
+
+    public function log(): void
+    {
         Log::info("Token #{$token->token_chain_id} (id {$token->id}) of Collection #{$collection->collection_chain_id} (id {$collection->id}) was updated.");
 
+    }
+
+    public function broadcast(): void
+    {
         TokenMutatedEvent::safeBroadcast(
             $token,
             $event->getParams(),
             $this->getTransaction($block, $event->extrinsicIndex),
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

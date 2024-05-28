@@ -6,33 +6,28 @@ use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountCreated as TokenAcco
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountCreated as TokenAccountCreatedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Illuminate\Support\Facades\Log;
 
 class TokenAccountCreated extends SubstrateEvent
 {
     /** @var TokenAccountCreatedPolkadart */
-    protected PolkadartEvent $event;
+    protected Event $event;
 
     /**
      * @throws PlatformException
      */
     public function run(): void
     {
-        if (!$event instanceof TokenAccountCreatedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
+        $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $event->tokenId);
-        $account = $this->firstOrStoreAccount($event->account);
+        $token = $this->getToken($collection->id, $this->event->tokenId);
+        $account = $this->firstOrStoreAccount($this->event->account);
 
         $collectionAccount = $this->getCollectionAccount($collection->id, $account->id);
         $collectionAccount->increment('account_count');
@@ -45,7 +40,10 @@ class TokenAccountCreated extends SubstrateEvent
             'reserved_balance' => 0,
             'is_frozen' => false,
         ]);
+    }
 
+    public function log(): void
+    {
         Log::info(
             sprintf(
                 'TokenAccount (id %s) of Collection #%s (id %s), Token #%s (id %s) and account %s was created.',
@@ -57,22 +55,15 @@ class TokenAccountCreated extends SubstrateEvent
                 $account->address ?? 'unknown',
             )
         );
+    }
 
+    public function broadcast(): void
+    {
         TokenAccountCreatedEvent::safeBroadcast(
             $collection,
             $token,
             $account,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

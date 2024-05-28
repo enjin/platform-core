@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionDestroyed as CollectionDestroyedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionDestroyed as CollectionDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -11,41 +12,30 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionDestroyed extends SubstrateEvent
 {
+
     /** @var CollectionDestroyedPolkadart */
     protected Event $event;
 
-    /**
-     * @throws PlatformException
-     */
     public function run(): void
     {
-        if (!$event instanceof CollectionDestroyedPolkadart) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
-        if (!$this->shouldSyncCollection($event->collectionId)) {
-            return;
-        }
+        Collection::where('collection_chain_id', $this->event->collectionId)
+            ->delete();
+    }
 
-        // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $collection->delete();
+    public function log(): void
+    {
+        Log::info("Collection {$this->event->collectionId} was destroyed.");
+    }
 
-        Log::info("Collection #{$event->collectionId} (id {$collection->id}) was destroyed.");
-
+    public function broadcast(): void
+    {
         CollectionDestroyedEvent::safeBroadcast(
-            $collection,
-            $this->getTransaction($block, $event->extrinsicIndex)
+            $this->event->collectionId,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

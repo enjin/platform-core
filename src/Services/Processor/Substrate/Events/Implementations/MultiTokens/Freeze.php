@@ -25,32 +25,28 @@ class Freeze extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof FrozenPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
+        $collection = $this->getCollection($this->event->collectionId);
+        $transaction = $this->getTransaction($this->block, $this->event->extrinsicIndex);
 
-        match (FreezeType::from($event->freezeType)) {
+        match (FreezeType::from($this->event->freezeType)) {
             FreezeType::COLLECTION => $this->freezeCollection($collection, $transaction),
-            FreezeType::TOKEN => $this->freezeToken($collection, $event->tokenId, $transaction),
-            FreezeType::COLLECTION_ACCOUNT => $this->freezeCollectionAccount($collection, $event->account, $transaction),
-            FreezeType::TOKEN_ACCOUNT => $this->freezeTokenAccount($collection, $event->tokenId, $event->account, $transaction),
+            FreezeType::TOKEN => $this->freezeToken($collection, $this->event->tokenId, $transaction),
+            FreezeType::COLLECTION_ACCOUNT => $this->freezeCollectionAccount($collection, $this->event->account, $transaction),
+            FreezeType::TOKEN_ACCOUNT => $this->freezeTokenAccount($collection, $this->event->tokenId, $this->event->account, $transaction),
         };
     }
 
-    public function log()
+    public function log(): void
     {
         // TODO: Implement log() method.
     }
 
-    public function broadcast()
+    public function broadcast(): void
     {
         // TODO: Implement broadcast() method.
     }

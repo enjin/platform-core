@@ -20,46 +20,37 @@ class CollectionAccountDestroyed extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof CollectionAccountDestroyedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $account = $this->firstOrStoreAccount($event->account);
+        $collection = $this->getCollection($this->event->collectionId);
+        $account = $this->firstOrStoreAccount($this->event->account);
 
         CollectionAccount::where([
-            'wallet_id' => $account->id,
+            'wallet_id' => $account->id ?? null,
             'collection_id' => $collection->id,
         ])->delete();
+    }
 
+    public function log(): void
+    {
         Log::info(
             sprintf(
-                'CollectionAccount of Collection #%s (id %s) and account %s was deleted.',
-                $event->collectionId,
-                $collection->id,
-                $account->address ?? 'unknown',
+                'Account %s of Collection %s was deleted.',
+                $this->event->account,
+                $this->event->collectionId,
             )
         );
+    }
 
+    public function broadcast(): void
+    {
         CollectionAccountDestroyedEvent::safeBroadcast(
-            $this->getCollection($event->collectionId),
-            $account,
-            $this->getTransaction($block, $event->extrinsicIndex)
+            $this->event->collectionId,
+            $this->event->account,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

@@ -22,19 +22,15 @@ class Unreserved extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof UnreservedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
+        $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $event->tokenId);
-        $account = $this->firstOrStoreAccount($event->accountId);
+        $token = $this->getToken($collection->id, $this->event->tokenId);
+        $account = $this->firstOrStoreAccount($this->event->accountId);
 
         // Fails if it doesn't find the token account
         $tokenAccount = TokenAccount::where([
@@ -43,31 +39,37 @@ class Unreserved extends SubstrateEvent
             'token_id' => $token->id,
         ])->firstOrFail();
 
-        $tokenAccount->increment('balance', $event->amount);
-        $tokenAccount->decrement('reserved_balance', $event->amount);
+        $tokenAccount->increment('balance', $this->event->amount);
+        $tokenAccount->decrement('reserved_balance', $this->event->amount);
 
         $namedReserve = TokenAccountNamedReserve::firstWhere([
             'token_account_id' => $tokenAccount->id,
-            'pallet' => PalletIdentifier::from($event->reserveId)->name,
+            'pallet' => PalletIdentifier::from($this->event->reserveId)->name,
         ]);
 
         if ($namedReserve !== null) {
-            $amountLeft = $namedReserve->amount - $event->amount;
-            $amountLeft > 0 ? $namedReserve->decrement('amount', $event->amount) : $namedReserve->delete();
+            $amountLeft = $namedReserve->amount - $this->event->amount;
+            $amountLeft > 0 ? $namedReserve->decrement('amount', $this->event->amount) : $namedReserve->delete();
         }
+    }
 
+    public function log(): void
+    {
         Log::info(sprintf(
             'Changed named reserve of Collection %s (id: %s), Token #%s (id: %s) Account %s (id: %s) to amount %s of %s.',
-            $event->collectionId,
+            $this->event->collectionId,
             $collection->id,
-            $event->tokenId,
+            $this->event->tokenId,
             $token->id,
-            $event->accountId,
+            $this->event->accountId,
             $account->id,
-            $event->amount,
-            $event->reserveId,
+            $this->event->amount,
+            $this->event->reserveId,
         ));
+    }
 
+    public function broadcast(): void
+    {
         TokenUnreserved::safeBroadcast(
             $collection,
             $token,
@@ -75,15 +77,5 @@ class Unreserved extends SubstrateEvent
             $event,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

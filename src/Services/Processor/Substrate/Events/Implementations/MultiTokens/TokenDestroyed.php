@@ -19,10 +19,6 @@ class TokenDestroyed extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof TokenDestroyedPolkadart) {
-            return;
-        }
-
         if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
@@ -33,23 +29,23 @@ class TokenDestroyed extends SubstrateEvent
         $token = $this->getToken($collection->id, $tokenId = $event->tokenId);
         $token->delete();
 
-        Log::info("Token #{$tokenId} in Collection ID {$collectionId} was destroyed.");
 
         $extrinsic = $block->extrinsics[$event->extrinsicIndex];
+
+    }
+
+    public function log(): void
+    {
+        Log::info("Token #{$tokenId} in Collection ID {$collectionId} was destroyed.");
+
+    }
+
+    public function broadcast(): void
+    {
         TokenDestroyedEvent::safeBroadcast(
             $token,
             $this->firstOrStoreAccount($extrinsic?->signer),
             $this->getTransaction($block, $event->extrinsicIndex)
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

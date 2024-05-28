@@ -21,23 +21,19 @@ class Unapproved extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof UnapprovedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $operator = $this->firstOrStoreAccount($event->operator);
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
-        $owner = $this->firstOrStoreAccount($event->owner);
+        $collection = $this->getCollection($this->event->collectionId);
+        $operator = $this->firstOrStoreAccount($this->event->operator);
+        $transaction = $this->getTransaction($this->block, $this->event->extrinsicIndex);
+        $owner = $this->firstOrStoreAccount($this->event->owner);
 
-        if ($event->tokenId) {
+        if ($this->event->tokenId) {
             // Fails if it doesn't find the token
-            $token = $this->getToken($collection->id, $event->tokenId);
+            $token = $this->getToken($collection->id, $this->event->tokenId);
             // Fails if it doesn't find the token account
             $collectionAccount = $this->getTokenAccount(
                 $collection->id,
@@ -51,8 +47,8 @@ class Unapproved extends SubstrateEvent
             ])?->delete();
 
             TokenUnapproved::safeBroadcast(
-                $event->collectionId,
-                $event->tokenId,
+                $this->event->collectionId,
+                $this->event->tokenId,
                 $operator->address,
                 $transaction
             );
@@ -69,19 +65,19 @@ class Unapproved extends SubstrateEvent
             ])?->delete();
 
             CollectionUnapproved::safeBroadcast(
-                $event->collectionId,
+                $this->event->collectionId,
                 $operator->address,
                 $transaction
             );
         }
     }
 
-    public function log()
+    public function log(): void
     {
         // TODO: Implement log() method.
     }
 
-    public function broadcast()
+    public function broadcast(): void
     {
         // TODO: Implement broadcast() method.
     }

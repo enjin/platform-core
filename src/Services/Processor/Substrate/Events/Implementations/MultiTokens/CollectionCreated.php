@@ -24,38 +24,36 @@ class CollectionCreated extends SubstrateEvent
 
     public function run(): void
     {
-        $this->collectionCreatedCountAtBlock($block->number);
+        $this->collectionCreatedCountAtBlock($this->block->number);
 
-        if (!$event instanceof CollectionCreatedPolkadart) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
-        if (!$this->shouldSyncCollection($event->collectionId)) {
-            return;
-        }
+        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
+        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
+        $this->parseCollection($extrinsic, $this->event, $count - 1);
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block->number}"));
-        $collection = $this->parseCollection($extrinsic, $event, $count - 1);
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
+        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
+    }
 
-        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block->number}"));
-        Log::info(sprintf('Collection %s (id: %s) was created from transaction %s (id: %s).', $event->collectionId, $collection->id, $transaction?->transaction_chain_hash ?? 'unknown', $transaction?->id ?? 'unknown'));
-
-        CollectionCreatedEvent::safeBroadcast(
-            $collection,
-            $transaction,
+    public function log(): void
+    {
+        Log::info(
+            sprintf(
+                'Collection %s was created from transaction %s.',
+                $this->event->collectionId,
+                $this->block->extrinsics[$this->event->extrinsicIndex]?->hash,
+            )
         );
     }
 
-    public function log()
+    public function broadcast(): void
     {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
+        CollectionCreatedEvent::safeBroadcast(
+            $this->event->collectionId,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+        );
     }
 
     protected function collectionCreatedCountAtBlock(string $block): void
@@ -65,7 +63,7 @@ class CollectionCreated extends SubstrateEvent
         Cache::increment($key);
     }
 
-    protected function parseCollection(Extrinsic $extrinsic, CollectionCreatedPolkadart $event, int $count = 0): Collection
+    protected function parseCollection(Extrinsic $extrinsic, CollectionCreatedPolkadart $event, int $count = 0): void
     {
         $params = $extrinsic->params;
 
@@ -87,8 +85,9 @@ class CollectionCreated extends SubstrateEvent
         $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
         $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
 
-        $collection = Collection::create([
+        $collection = Collection::updateOrCreate([
             'collection_chain_id' => $event->collectionId,
+        ], [
             'owner_wallet_id' => $owner->id,
             'max_token_count' => $this->getValue($params, ['descriptor.policy.mint.max_token_count.Some', 'descriptor.policy.mint.max_token_count']),
             'max_token_supply' => $this->getValue($params, ['descriptor.policy.mint.max_token_supply.Some', 'descriptor.policy.mint.max_token_supply']),
@@ -103,8 +102,6 @@ class CollectionCreated extends SubstrateEvent
         ]);
 
         $this->collectionRoyaltyCurrencies($collection->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));
-
-        return $collection;
     }
 
     protected function collectionRoyaltyCurrencies(string $collectionId, array $royaltyCurrencies): void

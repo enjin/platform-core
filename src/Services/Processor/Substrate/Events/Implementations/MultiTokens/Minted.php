@@ -20,24 +20,20 @@ class Minted extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof MintedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
+        $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $event->tokenId);
+        $token = $this->getToken($collection->id, $this->event->tokenId);
 
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
-        $recipient = $this->firstOrStoreAccount($event->recipient);
+        $transaction = $this->getTransaction($this->block, $this->event->extrinsicIndex);
+        $recipient = $this->firstOrStoreAccount($this->event->recipient);
 
         $token->update([
-            'supply', gmp_strval(gmp_add($token->supply, $event->amount)) ?? 0,
+            'supply', gmp_strval(gmp_add($token->supply, $this->event->amount)) ?? 0,
         ]);
 
         $tokenAccount = TokenAccount::firstWhere([
@@ -45,8 +41,15 @@ class Minted extends SubstrateEvent
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ]);
-        $tokenAccount->increment('balance', $event->amount);
+        $tokenAccount->increment('balance', $this->event->amount);
 
+
+
+
+    }
+
+    public function log(): void
+    {
         Log::info(sprintf(
             'Minted %s units of Collection #%s (id: %s), Token #%s (id: %s) to %s (id: %s).',
             $event->amount,
@@ -57,7 +60,10 @@ class Minted extends SubstrateEvent
             $recipient->address ?? 'unknown',
             $recipient->id ?? 'unknown',
         ));
+    }
 
+    public function broadcast(): void
+    {
         TokenMinted::safeBroadcast(
             $token,
             $this->firstOrStoreAccount($event->issuer),
@@ -65,15 +71,5 @@ class Minted extends SubstrateEvent
             $event->amount,
             $transaction,
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

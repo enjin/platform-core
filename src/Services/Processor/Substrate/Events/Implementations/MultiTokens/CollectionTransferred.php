@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionTransferred as CollectionTransferredEvent;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionTransferred as CollectionTransferredPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -10,43 +11,39 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionTransferred extends SubstrateEvent
 {
+
     /** @var CollectionTransferredPolkadart */
     protected Event $event;
 
+    /**
+     * @throws PlatformException
+     */
     public function run(): void
     {
-        if (!$event instanceof CollectionTransferredPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if collection is not found
-        $collection = $this->getCollection($event->collectionId);
-        $owner = $this->firstOrStoreAccount($event->owner);
+        $collection = $this->getCollection($this->event->collectionId);
+        $owner = $this->firstOrStoreAccount($this->event->owner);
 
         $collection->owner_wallet_id = $owner->id;
         $collection->pending_transfer = null;
         $collection->save();
+    }
 
-        Log::info("Collection #{$event->collectionId} (id {$collection->id}) owner changed to {$owner->public_key} (id {$owner->id}).");
+    public function log(): void
+    {
+        Log::info("Collection {$this->event->collectionId} owner changed to {$this->event->owner}.");
+    }
 
+    public function broadcast(): void
+    {
         CollectionTransferredEvent::safeBroadcast(
-            $collection,
-            $owner->public_key,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->collectionId,
+            $this->event->owner,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
-    }
-
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
     }
 }

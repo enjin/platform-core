@@ -9,7 +9,6 @@ use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeSet as AttributeSetPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Facades\Log;
 
 class AttributeSet extends SubstrateEvent
@@ -22,75 +21,67 @@ class AttributeSet extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof AttributeSetPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $token = !is_null($tokenId = $event->tokenId)
+        $collection = $this->getCollection($this->event->collectionId);
+        $token = !is_null($tokenId = $this->event->tokenId)
             // Fails if it doesn't find the token
             ? $this->getToken($collection->id, $tokenId)
             : null;
-
 
         $attribute = Attribute::updateOrCreate(
             [
                 'collection_id' => $collection->id,
                 'token_id' => $token?->id,
-                'key' => $key = Hex::safeConvertToString($event->key),
+                'key' => $this->event->key,
             ],
             [
-                'value' => $value = Hex::safeConvertToString($event->value),
+                'value' => $this->event->value,
             ]
         );
 
-        Log::info(
-            sprintf(
-                'Attribute "%s" (id %s) of Collection #%s (id %s) %s was set to "%s".',
-                $key,
-                $attribute->id,
-                $event->collectionId,
-                $collection->id,
-                !is_null($tokenId) ? sprintf('and Token #%s (id %s) ', $tokenId, $token->id) : '',
-                $value,
-            )
-        );
-
         if ($attribute->wasRecentlyCreated) {
-            $transaction = $this->getTransaction($block, $event->extrinsicIndex);
-
-            if ($token) {
-                $token->increment('attribute_count');
-                TokenAttributeSet::safeBroadcast(
-                    $token,
-                    $key,
-                    $value,
-                    $transaction
-                );
-            } else {
-                $collection->increment('attribute_count');
-                CollectionAttributeSet::safeBroadcast(
-                    $collection,
-                    $key,
-                    $value,
-                    $transaction
-                );
-            }
+            is_null($this->event->tokenId)
+                ? $collection->increment('attribute_count')
+                : $token->increment('attribute_count');
         }
     }
 
-    public function log()
+    public function log(): void
     {
-        // TODO: Implement log() method.
+        Log::info(
+            sprintf(
+                'Attribute "%s" of Collection %s%s was set to "%s".',
+                $this->event->key,
+                $this->event->collectionId,
+                is_null($this->event->tokenId) ? '' : sprintf(', Token %s ', $this->event->tokenId),
+                $this->event->value,
+            )
+        );
     }
 
-    public function broadcast()
+    public function broadcast(): void
     {
-        // TODO: Implement broadcast() method.
+        if (is_null($this->event->tokenId)) {
+            CollectionAttributeSet::safeBroadcast(
+                $this->event->collectionId,
+                $this->event->key,
+                $this->event->value,
+                $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            );
+
+            return;
+        }
+
+        TokenAttributeSet::safeBroadcast(
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->key,
+            $this->event->value,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+        );
     }
 }

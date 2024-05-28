@@ -2,10 +2,10 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAttributeRemoved;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAttributeRemoved;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeRemoved as AttributeRemovedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -21,68 +21,57 @@ class AttributeRemoved extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$event instanceof AttributeRemovedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $token = !is_null($tokenId = $event->tokenId)
+        $collection = $this->getCollection($this->event->collectionId);
+        $token = !is_null($tokenId = $this->event->tokenId)
                 // Fails if it doesn't find the token
                 ? $this->getToken($collection->id, $tokenId)
                 : null;
 
-        // Fails if it doesn't find the attribute
-        $attribute = $this->getAttribute(
-            $collection->id,
-            $token?->id,
-            $key = HexConverter::hexToString($event->key)
-        );
-        $attribute->delete();
+        Attribute::where([
+            'collection_id' =>  $collection->id,
+            'token_id' => $token?->id,
+            'key' => $this->event->key,
+        ])->delete();
 
+        is_null($this->event->tokenId)
+            ? $collection->decrement('attribute_count')
+            : $token->decrement('attribute_count');
+    }
+
+    public function log(): void
+    {
         Log::info(
             sprintf(
-                'Attribute "%s" (id %s) of Collection #%s (id %s) %s was removed.',
-                $key,
-                $attribute->id,
-                $event->collectionId,
-                $collection->id,
-                !is_null($tokenId) ? sprintf(' and Token #%s (id %s) ', $tokenId, $token->id) : ''
+                'Removed attribute %s from Collection %s%s',
+                $this->event->key,
+                $this->event->collectionId,
+                is_null($this->event->tokenId) ? '.' : sprintf(', Token %s.', $this->event->tokenId)
             )
         );
+    }
 
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
-
-        if ($token) {
-            $token->decrement('attribute_count');
-            TokenAttributeRemoved::safeBroadcast(
-                $token,
-                $attribute->key,
-                $attribute->value,
-                $transaction
-            );
-        } else {
-            $collection->decrement('attribute_count');
+    public function broadcast(): void
+    {
+        if (is_null($this->event->tokenId)) {
             CollectionAttributeRemoved::safeBroadcast(
-                $collection,
-                $attribute->key,
-                $attribute->value,
-                $transaction
+                $this->event->collectionId,
+                $this->event->key,
+                $this->getTransaction($this->block, $this->event->extrinsicIndex),
             );
+
+            return;
         }
-    }
 
-    public function log()
-    {
-        // TODO: Implement log() method.
-    }
-
-    public function broadcast()
-    {
-        // TODO: Implement broadcast() method.
+        TokenAttributeRemoved::safeBroadcast(
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->key,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+        );
     }
 }
