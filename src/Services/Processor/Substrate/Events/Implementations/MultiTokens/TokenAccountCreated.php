@@ -6,6 +6,7 @@ use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountCreated as TokenAcco
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountCreated as TokenAccountCreatedPolkadart;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Illuminate\Support\Facades\Log;
 
@@ -32,11 +33,12 @@ class TokenAccountCreated extends SubstrateEvent
         $collectionAccount = $this->getCollectionAccount($collection->id, $account->id);
         $collectionAccount->increment('account_count');
 
-        $tokenAccount = TokenAccount::create([
+        TokenAccount::updateOrCreate([
             'wallet_id' => $account->id,
             'collection_id' => $collection->id,
             'token_id' => $token->id,
-            'balance' => 0, // The balances are updated on Mint event
+        ], [
+            'balance' => 0, // The balances will be set on mint event
             'reserved_balance' => 0,
             'is_frozen' => false,
         ]);
@@ -46,13 +48,10 @@ class TokenAccountCreated extends SubstrateEvent
     {
         Log::info(
             sprintf(
-                'TokenAccount (id %s) of Collection #%s (id %s), Token #%s (id %s) and account %s was created.',
-                $tokenAccount->id,
-                $event->collectionId,
-                $collection->id,
-                $token->token_chain_id,
-                $token->id,
-                $account->address ?? 'unknown',
+                'TokenAccount for collection %s, token %s and account %s created.',
+                $this->event->collectionId,
+                $this->event->tokenId,
+                $this->event->account,
             )
         );
     }
@@ -60,10 +59,10 @@ class TokenAccountCreated extends SubstrateEvent
     public function broadcast(): void
     {
         TokenAccountCreatedEvent::safeBroadcast(
-            $collection,
-            $token,
-            $account,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->account,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }
 }

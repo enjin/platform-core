@@ -32,8 +32,8 @@ class CollectionCreated extends SubstrateEvent
 
         $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
-        $this->parseCollection($extrinsic, $this->event, $count - 1);
 
+        $this->parseCollection($extrinsic, $this->event, $count - 1);
         Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
     }
 

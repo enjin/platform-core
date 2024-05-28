@@ -45,23 +45,19 @@ class TokenMutated extends SubstrateEvent
         }
 
         $token->fill($attributes)->save();
-
-
-
     }
 
     public function log(): void
     {
-        Log::info("Token #{$token->token_chain_id} (id {$token->id}) of Collection #{$collection->collection_chain_id} (id {$collection->id}) was updated.");
-
+        Log::info("Token {$this->event->tokenId} of collection {$this->event->collectionId} was mutated.");
     }
 
     public function broadcast(): void
     {
         TokenMutatedEvent::safeBroadcast(
-            $token,
-            $event->getParams(),
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->tokenId,
+            $this->event->getParams(),
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }
 }

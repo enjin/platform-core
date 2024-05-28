@@ -28,7 +28,6 @@ class TokenAccountDestroyed extends SubstrateEvent
         $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $this->event->tokenId);
-
         $account = $this->firstOrStoreAccount($this->event->account);
 
         $collectionAccount = $this->getCollectionAccount($collection->id, $account->id);
@@ -45,12 +44,10 @@ class TokenAccountDestroyed extends SubstrateEvent
     {
         Log::info(
             sprintf(
-                'TokenAccount of Collection #%s (id %s), Token #%s (id %s) and account %s was deleted.',
-                $event->collectionId,
-                $collection->id,
-                $event->tokenId,
-                $token->id,
-                $account->address ?? 'unknown',
+                'TokenAccount for collection %s, token %s and account %s deleted.',
+                $this->event->collectionId,
+                $this->event->tokenId,
+                $this->event->account,
             )
         );
     }
@@ -58,10 +55,10 @@ class TokenAccountDestroyed extends SubstrateEvent
     public function broadcast(): void
     {
         TokenAccountDestroyedEvent::safeBroadcast(
-            $collection,
-            $token,
-            $account,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->account,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }
 }

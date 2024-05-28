@@ -5,7 +5,6 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenUnreserved;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Unreserved as UnreservedPolkadart;
@@ -31,13 +30,8 @@ class Unreserved extends SubstrateEvent
         // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $this->event->tokenId);
         $account = $this->firstOrStoreAccount($this->event->accountId);
-
         // Fails if it doesn't find the token account
-        $tokenAccount = TokenAccount::where([
-            'wallet_id' => $account->id,
-            'collection_id' => $collection->id,
-            'token_id' => $token->id,
-        ])->firstOrFail();
+        $tokenAccount = $this->getTokenAccount($collection->id, $token->id, $account->id);
 
         $tokenAccount->increment('balance', $this->event->amount);
         $tokenAccount->decrement('reserved_balance', $this->event->amount);
@@ -56,26 +50,23 @@ class Unreserved extends SubstrateEvent
     public function log(): void
     {
         Log::info(sprintf(
-            'Changed named reserve of Collection %s (id: %s), Token #%s (id: %s) Account %s (id: %s) to amount %s of %s.',
-            $this->event->collectionId,
-            $collection->id,
-            $this->event->tokenId,
-            $token->id,
-            $this->event->accountId,
-            $account->id,
-            $this->event->amount,
+            'Changed named reserve %s to %s for collection %s, token %s and account %s.',
             $this->event->reserveId,
+            $this->event->amount,
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->accountId,
         ));
     }
 
     public function broadcast(): void
     {
         TokenUnreserved::safeBroadcast(
-            $collection,
-            $token,
-            $account,
-            $event,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->accountId,
+            $this->event,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }
 }

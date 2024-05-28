@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionDestroyed as CollectionDestroyedEvent;
-use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionDestroyed as CollectionDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
@@ -12,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionDestroyed extends SubstrateEvent
 {
-
     /** @var CollectionDestroyedPolkadart */
     protected Event $event;
 

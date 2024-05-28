@@ -7,9 +7,9 @@ use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenCreated as TokenCreatedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Token;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenCreated as TokenCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Cache;
 class TokenCreated extends SubstrateEvent
 {
     /** @var TokenCreatedPolkadart */
-    protected PolkadartEvent $event;
+    protected Event $event;
 
     /**
      * @throws PlatformException
@@ -33,11 +33,9 @@ class TokenCreated extends SubstrateEvent
 
         $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
-        $token = $this->parseToken($extrinsic, $this->event, $count - 1);
 
+        $this->parseToken($extrinsic, $this->event, $count - 1);
         Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
-
-
     }
 
     /**
@@ -123,9 +121,9 @@ class TokenCreated extends SubstrateEvent
     public function broadcast(): void
     {
         TokenCreatedEvent::safeBroadcast(
-            $token,
-            $this->firstOrStoreAccount($event->issuer),
-            $this->getTransaction($block, $event->extrinsicIndex)
+            $this->event->tokenId,
+            $this->firstOrStoreAccount($this->event->issuer),
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
 

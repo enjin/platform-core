@@ -9,10 +9,12 @@ use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountFrozen;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenFrozen;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Collection;
+use Enjin\Platform\Models\Laravel\CollectionAccount;
+use Enjin\Platform\Models\Laravel\Token;
+use Enjin\Platform\Models\Laravel\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Frozen as FrozenPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
 class Freeze extends SubstrateEvent
@@ -29,126 +31,164 @@ class Freeze extends SubstrateEvent
             return;
         }
 
-        // Fails if it doesn't find the collection
-        $collection = $this->getCollection($this->event->collectionId);
-        $transaction = $this->getTransaction($this->block, $this->event->extrinsicIndex);
-
         match (FreezeType::from($this->event->freezeType)) {
-            FreezeType::COLLECTION => $this->freezeCollection($collection, $transaction),
-            FreezeType::TOKEN => $this->freezeToken($collection, $this->event->tokenId, $transaction),
-            FreezeType::COLLECTION_ACCOUNT => $this->freezeCollectionAccount($collection, $this->event->account, $transaction),
-            FreezeType::TOKEN_ACCOUNT => $this->freezeTokenAccount($collection, $this->event->tokenId, $this->event->account, $transaction),
+            FreezeType::COLLECTION => $this->freezeCollection(),
+            FreezeType::TOKEN => $this->freezeToken(),
+            FreezeType::COLLECTION_ACCOUNT => $this->freezeCollectionAccount(),
+            FreezeType::TOKEN_ACCOUNT => $this->freezeTokenAccount(),
         };
     }
 
     public function log(): void
     {
-        // TODO: Implement log() method.
+        match (FreezeType::from($this->event->freezeType)) {
+            FreezeType::COLLECTION => $this->logCollectionFrozen(),
+            FreezeType::TOKEN => $this->logTokenFrozen(),
+            FreezeType::COLLECTION_ACCOUNT => $this->logCollectionAccountFrozen(),
+            FreezeType::TOKEN_ACCOUNT => $this->logTokenAccountFrozen(),
+        };
     }
 
     public function broadcast(): void
     {
-        // TODO: Implement broadcast() method.
+        match (FreezeType::from($this->event->freezeType)) {
+            FreezeType::COLLECTION => $this->broadcastCollectionFrozen(),
+            FreezeType::TOKEN => $this->broadcastTokenFrozen(),
+            FreezeType::COLLECTION_ACCOUNT => $this->broadcastCollectionAccountFrozen(),
+            FreezeType::TOKEN_ACCOUNT => $this->broadcastTokenAccountFrozen(),
+        };
     }
 
-    protected function freezeCollection(Collection $collection, ?Model $transaction = null): void
+    protected function freezeCollection(): void
     {
-        $collection->is_frozen = true;
-        $collection->save();
+        Collection::where('collection_chain_id', $this->event->collectionId)
+            ->update(['is_frozen' => true]);
+    }
 
+    /**
+     * @throws PlatformException
+     */
+    protected function freezeToken(): void
+    {
+        // Fails if it doesn't find the collection
+        $collection = $this->getCollection($this->event->collectionId);
+
+        Token::where([
+            'collection_id' => $collection->id,
+            'token_chain_id' => $this->event->tokenId,
+        ])->update(['is_frozen' => true]);
+    }
+
+    /**
+     * @throws PlatformException
+     */
+    protected function freezeCollectionAccount(): void
+    {
+        // Fails if it doesn't find the collection
+        $collection = $this->getCollection($this->event->collectionId);
+        $owner = $this->firstOrStoreAccount($this->event->account);
+
+        CollectionAccount::where([
+            'collection_id' => $collection->id,
+            'wallet_id' => $owner->id,
+        ])->update(['is_frozen' => true]);
+    }
+
+    /**
+     * @throws PlatformException
+     */
+    protected function freezeTokenAccount(): void
+    {
+        // Fails if it doesn't find the collection
+        $collection = $this->getCollection($this->event->collectionId);
+        // Fails if it doesn't find the token
+        $token = $this->getToken($collection->id, $this->event->tokenId);
+        $owner = $this->firstOrStoreAccount($this->event->account);
+
+        TokenAccount::where([
+            'collection_id' => $collection->id,
+            'token_id' => $token->id,
+            'wallet_id' => $owner->id,
+        ])->update(['is_frozen' => true]);
+    }
+
+    protected function logCollectionFrozen(): void
+    {
         Log::info(
             sprintf(
-                'Collection #%s (id %s) was frozen.',
-                $collection->collection_chain_id,
-                $collection->id,
+                'Collection %s was frozen.',
+                $this->event->collectionId,
             )
         );
+    }
 
+    protected function logCollectionAccountFrozen(): void
+    {
+        Log::info(
+            sprintf(
+                'CollectionAccount of collection %s and account %s was frozen.',
+                $this->event->collectionId,
+                $this->event->account,
+            )
+        );
+    }
+
+    protected function logTokenFrozen(): void
+    {
+        Log::info(
+            sprintf(
+                'Token %s of collection %s was frozen.',
+                $this->event->tokenId,
+                $this->event->collectionId,
+            )
+        );
+    }
+
+    protected function logTokenAccountFrozen(): void
+    {
+        Log::info(
+            sprintf(
+                'TokenAccount of collection %s, token #%s and account %s was frozen.',
+                $this->event->collectionId,
+                $this->event->tokenId,
+                $this->event->account,
+            )
+        );
+    }
+
+    protected function broadcastCollectionFrozen(): void
+    {
         CollectionFrozen::safeBroadcast(
-            $collection,
-            $transaction
+            $this->event->collectionId,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
 
-    /**
-     * @throws PlatformException
-     */
-    protected function freezeToken(Collection $collection, string $tokenId, ?Model $transaction = null): void
+    protected function broadcastCollectionAccountFrozen(): void
     {
-        // Fails if it doesn't find the token
-        $tokenStored = $this->getToken($collection->id, $tokenId);
-        $tokenStored->is_frozen = true;
-        $tokenStored->save();
-
-        Log::info(
-            sprintf(
-                'Token #%s (id %s) of Collection #%s (id %s) was frozen.',
-                $tokenId,
-                $tokenStored->id,
-                $collection->collection_chain_id,
-                $collection->id,
-            )
-        );
-
-        TokenFrozen::safeBroadcast(
-            $tokenStored,
-            $transaction
-        );
-    }
-
-    protected function freezeCollectionAccount(Collection $collection, string $account, ?Model $transaction = null): void
-    {
-        $owner = $this->firstOrStoreAccount($account);
-        $collectionAccount = $this->getCollectionAccount($collection->id, $owner->id);
-        $collectionAccount->is_frozen = true;
-        $collectionAccount->save();
-
-        Log::info(
-            sprintf(
-                'CollectionAccount (id %s) of Collection #%s (id %s) and account %s (id %s) was frozen.',
-                $collectionAccount->id,
-                $collection->collection_chain_id,
-                $collection->id,
-                $owner,
-                $account->id ?? 'unknown',
-            )
-        );
-
         CollectionAccountFrozen::safeBroadcast(
-            $collectionAccount,
-            $transaction
+            $this->event->collectionId,
+            $this->event->account,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
 
-    /**
-     * @throws PlatformException
-     */
-    protected function freezeTokenAccount(Collection $collection, string $tokenId, string $account, ?Model $transaction = null): void
+    protected function broadcastTokenFrozen(): void
     {
-        // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $tokenId);
-        $owner = $this->firstOrStoreAccount($account);
-
-        $tokenAccount = $this->getTokenAccount($collection->id, $token->id, $owner->id);
-        $tokenAccount->is_frozen = true;
-        $tokenAccount->save();
-
-        Log::info(
-            sprintf(
-                'TokenAccount (id %s) of Collection #%s (id %s), Token #%s (id %s) and account %s (id %s) was frozen.',
-                $tokenAccount->id,
-                $collection->collection_chain_id,
-                $collection->id,
-                $tokenId,
-                $token->id,
-                $account,
-                $owner->id,
-            )
+        TokenFrozen::safeBroadcast(
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
+    }
 
+    protected function broadcastTokenAccountFrozen(): void
+    {
         TokenAccountFrozen::safeBroadcast(
-            $tokenAccount,
-            $transaction
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->account,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
 }

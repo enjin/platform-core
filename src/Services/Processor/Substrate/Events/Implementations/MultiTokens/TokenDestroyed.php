@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenDestroyed as TokenDestroyedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenDestroyed as TokenDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -19,33 +20,31 @@ class TokenDestroyed extends SubstrateEvent
      */
     public function run(): void
     {
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($collectionId = $event->collectionId);
-        // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $tokenId = $event->tokenId);
-        $token->delete();
+        $collection = $this->getCollection($this->event->collectionId);
 
-
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-
+        Token::where([
+            'collection_id' => $collection->id,
+            'token_chain_id' => $this->event->tokenId,
+        ])->delete();
     }
 
     public function log(): void
     {
-        Log::info("Token #{$tokenId} in Collection ID {$collectionId} was destroyed.");
-
+        Log::info("Token {$this->event->tokenId} from collection {$this->event->collectionId} was destroyed.");
     }
 
     public function broadcast(): void
     {
+        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         TokenDestroyedEvent::safeBroadcast(
-            $token,
+            $this->event->tokenId,
             $this->firstOrStoreAccount($extrinsic?->signer),
-            $this->getTransaction($block, $event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
 }

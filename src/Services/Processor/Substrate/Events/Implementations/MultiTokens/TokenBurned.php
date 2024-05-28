@@ -27,46 +27,39 @@ class TokenBurned extends SubstrateEvent
 
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($this->event->collectionId);
-        $token = Token::firstWhere(['collection_id' => $collection->id, 'token_chain_id' => $this->event->tokenId]);
         $account = $this->firstOrStoreAccount($this->event->account);
 
-        if ($token) {
-            $token->decrement('supply', $this->event->amount);
+        $token = Token::where([
+            'collection_id' => $collection->id,
+            'token_chain_id' => $this->event->tokenId,
+        ])?->decrement('supply', $this->event->amount);
 
-            TokenAccount::firstWhere([
-                'wallet_id' => $account->id,
-                'collection_id' => $collection->id,
-                'token_id' => $token->id,
-            ])?->decrement('balance', $this->event->amount);
-
-
-        }
-
-
+        TokenAccount::where([
+            'wallet_id' => $account->id,
+            'collection_id' => $collection->id,
+            'token_id' => $token?->id,
+        ])?->decrement('balance', $this->event->amount);
     }
 
     public function log(): void
     {
         Log::info(sprintf(
-            'Burned %s units of Collection #%s (id: %s), Token #%s (id: %s) from %s (id: %s).',
-            $event->amount,
-            $event->tokenId,
-            $token->id,
-            $event->collectionId,
-            $collection->id,
-            $account->address ?? 'unknown',
-            $account->id ?? 'unknown',
+            '%s burned %s units of token %s from collection %s.',
+            $this->event->account,
+            $this->event->amount,
+            $this->event->tokenId,
+            $this->event->collectionId,
         ));
     }
 
     public function broadcast(): void
     {
         TokenBurnedEvent::safeBroadcast(
-            $collection,
-            $event->tokenId,
-            $event->account,
-            $event->amount,
-            $this->getTransaction($block, $event->extrinsicIndex)
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $this->event->account,
+            $this->event->amount,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
 }

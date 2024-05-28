@@ -28,7 +28,6 @@ class Unapproved extends SubstrateEvent
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($this->event->collectionId);
         $operator = $this->firstOrStoreAccount($this->event->operator);
-        $transaction = $this->getTransaction($this->block, $this->event->extrinsicIndex);
         $owner = $this->firstOrStoreAccount($this->event->owner);
 
         if ($this->event->tokenId) {
@@ -46,12 +45,7 @@ class Unapproved extends SubstrateEvent
                 'wallet_id' => $operator->id,
             ])?->delete();
 
-            TokenUnapproved::safeBroadcast(
-                $this->event->collectionId,
-                $this->event->tokenId,
-                $operator->address,
-                $transaction
-            );
+
         } else {
             // Fails if it doesn't find the collection account
             $collectionAccount = $this->getCollectionAccount(
@@ -63,12 +57,6 @@ class Unapproved extends SubstrateEvent
                 'collection_account_id' => $collectionAccount->id,
                 'wallet_id' => $operator->id,
             ])?->delete();
-
-            CollectionUnapproved::safeBroadcast(
-                $this->event->collectionId,
-                $operator->address,
-                $transaction
-            );
         }
     }
 
@@ -79,6 +67,17 @@ class Unapproved extends SubstrateEvent
 
     public function broadcast(): void
     {
-        // TODO: Implement broadcast() method.
+        TokenUnapproved::safeBroadcast(
+            $this->event->collectionId,
+            $this->event->tokenId,
+            $operator->address,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+        );
+
+        CollectionUnapproved::safeBroadcast(
+            $this->event->collectionId,
+            $operator->address,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+        );
     }
 }

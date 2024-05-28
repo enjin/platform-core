@@ -5,15 +5,15 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenTransferred;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Transferred as TransferredPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Illuminate\Support\Facades\Log;
 
 class Transferred extends SubstrateEvent
 {
     /** @var TransferredPolkadart */
-    protected PolkadartEvent $event;
+    protected Event $event;
 
     /**
      * @throws PlatformException
@@ -28,7 +28,6 @@ class Transferred extends SubstrateEvent
         $collection = $this->getCollection($this->event->collectionId);
         // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $this->event->tokenId);
-
         $fromAccount = $this->firstOrStoreAccount($this->event->from);
         $toAccount = $this->firstOrStoreAccount($this->event->to);
 
@@ -48,25 +47,23 @@ class Transferred extends SubstrateEvent
     public function log(): void
     {
         Log::info(sprintf(
-            'Transferred %s units of token #%s (id: %s) in collection #%s (id: %s) to %s (id: %s).',
+            '%s transferred %s of token %s from collection %s to %s.',
+            $this->event->from,
             $this->event->amount,
             $this->event->tokenId,
-            $token->id,
             $this->event->collectionId,
-            $collection->id,
-            $toAccount->address ?? 'unknown',
-            $toAccount->id ?? 'unknown',
+            $this->event->to,
         ));
     }
 
     public function broadcast(): void
     {
         TokenTransferred::safeBroadcast(
-            $token,
-            $fromAccount,
-            $toAccount,
-            $event->amount,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event->tokenId,
+            $this->event->from,
+            $this->event->to,
+            $this->event->amount,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }
 }

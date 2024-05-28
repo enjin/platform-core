@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionTransferred extends SubstrateEvent
 {
-
     /** @var CollectionTransferredPolkadart */
     protected Event $event;
 
