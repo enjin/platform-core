@@ -9,8 +9,6 @@ use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountFrozen;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenFrozen;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Collection;
-use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Frozen as FrozenPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -19,10 +17,13 @@ use Illuminate\Support\Facades\Log;
 
 class Freeze extends SubstrateEvent
 {
+    /** @var FrozenPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof FrozenPolkadart) {
             return;
@@ -42,6 +43,16 @@ class Freeze extends SubstrateEvent
             FreezeType::COLLECTION_ACCOUNT => $this->freezeCollectionAccount($collection, $event->account, $transaction),
             FreezeType::TOKEN_ACCOUNT => $this->freezeTokenAccount($collection, $event->tokenId, $event->account, $transaction),
         };
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 
     protected function freezeCollection(Collection $collection, ?Model $transaction = null): void

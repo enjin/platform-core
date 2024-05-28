@@ -5,10 +5,8 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenUnreserved;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Unreserved as UnreservedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -16,10 +14,13 @@ use Illuminate\Support\Facades\Log;
 
 class Unreserved extends SubstrateEvent
 {
+    /** @var UnreservedPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof UnreservedPolkadart) {
             return;
@@ -74,5 +75,15 @@ class Unreserved extends SubstrateEvent
             $event,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 }

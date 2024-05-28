@@ -6,9 +6,7 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenCreated as TokenCreatedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenCreated as TokenCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
@@ -19,10 +17,13 @@ use Illuminate\Support\Facades\Cache;
 
 class TokenCreated extends SubstrateEvent
 {
+    /** @var TokenCreatedPolkadart */
+    protected PolkadartEvent $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         $this->tokenCreatedCountAtBlock($block->number);
 
@@ -120,6 +121,16 @@ class TokenCreated extends SubstrateEvent
             'minimum_balance' => $minBalance,
             'attribute_count' => 0,
         ]);
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 
     protected function tokenCreatedCountAtBlock(string $block): void

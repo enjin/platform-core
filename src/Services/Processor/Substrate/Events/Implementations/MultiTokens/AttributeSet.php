@@ -6,8 +6,6 @@ use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAttributeSet;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAttributeSet;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Attribute;
-use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeSet as AttributeSetPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -16,10 +14,13 @@ use Illuminate\Support\Facades\Log;
 
 class AttributeSet extends SubstrateEvent
 {
+    /** @var AttributeSetPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof AttributeSetPolkadart) {
             return;
@@ -81,5 +82,15 @@ class AttributeSet extends SubstrateEvent
                 );
             }
         }
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 }

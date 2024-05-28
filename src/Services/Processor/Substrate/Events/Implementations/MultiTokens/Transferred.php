@@ -4,9 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenTransferred;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Transferred as TransferredPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -14,10 +12,13 @@ use Illuminate\Support\Facades\Log;
 
 class Transferred extends SubstrateEvent
 {
+    /** @var TransferredPolkadart */
+    protected PolkadartEvent $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof TransferredPolkadart) {
             return;
@@ -65,5 +66,15 @@ class Transferred extends SubstrateEvent
             $event->amount,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 }

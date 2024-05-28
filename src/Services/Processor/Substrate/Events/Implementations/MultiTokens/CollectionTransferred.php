@@ -3,8 +3,6 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionTransferred as CollectionTransferredEvent;
-use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionTransferred as CollectionTransferredPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -12,7 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionTransferred extends SubstrateEvent
 {
-    public function run(Event $event, Block $block, Codec $codec): void
+    /** @var CollectionTransferredPolkadart */
+    protected Event $event;
+
+    public function run(): void
     {
         if (!$event instanceof CollectionTransferredPolkadart) {
             return;
@@ -37,5 +38,15 @@ class CollectionTransferred extends SubstrateEvent
             $owner->public_key,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 }

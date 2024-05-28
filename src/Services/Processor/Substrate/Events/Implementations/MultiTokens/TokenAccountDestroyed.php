@@ -4,9 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -14,10 +12,13 @@ use Illuminate\Support\Facades\Log;
 
 class TokenAccountDestroyed extends SubstrateEvent
 {
+    /** @var TokenAccountDestroyedPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof TokenAccountDestroyedPolkadart) {
             return;
@@ -60,5 +61,15 @@ class TokenAccountDestroyed extends SubstrateEvent
             $account,
             $this->getTransaction($block, $event->extrinsicIndex),
         );
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 }

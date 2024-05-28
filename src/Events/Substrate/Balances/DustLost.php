@@ -12,18 +12,18 @@ class DustLost extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $account, string $amount, ?Model $transaction = null)
+    public function __construct(string $account, string $amount, ?Model $transaction = null)
     {
         parent::__construct();
 
         $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
-            'account' => $account->address,
+            'account' => $account,
             'amount' => $amount,
         ];
 
         $this->broadcastChannels = [
-            new Channel($account->address),
+            new Channel($account),
             new PlatformAppChannel(),
         ];
     }

@@ -6,10 +6,8 @@ use Cache;
 use Carbon\Carbon;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated as CollectionCreatedEvent;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Models\Laravel\CollectionRoyaltyCurrency;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionCreated as CollectionCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
@@ -21,7 +19,10 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionCreated extends SubstrateEvent
 {
-    public function run(Event $event, Block $block, Codec $codec): void
+    /** @var CollectionCreatedPolkadart */
+    protected Event $event;
+
+    public function run(): void
     {
         $this->collectionCreatedCountAtBlock($block->number);
 
@@ -45,6 +46,16 @@ class CollectionCreated extends SubstrateEvent
             $collection,
             $transaction,
         );
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 
     protected function collectionCreatedCountAtBlock(string $block): void

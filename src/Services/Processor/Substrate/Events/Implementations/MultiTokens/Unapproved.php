@@ -6,19 +6,20 @@ use Enjin\Platform\Events\Substrate\MultiTokens\CollectionUnapproved;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenUnapproved;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\CollectionAccountApproval;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccountApproval;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Unapproved as UnapprovedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 
 class Unapproved extends SubstrateEvent
 {
+    /** @var UnapprovedPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof UnapprovedPolkadart) {
             return;
@@ -73,5 +74,15 @@ class Unapproved extends SubstrateEvent
                 $transaction
             );
         }
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 }

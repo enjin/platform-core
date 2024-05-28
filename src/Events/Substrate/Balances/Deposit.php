@@ -12,18 +12,18 @@ class Deposit extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $who, string $amount, ?Model $transaction = null)
+    public function __construct(string $who, string $amount, ?Model $transaction = null)
     {
         parent::__construct();
 
         $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
-            'who' => $who->address,
+            'who' => $who,
             'amount' => $amount,
         ];
 
         $this->broadcastChannels = [
-            new Channel($who->address),
+            new Channel($who),
             new PlatformAppChannel(),
         ];
     }

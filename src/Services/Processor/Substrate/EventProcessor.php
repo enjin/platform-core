@@ -49,6 +49,6 @@ class EventProcessor
 
     protected function callEvent($enum, $event): void
     {
-        $enum::tryFrom(class_basename($event))?->getProcessor()?->run($event, $this->block, $this->codec);
+        $enum::tryFrom(class_basename($event))?->getProcessor($event, $this->block, $this->codec)?->run();
     }
 }

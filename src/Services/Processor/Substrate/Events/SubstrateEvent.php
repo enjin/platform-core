@@ -23,7 +23,25 @@ use Illuminate\Support\Facades\Log;
 
 abstract class SubstrateEvent
 {
-    abstract public function run(Event $event, Block $block, Codec $codec);
+    protected Event $event;
+    protected Block $block;
+    protected Codec $codec;
+
+    public function __construct(Event $event, Block $block, Codec $codec)
+    {
+        $this->event = $event;
+        $this->block = $block;
+        $this->codec = $codec;
+
+        $this->broadcast();
+        $this->log();
+    }
+
+    abstract public function log(): void;
+
+    abstract public function broadcast(): void;
+
+    abstract public function run(): void;
 
     public function getValue(array $data, array $keys): mixed
     {

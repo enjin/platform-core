@@ -8,9 +8,7 @@ use Enjin\Platform\Events\Substrate\MultiTokens\CollectionThawed;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountThawed;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenThawed;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Thawed as ThawedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -19,10 +17,13 @@ use Illuminate\Support\Facades\Log;
 
 class Thawed extends SubstrateEvent
 {
+    /** @var ThawedPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
         if (!$event instanceof ThawedPolkadart) {
             return;
@@ -42,6 +43,16 @@ class Thawed extends SubstrateEvent
             FreezeType::COLLECTION_ACCOUNT => $this->thawCollectionAccount($collection, $event->account, $transaction),
             FreezeType::TOKEN_ACCOUNT => $this->thawTokenAccount($collection, $event->tokenId, $event->account, $transaction),
         };
+    }
+
+    public function log()
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast()
+    {
+        // TODO: Implement broadcast() method.
     }
 
     protected function thawCollection(Collection $collection, ?Model $transaction = null): void
