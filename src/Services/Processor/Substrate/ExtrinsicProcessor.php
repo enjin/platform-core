@@ -5,7 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\TransactionState;
-use Enjin\Platform\Enums\Substrate\StorageKey;
+use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
 use Enjin\Platform\Models\Laravel\Block;
@@ -69,7 +69,7 @@ class ExtrinsicProcessor
                     $blockHash = $rpc->send('chain_getBlockHash', [$this->block->number]);
                 }
 
-                if ($events = $rpc->send('state_getStorage', [StorageKey::events()->value, $blockHash])) {
+                if ($events = $rpc->send('state_getStorage', [StorageType::EVENTS->value, $blockHash])) {
                     $this->block->events = State::eventsForBlock(['number' => $this->block->number, 'events' => $events]) ?? [];
                 }
             }

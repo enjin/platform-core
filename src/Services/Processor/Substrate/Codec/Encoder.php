@@ -8,11 +8,13 @@ use Codec\Types\ScaleInstance;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\PlatformCache;
-use Enjin\Platform\Enums\Substrate\StorageKey;
+use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Support\Blake2;
+use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\Metadata;
 use Enjin\Platform\Support\SS58Address;
+use Enjin\Platform\Support\Twox;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
@@ -203,7 +205,7 @@ class Encoder
     {
         $publicKey = HexConverter::unPrefix($publicKey);
         $keyHashed = Blake2::hash($publicKey, 128);
-        $key = StorageKey::systemAccount()->value . $keyHashed . $publicKey;
+        $key = StorageType::SYSTEM_ACCOUNT->value . $keyHashed . $publicKey;
 
         return HexConverter::prefix($key);
     }
@@ -222,14 +224,26 @@ class Encoder
     public static function collectionStorageKey(string $collectionId): string
     {
         $hashAndEncode = Blake2::hashAndEncode($collectionId);
-        $key = StorageKey::collections()->value . $hashAndEncode;
+        $key = StorageType::COLLECTIONS->value . $hashAndEncode;
+
+        return HexConverter::prefix($key);
+    }
+
+    public static function pendingCollectionTransfersStorageKey(string $collectionId): string
+    {
+        $hasher = new Twox();
+
+        $hexedNumber = HexConverter::uintToHex($collectionId, 32);
+        $reversed = Hex::reverseEndian($hexedNumber);
+        $hashAndEncode = $hasher->ByHasherName('Twox64Concat', HexConverter::prefix($reversed));
+        $key = StorageType::PENDING_COLLECTION_TRANSFERS->value . $hashAndEncode;
 
         return HexConverter::prefix($key);
     }
 
     public static function tokenStorageKey(string $collectionId, ?string $tokenId = null): string
     {
-        $key = StorageKey::tokens()->value . Blake2::hashAndEncode($collectionId);
+        $key = StorageType::TOKENS->value . Blake2::hashAndEncode($collectionId);
 
         if ($tokenId) {
             $key .= Blake2::hashAndEncode($tokenId);
@@ -240,7 +254,7 @@ class Encoder
 
     public static function collectionAccountStorageKey(string $collectionId, ?string $accountId = null): string
     {
-        $key = StorageKey::collectionAccounts()->value . Blake2::hashAndEncode($collectionId);
+        $key = StorageType::COLLECTION_ACCOUNTS->value . Blake2::hashAndEncode($collectionId);
 
         if ($accountId) {
             $accountId = HexConverter::unPrefix($accountId);
@@ -252,7 +266,7 @@ class Encoder
 
     public static function attributeStorageKey(string $collectionId, ?string $tokenId = null, ?string $key = null): string
     {
-        $storageKey = StorageKey::attributes()->value . Blake2::hashAndEncode($collectionId);
+        $storageKey = StorageType::ATTRIBUTES->value . Blake2::hashAndEncode($collectionId);
         $codec = new ScaleInstance(Base::create());
 
         if ($tokenId) {
@@ -270,7 +284,7 @@ class Encoder
 
     public static function tokenAccountStorageKey(string $collectionId, ?string $tokenId = null, ?string $accountId = null): string
     {
-        $key = StorageKey::tokenAccounts()->value . Blake2::hashAndEncode($collectionId);
+        $key = StorageType::TOKEN_ACCOUNTS->value . Blake2::hashAndEncode($collectionId);
 
         if ($tokenId) {
             $key .= Blake2::hashAndEncode($tokenId);

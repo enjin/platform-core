@@ -82,7 +82,13 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
             ];
         }
 
-        return isset($node->name) ? [$node->name->value => $this->transformByKind($node)] : [$node->value];
+        if ($node->value->kind === 'BooleanValue') {
+            $value = (bool) $node->value->value;
+        } else {
+            $value = $this->transformByKind($node);
+        }
+
+        return isset($node->name) ? [$node->name->value => $value] : [$node->value];
     }
 
     /**

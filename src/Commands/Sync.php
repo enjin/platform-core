@@ -8,13 +8,14 @@ use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Commands\contexts\Truncate;
-use Enjin\Platform\Enums\Substrate\StorageKey;
+use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
+use Enjin\Platform\Models\Syncable;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -193,29 +194,15 @@ class Sync extends Command
 
     protected function getKeys(): array
     {
-        $collectionFilter = config('enjin-platform.indexing.filters.collections');
+        $collectionFilter = Syncable::query()
+            ->where('syncable_type', ModelType::COLLECTION)
+            ->pluck('syncable_id');
+
         if (empty($collectionFilter)) {
-            return [
-                StorageKey::collections(),
-                StorageKey::pendingCollectionTransfers(),
-                StorageKey::collectionAccounts(),
-                StorageKey::tokens(),
-                StorageKey::tokenAccounts(),
-                StorageKey::attributes(),
-            ];
+            return Substrate::getStorageKeys();
         }
 
-        return collect(array_map(
-            fn ($collectionId) => [
-                StorageKey::collections(Encoder::collectionStorageKey($collectionId)),
-                StorageKey::pendingCollectionTransfers(Encoder::collectionStorageKey($collectionId)),
-                StorageKey::collectionAccounts(Encoder::collectionAccountStorageKey($collectionId)),
-                StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
-                StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),
-                StorageKey::attributes(Encoder::attributeStorageKey($collectionId)),
-            ],
-            $collectionFilter
-        ))->flatten(1)->toArray();
+        return Substrate::getStorageKeysForCollectionIds($collectionFilter);
     }
 
     protected function getStorageKeys(string $blockHash): array

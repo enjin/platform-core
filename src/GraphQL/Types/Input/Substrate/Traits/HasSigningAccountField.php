@@ -18,7 +18,7 @@ trait HasSigningAccountField
     ): array {
         $signingAccountType = [
             'type' => GraphQL::type('String'),
-            'description' => $signingAccountDesc ?: __('enjin-platform::args.signingAccount'),
+            'description' => $signingAccountDesc ?: __('enjin-platform::mutation.args.signingAccount'),
             'rules' => ['nullable', new ValidSubstrateAccount()],
         ];
 

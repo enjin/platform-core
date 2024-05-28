@@ -48,6 +48,17 @@ class TokenService
     }
 
     /**
+     * Update ot insert a token.
+     */
+    public function updateOrInsert(array $keys, array $data)
+    {
+        return Token::updateOrInsert(
+            $keys,
+            $data
+        );
+    }
+
+    /**
      * Get the token balance for an account.
      */
     public function tokenBalanceForAccount(string $collectionId, string $tokenId, ?string $address = null): string

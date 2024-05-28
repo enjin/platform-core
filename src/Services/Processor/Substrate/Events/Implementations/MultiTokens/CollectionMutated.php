@@ -19,7 +19,7 @@ class CollectionMutated extends SubstrateEvent
             return;
         }
 
-        if (!$this->shouldIndexCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
 

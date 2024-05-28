@@ -1,0 +1,11 @@
+mutation AddToTracked(
+    $type: ModelType!
+    $chainIds: [String!]!
+    $hotSync: Boolean
+) {
+    AddToTracked(
+        type: $type
+        chainIds: $chainIds
+        hotSync: $hotSync
+    )
+}
