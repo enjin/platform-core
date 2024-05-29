@@ -59,8 +59,7 @@ class AttributeRemoved extends SubstrateEvent
     {
         if (is_null($this->event->tokenId)) {
             CollectionAttributeRemoved::safeBroadcast(
-                $this->event->collectionId,
-                $this->event->key,
+                $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
             );
 
@@ -68,9 +67,7 @@ class AttributeRemoved extends SubstrateEvent
         }
 
         TokenAttributeRemoved::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->key,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

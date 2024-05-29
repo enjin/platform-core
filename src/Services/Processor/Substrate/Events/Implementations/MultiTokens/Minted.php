@@ -55,11 +55,7 @@ class Minted extends SubstrateEvent
     public function broadcast(): void
     {
         TokenMinted::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->firstOrStoreAccount($this->event->issuer),
-            $this->event->recipient,
-            $this->event->amount,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

@@ -66,9 +66,6 @@ class Reserved extends SubstrateEvent
     public function broadcast(): void
     {
         TokenReserved::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->accountId,
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );

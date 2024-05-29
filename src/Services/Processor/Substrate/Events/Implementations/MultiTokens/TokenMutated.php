@@ -55,8 +55,7 @@ class TokenMutated extends SubstrateEvent
     public function broadcast(): void
     {
         TokenMutatedEvent::safeBroadcast(
-            $this->event->tokenId,
-            $this->event->getParams(),
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

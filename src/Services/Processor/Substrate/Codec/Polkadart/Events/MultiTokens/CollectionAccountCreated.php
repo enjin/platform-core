@@ -28,9 +28,13 @@ class CollectionAccountCreated extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function getPallet(): string
+    public function toBroadcast(?array $with = null): array
     {
-        return $this->module;
+        return [
+            'collection_id' => $this->collectionId,
+            'account' => $this->account,
+            ...(array) $with,
+        ];
     }
 
     public function getParams(): array

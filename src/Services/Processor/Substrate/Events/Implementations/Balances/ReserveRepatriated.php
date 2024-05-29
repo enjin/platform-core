@@ -31,10 +31,7 @@ class ReserveRepatriated extends SubstrateEvent
     public function broadcast(): void
     {
         ReserveRepatriatedEvent::safeBroadcast(
-            $this->event->from,
-            $this->event->to,
-            $this->event->amount,
-            $this->event->destinationStatus,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

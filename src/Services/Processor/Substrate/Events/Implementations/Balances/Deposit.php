@@ -29,8 +29,7 @@ class Deposit extends SubstrateEvent
     public function broadcast(): void
     {
         DepositEvent::safeBroadcast(
-            $this->event->who,
-            $this->event->amount,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

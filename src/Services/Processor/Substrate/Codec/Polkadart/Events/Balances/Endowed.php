@@ -28,9 +28,13 @@ class Endowed extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function getPallet(): string
+    public function toBroadcast(?array $with = null): array
     {
-        return $this->module;
+        return [
+            'account' => $this->account,
+            'freeBalance' => $this->freeBalance,
+            ...(array) $with,
+        ];
     }
 
     public function getParams(): array

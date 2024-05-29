@@ -159,7 +159,7 @@ class Thawed extends SubstrateEvent
     protected function broadcastCollectionThawed(): void
     {
         CollectionThawed::safeBroadcast(
-            $this->event->collectionId,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
@@ -167,8 +167,7 @@ class Thawed extends SubstrateEvent
     protected function broadcastCollectionAccountThawed(): void
     {
         CollectionAccountThawed::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->account,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
@@ -176,8 +175,7 @@ class Thawed extends SubstrateEvent
     protected function broadcastTokenThawed(): void
     {
         TokenThawed::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
@@ -185,9 +183,7 @@ class Thawed extends SubstrateEvent
     protected function broadcastTokenAccountThawed(): void
     {
         TokenAccountThawed::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->account,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

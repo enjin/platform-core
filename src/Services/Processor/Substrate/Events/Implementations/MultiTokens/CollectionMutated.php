@@ -66,8 +66,7 @@ class CollectionMutated extends SubstrateEvent
     public function broadcast(): void
     {
         CollectionMutatedEvent::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->getParams(),
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

@@ -29,8 +29,7 @@ class Withdraw extends SubstrateEvent
     public function broadcast(): void
     {
         WithdrawEvent::safeBroadcast(
-            $this->event->who,
-            $this->event->amount,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

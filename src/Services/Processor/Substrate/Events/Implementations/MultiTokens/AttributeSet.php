@@ -67,9 +67,7 @@ class AttributeSet extends SubstrateEvent
     {
         if (is_null($this->event->tokenId)) {
             CollectionAttributeSet::safeBroadcast(
-                $this->event->collectionId,
-                $this->event->key,
-                $this->event->value,
+                $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex)
             );
 
@@ -77,10 +75,7 @@ class AttributeSet extends SubstrateEvent
         }
 
         TokenAttributeSet::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->key,
-            $this->event->value,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

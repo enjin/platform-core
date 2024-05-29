@@ -96,9 +96,7 @@ class Approved extends SubstrateEvent
     {
         if (is_null($this->event->tokenId)) {
             CollectionApproved::safeBroadcast(
-                $this->event->collectionId,
-                $this->event->operator,
-                $this->event->expiration,
+                $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
             );
 
@@ -106,11 +104,7 @@ class Approved extends SubstrateEvent
         }
 
         TokenApproved::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->operator ?? 'unknown',
-            $this->event->amount,
-            $this->event->expiration,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

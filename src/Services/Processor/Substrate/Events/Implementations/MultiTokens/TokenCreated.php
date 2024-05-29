@@ -121,8 +121,7 @@ class TokenCreated extends SubstrateEvent
     public function broadcast(): void
     {
         TokenCreatedEvent::safeBroadcast(
-            $this->event->tokenId,
-            $this->firstOrStoreAccount($this->event->issuer),
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

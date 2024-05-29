@@ -68,15 +68,12 @@ class Unapproved extends SubstrateEvent
     public function broadcast(): void
     {
         TokenUnapproved::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $operator->address,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
 
         CollectionUnapproved::safeBroadcast(
-            $this->event->collectionId,
-            $operator->address,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

@@ -28,9 +28,13 @@ class BalanceSet extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function getPallet(): string
+    public function toBroadcast(?array $with = null): array
     {
-        return $this->module;
+        return [
+            'who' => $this->who,
+            'free' => $this->free,
+            ...(array) $with,
+        ];
     }
 
     public function getParams(): array

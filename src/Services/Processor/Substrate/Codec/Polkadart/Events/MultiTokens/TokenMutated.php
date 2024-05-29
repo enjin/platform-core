@@ -42,9 +42,18 @@ class TokenMutated extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function getPallet(): string
+    public function toBroadcast(?array $with = null): array
     {
-        return $this->module;
+        return [
+            'collection_id' => $this->collectionId,
+            'token_id' => $this->tokenId,
+            'listing_forbidden' => $this->listingForbidden,
+            'behavior_mutation' => $this->behaviorMutation,
+            'is_currency' => $this->isCurrency,
+            'beneficiary' => $this->beneficiary,
+            'percentage' => $this->percentage,
+            ...(array) $with,
+        ];
     }
 
     public function getParams(): array

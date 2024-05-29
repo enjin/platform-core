@@ -29,8 +29,7 @@ class DustLost extends SubstrateEvent
     public function broadcast(): void
     {
         DustLostEvent::safeBroadcast(
-            $this->event->account,
-            $this->event->amount,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

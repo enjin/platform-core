@@ -55,10 +55,7 @@ class TokenBurned extends SubstrateEvent
     public function broadcast(): void
     {
         TokenBurnedEvent::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->account,
-            $this->event->amount,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

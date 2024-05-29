@@ -6,24 +6,23 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Endowed as EndowedPolkadart;
 
 class Endowed extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $account, string $freeBalance, ?Model $transaction = null)
+    public function __construct(EndowedPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'account' => $account->address,
-            'freeBalance' => $freeBalance,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel($account->address),
+            new Channel($event->account),
             new PlatformAppChannel(),
         ];
     }

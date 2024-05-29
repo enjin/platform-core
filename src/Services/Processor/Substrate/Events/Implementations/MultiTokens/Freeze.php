@@ -159,7 +159,7 @@ class Freeze extends SubstrateEvent
     protected function broadcastCollectionFrozen(): void
     {
         CollectionFrozen::safeBroadcast(
-            $this->event->collectionId,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
@@ -167,8 +167,7 @@ class Freeze extends SubstrateEvent
     protected function broadcastCollectionAccountFrozen(): void
     {
         CollectionAccountFrozen::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->account,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
@@ -176,8 +175,7 @@ class Freeze extends SubstrateEvent
     protected function broadcastTokenFrozen(): void
     {
         TokenFrozen::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }
@@ -185,9 +183,7 @@ class Freeze extends SubstrateEvent
     protected function broadcastTokenAccountFrozen(): void
     {
         TokenAccountFrozen::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->account,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

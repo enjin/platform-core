@@ -42,8 +42,7 @@ class TokenDestroyed extends SubstrateEvent
     {
         $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         TokenDestroyedEvent::safeBroadcast(
-            $this->event->tokenId,
-            $this->firstOrStoreAccount($extrinsic?->signer),
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

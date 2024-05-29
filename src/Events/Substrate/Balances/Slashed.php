@@ -6,24 +6,23 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Slashed as SlashedPolkadart;
 
 class Slashed extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $who, string $amount, ?Model $transaction = null)
+    public function __construct(SlashedPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'who' => $who->address,
-            'amount' => $amount,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel($who->address),
+            new Channel($event->who),
             new PlatformAppChannel(),
         ];
     }

@@ -30,9 +30,14 @@ class AttributeRemoved extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function getPallet(): string
+    public function toBroadcast(?array $with = null): array
     {
-        return $this->module;
+        return [
+            'collection_id' => $this->collectionId,
+            'token_id' => $this->tokenId,
+            'key' => $this->key,
+            ...(array) $with,
+        ];
     }
 
     public function getParams(): array

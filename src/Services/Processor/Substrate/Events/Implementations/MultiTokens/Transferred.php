@@ -59,10 +59,7 @@ class Transferred extends SubstrateEvent
     public function broadcast(): void
     {
         TokenTransferred::safeBroadcast(
-            $this->event->tokenId,
-            $this->event->from,
-            $this->event->to,
-            $this->event->amount,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

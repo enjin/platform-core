@@ -55,9 +55,7 @@ class TokenAccountDestroyed extends SubstrateEvent
     public function broadcast(): void
     {
         TokenAccountDestroyedEvent::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->tokenId,
-            $this->event->account,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

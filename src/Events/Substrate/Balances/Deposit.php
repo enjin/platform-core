@@ -6,24 +6,23 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Deposit as DepositPolkadart;
 
 class Deposit extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(string $who, string $amount, ?Model $transaction = null)
+    public function __construct(DepositPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'who' => $who,
-            'amount' => $amount,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel($who),
+            new Channel($event->who),
             new PlatformAppChannel(),
         ];
     }

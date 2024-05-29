@@ -40,8 +40,7 @@ class CollectionTransferred extends SubstrateEvent
     public function broadcast(): void
     {
         CollectionTransferredEvent::safeBroadcast(
-            $this->event->collectionId,
-            $this->event->owner,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }

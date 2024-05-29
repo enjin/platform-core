@@ -32,7 +32,7 @@ class CollectionDestroyed extends SubstrateEvent
     public function broadcast(): void
     {
         CollectionDestroyedEvent::safeBroadcast(
-            $this->event->collectionId,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex)
         );
     }

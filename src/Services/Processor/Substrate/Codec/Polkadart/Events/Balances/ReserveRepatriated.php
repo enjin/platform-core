@@ -32,9 +32,15 @@ class ReserveRepatriated extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function getPallet(): string
+    public function toBroadcast(?array $with = null): array
     {
-        return $this->module;
+        return [
+            'from' => $this->from,
+            'to' => $this->to,
+            'amount' => $this->amount,
+            'destinationStatus' => $this->destinationStatus,
+            ...(array) $with,
+        ];
     }
 
     public function getParams(): array

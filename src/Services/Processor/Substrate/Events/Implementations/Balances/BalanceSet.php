@@ -29,8 +29,7 @@ class BalanceSet extends SubstrateEvent
     public function broadcast(): void
     {
         BalanceSetEvent::safeBroadcast(
-            $this->event->who,
-            $this->event->free,
+            $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
         );
     }
