@@ -28,15 +28,6 @@ class CollectionDestroyed extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'caller' => $this->caller,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

@@ -28,15 +28,6 @@ class CollectionTransferred extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'owner' => $this->owner,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

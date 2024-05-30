@@ -23,7 +23,18 @@ class Event implements PolkadartEvent
         return $self;
     }
 
-    abstract public function toBroadcast(?array $with = null): array;
+    public function toBroadcast(?array $with = null): array
+    {
+        ray( [
+            ...get_class_vars(self::class),
+            ...(array) $with,
+        ]);
+
+        return [
+            ...get_class_vars(self::class),
+            ...(array) $with,
+        ];
+    }
 
     public function getValue(array $data, array $keys): mixed
     {

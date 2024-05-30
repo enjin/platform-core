@@ -12,14 +12,18 @@ class CollectionFrozen extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
+     * @param CollectionFrozenPolkadart $event
+     * @param Model|null $transaction
+     * @param array|null $extra
      */
-    public function __construct(CollectionFrozenPolkadart $event, ?Model $transaction = null)
+    public function __construct(CollectionFrozenPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
         ]);
+        +
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),

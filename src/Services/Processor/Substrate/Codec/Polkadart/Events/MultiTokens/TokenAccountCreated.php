@@ -32,17 +32,6 @@ class TokenAccountCreated extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'token_id' => $this->tokenId,
-            'account' => $this->account,
-            'balance' => $this->balance,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

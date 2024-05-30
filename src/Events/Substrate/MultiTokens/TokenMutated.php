@@ -11,15 +11,19 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiToke
 class TokenMutated extends PlatformBroadcastEvent
 {
     /**
-     * Create instance.
+     * Create a new event instance.
+     * @param TokenMutatedPolkadart $event
+     * @param Model|null $transaction
+     * @param array|null $extra
      */
-    public function __construct(TokenMutatedPolkadart $event, ?Model $transaction = null)
+    public function __construct(TokenMutatedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
         ]);
+        +
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),

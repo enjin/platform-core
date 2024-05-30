@@ -32,17 +32,6 @@ class Unapproved extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'token_id' => $this->tokenId,
-            'owner' => $this->owner,
-            'operator' => $this->operator,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

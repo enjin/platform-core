@@ -61,6 +61,7 @@ class AttributeRemoved extends SubstrateEvent
             CollectionAttributeRemoved::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
+                ['collection_owner' => ''],
             );
 
             return;

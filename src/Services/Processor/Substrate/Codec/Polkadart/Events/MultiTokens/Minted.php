@@ -34,18 +34,6 @@ class Minted extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'token_id' => $this->tokenId,
-            'issuer' => $this->issuer,
-            'recipient' => $this->recipient,
-            'amount' => $this->amount,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

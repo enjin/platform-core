@@ -12,8 +12,11 @@ class TokenUnapproved extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
+     * @param TokenUnapprovedPolkadart $event
+     * @param Model|null $transaction
+     * @param array|null $extra
      */
-    public function __construct(TokenUnapprovedPolkadart $event, ?Model $transaction = null)
+    public function __construct(TokenUnapprovedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

@@ -37,6 +37,12 @@ abstract class SubstrateEvent
         $this->log();
     }
 
+    public function __destruct()
+    {
+//        $this->broadcast();
+//        $this->log();
+    }
+
     abstract public function log(): void;
 
     abstract public function broadcast(): void;

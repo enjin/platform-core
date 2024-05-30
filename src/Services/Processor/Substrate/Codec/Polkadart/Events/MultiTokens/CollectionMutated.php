@@ -36,19 +36,6 @@ class CollectionMutated extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'owner' => $this->owner,
-            'royalty' => $this->royalty,
-            'beneficiary' => $this->beneficiary,
-            'percentage' => $this->percentage,
-            'explicit_royalty_currencies' => $this->explicitRoyaltyCurrencies,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

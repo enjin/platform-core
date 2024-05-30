@@ -12,12 +12,15 @@ class CollectionCreated extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
+     * @param CollectionCreatedPolkadart $event
+     * @param Model|null $transaction
+     * @param array|null $extra
      */
-    public function __construct(CollectionCreatedPolkadart $event, ?Model $transaction = null)
+    public function __construct(CollectionCreatedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
-        $this->model = $collection;
+//        $this->model = $collection;
 
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,

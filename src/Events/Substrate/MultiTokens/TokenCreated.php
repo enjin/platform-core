@@ -12,8 +12,11 @@ class TokenCreated extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
+     * @param TokenCreatedPolkadart $event
+     * @param Model|null $transaction
+     * @param array|null $extra
      */
-    public function __construct(TokenCreatedPolkadart $event, ?Model $transaction = null)
+    public function __construct(TokenCreatedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
@@ -22,6 +25,7 @@ class TokenCreated extends PlatformBroadcastEvent
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
         ]);
+        +
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),

@@ -6,6 +6,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class AttributeRemoved extends Event implements PolkadartEvent
 {
@@ -20,24 +21,14 @@ class AttributeRemoved extends Event implements PolkadartEvent
     {
         $self = new self();
 
-        $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
-        $self->module = array_key_first(Arr::get($data, 'event'));
-        $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->tokenId = $self->getValue($data, ['token_id.Some', 'Option<T::TokenId>']);
-        $self->key = is_string($value = $self->getValue($data, ['key', 'T::AttributeKey'])) ? $value : HexConverter::bytesToHex($value);
+        $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic') ?? '';
+        $self->module = array_key_first(Arr::get($data, 'event')) ?? '';
+        $self->name = array_key_first(Arr::get($data, 'event.' . $self->module)) ?? '';
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']) ?? '';
+        $self->tokenId = $self->getValue($data, ['token_id.Some', 'Option<T::TokenId>']) ?? '';
+        $self->key = (is_string($value = $self->getValue($data, ['key', 'T::AttributeKey'])) ? $value : HexConverter::bytesToHex($value))  ?? '';
 
         return $self;
-    }
-
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'collection_id' => $this->collectionId,
-            'token_id' => $this->tokenId,
-            'key' => $this->key,
-            ...(array) $with,
-        ];
     }
 
     public function getParams(): array
