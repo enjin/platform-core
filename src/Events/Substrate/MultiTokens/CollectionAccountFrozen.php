@@ -6,25 +6,24 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Frozen as CollectionAccountFrozenPolkadart;
 
 class CollectionAccountFrozen extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $collectionAccount, ?Model $transaction = null)
+    public function __construct(CollectionAccountFrozenPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'collectionId' => $collectionAccount->collection->collection_chain_id,
-            'collectionAccount' => $collectionAccount->wallet->address,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel("collection;{$this->broadcastData['collectionId']}"),
-            new Channel($this->broadcastData['collectionAccount']),
+            new Channel("collection;{$event->collectionId}"),
+            new Channel($event->account),
             new PlatformAppChannel(),
         ];
     }

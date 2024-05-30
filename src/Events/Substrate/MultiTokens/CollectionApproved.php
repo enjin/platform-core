@@ -6,26 +6,25 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Approved as CollectionApprovedPolkadart;
 
 class CollectionApproved extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(string $collectionId, string $operator, ?string $expiration, ?Model $transaction = null)
+    public function __construct(CollectionApprovedPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'collectionId' => $collectionId,
-            'operator' => $operator,
-            'expiration' => $expiration,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel("collection;{$collectionId}"),
-            new Channel($operator),
+            new Channel("collection;{$event->collectionId}"),
+            new Channel($event->owner),
+            new Channel($event->operator),
             new PlatformAppChannel(),
         ];
     }

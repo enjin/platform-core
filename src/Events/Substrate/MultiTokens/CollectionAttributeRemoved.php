@@ -6,25 +6,23 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeRemoved as CollectionAttributeRemovedPolkadart;
 
 class CollectionAttributeRemoved extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $collection, string $attributeKey, string $attributeValue, ?Model $transaction = null)
+    public function __construct(CollectionAttributeRemovedPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'collectionId' => $collection->collection_chain_id,
-            'key' => $attributeKey,
-            'value' => $attributeValue,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel("collection;{$this->broadcastData['collectionId']}"),
+            new Channel("collection;{$event->collectionId}"),
             new Channel($collection->owner->address),
             new PlatformAppChannel(),
         ];
