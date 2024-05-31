@@ -6,7 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\FilterType;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated;
 use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Support\SS58Address;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionCreated as CollectionCreatedPolkadart;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class GetPendingEventsTest extends TestCaseGraphQL
@@ -23,8 +23,36 @@ class GetPendingEventsTest extends TestCaseGraphQL
         parent::setUp();
         $this->collections[] = Collection::factory()->create()->load(['owner']);
         $this->collections[] = Collection::factory()->create()->load(['owner']);
-        CollectionCreated::safeBroadcast($this->collections[0]);
-        CollectionCreated::safeBroadcast($this->collections[1]);
+
+        $eventOne = CollectionCreatedPolkadart::fromChain([
+            'phase' => [
+                'ApplyExtrinsic' => '0x',
+            ],
+            'event' => [
+                'MultiTokens' => [
+                    'CollectionCreated' => [
+                        'collection_id' => $this->collections[0]->id,
+                        'owner' => $this->collections[0]->owner->address,
+                    ],
+                ],
+            ],
+        ]);
+        CollectionCreated::safeBroadcast($eventOne);
+
+        $eventTwo = CollectionCreatedPolkadart::fromChain([
+            'phase' => [
+                'ApplyExtrinsic' => '0x',
+            ],
+            'event' => [
+                'MultiTokens' => [
+                    'CollectionCreated' => [
+                        'collection_id' => $this->collections[1]->id,
+                        'owner' => $this->collections[1]->owner->address,
+                    ],
+                ],
+            ],
+        ]);
+        CollectionCreated::safeBroadcast($eventTwo);
     }
 
     public function test_it_can_fetch_pending_events(): void
@@ -66,7 +94,7 @@ class GetPendingEventsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'channelFilters' => [[
                 'type' => FilterType::AND->value,
-                'filter' => SS58Address::encode($this->collections[0]->owner->public_key),
+                'filter' => $this->collections[0]->owner->public_key,
             ]],
         ]);
 
@@ -88,11 +116,11 @@ class GetPendingEventsTest extends TestCaseGraphQL
             'channelFilters' => [
                 [
                     'type' => FilterType::OR->value,
-                    'filter' => SS58Address::encode($this->collections[0]->owner->public_key),
+                    'filter' => $this->collections[0]->owner->public_key,
                 ],
                 [
                     'type' => FilterType::OR->value,
-                    'filter' => SS58Address::encode($this->collections[1]->owner->public_key),
+                    'filter' => $this->collections[1]->owner->public_key,
                 ],
             ],
         ]);
@@ -123,11 +151,11 @@ class GetPendingEventsTest extends TestCaseGraphQL
             'channelFilters' => [
                 [
                     'type' => FilterType::AND->value,
-                    'filter' => SS58Address::encode($this->collections[0]->owner->public_key),
+                    'filter' => $this->collections[0]->owner->public_key,
                 ],
                 [
                     'type' => FilterType::AND->value,
-                    'filter' => SS58Address::encode($this->collections[0]->owner->public_key),
+                    'filter' => $this->collections[0]->owner->public_key,
                 ],
             ],
         ]);

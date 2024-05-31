@@ -35,8 +35,6 @@ class CollectionCreated extends SubstrateEvent
 
         $this->parseCollection($extrinsic, $this->event, $count - 1);
         Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
-
-        parent::run();
     }
 
     public function log(): void

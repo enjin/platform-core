@@ -15,8 +15,6 @@ class TokenAccountCreated extends SubstrateEvent
     /** @var TokenAccountCreatedPolkadart */
     protected Event $event;
 
-    protected string $test;
-
     /**
      * @throws PlatformException
      */
@@ -44,8 +42,6 @@ class TokenAccountCreated extends SubstrateEvent
             'reserved_balance' => 0,
             'is_frozen' => false,
         ]);
-
-        $this->test = 'teste!!!';
     }
 
     public function log(): void
