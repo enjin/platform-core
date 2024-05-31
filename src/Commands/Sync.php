@@ -198,7 +198,7 @@ class Sync extends Command
             ->where('syncable_type', ModelType::COLLECTION)
             ->pluck('syncable_id');
 
-        if (empty($collectionFilter)) {
+        if (config('enjin-platform.sync.all')) {
             return Substrate::getStorageKeys();
         }
 
