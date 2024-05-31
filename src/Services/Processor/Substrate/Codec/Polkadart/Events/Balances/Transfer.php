@@ -30,16 +30,6 @@ class Transfer extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'from' => $this->from,
-            'to' => $this->to,
-            'amount' => $this->amount,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [

@@ -28,15 +28,6 @@ class DustLost extends Event implements PolkadartEvent
         return $self;
     }
 
-    public function toBroadcast(?array $with = null): array
-    {
-        return [
-            'account' => $this->account,
-            'amount' => $this->amount,
-            ...(array) $with,
-        ];
-    }
-
     public function getParams(): array
     {
         return [
