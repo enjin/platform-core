@@ -26,6 +26,7 @@ class Minted extends SubstrateEvent
 
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($this->event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
         // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $this->event->tokenId);
         $recipient = $this->firstOrStoreAccount($this->event->recipient);
@@ -57,6 +58,7 @@ class Minted extends SubstrateEvent
         TokenMinted::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

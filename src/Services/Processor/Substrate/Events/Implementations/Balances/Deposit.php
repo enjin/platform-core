@@ -31,6 +31,7 @@ class Deposit extends SubstrateEvent
         DepositEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

@@ -12,9 +12,6 @@ class TokenAttributeSet extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
-     * @param TokenAttributeSetPolkadart $event
-     * @param Model|null $transaction
-     * @param array|null $extra
      */
     public function __construct(TokenAttributeSetPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
@@ -23,12 +20,11 @@ class TokenAttributeSet extends PlatformBroadcastEvent
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
         ]);
-        +
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),
             new Channel("token;{$event->collectionId}-{$event->tokenId}"),
-            new Channel($token->collection->owner->address),
+            new Channel($extra['collection_owner']),
             new PlatformAppChannel(),
         ];
     }

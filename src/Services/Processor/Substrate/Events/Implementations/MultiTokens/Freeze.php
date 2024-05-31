@@ -61,6 +61,7 @@ class Freeze extends SubstrateEvent
 
     protected function freezeCollection(): void
     {
+        //         $this->extra = ['collection_owner' => $collection->owner->public_key];
         Collection::where('collection_chain_id', $this->event->collectionId)
             ->update(['is_frozen' => true]);
     }
@@ -160,7 +161,8 @@ class Freeze extends SubstrateEvent
     {
         CollectionFrozen::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -168,7 +170,8 @@ class Freeze extends SubstrateEvent
     {
         CollectionAccountFrozen::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -176,7 +179,8 @@ class Freeze extends SubstrateEvent
     {
         TokenFrozen::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -184,7 +188,8 @@ class Freeze extends SubstrateEvent
     {
         TokenAccountFrozen::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

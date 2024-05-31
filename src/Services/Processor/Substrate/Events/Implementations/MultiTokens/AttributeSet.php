@@ -27,6 +27,8 @@ class AttributeSet extends SubstrateEvent
 
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($this->event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
+
         $token = !is_null($tokenId = $this->event->tokenId)
             // Fails if it doesn't find the token
             ? $this->getToken($collection->id, $tokenId)
@@ -68,7 +70,8 @@ class AttributeSet extends SubstrateEvent
         if (is_null($this->event->tokenId)) {
             CollectionAttributeSet::safeBroadcast(
                 $this->event,
-                $this->getTransaction($this->block, $this->event->extrinsicIndex)
+                $this->getTransaction($this->block, $this->event->extrinsicIndex),
+                $this->extra,
             );
 
             return;
@@ -76,7 +79,8 @@ class AttributeSet extends SubstrateEvent
 
         TokenAttributeSet::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

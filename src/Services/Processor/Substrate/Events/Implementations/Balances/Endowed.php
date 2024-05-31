@@ -31,6 +31,7 @@ class Endowed extends SubstrateEvent
         EndowedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

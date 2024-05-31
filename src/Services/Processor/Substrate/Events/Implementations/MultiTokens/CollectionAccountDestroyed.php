@@ -49,7 +49,8 @@ class CollectionAccountDestroyed extends SubstrateEvent
     {
         CollectionAccountDestroyedEvent::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

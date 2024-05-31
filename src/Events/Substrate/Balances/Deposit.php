@@ -13,7 +13,7 @@ class Deposit extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(DepositPolkadart $event, ?Model $transaction = null)
+    public function __construct(DepositPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

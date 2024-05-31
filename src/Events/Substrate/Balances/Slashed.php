@@ -13,7 +13,7 @@ class Slashed extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(SlashedPolkadart $event, ?Model $transaction = null)
+    public function __construct(SlashedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

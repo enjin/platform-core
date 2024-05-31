@@ -61,6 +61,7 @@ class Thawed extends SubstrateEvent
 
     protected function thawCollection(): void
     {
+        //         $this->extra = ['collection_owner' => $collection->owner->public_key];
         Collection::where('collection_chain_id', $this->event->collectionId)
             ->update(['is_frozen' => false]);
     }
@@ -160,7 +161,8 @@ class Thawed extends SubstrateEvent
     {
         CollectionThawed::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -168,7 +170,8 @@ class Thawed extends SubstrateEvent
     {
         CollectionAccountThawed::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -176,7 +179,8 @@ class Thawed extends SubstrateEvent
     {
         TokenThawed::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -184,7 +188,8 @@ class Thawed extends SubstrateEvent
     {
         TokenAccountThawed::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

@@ -20,6 +20,7 @@ class CollectionDestroyed extends SubstrateEvent
             return;
         }
 
+        //         $this->extra = ['collection_owner' => $collection->owner->public_key];
         Collection::where('collection_chain_id', $this->event->collectionId)
             ->delete();
     }
@@ -33,7 +34,8 @@ class CollectionDestroyed extends SubstrateEvent
     {
         CollectionDestroyedEvent::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

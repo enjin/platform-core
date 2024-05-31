@@ -12,7 +12,7 @@ class Teleport extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $from, Model $to, string $amount, string $destination, ?Model $transaction = null)
+    public function __construct(Model $from, Model $to, string $amount, string $destination, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

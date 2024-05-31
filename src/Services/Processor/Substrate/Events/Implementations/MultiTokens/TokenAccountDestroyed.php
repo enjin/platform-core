@@ -57,6 +57,7 @@ class TokenAccountDestroyed extends SubstrateEvent
         TokenAccountDestroyedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

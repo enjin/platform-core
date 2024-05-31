@@ -35,6 +35,8 @@ class CollectionCreated extends SubstrateEvent
 
         $this->parseCollection($extrinsic, $this->event, $count - 1);
         Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
+
+        parent::run();
     }
 
     public function log(): void
@@ -53,6 +55,7 @@ class CollectionCreated extends SubstrateEvent
         CollectionCreatedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 

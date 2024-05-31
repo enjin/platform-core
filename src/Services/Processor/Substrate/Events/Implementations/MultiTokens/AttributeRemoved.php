@@ -27,6 +27,8 @@ class AttributeRemoved extends SubstrateEvent
 
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($this->event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
+
         $token = !is_null($tokenId = $this->event->tokenId)
                 // Fails if it doesn't find the token
                 ? $this->getToken($collection->id, $tokenId)
@@ -61,7 +63,7 @@ class AttributeRemoved extends SubstrateEvent
             CollectionAttributeRemoved::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
-                ['collection_owner' => ''],
+                $this->extra,
             );
 
             return;
@@ -69,7 +71,8 @@ class AttributeRemoved extends SubstrateEvent
 
         TokenAttributeRemoved::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

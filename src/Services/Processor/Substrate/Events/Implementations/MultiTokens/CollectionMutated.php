@@ -26,6 +26,8 @@ class CollectionMutated extends SubstrateEvent
 
         // Fails if collection is not found
         $collection = $this->getCollection($this->event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
+
         $attributes = [];
         $royalties = [];
 
@@ -68,6 +70,7 @@ class CollectionMutated extends SubstrateEvent
         CollectionMutatedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

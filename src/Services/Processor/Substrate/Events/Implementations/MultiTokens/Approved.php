@@ -98,6 +98,7 @@ class Approved extends SubstrateEvent
             CollectionApproved::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
+                $this->extra,
             );
 
             return;
@@ -106,6 +107,7 @@ class Approved extends SubstrateEvent
         TokenApproved::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

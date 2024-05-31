@@ -7,15 +7,11 @@ use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\AttributeRemoved as CollectionAttributeRemovedPolkadart;
-use JetBrains\PhpStorm\ArrayShape;
 
 class CollectionAttributeRemoved extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
-     * @param CollectionAttributeRemovedPolkadart $event
-     * @param Model|null $transaction
-     * @param array|null $extra
      */
     public function __construct(CollectionAttributeRemovedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
@@ -24,7 +20,6 @@ class CollectionAttributeRemoved extends PlatformBroadcastEvent
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
         ]);
-        +
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),

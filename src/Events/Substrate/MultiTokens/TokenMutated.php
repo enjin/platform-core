@@ -12,9 +12,6 @@ class TokenMutated extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
-     * @param TokenMutatedPolkadart $event
-     * @param Model|null $transaction
-     * @param array|null $extra
      */
     public function __construct(TokenMutatedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
@@ -23,12 +20,11 @@ class TokenMutated extends PlatformBroadcastEvent
         $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
         ]);
-        +
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),
             new Channel("token;{$event->collectionId}-{$event->tokenId}"),
-            new Channel($token->collection->owner->address),
+            new Channel($extra['collection_owner']),
             new PlatformAppChannel(),
         ];
     }

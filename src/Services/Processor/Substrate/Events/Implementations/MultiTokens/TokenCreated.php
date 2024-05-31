@@ -45,6 +45,8 @@ class TokenCreated extends SubstrateEvent
     {
         // Fails if collection is not found
         $collection = $this->getCollection($event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
+
         $params = $extrinsic->params;
 
         // This unwraps any calls from a FuelTank extrinsic
@@ -122,7 +124,8 @@ class TokenCreated extends SubstrateEvent
     {
         TokenCreatedEvent::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 

@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Events\Substrate\MultiTokens;
 
 use Enjin\Platform\Channels\PlatformAppChannel;
-use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +13,7 @@ class TokenReserved extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(TokenReservedPolkadart $event, ?Model $transaction = null)
+    public function __construct(TokenReservedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

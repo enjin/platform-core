@@ -64,6 +64,7 @@ class Unreserved extends SubstrateEvent
         TokenUnreserved::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

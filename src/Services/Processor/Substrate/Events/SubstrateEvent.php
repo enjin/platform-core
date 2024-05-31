@@ -26,21 +26,19 @@ abstract class SubstrateEvent
     protected Event $event;
     protected Block $block;
     protected Codec $codec;
+    protected ?array $extra;
 
     public function __construct(Event $event, Block $block, Codec $codec)
     {
         $this->event = $event;
         $this->block = $block;
         $this->codec = $codec;
-
-        $this->broadcast();
-        $this->log();
     }
 
     public function __destruct()
     {
-//        $this->broadcast();
-//        $this->log();
+        $this->broadcast();
+        $this->log();
     }
 
     abstract public function log(): void;

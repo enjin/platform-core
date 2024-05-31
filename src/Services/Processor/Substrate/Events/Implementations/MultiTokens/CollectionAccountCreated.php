@@ -53,6 +53,7 @@ class CollectionAccountCreated extends SubstrateEvent
         CollectionAccountCreatedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

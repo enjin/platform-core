@@ -31,6 +31,7 @@ class Reserved extends SubstrateEvent
         ReservedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

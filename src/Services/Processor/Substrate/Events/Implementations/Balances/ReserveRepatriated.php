@@ -33,6 +33,7 @@ class ReserveRepatriated extends SubstrateEvent
         ReserveRepatriatedEvent::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

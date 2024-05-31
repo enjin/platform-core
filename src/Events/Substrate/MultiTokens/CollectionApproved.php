@@ -13,7 +13,7 @@ class CollectionApproved extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(CollectionApprovedPolkadart $event, ?Model $transaction = null)
+    public function __construct(CollectionApprovedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

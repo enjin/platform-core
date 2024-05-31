@@ -13,7 +13,7 @@ class Unreserved extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(UnreservedPolkadart $event, ?Model $transaction = null)
+    public function __construct(UnreservedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 

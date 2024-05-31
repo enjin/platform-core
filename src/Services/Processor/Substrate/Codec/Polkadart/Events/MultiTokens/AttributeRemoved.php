@@ -6,7 +6,6 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class AttributeRemoved extends Event implements PolkadartEvent
 {

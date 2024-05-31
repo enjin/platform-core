@@ -27,6 +27,8 @@ class TokenBurned extends SubstrateEvent
 
         // Fails if it doesn't find the collection
         $collection = $this->getCollection($this->event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
+
         $account = $this->firstOrStoreAccount($this->event->account);
 
         $token = Token::where([
@@ -56,7 +58,8 @@ class TokenBurned extends SubstrateEvent
     {
         TokenBurnedEvent::safeBroadcast(
             $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

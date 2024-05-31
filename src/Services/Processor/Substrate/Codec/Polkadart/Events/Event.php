@@ -25,13 +25,8 @@ class Event implements PolkadartEvent
 
     public function toBroadcast(?array $with = null): array
     {
-        ray( [
-            ...get_class_vars(self::class),
-            ...(array) $with,
-        ]);
-
         return [
-            ...get_class_vars(self::class),
+            ...get_object_vars($this),
             ...(array) $with,
         ];
     }
