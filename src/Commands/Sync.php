@@ -194,13 +194,13 @@ class Sync extends Command
 
     protected function getKeys(): array
     {
+        if (config('enjin-platform.sync.all')) {
+            return Substrate::getStorageKeys();
+        }
+
         $collectionFilter = Syncable::query()
             ->where('syncable_type', ModelType::COLLECTION)
             ->pluck('syncable_id');
-
-        if (empty($collectionFilter)) {
-            return Substrate::getStorageKeys();
-        }
 
         return Substrate::getStorageKeysForCollectionIds($collectionFilter);
     }
