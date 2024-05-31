@@ -19,7 +19,7 @@ class Withdraw extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Withdraw %s from wallet %s.',
             $this->event->amount,
             $this->event->who,

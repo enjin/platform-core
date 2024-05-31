@@ -44,7 +44,7 @@ class Minted extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Minted %s units of collection %s, token %s to %s.',
             $this->event->amount,
             $this->event->collectionId,

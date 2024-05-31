@@ -115,7 +115,7 @@ class Thawed extends SubstrateEvent
 
     protected function logCollectionThawed(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Collection %s was thawed.',
                 $this->event->collectionId,
@@ -125,7 +125,7 @@ class Thawed extends SubstrateEvent
 
     protected function logCollectionAccountThawed(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'CollectionAccount of collection %s and account %s was thawed.',
                 $this->event->collectionId,
@@ -136,7 +136,7 @@ class Thawed extends SubstrateEvent
 
     protected function logTokenThawed(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Token %s of collection %s was thawed.',
                 $this->event->tokenId,
@@ -147,7 +147,7 @@ class Thawed extends SubstrateEvent
 
     protected function logTokenAccountThawed(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'TokenAccount of collection %s, token #%s and account %s was thawed.',
                 $this->event->collectionId,

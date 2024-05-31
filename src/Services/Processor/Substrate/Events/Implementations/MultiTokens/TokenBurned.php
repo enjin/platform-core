@@ -45,7 +45,7 @@ class TokenBurned extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             '%s burned %s units of token %s from collection %s.',
             $this->event->account,
             $this->event->amount,

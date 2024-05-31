@@ -35,7 +35,7 @@ class TokenDestroyed extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info("Token {$this->event->tokenId} from collection {$this->event->collectionId} was destroyed.");
+        Log::debug("Token {$this->event->tokenId} from collection {$this->event->collectionId} was destroyed.");
     }
 
     public function broadcast(): void

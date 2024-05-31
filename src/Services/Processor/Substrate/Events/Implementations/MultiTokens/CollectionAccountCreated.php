@@ -39,7 +39,7 @@ class CollectionAccountCreated extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Account %s of Collection %s was created.',
                 $this->event->account,

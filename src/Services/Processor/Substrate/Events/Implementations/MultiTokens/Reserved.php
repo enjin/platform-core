@@ -53,7 +53,7 @@ class Reserved extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Created named reserve %s of amount %s for collection %s, token %s, account %s.',
             $this->event->reserveId,
             $this->event->amount,

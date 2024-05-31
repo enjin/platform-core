@@ -49,7 +49,7 @@ class Unreserved extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Changed named reserve %s to %s for collection %s, token %s and account %s.',
             $this->event->reserveId,
             $this->event->amount,

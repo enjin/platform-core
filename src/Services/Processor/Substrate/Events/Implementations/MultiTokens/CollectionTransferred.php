@@ -34,7 +34,7 @@ class CollectionTransferred extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info("Collection {$this->event->collectionId} owner changed to {$this->event->owner}.");
+        Log::debug("Collection {$this->event->collectionId} owner changed to {$this->event->owner}.");
     }
 
     public function broadcast(): void

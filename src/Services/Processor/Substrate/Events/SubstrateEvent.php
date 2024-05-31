@@ -26,7 +26,7 @@ abstract class SubstrateEvent
     protected Event $event;
     protected Block $block;
     protected Codec $codec;
-    protected ?array $extra;
+    protected array $extra = [];
 
     public function __construct(Event $event, Block $block, Codec $codec)
     {
@@ -58,15 +58,13 @@ abstract class SubstrateEvent
         return null;
     }
 
-    public function getTransaction(Block $block, int $extrinsicIndex): ?Transaction
+    public function getTransaction(Block $block, ?int $extrinsicIndex = null): ?Transaction
     {
-        $extrinsic = Arr::get($block->extrinsics, $extrinsicIndex);
-
-        if (!empty($extrinsic)) {
-            return Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
+        if (is_null($extrinsicIndex) || empty($extrinsic = Arr::get($block->extrinsics, $extrinsicIndex))) {
+            return null;
         }
 
-        return null;
+        return Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
     }
 
     public function firstOrStoreAccount(?string $account): ?Model

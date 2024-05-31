@@ -54,7 +54,7 @@ class AttributeSet extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Attribute "%s" of Collection %s%s was set to "%s".',
                 $this->event->key,

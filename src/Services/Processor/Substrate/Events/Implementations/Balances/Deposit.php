@@ -19,7 +19,7 @@ class Deposit extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Wallet %s made a deposit of %s.',
             $this->event->who,
             $this->event->amount,

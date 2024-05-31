@@ -19,7 +19,7 @@ class Unreserved extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Reserved %s in wallet %s.',
             $this->event->amount,
             $this->event->who,

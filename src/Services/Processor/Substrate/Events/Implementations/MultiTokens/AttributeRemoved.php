@@ -47,7 +47,7 @@ class AttributeRemoved extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Removed attribute %s from Collection %s%s',
                 $this->event->key,

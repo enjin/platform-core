@@ -36,7 +36,7 @@ class CollectionAccountDestroyed extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Account %s of Collection %s was deleted.',
                 $this->event->account,

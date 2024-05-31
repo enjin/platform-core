@@ -115,7 +115,7 @@ class Freeze extends SubstrateEvent
 
     protected function logCollectionFrozen(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Collection %s was frozen.',
                 $this->event->collectionId,
@@ -125,7 +125,7 @@ class Freeze extends SubstrateEvent
 
     protected function logCollectionAccountFrozen(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'CollectionAccount of collection %s and account %s was frozen.',
                 $this->event->collectionId,
@@ -136,7 +136,7 @@ class Freeze extends SubstrateEvent
 
     protected function logTokenFrozen(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Token %s of collection %s was frozen.',
                 $this->event->tokenId,
@@ -147,7 +147,7 @@ class Freeze extends SubstrateEvent
 
     protected function logTokenAccountFrozen(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'TokenAccount of collection %s, token #%s and account %s was frozen.',
                 $this->event->collectionId,

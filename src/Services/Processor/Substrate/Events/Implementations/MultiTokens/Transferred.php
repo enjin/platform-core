@@ -47,7 +47,7 @@ class Transferred extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             '%s transferred %s of token %s from collection %s to %s.',
             $this->event->from,
             $this->event->amount,

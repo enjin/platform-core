@@ -19,7 +19,7 @@ class Transfer extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Wallet %s has transferred %s to wallet %s.',
             $this->event->from,
             $this->event->amount,

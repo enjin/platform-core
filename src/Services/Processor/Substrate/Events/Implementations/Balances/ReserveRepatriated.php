@@ -19,7 +19,7 @@ class ReserveRepatriated extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Wallet %s has moved %s from reserve to %s at wallet %s.',
             $this->event->from,
             $this->event->amount,

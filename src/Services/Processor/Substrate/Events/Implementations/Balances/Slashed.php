@@ -19,7 +19,7 @@ class Slashed extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Wallet %s was slashed %s.',
             $this->event->who,
             $this->event->amount,

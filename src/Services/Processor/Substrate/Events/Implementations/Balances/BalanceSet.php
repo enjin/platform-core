@@ -19,7 +19,7 @@ class BalanceSet extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Balance of %s set to %s.',
             $this->event->who,
             $this->event->free,

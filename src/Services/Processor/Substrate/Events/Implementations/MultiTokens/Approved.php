@@ -68,7 +68,7 @@ class Approved extends SubstrateEvent
     public function log(): void
     {
         if (is_null($this->event->tokenId)) {
-            Log::info(
+            Log::debug(
                 sprintf(
                     'Collection %s, Account %s approved %s.',
                     $this->event->collectionId,
@@ -80,7 +80,7 @@ class Approved extends SubstrateEvent
             return;
         }
 
-        Log::info(
+        Log::debug(
             sprintf(
                 'Collection %s, Token %s, Account %s approved %s units for %s',
                 $this->event->collectionId,

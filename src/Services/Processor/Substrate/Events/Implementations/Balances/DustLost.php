@@ -19,7 +19,7 @@ class DustLost extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Wallet %s lost %s of dust.',
             $this->event->account,
             $this->event->amount,

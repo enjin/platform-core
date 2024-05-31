@@ -19,7 +19,7 @@ class Endowed extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(sprintf(
+        Log::debug(sprintf(
             'Wallet %s was endowed with %s.',
             $this->event->account,
             $this->event->freeBalance,

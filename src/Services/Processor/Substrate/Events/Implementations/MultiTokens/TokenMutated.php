@@ -50,7 +50,7 @@ class TokenMutated extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info("Token {$this->event->tokenId} of collection {$this->event->collectionId} was mutated.");
+        Log::debug("Token {$this->event->tokenId} of collection {$this->event->collectionId} was mutated.");
     }
 
     public function broadcast(): void

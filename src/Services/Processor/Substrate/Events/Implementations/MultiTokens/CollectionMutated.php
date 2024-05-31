@@ -62,7 +62,7 @@ class CollectionMutated extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info("Collection {$this->event->collectionId} was mutated.");
+        Log::debug("Collection {$this->event->collectionId} was mutated.");
     }
 
     public function broadcast(): void

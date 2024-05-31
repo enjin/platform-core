@@ -27,7 +27,7 @@ class CollectionDestroyed extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info("Collection {$this->event->collectionId} was destroyed.");
+        Log::debug("Collection {$this->event->collectionId} was destroyed.");
     }
 
     public function broadcast(): void

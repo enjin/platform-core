@@ -42,7 +42,7 @@ class TokenAccountDestroyed extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'TokenAccount for collection %s, token %s and account %s deleted.',
                 $this->event->collectionId,

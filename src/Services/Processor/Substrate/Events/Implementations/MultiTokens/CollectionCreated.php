@@ -39,7 +39,7 @@ class CollectionCreated extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'Collection %s was created from transaction %s.',
                 $this->event->collectionId,

@@ -46,7 +46,7 @@ class TokenAccountCreated extends SubstrateEvent
 
     public function log(): void
     {
-        Log::info(
+        Log::debug(
             sprintf(
                 'TokenAccount for collection %s, token %s and account %s created.',
                 $this->event->collectionId,
