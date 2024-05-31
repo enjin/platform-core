@@ -10,6 +10,7 @@ use Enjin\Platform\Models\TokenAccountApproval;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Unapproved as UnapprovedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
+use Illuminate\Support\Facades\Log;
 
 class Unapproved extends SubstrateEvent
 {
@@ -62,17 +63,43 @@ class Unapproved extends SubstrateEvent
 
     public function log(): void
     {
-        // TODO: Implement log() method.
+        if (is_null($this->event->tokenId)) {
+            Log::debug(
+                sprintf(
+                    'Collection %s, Account %s unapproved %s.',
+                    $this->event->collectionId,
+                    $this->event->owner,
+                    $this->event->operator,
+                )
+            );
+
+            return;
+        }
+
+        Log::debug(
+            sprintf(
+                'Collection %s, Token %s, Account %s unapproved %s',
+                $this->event->collectionId,
+                $this->event->tokenId,
+                $this->event->owner,
+                $this->event->operator,
+            )
+        );
     }
 
     public function broadcast(): void
     {
-        TokenUnapproved::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex)
-        );
+        if (is_null($this->event->tokenId)) {
+            CollectionUnapproved::safeBroadcast(
+                $this->event,
+                $this->getTransaction($this->block, $this->event->extrinsicIndex),
+                $this->extra,
+            );
 
-        CollectionUnapproved::safeBroadcast(
+            return;
+        }
+
+        TokenUnapproved::safeBroadcast(
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
             $this->extra,

@@ -61,7 +61,6 @@ class Freeze extends SubstrateEvent
 
     protected function freezeCollection(): void
     {
-        //         $this->extra = ['collection_owner' => $collection->owner->public_key];
         Collection::where('collection_chain_id', $this->event->collectionId)
             ->update(['is_frozen' => true]);
     }

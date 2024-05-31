@@ -23,7 +23,6 @@ class CollectionFrozen extends PlatformBroadcastEvent
 
         $this->broadcastChannels = [
             new Channel("collection;{$event->collectionId}"),
-            new Channel($extra['collection_owner']),
             new PlatformAppChannel(),
         ];
     }
