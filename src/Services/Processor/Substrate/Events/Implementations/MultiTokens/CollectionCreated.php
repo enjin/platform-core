@@ -6,10 +6,8 @@ use Cache;
 use Carbon\Carbon;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated as CollectionCreatedEvent;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Models\Laravel\CollectionRoyaltyCurrency;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionCreated as CollectionCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
@@ -21,29 +19,41 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionCreated extends SubstrateEvent
 {
-    public function run(Event $event, Block $block, Codec $codec): void
+    /** @var CollectionCreatedPolkadart */
+    protected Event $event;
+
+    public function run(): void
     {
-        $this->collectionCreatedCountAtBlock($block->number);
+        $this->collectionCreatedCountAtBlock($this->block->number);
 
-        if (!$event instanceof CollectionCreatedPolkadart) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
-        if (!$this->shouldSyncCollection($event->collectionId)) {
-            return;
-        }
+        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
+        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block->number}"));
-        $collection = $this->parseCollection($extrinsic, $event, $count - 1);
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
+        $this->parseCollection($extrinsic, $this->event, $count - 1);
+        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$this->block->number}"));
+    }
 
-        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("collectionCreated:block:{$block->number}"));
-        Log::info(sprintf('Collection %s (id: %s) was created from transaction %s (id: %s).', $event->collectionId, $collection->id, $transaction?->transaction_chain_hash ?? 'unknown', $transaction?->id ?? 'unknown'));
+    public function log(): void
+    {
+        Log::debug(
+            sprintf(
+                'Collection %s was created from transaction %s.',
+                $this->event->collectionId,
+                $this->block->extrinsics[$this->event->extrinsicIndex]?->hash,
+            )
+        );
+    }
 
+    public function broadcast(): void
+    {
         CollectionCreatedEvent::safeBroadcast(
-            $collection,
-            $transaction,
+            $this->event,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 
@@ -54,7 +64,7 @@ class CollectionCreated extends SubstrateEvent
         Cache::increment($key);
     }
 
-    protected function parseCollection(Extrinsic $extrinsic, CollectionCreatedPolkadart $event, int $count = 0): Collection
+    protected function parseCollection(Extrinsic $extrinsic, CollectionCreatedPolkadart $event, int $count = 0): void
     {
         $params = $extrinsic->params;
 
@@ -76,8 +86,9 @@ class CollectionCreated extends SubstrateEvent
         $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
         $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
 
-        $collection = Collection::create([
+        $collection = Collection::updateOrCreate([
             'collection_chain_id' => $event->collectionId,
+        ], [
             'owner_wallet_id' => $owner->id,
             'max_token_count' => $this->getValue($params, ['descriptor.policy.mint.max_token_count.Some', 'descriptor.policy.mint.max_token_count']),
             'max_token_supply' => $this->getValue($params, ['descriptor.policy.mint.max_token_supply.Some', 'descriptor.policy.mint.max_token_supply']),
@@ -92,8 +103,6 @@ class CollectionCreated extends SubstrateEvent
         ]);
 
         $this->collectionRoyaltyCurrencies($collection->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));
-
-        return $collection;
     }
 
     protected function collectionRoyaltyCurrencies(string $collectionId, array $royaltyCurrencies): void

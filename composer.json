@@ -41,6 +41,7 @@
     "guzzlehttp/guzzle": "^7.0",
     "illuminate/contracts": "^10.0",
     "kevinrob/guzzle-cache-middleware": "^4.0",
+    "laravel/pail": "^1.1",
     "mll-lab/laravel-graphiql": "^3.0",
     "phrity/websocket": "^1.0",
     "rebing/graphql-laravel": "^9.0",

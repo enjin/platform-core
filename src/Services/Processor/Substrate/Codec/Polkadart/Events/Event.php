@@ -23,6 +23,14 @@ class Event implements PolkadartEvent
         return $self;
     }
 
+    public function toBroadcast(?array $with = null): array
+    {
+        return [
+            ...get_object_vars($this),
+            ...(array) $with,
+        ];
+    }
+
     public function getValue(array $data, array $keys): mixed
     {
         foreach ($keys as $key) {

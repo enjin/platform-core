@@ -4,6 +4,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionCreated as CollectionCreatedPolkadart;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\PendingEvent;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -121,7 +122,21 @@ class AcknowledgeEventsTest extends TestCaseGraphQL
     {
         collect(range(0, $numberOfEvents))->each(function () {
             $collection = Collection::factory()->create()->load(['owner']);
-            CollectionCreated::safeBroadcast($collection);
+            $event = CollectionCreatedPolkadart::fromChain([
+                'phase' => [
+                    'ApplyExtrinsic' => '0x',
+                ],
+                'event' => [
+                    'MultiTokens' => [
+                        'CollectionCreated' => [
+                            'collection_id' => $collection->id,
+                            'owner' => $collection->owner->address,
+                        ],
+                    ],
+                ],
+            ]);
+
+            CollectionCreated::safeBroadcast($event);
         });
     }
 }

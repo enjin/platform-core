@@ -3,9 +3,7 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionDestroyed as CollectionDestroyedEvent;
-use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionDestroyed as CollectionDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -13,28 +11,30 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionDestroyed extends SubstrateEvent
 {
-    /**
-     * @throws PlatformException
-     */
-    public function run(Event $event, Block $block, Codec $codec): void
+    /** @var CollectionDestroyedPolkadart */
+    protected Event $event;
+
+    public function run(): void
     {
-        if (!$event instanceof CollectionDestroyedPolkadart) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
-        if (!$this->shouldSyncCollection($event->collectionId)) {
-            return;
-        }
+        Collection::where('collection_chain_id', $this->event->collectionId)
+            ->delete();
+    }
 
-        // Fails if it doesn't find the collection
-        $collection = $this->getCollection($event->collectionId);
-        $collection->delete();
+    public function log(): void
+    {
+        Log::debug("Collection {$this->event->collectionId} was destroyed.");
+    }
 
-        Log::info("Collection #{$event->collectionId} (id {$collection->id}) was destroyed.");
-
+    public function broadcast(): void
+    {
         CollectionDestroyedEvent::safeBroadcast(
-            $collection,
-            $this->getTransaction($block, $event->extrinsicIndex)
+            $this->event,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

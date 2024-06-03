@@ -6,27 +6,25 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountCreated as TokenAccountCreatedPolkadart;
 
 class TokenAccountCreated extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $collection, Model $token, Model $wallet, ?Model $transaction = null)
+    public function __construct(TokenAccountCreatedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
-        $this->broadcastData = [
+        $this->broadcastData = $event->toBroadcast([
             'idempotencyKey' => $transaction?->idempotency_key,
-            'collectionId' => $collection->collection_chain_id,
-            'tokenId' => $token->token_chain_id,
-            'wallet' => $wallet->address,
-        ];
+        ]);
 
         $this->broadcastChannels = [
-            new Channel("collection;{$this->broadcastData['collectionId']}"),
-            new Channel("token;{$this->broadcastData['tokenId']}"),
-            new Channel($wallet->address),
+            new Channel("collection;{$event->collectionId}"),
+            new Channel("token;{$event->collectionId}-{$event->tokenId}"),
+            new Channel($event->account),
             new PlatformAppChannel(),
         ];
     }

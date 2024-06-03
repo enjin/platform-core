@@ -6,9 +6,7 @@ use Enjin\Platform\Events\Substrate\MultiTokens\CollectionApproved;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenApproved;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\CollectionAccountApproval;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccountApproval;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Approved as ApprovedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -16,64 +14,41 @@ use Illuminate\Support\Facades\Log;
 
 class Approved extends SubstrateEvent
 {
+    /** @var ApprovedPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(Event $event, Block $block, Codec $codec): void
+    public function run(): void
     {
-        if (!$event instanceof ApprovedPolkadart) {
-            return;
-        }
-
-        if (!$this->shouldSyncCollection($event->collectionId)) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($collectionId = $event->collectionId);
-        $operator = $this->firstOrStoreAccount($event->operator);
-        $owner =  $this->firstOrStoreAccount($event->owner);
-        $transaction = $this->getTransaction($block, $event->extrinsicIndex);
+        $collection = $this->getCollection($this->event->collectionId);
+        $operator = $this->firstOrStoreAccount($this->event->operator);
+        $owner =  $this->firstOrStoreAccount($this->event->owner);
 
-        if ($event->tokenId === null) {
+        if (is_null($this->event->tokenId)) {
             $collectionAccount = $this->getCollectionAccount(
                 $collection->id,
                 $owner->id,
             );
 
-            CollectionAccountApproval::updateOrCreate(
-                [
-                    'collection_account_id' => $collectionAccount->id,
-                    'wallet_id' => $operatorId = $operator->id,
-                ],
-                [
-                    'expiration' => $event->expiration,
-                ]
-            );
-
-            Log::info(
-                sprintf(
-                    'An approval for "%s" (id %s) was added to CollectionAccount %s, %s (id: %s).',
-                    $event->operator,
-                    $operatorId,
-                    $event->owner,
-                    $collectionId,
-                    $collectionAccount->id,
-                )
-            );
-
-            CollectionApproved::safeBroadcast(
-                $collectionId,
-                $operator->address,
-                $event->expiration,
-                $transaction
-            );
+            CollectionAccountApproval::updateOrCreate([
+                'collection_account_id' => $collectionAccount->id,
+                'wallet_id' => $operator->id,
+            ], [
+                'expiration' => $this->event->expiration,
+            ]);
 
             return;
         }
 
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $event->tokenId);
+        $token = $this->getToken($collection->id, $this->event->tokenId);
         // Fails if it doesn't find the token account
         $collectionAccount = $this->getTokenAccount(
             $collection->id,
@@ -81,36 +56,58 @@ class Approved extends SubstrateEvent
             $owner->id,
         );
 
-        TokenAccountApproval::updateOrCreate(
-            [
-                'token_account_id' => $collectionAccount->id,
-                'wallet_id' => $operatorId = $operator->id,
-            ],
-            [
-                'amount' => $event->amount,
-                'expiration' => $event->expiration,
-            ]
-        );
+        TokenAccountApproval::updateOrCreate([
+            'token_account_id' => $collectionAccount->id,
+            'wallet_id' => $operator->id,
+        ], [
+            'amount' => $this->event->amount,
+            'expiration' => $this->event->expiration,
+        ]);
+    }
 
-        Log::info(
+    public function log(): void
+    {
+        if (is_null($this->event->tokenId)) {
+            Log::debug(
+                sprintf(
+                    'Collection %s, Account %s approved %s.',
+                    $this->event->collectionId,
+                    $this->event->owner,
+                    $this->event->operator,
+                )
+            );
+
+            return;
+        }
+
+        Log::debug(
             sprintf(
-                'An approval for "%s" (id %s) was added to TokenAccount %s, %s, %s (id: %s).',
-                $event->operator,
-                $operatorId,
-                $event->owner,
-                $collectionId,
-                $event->tokenId,
-                $collectionAccount->id,
+                'Collection %s, Token %s, Account %s approved %s units for %s',
+                $this->event->collectionId,
+                $this->event->tokenId,
+                $this->event->owner,
+                $this->event->amount,
+                $this->event->operator,
             )
         );
+    }
+
+    public function broadcast(): void
+    {
+        if (is_null($this->event->tokenId)) {
+            CollectionApproved::safeBroadcast(
+                $this->event,
+                $this->getTransaction($this->block, $this->event->extrinsicIndex),
+                $this->extra,
+            );
+
+            return;
+        }
 
         TokenApproved::safeBroadcast(
-            $collectionId,
-            $event->tokenId,
-            $operator->address ?? 'unknown',
-            $event->amount,
-            $event->expiration,
-            $transaction
+            $this->event,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

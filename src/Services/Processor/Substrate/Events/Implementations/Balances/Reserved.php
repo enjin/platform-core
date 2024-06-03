@@ -2,8 +2,6 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
-use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Reserved as ReservedPolkadart;
 use Enjin\Platform\Events\Substrate\Balances\Reserved as ReservedEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
@@ -12,25 +10,28 @@ use Illuminate\Support\Facades\Log;
 
 class Reserved extends SubstrateEvent
 {
-    public function run(Event $event, Block $block, Codec $codec): void
+    /** @var ReservedPolkadart */
+    protected Event $event;
+
+    public function run(): void
     {
-        if (!$event instanceof ReservedPolkadart) {
-            return;
-        }
+    }
 
-        $account = $this->firstOrStoreAccount($event->who);
-
-        Log::info(sprintf(
-            'Reserved %s in wallet %s (id: %s).',
-            $event->amount,
-            $account->address,
-            $account->id,
+    public function log(): void
+    {
+        Log::debug(sprintf(
+            'Reserved %s in wallet %s.',
+            $this->event->amount,
+            $this->event->who,
         ));
+    }
 
+    public function broadcast(): void
+    {
         ReservedEvent::safeBroadcast(
-            $account,
-            $event->amount,
-            $this->getTransaction($block, $event->extrinsicIndex),
+            $this->event,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
         );
     }
 }

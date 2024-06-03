@@ -6,12 +6,10 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenCreated as TokenCreatedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Token;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenCreated as TokenCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
@@ -19,32 +17,25 @@ use Illuminate\Support\Facades\Cache;
 
 class TokenCreated extends SubstrateEvent
 {
+    /** @var TokenCreatedPolkadart */
+    protected Event $event;
+
     /**
      * @throws PlatformException
      */
-    public function run(PolkadartEvent $event, Block $block, Codec $codec): void
+    public function run(): void
     {
-        $this->tokenCreatedCountAtBlock($block->number);
+        $this->tokenCreatedCountAtBlock($this->block->number);
 
-        if (!$event instanceof TokenCreatedPolkadart) {
+        if (!$this->shouldSyncCollection($this->event->collectionId)) {
             return;
         }
 
-        if (!$this->shouldSyncCollection($event->collectionId)) {
-            return;
-        }
+        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
+        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
 
-        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
-        $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block->number}"));
-        $token = $this->parseToken($extrinsic, $event, $count - 1);
-
-        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$block->number}"));
-
-        TokenCreatedEvent::safeBroadcast(
-            $token,
-            $this->firstOrStoreAccount($event->issuer),
-            $this->getTransaction($block, $event->extrinsicIndex)
-        );
+        $this->parseToken($extrinsic, $this->event, $count - 1);
+        Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
     }
 
     /**
@@ -54,6 +45,8 @@ class TokenCreated extends SubstrateEvent
     {
         // Fails if collection is not found
         $collection = $this->getCollection($event->collectionId);
+        $this->extra = ['collection_owner' => $collection->owner->public_key];
+
         $params = $extrinsic->params;
 
         // This unwraps any calls from a FuelTank extrinsic
@@ -120,6 +113,20 @@ class TokenCreated extends SubstrateEvent
             'minimum_balance' => $minBalance,
             'attribute_count' => 0,
         ]);
+    }
+
+    public function log(): void
+    {
+        // TODO: Implement log() method.
+    }
+
+    public function broadcast(): void
+    {
+        TokenCreatedEvent::safeBroadcast(
+            $this->event,
+            $this->getTransaction($this->block, $this->event->extrinsicIndex),
+            $this->extra,
+        );
     }
 
     protected function tokenCreatedCountAtBlock(string $block): void
