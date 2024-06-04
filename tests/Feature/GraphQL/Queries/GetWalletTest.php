@@ -15,6 +15,7 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
@@ -295,8 +296,8 @@ class GetWalletTest extends TestCaseGraphQL
                             ],
                             'attributes' => [
                                 [
-                                    'key' => $this->collectionAttribute->key_string,
-                                    'value' => $this->collectionAttribute->value_string,
+                                    'key' => Hex::safeConvertToString($this->collectionAttribute->key_string),
+                                    'value' => Hex::safeConvertToString($this->collectionAttribute->value_string),
                                 ],
                             ],
                             'accounts' => [
@@ -344,8 +345,8 @@ class GetWalletTest extends TestCaseGraphQL
                                             ],
                                             'attributes' => [
                                                 [
-                                                    'key' => $this->tokenAttribute->key_string,
-                                                    'value' => $this->tokenAttribute->value_string,
+                                                    'key' => Hex::safeConvertToString($this->tokenAttribute->key_string),
+                                                    'value' => Hex::safeConvertToString($this->tokenAttribute->value_string),
                                                 ],
                                             ],
                                             'accounts' => [

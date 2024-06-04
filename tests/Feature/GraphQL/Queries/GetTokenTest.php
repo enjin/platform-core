@@ -111,8 +111,8 @@ class GetTokenTest extends TestCaseGraphQL
             ],
             'attributes' => [
                 [
-                    'key' => $this->tokenAttribute->key_string,
-                    'value' => $this->tokenAttribute->value_string,
+                    'key' => Hex::safeConvertToString($this->tokenAttribute->key),
+                    'value' => Hex::safeConvertToString($this->tokenAttribute->value),
                 ],
             ],
             'accounts' => [
