@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenMinted;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Minted as MintedPolkadart;
@@ -14,6 +15,7 @@ class Minted extends SubstrateEvent
 {
     /** @var MintedPolkadart */
     protected Event $event;
+    protected Token $tokenMinted;
 
     /**
      * @throws PlatformException
@@ -28,16 +30,16 @@ class Minted extends SubstrateEvent
         $collection = $this->getCollection($this->event->collectionId);
         $this->extra = ['collection_owner' => $collection->owner->public_key];
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $this->event->tokenId);
+        $this->tokenMinted = $this->getToken($collection->id, $this->event->tokenId);
         $recipient = $this->firstOrStoreAccount($this->event->recipient);
 
-        $token->update([
+        $this->tokenMinted->update([
             'supply', gmp_strval(gmp_add($token->supply, $this->event->amount)) ?? 0,
         ]);
 
         TokenAccount::where([
             'collection_id' => $collection->id,
-            'token_id' => $token->id,
+            'token_id' => $this->tokenMinted->id,
             'wallet_id' => $recipient->id,
         ])->increment('balance', $this->event->amount);
     }
@@ -59,6 +61,7 @@ class Minted extends SubstrateEvent
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
             $this->extra,
+            $this->tokenMinted,
         );
     }
 }

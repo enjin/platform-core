@@ -146,11 +146,10 @@ class Decoder
     public function attributeStorageKey(string $data): array
     {
         $decoded = $this->codec->process('AttributeStorage', new ScaleBytes($data));
-        $tokenId = Arr::get($decoded, 'tokenId');
 
         return [
             'collectionId' => gmp_strval(Arr::get($decoded, 'collectionId')),
-            'tokenId' => isset($tokenId) ? gmp_strval($tokenId) : null,
+            'tokenId' => ($value = Arr::get($decoded, 'tokenId')) !== null ? gmp_strval($value) : null,
             'attribute' => Arr::get($decoded, 'attribute'),
         ];
     }
