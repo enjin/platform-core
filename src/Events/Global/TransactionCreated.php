@@ -12,7 +12,7 @@ class TransactionCreated extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $transaction)
+    public function __construct($event, ?Model $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
