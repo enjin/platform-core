@@ -17,7 +17,6 @@ use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
-use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Arr;
 
 class Parser

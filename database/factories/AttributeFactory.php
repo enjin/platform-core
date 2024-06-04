@@ -6,7 +6,6 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Support\Hex;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AttributeFactory extends Factory
