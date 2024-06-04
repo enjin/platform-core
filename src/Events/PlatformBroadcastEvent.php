@@ -20,7 +20,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
-    public Model $model;
+    public ?Model $model;
 
     /**
      * An array of functions to call prior to broadcasting the event.
@@ -91,7 +91,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Broadcast the event and catch any errors.
      */
-    public static function safeBroadcast(mixed $event, ?Model $transaction, ?array $extra, ?Model $model = null): void
+    public static function safeBroadcast(mixed $event = null, ?Model $transaction = null, ?array $extra = null, ?Model $model = null): void
     {
         try {
             static::broadcast($event, $transaction, $extra, $model);
@@ -104,7 +104,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Broadcast the event with the given arguments.
      */
-    public static function broadcast($event, ?Model $transaction, ?array $extra, ?Model $model): PendingBroadcast
+    public static function broadcast(mixed $event, ?Model $transaction, ?array $extra, ?Model $model): PendingBroadcast
     {
         $event = new static($event, $transaction, $extra, $model);
         $event = $event->beforeBroadcast();

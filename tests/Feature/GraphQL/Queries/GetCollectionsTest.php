@@ -135,8 +135,8 @@ class GetCollectionsTest extends TestCaseGraphQL
             ],
             'attributes' => [
                 [
-                    'key' => $attribute->key,
-                    'value' => $attribute->value,
+                    'key' => $attribute->key_string,
+                    'value' => $attribute->value_string,
                 ],
             ],
             'tokens' => [

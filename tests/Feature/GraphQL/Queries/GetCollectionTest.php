@@ -88,8 +88,8 @@ class GetCollectionTest extends TestCaseGraphQL
             ],
             'attributes' => [
                 [
-                    'key' => $this->collectionAttribute->key,
-                    'value' => $this->collectionAttribute->value,
+                    'key' => $this->collectionAttribute->key_string,
+                    'value' => $this->collectionAttribute->value_string,
                 ],
             ],
             'tokens' => [

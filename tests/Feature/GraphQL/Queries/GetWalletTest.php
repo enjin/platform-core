@@ -295,8 +295,8 @@ class GetWalletTest extends TestCaseGraphQL
                             ],
                             'attributes' => [
                                 [
-                                    'key' => $this->collectionAttribute->key,
-                                    'value' => $this->collectionAttribute->value,
+                                    'key' => $this->collectionAttribute->key_string,
+                                    'value' => $this->collectionAttribute->value_string,
                                 ],
                             ],
                             'accounts' => [
@@ -344,8 +344,8 @@ class GetWalletTest extends TestCaseGraphQL
                                             ],
                                             'attributes' => [
                                                 [
-                                                    'key' => $this->tokenAttribute->key,
-                                                    'value' => $this->tokenAttribute->value,
+                                                    'key' => $this->tokenAttribute->key_string,
+                                                    'value' => $this->tokenAttribute->value_string,
                                                 ],
                                             ],
                                             'accounts' => [
