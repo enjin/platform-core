@@ -296,8 +296,8 @@ class GetWalletTest extends TestCaseGraphQL
                             ],
                             'attributes' => [
                                 [
-                                    'key' => Hex::safeConvertToString($this->collectionAttribute->key_string),
-                                    'value' => Hex::safeConvertToString($this->collectionAttribute->value_string),
+                                    'key' => Hex::safeConvertToString($this->collectionAttribute->key),
+                                    'value' => Hex::safeConvertToString($this->collectionAttribute->value),
                                 ],
                             ],
                             'accounts' => [
@@ -345,8 +345,8 @@ class GetWalletTest extends TestCaseGraphQL
                                             ],
                                             'attributes' => [
                                                 [
-                                                    'key' => Hex::safeConvertToString($this->tokenAttribute->key_string),
-                                                    'value' => Hex::safeConvertToString($this->tokenAttribute->value_string),
+                                                    'key' => Hex::safeConvertToString($this->tokenAttribute->key),
+                                                    'value' => Hex::safeConvertToString($this->tokenAttribute->value),
                                                 ],
                                             ],
                                             'accounts' => [
