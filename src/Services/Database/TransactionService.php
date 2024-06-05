@@ -57,9 +57,7 @@ class TransactionService
         $transaction = Transaction::create($data);
 
         TransactionCreated::safeBroadcast(
-            event: null,
             transaction: $transaction,
-            extra: null
         );
 
         return $transaction;
