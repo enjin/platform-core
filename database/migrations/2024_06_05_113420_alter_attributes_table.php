@@ -12,11 +12,7 @@ return new class () extends Migration {
     {
         Schema::table('attributes', function (Blueprint $table) {
             $table->string('key', 514)->change(); // This can be changed to varbinary on laravel 11
-            $table->string('value', 1026)->change(); // This can be changed to varbinary on laravel 11
-        });
-
-        DB::transaction(function () {
-            DB::statement('UPDATE attributes SET value = CONCAT("0x", HEX(value))');
+            $table->string('value', 2050)->change(); // This can be changed to varbinary on laravel 11
         });
     }
 
@@ -28,10 +24,6 @@ return new class () extends Migration {
         Schema::table('attributes', function (Blueprint $table) {
             $table->string('key')->change();
             $table->text('value')->change();
-        });
-
-        DB::transaction(function () {
-            DB::statement('UPDATE attributes SET value = UNHEX(SUBSTRING(value, 3))');
         });
     }
 };
