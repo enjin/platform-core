@@ -61,12 +61,10 @@ class Parser
                 $collectionData['owner'],
                 fn () => $this->walletService->firstOrStore(['account' => $collectionData['owner']])
             );
-            $royaltyWallet = is_null($collectionData['royaltyBeneficiary'])
-                ? null
-                : $this->getCachedWallet(
-                    $collectionData['royaltyBeneficiary'],
-                    fn () => $this->walletService->firstOrStore(['account' => $collectionData['royaltyBeneficiary']])
-                );
+            $royaltyWallet = $this->getCachedWallet(
+                $collectionData['royaltyBeneficiary'],
+                fn () => $this->walletService->firstOrStore(['account' => $collectionData['royaltyBeneficiary']])
+            );
 
             if (!empty($royaltyCurrencies = $collectionData['explicitRoyaltyCurrencies'])) {
                 $insertRoyaltyCurrencies[] = [
@@ -123,12 +121,10 @@ class Parser
             $collectionData['owner'],
             fn () => $this->walletService->firstOrStore(['account' => $collectionData['owner']])
         );
-        $royaltyWallet = is_null($collectionData['royaltyBeneficiary'])
-                ? null
-                : $this->getCachedWallet(
-                    $collectionData['royaltyBeneficiary'],
-                    fn () => $this->walletService->firstOrStore(['account' => $collectionData['royaltyBeneficiary']])
-                );
+        $royaltyWallet = $this->getCachedWallet(
+            $collectionData['royaltyBeneficiary'],
+            fn () => $this->walletService->firstOrStore(['account' => $collectionData['royaltyBeneficiary']])
+        );
 
 
         $collection = $this->collectionService->store([
@@ -168,12 +164,10 @@ class Parser
                 $tokenKey['collectionId'],
                 fn () => Collection::where('collection_chain_id', $tokenKey['collectionId'])->firstOrFail()
             );
-            $royaltyWallet = is_null($tokenData['royaltyBeneficiary'])
-                ? null
-                : $this->getCachedWallet(
-                    $tokenData['royaltyBeneficiary'],
-                    fn () => $this->walletService->firstOrStore(['account' => $tokenData['royaltyBeneficiary']])
-                );
+            $royaltyWallet = $this->getCachedWallet(
+                $tokenData['royaltyBeneficiary'],
+                fn () => $this->walletService->firstOrStore(['account' => $tokenData['royaltyBeneficiary']])
+            );
 
             $insertData[] = [
                 'token_chain_id' => $tokenKey['tokenId'],
@@ -213,9 +207,10 @@ class Parser
             $tokenKey['collectionId'],
             fn () => Collection::where('collection_chain_id', $tokenKey['collectionId'])->firstOrFail()
         );
-        $royaltyWallet = ($beneficiary = $tokenData['royaltyBeneficiary'])
-            ? $this->getCachedWallet($beneficiary, fn () => $this->walletService->firstOrStore(['account' => $beneficiary]))
-            : null;
+        $royaltyWallet =  $this->getCachedWallet(
+            $tokenData['royaltyBeneficiary'],
+            fn () => $this->walletService->firstOrStore(['account' => $tokenData['royaltyBeneficiary']])
+        );
 
         return $this->tokenService->updateOrStore(
             [
@@ -482,8 +477,12 @@ class Parser
     /**
      * Get cached wallet.
      */
-    protected function getCachedWallet(string $key, ?Closure $default = null): mixed
+    protected function getCachedWallet(?string $key, ?Closure $default = null): mixed
     {
+        if (is_null($key)) {
+            return null;
+        }
+
         if (!isset(static::$walletCache[$key])) {
             static::$walletCache[$key] = $default();
         }
