@@ -246,7 +246,9 @@ class RelayWatcher extends Command
             'idempotency_key' => Str::uuid(),
         ]);
 
-        TransactionCreated::safeBroadcast($transaction);
+        TransactionCreated::safeBroadcast(
+            transaction: $transaction
+        );
 
         // 63 09 = callIndex = (u8; u8)
         // 03 = dest = XcmVersionedMultiLocation (XcmV3MultiLocation)
