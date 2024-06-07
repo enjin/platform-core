@@ -29,7 +29,7 @@ class AttributeRemoved extends SubstrateEvent
         $collection = $this->getCollection($this->event->collectionId);
         $this->extra = ['collection_owner' => $collection->owner->public_key];
 
-        $token = !is_null($tokenId = $this->event->tokenId)
+        $token = !empty($tokenId = $this->event->tokenId)
                 // Fails if it doesn't find the token
                 ? $this->getToken($collection->id, $tokenId)
                 : null;
@@ -38,9 +38,9 @@ class AttributeRemoved extends SubstrateEvent
             'collection_id' =>  $collection->id,
             'token_id' => $token?->id,
             'key' => $this->event->key,
-        ])->delete();
+        ])?->delete();
 
-        is_null($this->event->tokenId)
+        empty($this->event->tokenId)
             ? $collection->decrement('attribute_count')
             : $token->decrement('attribute_count');
     }
@@ -52,14 +52,14 @@ class AttributeRemoved extends SubstrateEvent
                 'Removed attribute %s from Collection %s%s',
                 $this->event->key,
                 $this->event->collectionId,
-                is_null($this->event->tokenId) ? '.' : sprintf(', Token %s.', $this->event->tokenId)
+                empty($this->event->tokenId) ? '.' : sprintf(', Token %s.', $this->event->tokenId)
             )
         );
     }
 
     public function broadcast(): void
     {
-        if (is_null($this->event->tokenId)) {
+        if (empty($this->event->tokenId)) {
             CollectionAttributeRemoved::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),

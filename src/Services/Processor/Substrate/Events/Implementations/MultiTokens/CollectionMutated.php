@@ -31,7 +31,7 @@ class CollectionMutated extends SubstrateEvent
         $attributes = [];
         $royalties = [];
 
-        if (!is_null($this->event->owner)) {
+        if (!empty($this->event->owner)) {
             $attributes['pending_transfer'] = $this->event->owner;
         }
 
@@ -45,7 +45,7 @@ class CollectionMutated extends SubstrateEvent
             }
         }
 
-        if (!is_null($currencies = $this->event->explicitRoyaltyCurrencies)) {
+        if (!empty($currencies = $this->event->explicitRoyaltyCurrencies)) {
             foreach ($currencies as $currency) {
                 $royalties[] = new CollectionRoyaltyCurrency([
                     'currency_collection_chain_id' => $currency['collection_id'],

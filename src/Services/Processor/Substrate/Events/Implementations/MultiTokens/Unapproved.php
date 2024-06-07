@@ -63,7 +63,7 @@ class Unapproved extends SubstrateEvent
 
     public function log(): void
     {
-        if (is_null($this->event->tokenId)) {
+        if (empty($this->event->tokenId)) {
             Log::debug(
                 sprintf(
                     'Collection %s, Account %s unapproved %s.',
@@ -89,7 +89,7 @@ class Unapproved extends SubstrateEvent
 
     public function broadcast(): void
     {
-        if (is_null($this->event->tokenId)) {
+        if (empty($this->event->tokenId)) {
             CollectionUnapproved::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
