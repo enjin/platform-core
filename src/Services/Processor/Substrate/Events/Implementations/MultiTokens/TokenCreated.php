@@ -9,7 +9,6 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenCreated as TokenCreatedPolkadart;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
@@ -19,7 +18,7 @@ class TokenCreated extends SubstrateEvent
 {
     /** @var TokenCreatedPolkadart */
     protected Event $event;
-    protected Token $tokenCreated;
+    protected ?Token $tokenCreated = null;
 
     /**
      * @throws PlatformException
