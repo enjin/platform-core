@@ -143,7 +143,10 @@ class RelayWatcher extends Command
         $block = Arr::get($result, 'block');
         $events = Arr::get($result, 'changes.0.1');
         $decodedEvents = $this->decoder->decode('events', $events);
-        $this->findEndowedAccounts($decodedEvents, $block);
+
+        if (!empty($decodedEvents)) {
+            $this->findEndowedAccounts($decodedEvents, $block);
+        }
     }
 
     protected function findEndowedAccounts(array $events, string $blockHash): void
