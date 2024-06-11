@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAttributeSet;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAttributeSet;
 use Enjin\Platform\Exceptions\PlatformException;
@@ -38,10 +39,10 @@ class AttributeSet extends SubstrateEvent
             [
                 'collection_id' => $collection->id,
                 'token_id' => $token?->id,
-                'key' => $this->event->key,
+                'key' => HexConverter::prefix($this->event->key),
             ],
             [
-                'value' => $this->event->value,
+                'value' => HexConverter::prefix($this->event->value),
             ]
         );
 
