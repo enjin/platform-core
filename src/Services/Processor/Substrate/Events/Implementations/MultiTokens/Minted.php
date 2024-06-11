@@ -34,7 +34,7 @@ class Minted extends SubstrateEvent
         $recipient = $this->firstOrStoreAccount($this->event->recipient);
 
         $this->tokenMinted->update([
-            'supply', gmp_strval(gmp_add($this->tokenMinted->supply, $this->event->amount)) ?? 0,
+            'supply', gmp_strval(gmp_add($token->supply, $this->event->amount)) ?? 0,
         ]);
 
         TokenAccount::where([
