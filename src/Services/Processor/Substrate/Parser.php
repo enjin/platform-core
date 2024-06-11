@@ -109,9 +109,7 @@ class Parser
             $pendingTransferKey = $this->serializationService->decode('pendingCollectionTransferStorageKey', $key);
             $pendingTransferData = $this->serializationService->decode('pendingCollectionTransferStorageData', $account);
 
-            $collection = $this->collectionService->get($pendingTransferKey['collectionId']);
-            $collection->pending_transfer = $pendingTransferData['accountId'];
-            $collection->save();
+            Collection::where('collection_chain_id', $pendingTransferKey['collectionId'])?->update(['pending_transfer' => $pendingTransferData['accountId']]);
         }
     }
 
