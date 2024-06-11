@@ -6,23 +6,24 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\DustLost as DustLostPolkadart;
 
 class DustLost extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(DustLostPolkadart $event, ?Model $transaction = null, ?array $extra = null)
+    public function __construct(Model $account, string $amount, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = $event->toBroadcast([
+        $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
-        ]);
+            'account' => $account->address,
+            'amount' => $amount,
+        ];
 
         $this->broadcastChannels = [
-            new Channel($event->account),
+            new Channel($account->address),
             new PlatformAppChannel(),
         ];
     }

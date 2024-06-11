@@ -4,7 +4,8 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenDestroyed as TokenDestroyedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Token;
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenDestroyed as TokenDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -12,38 +13,32 @@ use Illuminate\Support\Facades\Log;
 
 class TokenDestroyed extends SubstrateEvent
 {
-    /** @var TokenDestroyedPolkadart */
-    protected Event $event;
-
     /**
      * @throws PlatformException
      */
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-        if (!$this->shouldSyncCollection($this->event->collectionId)) {
+        if (!$event instanceof TokenDestroyedPolkadart) {
+            return;
+        }
+
+        if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($this->event->collectionId);
+        $collection = $this->getCollection($collectionId = $event->collectionId);
+        // Fails if it doesn't find the token
+        $token = $this->getToken($collection->id, $tokenId = $event->tokenId);
+        $token->delete();
 
-        Token::where([
-            'collection_id' => $collection->id,
-            'token_chain_id' => $this->event->tokenId,
-        ])->delete();
-    }
+        Log::info("Token #{$tokenId} in Collection ID {$collectionId} was destroyed.");
 
-    public function log(): void
-    {
-        Log::debug("Token {$this->event->tokenId} from collection {$this->event->collectionId} was destroyed.");
-    }
-
-    public function broadcast(): void
-    {
+        $extrinsic = $block->extrinsics[$event->extrinsicIndex];
         TokenDestroyedEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $token,
+            $this->firstOrStoreAccount($extrinsic?->signer),
+            $this->getTransaction($block, $event->extrinsicIndex)
         );
     }
 }

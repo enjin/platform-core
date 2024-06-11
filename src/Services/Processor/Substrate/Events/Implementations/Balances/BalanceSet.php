@@ -2,36 +2,35 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
-use Enjin\Platform\Events\Substrate\Balances\BalanceSet as BalanceSetEvent;
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\BalanceSet as BalanceSetPolkadart;
+use Enjin\Platform\Events\Substrate\Balances\BalanceSet as BalanceSetEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Illuminate\Support\Facades\Log;
 
 class BalanceSet extends SubstrateEvent
 {
-    /** @var BalanceSetPolkadart */
-    protected Event $event;
-
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-    }
+        if (!$event instanceof BalanceSetPolkadart) {
+            return;
+        }
 
-    public function log(): void
-    {
-        Log::debug(sprintf(
-            'Balance of %s set to %s.',
-            $this->event->who,
-            $this->event->free,
+        $account = $this->firstOrStoreAccount($event->who);
+
+        Log::info(sprintf(
+            'Balance of %s (id: %s) set to %s.',
+            $account->address,
+            $account->id,
+            $event->free,
         ));
-    }
 
-    public function broadcast(): void
-    {
         BalanceSetEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $account,
+            $event->free,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

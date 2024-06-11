@@ -3,7 +3,8 @@
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionTransferred as CollectionTransferredEvent;
-use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionTransferred as CollectionTransferredPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -11,38 +12,30 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionTransferred extends SubstrateEvent
 {
-    /** @var CollectionTransferredPolkadart */
-    protected Event $event;
-
-    /**
-     * @throws PlatformException
-     */
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-        if (!$this->shouldSyncCollection($this->event->collectionId)) {
+        if (!$event instanceof CollectionTransferredPolkadart) {
+            return;
+        }
+
+        if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
 
         // Fails if collection is not found
-        $collection = $this->getCollection($this->event->collectionId);
-        $owner = $this->firstOrStoreAccount($this->event->owner);
+        $collection = $this->getCollection($event->collectionId);
+        $owner = $this->firstOrStoreAccount($event->owner);
 
         $collection->owner_wallet_id = $owner->id;
         $collection->pending_transfer = null;
         $collection->save();
-    }
 
-    public function log(): void
-    {
-        Log::debug("Collection {$this->event->collectionId} owner changed to {$this->event->owner}.");
-    }
+        Log::info("Collection #{$event->collectionId} (id {$collection->id}) owner changed to {$owner->public_key} (id {$owner->id}).");
 
-    public function broadcast(): void
-    {
         CollectionTransferredEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $collection,
+            $owner->public_key,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Endowed as EndowedPolkadart;
 use Enjin\Platform\Events\Substrate\Balances\Endowed as EndowedEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
@@ -10,28 +12,25 @@ use Illuminate\Support\Facades\Log;
 
 class Endowed extends SubstrateEvent
 {
-    /** @var EndowedPolkadart */
-    protected Event $event;
-
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-    }
+        if (!$event instanceof EndowedPolkadart) {
+            return;
+        }
 
-    public function log(): void
-    {
-        Log::debug(sprintf(
-            'Wallet %s was endowed with %s.',
-            $this->event->account,
-            $this->event->freeBalance,
+        $account = $this->firstOrStoreAccount($event->account);
+
+        Log::info(sprintf(
+            'Wallet %s (id: %s) was endowed with %s.',
+            $account->address,
+            $account->id,
+            $event->freeBalance,
         ));
-    }
 
-    public function broadcast(): void
-    {
         EndowedEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $account,
+            $event->freeBalance,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

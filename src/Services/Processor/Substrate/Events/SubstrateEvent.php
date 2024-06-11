@@ -23,29 +23,7 @@ use Illuminate\Support\Facades\Log;
 
 abstract class SubstrateEvent
 {
-    protected Event $event;
-    protected Block $block;
-    protected Codec $codec;
-    protected array $extra = [];
-
-    public function __construct(Event $event, Block $block, Codec $codec)
-    {
-        $this->event = $event;
-        $this->block = $block;
-        $this->codec = $codec;
-    }
-
-    public function __destruct()
-    {
-        $this->broadcast();
-        $this->log();
-    }
-
-    abstract public function log(): void;
-
-    abstract public function broadcast(): void;
-
-    abstract public function run(): void;
+    abstract public function run(Event $event, Block $block, Codec $codec);
 
     public function getValue(array $data, array $keys): mixed
     {
@@ -58,13 +36,15 @@ abstract class SubstrateEvent
         return null;
     }
 
-    public function getTransaction(Block $block, ?int $extrinsicIndex = null): ?Transaction
+    public function getTransaction(Block $block, int $extrinsicIndex): ?Transaction
     {
-        if (is_null($extrinsicIndex) || empty($extrinsic = Arr::get($block->extrinsics, $extrinsicIndex))) {
-            return null;
+        $extrinsic = Arr::get($block->extrinsics, $extrinsicIndex);
+
+        if (!empty($extrinsic)) {
+            return Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
         }
 
-        return Transaction::firstWhere(['transaction_chain_hash' => $extrinsic->hash]);
+        return null;
     }
 
     public function firstOrStoreAccount(?string $account): ?Model

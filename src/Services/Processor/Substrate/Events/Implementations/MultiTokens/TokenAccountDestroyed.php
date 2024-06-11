@@ -4,7 +4,9 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\TokenAccountDestroyed as TokenAccountDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -12,23 +14,25 @@ use Illuminate\Support\Facades\Log;
 
 class TokenAccountDestroyed extends SubstrateEvent
 {
-    /** @var TokenAccountDestroyedPolkadart */
-    protected Event $event;
-
     /**
      * @throws PlatformException
      */
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-        if (!$this->shouldSyncCollection($this->event->collectionId)) {
+        if (!$event instanceof TokenAccountDestroyedPolkadart) {
+            return;
+        }
+
+        if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($this->event->collectionId);
+        $collection = $this->getCollection($event->collectionId);
         // Fails if it doesn't find the token
-        $token = $this->getToken($collection->id, $this->event->tokenId);
-        $account = $this->firstOrStoreAccount($this->event->account);
+        $token = $this->getToken($collection->id, $event->tokenId);
+
+        $account = $this->firstOrStoreAccount($event->account);
 
         $collectionAccount = $this->getCollectionAccount($collection->id, $account->id);
         $collectionAccount->decrement('account_count');
@@ -38,26 +42,23 @@ class TokenAccountDestroyed extends SubstrateEvent
             'collection_id' => $collection->id,
             'token_id' => $token->id,
         ])->delete();
-    }
 
-    public function log(): void
-    {
-        Log::debug(
+        Log::info(
             sprintf(
-                'TokenAccount for collection %s, token %s and account %s deleted.',
-                $this->event->collectionId,
-                $this->event->tokenId,
-                $this->event->account,
+                'TokenAccount of Collection #%s (id %s), Token #%s (id %s) and account %s was deleted.',
+                $event->collectionId,
+                $collection->id,
+                $event->tokenId,
+                $token->id,
+                $account->address ?? 'unknown',
             )
         );
-    }
 
-    public function broadcast(): void
-    {
         TokenAccountDestroyedEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $collection,
+            $token,
+            $account,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

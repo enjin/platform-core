@@ -6,25 +6,27 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Thawed as TokenAccountThawedPolkadart;
 
 class TokenAccountThawed extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(TokenAccountThawedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
+    public function __construct(Model $tokenAccount, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = $event->toBroadcast([
+        $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
-        ]);
+            'collectionId' => $tokenAccount->collection->collection_chain_id,
+            'tokenId' => $tokenAccount->token->token_chain_id,
+            'tokenAccount' => $tokenAccount->wallet->address,
+        ];
 
         $this->broadcastChannels = [
-            new Channel("collection;{$event->collectionId}"),
-            new Channel("token;{$event->collectionId}-{$event->tokenId}"),
-            new Channel($event->account),
+            new Channel("collection;{$this->broadcastData['collectionId']}"),
+            new Channel($this->broadcastData['tokenAccount']),
+            new Channel("token;{$this->broadcastData['tokenId']}"),
             new PlatformAppChannel(),
         ];
     }

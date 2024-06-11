@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Unreserved as UnreservedPolkadart;
 use Enjin\Platform\Events\Substrate\Balances\Unreserved as UnreservedEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
@@ -10,28 +12,25 @@ use Illuminate\Support\Facades\Log;
 
 class Unreserved extends SubstrateEvent
 {
-    /** @var UnreservedPolkadart */
-    protected Event $event;
-
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-    }
+        if (!$event instanceof UnreservedPolkadart) {
+            return;
+        }
 
-    public function log(): void
-    {
-        Log::debug(sprintf(
-            'Reserved %s in wallet %s.',
-            $this->event->amount,
-            $this->event->who,
+        $account = $this->firstOrStoreAccount($event->who);
+
+        Log::info(sprintf(
+            'Reserved %s in wallet %s (id: %s).',
+            $event->amount,
+            $account->address,
+            $account->id,
         ));
-    }
 
-    public function broadcast(): void
-    {
         UnreservedEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $account,
+            $event->amount,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

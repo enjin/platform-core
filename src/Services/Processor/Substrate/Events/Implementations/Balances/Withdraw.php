@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Withdraw as WithdrawPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Events\Substrate\Balances\Withdraw as WithdrawEvent;
@@ -10,28 +12,25 @@ use Illuminate\Support\Facades\Log;
 
 class Withdraw extends SubstrateEvent
 {
-    /** @var WithdrawPolkadart */
-    protected Event $event;
-
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-    }
+        if (!$event instanceof WithdrawPolkadart) {
+            return;
+        }
 
-    public function log(): void
-    {
-        Log::debug(sprintf(
-            'Withdraw %s from wallet %s.',
-            $this->event->amount,
-            $this->event->who,
+        $account = $this->firstOrStoreAccount($event->who);
+
+        Log::info(sprintf(
+            'Withdraw %s from wallet %s (id: %s).',
+            $event->amount,
+            $account->address,
+            $account->id,
         ));
-    }
 
-    public function broadcast(): void
-    {
         WithdrawEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $account,
+            $event->amount,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

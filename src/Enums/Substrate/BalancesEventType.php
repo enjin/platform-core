@@ -33,19 +33,19 @@ enum BalancesEventType: string
     /**
      * Get the processor for the event.
      */
-    public function getProcessor($event, $block, $codec): SubstrateEvent
+    public function getProcessor(): SubstrateEvent
     {
         return match ($this) {
-            self::DUST_LOST => new DustLost($event, $block, $codec),
-            self::ENDOWED => new Endowed($event, $block, $codec),
-            self::RESERVE_REPATRIATED => new ReserveRepatriated($event, $block, $codec),
-            self::RESERVED => new Reserved($event, $block, $codec),
-            self::SLASHED => new Slashed($event, $block, $codec),
-            self::TRANSFER => new Transfer($event, $block, $codec),
-            self::UNRESERVED => new Unreserved($event, $block, $codec),
-            self::WITHDRAW => new Withdraw($event, $block, $codec),
-            self::BALANCE_SET => new BalanceSet($event, $block, $codec),
-            self::DEPOSIT => new Deposit($event, $block, $codec),
+            self::DUST_LOST => new DustLost(),
+            self::ENDOWED => new Endowed(),
+            self::RESERVE_REPATRIATED => new ReserveRepatriated(),
+            self::RESERVED => new Reserved(),
+            self::SLASHED => new Slashed(),
+            self::TRANSFER => new Transfer(),
+            self::UNRESERVED => new Unreserved(),
+            self::WITHDRAW => new Withdraw(),
+            self::BALANCE_SET => new BalanceSet(),
+            self::DEPOSIT => new Deposit(),
         };
     }
 }

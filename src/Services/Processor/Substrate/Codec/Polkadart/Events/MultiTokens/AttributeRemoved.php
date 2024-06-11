@@ -20,14 +20,19 @@ class AttributeRemoved extends Event implements PolkadartEvent
     {
         $self = new self();
 
-        $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic') ?? '';
-        $self->module = array_key_first(Arr::get($data, 'event')) ?? '';
-        $self->name = array_key_first(Arr::get($data, 'event.' . $self->module)) ?? '';
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']) ?? '';
-        $self->tokenId = $self->getValue($data, ['token_id.Some', 'Option<T::TokenId>']) ?? '';
-        $self->key = (is_string($value = $self->getValue($data, ['key', 'T::AttributeKey'])) ? $value : HexConverter::bytesToHex($value))  ?? '';
+        $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
+        $self->module = array_key_first(Arr::get($data, 'event'));
+        $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
+        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
+        $self->tokenId = $self->getValue($data, ['token_id.Some', 'Option<T::TokenId>']);
+        $self->key = is_string($value = $self->getValue($data, ['key', 'T::AttributeKey'])) ? $value : HexConverter::bytesToHex($value);
 
         return $self;
+    }
+
+    public function getPallet(): string
+    {
+        return $this->module;
     }
 
     public function getParams(): array

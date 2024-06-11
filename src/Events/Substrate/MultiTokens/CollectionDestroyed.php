@@ -6,23 +6,24 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionDestroyed as CollectionDestroyedPolkadart;
 
 class CollectionDestroyed extends PlatformBroadcastEvent
 {
     /**
      * Create a new event instance.
      */
-    public function __construct(CollectionDestroyedPolkadart $event, ?Model $transaction = null, ?array $extra = null)
+    public function __construct(Model $collection, ?Model $transaction = null)
     {
         parent::__construct();
 
-        $this->broadcastData = $event->toBroadcast([
+        $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
-        ]);
+            'collectionId' => $collection->collection_chain_id,
+        ];
 
         $this->broadcastChannels = [
-            new Channel("collection;{$event->collectionId}"),
+            new Channel("collection;{$this->broadcastData['collectionId']}"),
+            new Channel($collection->owner->address),
             new PlatformAppChannel(),
         ];
     }

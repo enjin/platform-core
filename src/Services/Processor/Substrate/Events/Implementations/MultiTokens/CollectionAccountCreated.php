@@ -5,6 +5,8 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAccountCreated as CollectionAccountCreatedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionAccountCreated as CollectionAccountCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -12,48 +14,44 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionAccountCreated extends SubstrateEvent
 {
-    /** @var CollectionAccountCreatedPolkadart */
-    protected Event $event;
-
     /**
      * @throws PlatformException
      */
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-        if (!$this->shouldSyncCollection($this->event->collectionId)) {
+        if (!$event instanceof CollectionAccountCreatedPolkadart) {
+            return;
+        }
+
+        if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($this->event->collectionId);
-        $account = $this->firstOrStoreAccount($this->event->account);
+        $collection = $this->getCollection($event->collectionId);
+        $account = $this->firstOrStoreAccount($event->account);
 
-        CollectionAccount::updateOrCreate([
+        $collectionAccount = CollectionAccount::create([
             'wallet_id' => $account->id ?? null,
             'collection_id' => $collection->id,
-        ], [
             'is_frozen' => false,
             'account_count' => 0,
         ]);
-    }
 
-    public function log(): void
-    {
-        Log::debug(
+        Log::info(
             sprintf(
-                'Account %s of Collection %s was created.',
-                $this->event->account,
-                $this->event->collectionId,
+                'CollectionAccount (id %s) of Collection #%s (id %s) and account %s was created.',
+                $collectionAccount->id,
+                $event->collectionId,
+                $collection->id,
+                $account->address ?? 'unknown',
             )
         );
-    }
 
-    public function broadcast(): void
-    {
         CollectionAccountCreatedEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $event->collectionId,
+            $account,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

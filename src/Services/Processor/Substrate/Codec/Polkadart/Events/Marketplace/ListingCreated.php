@@ -51,6 +51,11 @@ class ListingCreated extends Event implements PolkadartEvent
         return $self;
     }
 
+    public function getPallet(): string
+    {
+        return $this->module;
+    }
+
     public function getParams(): array
     {
         return [

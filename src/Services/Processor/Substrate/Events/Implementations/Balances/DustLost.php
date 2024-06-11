@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Balances;
 
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\DustLost as DustLostPolkadart;
 use Enjin\Platform\Events\Substrate\Balances\DustLost as DustLostEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
@@ -10,28 +12,25 @@ use Illuminate\Support\Facades\Log;
 
 class DustLost extends SubstrateEvent
 {
-    /** @var DustLostPolkadart */
-    protected Event $event;
-
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-    }
+        if (!$event instanceof DustLostPolkadart) {
+            return;
+        }
 
-    public function log(): void
-    {
-        Log::debug(sprintf(
-            'Wallet %s lost %s of dust.',
-            $this->event->account,
-            $this->event->amount,
+        $account = $this->firstOrStoreAccount($event->account);
+
+        Log::info(sprintf(
+            'Wallet %s (id: %s) lost %s of dust.',
+            $account->address,
+            $account->id,
+            $event->amount,
         ));
-    }
 
-    public function broadcast(): void
-    {
         DustLostEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $account,
+            $event->amount,
+            $this->getTransaction($block, $event->extrinsicIndex),
         );
     }
 }

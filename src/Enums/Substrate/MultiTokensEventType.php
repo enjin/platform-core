@@ -59,31 +59,31 @@ enum MultiTokensEventType: string
     /**
      * Get the processor for the event.
      */
-    public function getProcessor($event, $block, $codec): SubstrateEvent
+    public function getProcessor(): SubstrateEvent
     {
         return match ($this) {
-            self::COLLECTION_CREATED => new CollectionCreated($event, $block, $codec),
-            self::COLLECTION_DESTROYED => new CollectionDestroyed($event, $block, $codec),
-            self::COLLECTION_MUTATED => new CollectionMutated($event, $block, $codec),
-            self::COLLECTION_TRANSFERRED => new CollectionTransferred($event, $block, $codec),
-            self::COLLECTION_ACCOUNT_CREATED => new CollectionAccountCreated($event, $block, $codec),
-            self::COLLECTION_ACCOUNT_DESTROYED => new CollectionAccountDestroyed($event, $block, $codec),
-            self::TOKEN_CREATED => new TokenCreated($event, $block, $codec),
-            self::TOKEN_DESTROYED => new TokenDestroyed($event, $block, $codec),
-            self::TOKEN_ACCOUNT_CREATED => new TokenAccountCreated($event, $block, $codec),
-            self::TOKEN_ACCOUNT_DESTROYED => new TokenAccountDestroyed($event, $block, $codec),
-            self::MINTED => new Minted($event, $block, $codec),
-            self::BURNED => new TokenBurned($event, $block, $codec),
-            self::FROZEN => new Freeze($event, $block, $codec),
-            self::THAWED => new Thawed($event, $block, $codec),
-            self::TRANSFERRED => new Transferred($event, $block, $codec),
-            self::ATTRIBUTE_SET => new AttributeSet($event, $block, $codec),
-            self::ATTRIBUTE_REMOVED => new AttributeRemoved($event, $block, $codec),
-            self::APPROVED => new Approved($event, $block, $codec),
-            self::UNAPPROVED => new Unapproved($event, $block, $codec),
-            self::TOKEN_MUTATED => new TokenMutated($event, $block, $codec),
-            self::RESERVED => new Reserved($event, $block, $codec),
-            self::UNRESERVED => new Unreserved($event, $block, $codec),
+            self::COLLECTION_CREATED => new CollectionCreated(),
+            self::COLLECTION_DESTROYED => new CollectionDestroyed(),
+            self::COLLECTION_MUTATED => new CollectionMutated(),
+            self::COLLECTION_TRANSFERRED => new CollectionTransferred(),
+            self::COLLECTION_ACCOUNT_CREATED => new CollectionAccountCreated(),
+            self::COLLECTION_ACCOUNT_DESTROYED => new CollectionAccountDestroyed(),
+            self::TOKEN_CREATED => new TokenCreated(),
+            self::TOKEN_DESTROYED => new TokenDestroyed(),
+            self::TOKEN_ACCOUNT_CREATED => new TokenAccountCreated(),
+            self::TOKEN_ACCOUNT_DESTROYED => new TokenAccountDestroyed(),
+            self::MINTED => new Minted(),
+            self::BURNED => new TokenBurned(),
+            self::FROZEN => new Freeze(),
+            self::THAWED => new Thawed(),
+            self::TRANSFERRED => new Transferred(),
+            self::ATTRIBUTE_SET => new AttributeSet(),
+            self::ATTRIBUTE_REMOVED => new AttributeRemoved(),
+            self::APPROVED => new Approved(),
+            self::UNAPPROVED => new Unapproved(),
+            self::TOKEN_MUTATED => new TokenMutated(),
+            self::RESERVED => new Reserved(),
+            self::UNRESERVED => new Unreserved(),
         };
     }
 }

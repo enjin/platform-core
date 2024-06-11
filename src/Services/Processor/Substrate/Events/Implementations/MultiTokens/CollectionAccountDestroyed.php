@@ -5,6 +5,8 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionAccountDestroyed as CollectionAccountDestroyedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionAccountDestroyed as CollectionAccountDestroyedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
@@ -12,45 +14,41 @@ use Illuminate\Support\Facades\Log;
 
 class CollectionAccountDestroyed extends SubstrateEvent
 {
-    /** @var CollectionAccountDestroyedPolkadart */
-    protected Event $event;
-
     /**
      * @throws PlatformException
      */
-    public function run(): void
+    public function run(Event $event, Block $block, Codec $codec): void
     {
-        if (!$this->shouldSyncCollection($this->event->collectionId)) {
+        if (!$event instanceof CollectionAccountDestroyedPolkadart) {
+            return;
+        }
+
+        if (!$this->shouldSyncCollection($event->collectionId)) {
             return;
         }
 
         // Fails if it doesn't find the collection
-        $collection = $this->getCollection($this->event->collectionId);
-        $account = $this->firstOrStoreAccount($this->event->account);
+        $collection = $this->getCollection($event->collectionId);
+        $account = $this->firstOrStoreAccount($event->account);
 
         CollectionAccount::where([
-            'wallet_id' => $account->id ?? null,
+            'wallet_id' => $account->id,
             'collection_id' => $collection->id,
         ])->delete();
-    }
 
-    public function log(): void
-    {
-        Log::debug(
+        Log::info(
             sprintf(
-                'Account %s of Collection %s was deleted.',
-                $this->event->account,
-                $this->event->collectionId,
+                'CollectionAccount of Collection #%s (id %s) and account %s was deleted.',
+                $event->collectionId,
+                $collection->id,
+                $account->address ?? 'unknown',
             )
         );
-    }
 
-    public function broadcast(): void
-    {
         CollectionAccountDestroyedEvent::safeBroadcast(
-            $this->event,
-            $this->getTransaction($this->block, $this->event->extrinsicIndex),
-            $this->extra,
+            $this->getCollection($event->collectionId),
+            $account,
+            $this->getTransaction($block, $event->extrinsicIndex)
         );
     }
 }

@@ -12,22 +12,22 @@ class Teleport extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(Model $from, Model $to, string $amount, string $destination, ?Model $transaction = null, ?array $extra = null)
+    public function __construct(Model $from, Model $to, string $amount, string $destination, ?Model $transaction = null)
     {
         parent::__construct();
 
         $this->broadcastData = [
             'idempotencyKey' => $transaction?->idempotency_key,
             'transactionHash' => $transaction?->transaction_chain_hash,
-            'from' => $from->public_key,
-            'to' => $to->public_key,
+            'from' => $from->address,
+            'to' => $to->address,
             'amount' => $amount,
             'destination' => $destination,
         ];
 
         $this->broadcastChannels = [
-            new Channel($from->public_key),
-            new Channel($to->public_key),
+            new Channel($from->address),
+            new Channel($to->address),
             new PlatformAppChannel(),
         ];
     }
