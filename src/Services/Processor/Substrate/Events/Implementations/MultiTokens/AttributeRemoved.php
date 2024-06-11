@@ -39,7 +39,7 @@ class AttributeRemoved extends SubstrateEvent
         $attribute = $this->getAttribute(
             $collection->id,
             $token?->id,
-            $key = HexConverter::hexToString($event->key)
+            $key = HexConverter::prefix($event->key)
         );
         $attribute->delete();
 
