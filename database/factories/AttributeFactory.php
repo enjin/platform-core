@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
@@ -26,8 +27,8 @@ class AttributeFactory extends Factory
         return [
             'collection_id' => Collection::factory(),
             'token_id' => Token::factory(),
-            'key' => fake()->unique()->word(),
-            'value' => fake()->text(),
+            'key' => HexConverter::stringToHexPrefixed(fake()->unique()->word()),
+            'value' => HexConverter::stringToHexPrefixed(fake()->text()),
         ];
     }
 }
