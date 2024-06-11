@@ -39,7 +39,7 @@ class AttributeRemoved extends SubstrateEvent
         $attribute = $this->getAttribute(
             $collection->id,
             $token?->id,
-            $key = HexConverter::hexToString($event->key)
+            $key = HexConverter::prefix($event->key)
         );
         $attribute->delete();
 
@@ -60,16 +60,16 @@ class AttributeRemoved extends SubstrateEvent
             $token->decrement('attribute_count');
             TokenAttributeRemoved::safeBroadcast(
                 $token,
-                $attribute->key,
-                $attribute->value,
+                $attribute->key_string,
+                $attribute->value_string,
                 $transaction
             );
         } else {
             $collection->decrement('attribute_count');
             CollectionAttributeRemoved::safeBroadcast(
                 $collection,
-                $attribute->key,
-                $attribute->value,
+                $attribute->key_string,
+                $attribute->value_string,
                 $transaction
             );
         }

@@ -17,7 +17,6 @@ use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
-use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Arr;
 
 class Parser
@@ -109,9 +108,7 @@ class Parser
             $pendingTransferKey = $this->serializationService->decode('pendingCollectionTransferStorageKey', $key);
             $pendingTransferData = $this->serializationService->decode('pendingCollectionTransferStorageData', $account);
 
-            $collection = $this->collectionService->get($pendingTransferKey['collectionId']);
-            $collection->pending_transfer = $pendingTransferData['accountId'];
-            $collection->save();
+            Collection::where('collection_chain_id', $pendingTransferKey['collectionId'])?->update(['pending_transfer' => $pendingTransferData['accountId']]);
         }
     }
 
@@ -421,22 +418,23 @@ class Parser
 
         foreach ($data as [$key, $attribute]) {
             $attributeKey = $this->serializationService->decode('attributeStorageKey', $key);
-            $attributeData = Hex::safeConvertToString($this->serializationService->decode('bytes', $attribute));
+            $attributeData = $this->serializationService->decode('bytes', $attribute);
 
             $collection = $this->getCachedCollection(
                 $attributeKey['collectionId'],
                 fn () => Collection::where('collection_chain_id', $attributeKey['collectionId'])->firstOrFail()
             );
-            $token = $this->getCachedToken(
+
+            $token = is_null($attributeKey['tokenId']) ? null : $this->getCachedToken(
                 $collection->id . '|' . $attributeKey['tokenId'],
                 fn () => Token::where(['collection_id' => $collection->id, 'token_chain_id' => $attributeKey['tokenId']])->first()
             );
 
             $insertData[] = [
                 'collection_id' => $collection->id,
-                'token_id' => optional($token)->id,
-                'key' => Hex::safeConvertToString($attributeKey['attribute']),
-                'value' => $attributeData,
+                'token_id' => $token?->id,
+                'key' => HexConverter::prefix($attributeKey['attribute']),
+                'value' => HexConverter::prefix($attributeData),
             ];
         }
 
@@ -448,7 +446,7 @@ class Parser
                 );
             }
         } else {
-            Attribute::insert($insertData, $insertData);
+            Attribute::insert($insertData);
         }
     }
 
@@ -458,23 +456,22 @@ class Parser
     public function attributeStorage(string $key, string $data): mixed
     {
         $attributeKey = $this->serializationService->decode('attributeStorageKey', $key);
-        $attributeData = HexConverter::hexToString($this->serializationService->decode('bytes', $data));
+        $attributeData = $this->serializationService->decode('bytes', $data);
 
         $collectionStored = $this->getCachedCollection(
             $attributeKey['collectionId'],
             fn () => Collection::where('collection_chain_id', $attributeKey['collectionId'])->firstOrFail()
         );
-        $tokenStored = $this->getCachedToken(
+        $tokenStored = is_null($attributeKey['tokenId']) ? null : $this->getCachedToken(
             $collectionStored->id . '|' . $attributeKey['tokenId'],
             fn () => Token::where(['collection_id' => $collectionStored->id, 'token_chain_id' => $attributeKey['tokenId']])->first()
         );
 
         return Attribute::create([
             'collection_id' => $collectionStored->id,
-            'token_id' => optional($tokenStored)->id,
-            'key_hex' => $keyHex = $attributeKey['attribute'],
-            'key' => HexConverter::hexToString($keyHex),
-            'value' => $attributeData,
+            'token_id' => $tokenStored->id,
+            'key' => HexConverter::prefix($attributeKey['attribute']),
+            'value' => HexConverter::prefix($attributeData),
         ]);
     }
 
