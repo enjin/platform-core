@@ -17,6 +17,7 @@ use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
+use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Arr;
 
 class Parser
@@ -61,10 +62,12 @@ class Parser
                 $collectionData['owner'],
                 fn () => $this->walletService->firstOrStore(['account' => $collectionData['owner']])
             );
-            $royaltyWallet = $this->getCachedWallet(
-                $collectionData['royaltyBeneficiary'],
-                fn () => $this->walletService->firstOrStore(['account' => $collectionData['royaltyBeneficiary']])
-            );
+            $royaltyWallet = ($beneficiary = $collectionData['royaltyBeneficiary'])
+                ? $this->getCachedWallet(
+                    $beneficiary,
+                    fn () => $this->walletService->firstOrStore(['account' => $beneficiary])
+                )
+                : null;
 
             if (!empty($royaltyCurrencies = $collectionData['explicitRoyaltyCurrencies'])) {
                 $insertRoyaltyCurrencies[] = [
@@ -106,7 +109,9 @@ class Parser
             $pendingTransferKey = $this->serializationService->decode('pendingCollectionTransferStorageKey', $key);
             $pendingTransferData = $this->serializationService->decode('pendingCollectionTransferStorageData', $account);
 
-            Collection::where('collection_chain_id', $pendingTransferKey['collectionId'])?->update(['pending_transfer' => $pendingTransferData['accountId']]);
+            $collection = $this->collectionService->get($pendingTransferKey['collectionId']);
+            $collection->pending_transfer = $pendingTransferData['accountId'];
+            $collection->save();
         }
     }
 
@@ -121,11 +126,9 @@ class Parser
             $collectionData['owner'],
             fn () => $this->walletService->firstOrStore(['account' => $collectionData['owner']])
         );
-        $royaltyWallet = $this->getCachedWallet(
-            $collectionData['royaltyBeneficiary'],
-            fn () => $this->walletService->firstOrStore(['account' => $collectionData['royaltyBeneficiary']])
-        );
-
+        $royaltyWallet = ($beneficiary = $collectionData['royaltyBeneficiary'])
+                ? $this->getCachedWallet($beneficiary, fn () => $this->walletService->firstOrStore(['account' => $beneficiary]))
+                : null;
 
         $collection = $this->collectionService->store([
             'collection_chain_id' => $collectionKey['collectionId'],
@@ -164,10 +167,12 @@ class Parser
                 $tokenKey['collectionId'],
                 fn () => Collection::where('collection_chain_id', $tokenKey['collectionId'])->firstOrFail()
             );
-            $royaltyWallet = $this->getCachedWallet(
-                $tokenData['royaltyBeneficiary'],
-                fn () => $this->walletService->firstOrStore(['account' => $tokenData['royaltyBeneficiary']])
-            );
+            $royaltyWallet = ($beneficiary = $tokenData['royaltyBeneficiary'])
+                ? $this->getCachedWallet(
+                    $beneficiary,
+                    fn () => $this->walletService->firstOrStore(['account' => $beneficiary])
+                )
+                : null;
 
             $insertData[] = [
                 'token_chain_id' => $tokenKey['tokenId'],
@@ -207,10 +212,9 @@ class Parser
             $tokenKey['collectionId'],
             fn () => Collection::where('collection_chain_id', $tokenKey['collectionId'])->firstOrFail()
         );
-        $royaltyWallet =  $this->getCachedWallet(
-            $tokenData['royaltyBeneficiary'],
-            fn () => $this->walletService->firstOrStore(['account' => $tokenData['royaltyBeneficiary']])
-        );
+        $royaltyWallet = ($beneficiary = $tokenData['royaltyBeneficiary'])
+            ? $this->getCachedWallet($beneficiary, fn () => $this->walletService->firstOrStore(['account' => $beneficiary]))
+            : null;
 
         return $this->tokenService->updateOrStore(
             [
@@ -275,7 +279,7 @@ class Parser
         if ($hotSync) {
             CollectionAccount::upsert($insertData, uniqueBy: ['collection_id', 'wallet_id']);
         } else {
-            CollectionAccount::insert($insertData);
+            CollectionAccount::insert($insertData, $insertData);
         }
 
         $this->collectionsAccountsApprovals($insertApprovals);
@@ -335,7 +339,7 @@ class Parser
             );
 
             $token = $this->getCachedToken(
-                $collection->id . '-' . $tokenAccountKey['tokenId'],
+                $collection->id . '|' . $tokenAccountKey['tokenId'],
                 fn () => Token::where(['collection_id' => $collection->id, 'token_chain_id' => $tokenAccountKey['tokenId']])->firstOrFail()
             );
 
@@ -363,7 +367,7 @@ class Parser
         if ($hotSync) {
             TokenAccount::upsert($insertData, uniqueBy: ['wallet_id', 'collection_id', 'token_id']);
         } else {
-            TokenAccount::insert($insertData);
+            TokenAccount::insert($insertData, $insertData);
         }
 
         $this->tokensAccountsApprovals($insertApprovals);
@@ -386,7 +390,7 @@ class Parser
             fn () => Collection::where('collection_chain_id', $tokenAccountKey['collectionId'])->firstOrFail()
         );
         $tokenStored = $this->getCachedToken(
-            $collectionStored->id . '-' . $tokenAccountKey['tokenId'],
+            $collectionStored->id . '|' . $tokenAccountKey['tokenId'],
             fn () => Token::where(['collection_id' => $collectionStored->id, 'token_chain_id' => $tokenAccountKey['tokenId']])->firstOrFail()
         );
 
@@ -417,23 +421,22 @@ class Parser
 
         foreach ($data as [$key, $attribute]) {
             $attributeKey = $this->serializationService->decode('attributeStorageKey', $key);
-            $attributeData = $this->serializationService->decode('bytes', $attribute);
+            $attributeData = Hex::safeConvertToString($this->serializationService->decode('bytes', $attribute));
 
             $collection = $this->getCachedCollection(
                 $attributeKey['collectionId'],
                 fn () => Collection::where('collection_chain_id', $attributeKey['collectionId'])->firstOrFail()
             );
-
-            $token = is_null($attributeKey['tokenId']) ? null : $this->getCachedToken(
-                $collection->id . '-' . $attributeKey['tokenId'],
+            $token = $this->getCachedToken(
+                $collection->id . '|' . $attributeKey['tokenId'],
                 fn () => Token::where(['collection_id' => $collection->id, 'token_chain_id' => $attributeKey['tokenId']])->first()
             );
 
             $insertData[] = [
                 'collection_id' => $collection->id,
-                'token_id' => $token?->id,
-                'key' => HexConverter::prefix($attributeKey['attribute']),
-                'value' => HexConverter::prefix($attributeData),
+                'token_id' => optional($token)->id,
+                'key' => Hex::safeConvertToString($attributeKey['attribute']),
+                'value' => $attributeData,
             ];
         }
 
@@ -445,7 +448,7 @@ class Parser
                 );
             }
         } else {
-            Attribute::insert($insertData);
+            Attribute::insert($insertData, $insertData);
         }
     }
 
@@ -455,34 +458,31 @@ class Parser
     public function attributeStorage(string $key, string $data): mixed
     {
         $attributeKey = $this->serializationService->decode('attributeStorageKey', $key);
-        $attributeData = $this->serializationService->decode('bytes', $data);
+        $attributeData = HexConverter::hexToString($this->serializationService->decode('bytes', $data));
 
         $collectionStored = $this->getCachedCollection(
             $attributeKey['collectionId'],
             fn () => Collection::where('collection_chain_id', $attributeKey['collectionId'])->firstOrFail()
         );
-        $tokenStored = is_null($attributeKey['tokenId']) ? null : $this->getCachedToken(
-            $collectionStored->id . '-' . $attributeKey['tokenId'],
+        $tokenStored = $this->getCachedToken(
+            $collectionStored->id . '|' . $attributeKey['tokenId'],
             fn () => Token::where(['collection_id' => $collectionStored->id, 'token_chain_id' => $attributeKey['tokenId']])->first()
         );
 
         return Attribute::create([
             'collection_id' => $collectionStored->id,
-            'token_id' => $tokenStored->id,
-            'key' => HexConverter::prefix($attributeKey['attribute']),
-            'value' => HexConverter::prefix($attributeData),
+            'token_id' => optional($tokenStored)->id,
+            'key_hex' => $keyHex = $attributeKey['attribute'],
+            'key' => HexConverter::hexToString($keyHex),
+            'value' => $attributeData,
         ]);
     }
 
     /**
      * Get cached wallet.
      */
-    protected function getCachedWallet(?string $key, ?Closure $default = null): mixed
+    protected function getCachedWallet(string $key, ?Closure $default = null): mixed
     {
-        if (is_null($key)) {
-            return null;
-        }
-
         if (!isset(static::$walletCache[$key])) {
             static::$walletCache[$key] = $default();
         }

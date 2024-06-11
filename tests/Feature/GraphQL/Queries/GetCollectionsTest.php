@@ -135,8 +135,8 @@ class GetCollectionsTest extends TestCaseGraphQL
             ],
             'attributes' => [
                 [
-                    'key' => Hex::safeConvertToString($attribute->key),
-                    'value' => Hex::safeConvertToString($attribute->value),
+                    'key' => $attribute->key,
+                    'value' => $attribute->value,
                 ],
             ],
             'tokens' => [

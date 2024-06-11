@@ -5,6 +5,7 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Attribute;
+use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
@@ -30,16 +31,21 @@ class AttributeType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
-            // Computed
+            // Properties
             'key' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.key'),
-                'alias' => 'key_string',
             ],
             'value' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.value'),
-                'alias' => 'value_string',
+                'resolve' => function ($attribute) {
+                    if (strtolower($attribute->key) == 'uri' && strpos($attribute->value, '{id}') !== false && $attribute->token_id) {
+                        return Str::replace('{id}', "{$attribute->token->collection->collection_chain_id}-{$attribute->token->token_chain_id}", $attribute->value);
+                    }
+
+                    return $attribute->value;
+                },
             ],
         ];
     }

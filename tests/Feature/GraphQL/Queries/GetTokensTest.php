@@ -88,8 +88,8 @@ class GetTokensTest extends TestCaseGraphQL
             ],
             'attributes' => [
                 [
-                    'key' => $tokenAttribute->key_string,
-                    'value' => $tokenAttribute->value_string,
+                    'key' => $tokenAttribute->key,
+                    'value' => $tokenAttribute->value,
                 ],
             ],
             'accounts' => [

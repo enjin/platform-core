@@ -19,7 +19,6 @@ class TokenCreated extends SubstrateEvent
 {
     /** @var TokenCreatedPolkadart */
     protected Event $event;
-    protected Token $tokenCreated;
 
     /**
      * @throws PlatformException
@@ -32,21 +31,22 @@ class TokenCreated extends SubstrateEvent
             return;
         }
 
+        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         $count = Cache::get(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
-        $this->tokenCreated = $this->parseToken($this->event, $count - 1);
+
+        $this->parseToken($extrinsic, $this->event, $count - 1);
         Cache::forget(PlatformCache::BLOCK_EVENT_COUNT->key("tokenCreated:block:{$this->block->number}"));
     }
 
     /**
      * @throws PlatformException
      */
-    public function parseToken(TokenCreatedPolkadart $event, int $count = 0): mixed
+    public function parseToken(Extrinsic $extrinsic, TokenCreatedPolkadart $event, int $count = 0): mixed
     {
         // Fails if collection is not found
         $collection = $this->getCollection($event->collectionId);
         $this->extra = ['collection_owner' => $collection->owner->public_key];
 
-        $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         $params = $extrinsic->params;
 
         // This unwraps any calls from a FuelTank extrinsic
@@ -126,7 +126,6 @@ class TokenCreated extends SubstrateEvent
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
             $this->extra,
-            $this->tokenCreated,
         );
     }
 

@@ -56,9 +56,7 @@ class TransactionService
 
         $transaction = Transaction::create($data);
 
-        TransactionCreated::safeBroadcast(
-            transaction: $transaction,
-        );
+        TransactionCreated::safeBroadcast($transaction);
 
         return $transaction;
     }
@@ -70,11 +68,7 @@ class TransactionService
     {
         $transaction->fill($data)->save();
 
-        TransactionUpdated::safeBroadcast(
-            event: null,
-            transaction: $transaction->refresh(),
-            extra: null,
-        );
+        TransactionUpdated::safeBroadcast($transaction->refresh());
 
         return $transaction->wasChanged();
     }

@@ -4,7 +4,6 @@ namespace Enjin\Platform\Events;
 
 use Enjin\Platform\Events\Substrate\Commands\PlatformEventCached;
 use Enjin\Platform\Models\PendingEvent;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PendingBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -20,7 +19,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
-    public ?Model $model;
+    public Model $model;
 
     /**
      * An array of functions to call prior to broadcasting the event.
@@ -69,7 +68,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      */
-    public function broadcastOn(): Channel|array
+    public function broadcastOn(): \Illuminate\Broadcasting\Channel|array
     {
         return $this->broadcastChannels;
     }
@@ -91,10 +90,10 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Broadcast the event and catch any errors.
      */
-    public static function safeBroadcast(mixed $event = null, ?Model $transaction = null, ?array $extra = null, ?Model $model = null): void
+    public static function safeBroadcast(): void
     {
         try {
-            static::broadcast($event, $transaction, $extra, $model);
+            static::broadcast(...func_get_args());
         } catch (\Throwable $e) {
             $class = (new \ReflectionClass(static::class))->getShortName();
             Log::info("{$class} : Event cached but no websocket open to broadcast on. {$e->getMessage()}");
@@ -104,9 +103,9 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Broadcast the event with the given arguments.
      */
-    public static function broadcast(mixed $event, ?Model $transaction, ?array $extra, ?Model $model): PendingBroadcast
+    public static function broadcast(): PendingBroadcast
     {
-        $event = new static($event, $transaction, $extra, $model);
+        $event = new static(...func_get_args());
         $event = $event->beforeBroadcast();
 
         return broadcast($event);

@@ -21,7 +21,6 @@ class CollectionCreated extends SubstrateEvent
 {
     /** @var CollectionCreatedPolkadart */
     protected Event $event;
-    protected Collection $collectionCreated;
 
     public function run(): void
     {
@@ -55,7 +54,6 @@ class CollectionCreated extends SubstrateEvent
             $this->event,
             $this->getTransaction($this->block, $this->event->extrinsicIndex),
             $this->extra,
-            $this->collectionCreated,
         );
     }
 
@@ -88,7 +86,7 @@ class CollectionCreated extends SubstrateEvent
         $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
         $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
 
-        $this->collectionCreated = Collection::updateOrCreate([
+        $collection = Collection::updateOrCreate([
             'collection_chain_id' => $event->collectionId,
         ], [
             'owner_wallet_id' => $owner->id,
@@ -104,7 +102,7 @@ class CollectionCreated extends SubstrateEvent
             'network' => network()->name,
         ]);
 
-        $this->collectionRoyaltyCurrencies($this->collectionCreated->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));
+        $this->collectionRoyaltyCurrencies($collection->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));
     }
 
     protected function collectionRoyaltyCurrencies(string $collectionId, array $royaltyCurrencies): void
