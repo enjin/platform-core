@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Database;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Laravel\Collection;
@@ -110,7 +111,7 @@ class TokenService
 
         return Attribute::withoutGlobalScopes()->whereCollectionId($collection->id)
             ->whereTokenId($token->id)
-            ->where('key', '=', $key)
+            ->where('key', '=', HexConverter::stringToHexPrefixed($key))
             ->exists();
     }
 
