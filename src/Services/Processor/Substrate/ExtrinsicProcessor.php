@@ -107,23 +107,13 @@ class ExtrinsicProcessor
 
         $eventsWithTransaction = collect($this->block->events)->filter(fn ($event) => $event->extrinsicIndex == $index)
             ->map(function ($event) use ($transaction) {
-                $params = $event->getParams();
-                if ($event->name == 'FuelTankCreated') {
-                    foreach ($params as &$param) {
-                        $param['value'] = match ($param['type']) {
-                            'tankName' => HexConverter::hexToString($param['value']),
-                            default => $param['value']
-                        };
-                    }
-                }
-
                 return [
                     'transaction_id' => $transaction->id,
                     'phase' => '2',
                     'look_up' => 'unknown',
                     'module_id' => $event->module,
                     'event_id' => $event->name,
-                    'params' => json_encode($params),
+                    'params' => json_encode($event->getParams()),
                 ];
             })->toArray();
 
