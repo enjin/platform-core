@@ -41,22 +41,22 @@ class Attribute extends BaseModel
     /**
      * The attribute key as String.
      */
-    public function keyString(): AttributeCasts
+    protected function keyString(): AttributeCasts
     {
-        return new AttributeCasts(
-            get: fn () => Hex::safeConvertToString($this->key)
+        return AttributeCasts::make(
+            get: fn (?string $value, ?array $attributes) => Hex::safeConvertToString($attributes['key'])
         );
     }
 
     /**
      * The attribute value as String.
      */
-    public function valueString(): AttributeCasts
+    protected function valueString(): AttributeCasts
     {
-        return new AttributeCasts(
-            get: function () {
-                $key = Hex::safeConvertToString($this->key);
-                $value = Hex::safeConvertToString($this->value);
+        return AttributeCasts::make(
+            get: function (?string $value, ?array $attributes) {
+                $key = Hex::safeConvertToString($attributes['key']);
+                $value = Hex::safeConvertToString($attributes['value']);
 
                 if ($key == 'uri' && str_contains($value, '{id}') && $this->token_id) {
                     return Str::replace('{id}', "{$this->token->collection->collection_chain_id}-{$this->token->token_chain_id}", $value);
