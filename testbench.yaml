@@ -7,7 +7,7 @@ env:
   - DB_DATABASE="platform"
   - DB_USERNAME="root"
   - DB_PASSWORD="password"
-  - CACHE_DRIVER="redis"
+  - CACHE_STORE="redis"
   - QUEUE_CONNECTION="redis"
   - CHAIN="substrate"
   - NETWORK="enjin-matrixchain"

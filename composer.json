@@ -33,7 +33,6 @@
     "amphp/websocket": "v2.0.0-beta.4",
     "amphp/websocket-client": "v2.0.0-beta.3",
     "composer/semver": "^3.0",
-    "doctrine/dbal": "^3.0",
     "enjin/php-blockchain-tools": "^1.0",
     "fakerphp/faker": "^1.0",
     "gmajor/sr25519-bindings": "dev-main",
