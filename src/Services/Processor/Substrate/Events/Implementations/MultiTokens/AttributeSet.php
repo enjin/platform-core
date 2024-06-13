@@ -29,7 +29,7 @@ class AttributeSet extends SubstrateEvent
         $collection = $this->getCollection($this->event->collectionId);
         $this->extra = ['collection_owner' => $collection->owner->public_key];
 
-        $token = !empty($tokenId = $this->event->tokenId)
+        $token = !is_null($tokenId = $this->event->tokenId)
             // Fails if it doesn't find the token
             ? $this->getToken($collection->id, $tokenId)
             : null;
@@ -46,7 +46,7 @@ class AttributeSet extends SubstrateEvent
         );
 
         if ($attribute->wasRecentlyCreated) {
-            empty($this->event->tokenId)
+            is_null($this->event->tokenId)
                 ? $collection->increment('attribute_count')
                 : $token->increment('attribute_count');
         }
@@ -59,7 +59,7 @@ class AttributeSet extends SubstrateEvent
                 'Attribute "%s" of Collection %s%s was set to "%s".',
                 $this->event->key,
                 $this->event->collectionId,
-                empty($this->event->tokenId) ? '' : sprintf(', Token %s ', $this->event->tokenId),
+                is_null($this->event->tokenId) ? '' : sprintf(', Token %s ', $this->event->tokenId),
                 $this->event->value,
             )
         );
@@ -67,7 +67,7 @@ class AttributeSet extends SubstrateEvent
 
     public function broadcast(): void
     {
-        if (empty($this->event->tokenId)) {
+        if (is_null($this->event->tokenId)) {
             CollectionAttributeSet::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),

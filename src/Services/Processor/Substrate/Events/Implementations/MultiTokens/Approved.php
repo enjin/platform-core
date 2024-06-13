@@ -31,7 +31,7 @@ class Approved extends SubstrateEvent
         $operator = $this->firstOrStoreAccount($this->event->operator);
         $owner =  $this->firstOrStoreAccount($this->event->owner);
 
-        if (empty($this->event->tokenId)) {
+        if (is_null($this->event->tokenId)) {
             $collectionAccount = $this->getCollectionAccount(
                 $collection->id,
                 $owner->id,
@@ -67,7 +67,7 @@ class Approved extends SubstrateEvent
 
     public function log(): void
     {
-        if (empty($this->event->tokenId)) {
+        if (is_null($this->event->tokenId)) {
             Log::debug(
                 sprintf(
                     'Collection %s, Account %s approved %s.',
@@ -94,7 +94,7 @@ class Approved extends SubstrateEvent
 
     public function broadcast(): void
     {
-        if (empty($this->event->tokenId)) {
+        if (is_null($this->event->tokenId)) {
             CollectionApproved::safeBroadcast(
                 $this->event,
                 $this->getTransaction($this->block, $this->event->extrinsicIndex),
