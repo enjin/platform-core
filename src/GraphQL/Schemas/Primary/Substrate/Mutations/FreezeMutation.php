@@ -110,11 +110,6 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
         TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
-
-        if (is_null($params->freezeState) && $params->type === FreezeType::TOKEN) {
-            $params->freezeState = FreezeStateType::TEMPORARY;
-        }
-
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             freezeParams: $params
@@ -128,9 +123,15 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
 
     public static function getEncodableParams(...$params): array
     {
+        $freezeType = Arr::get($params, 'freezeParams', new FreezeTypeParams(FreezeType::TOKEN));
+
+        if (is_null($freezeType->freezeState) && $freezeType->type === FreezeType::TOKEN) {
+            $freezeType->freezeState = FreezeStateType::TEMPORARY;
+        }
+
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'freezeType' => Arr::get($params, 'freezeParams', new FreezeTypeParams(FreezeType::TOKEN))->toEncodable(),
+            'freezeType' => $freezeType->toEncodable(),
         ];
     }
 
