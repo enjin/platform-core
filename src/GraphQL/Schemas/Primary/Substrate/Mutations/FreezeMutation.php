@@ -111,7 +111,7 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
 
-        if (is_null($params->freezeState)) {
+        if (is_null($params->freezeState) && $params->type === FreezeType::TOKEN) {
             $params->freezeState = FreezeStateType::TEMPORARY;
         }
 
