@@ -324,9 +324,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'collection_id' => $collection,
             'token_id' => $token,
         ])->create();
-        $tokenAccount = TokenAccount::factory([
-            'wallet_id' => $signingWallet,
-        ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $signingWallet,

@@ -17,6 +17,13 @@ class AttributeFactory extends Factory
      */
     protected $model = Attribute::class;
 
+    public function __construct($count = null, ?\Illuminate\Support\Collection $states = null, ?\Illuminate\Support\Collection $has = null, ?\Illuminate\Support\Collection $for = null, ?\Illuminate\Support\Collection $afterMaking = null, ?\Illuminate\Support\Collection $afterCreating = null, $connection = null, ?\Illuminate\Support\Collection $recycle = null)
+    {
+        parent::__construct($count, $states, $has, $for, $afterMaking, $afterCreating, $connection, $recycle);
+
+        $this->model = Attribute::resolveClassFqn();
+    }
+
     /**
      * Define the model's default state.
      *
