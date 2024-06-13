@@ -93,7 +93,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $this->collection->collection_chain_id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
+            'key' => $key = $this->attribute->key_string,
             'simulate' => true,
         ]);
 
@@ -131,7 +131,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, $params = [
             'collectionId' => $collection->collection_chain_id,
             'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-            'key' => $attribute->key,
+            'key' => $attribute->key_string,
             'nonce' => fake()->numberBetween(),
         ], true);
         $this->assertEquals(
@@ -150,7 +150,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $this->collection->collection_chain_id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'key' => $key = $this->attribute->key,
+            'key' => $key = $this->attribute->key_string,
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
@@ -197,7 +197,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $collection->collection_chain_id,
             'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-            'key' => $key = $attribute->key,
+            'key' => $key = $attribute->key_string,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
@@ -244,7 +244,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $collection->collection_chain_id,
             'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-            'key' => $key = $attribute->key,
+            'key' => $key = $attribute->key_string,
             'signingAccount' => $signingAccount,
         ]);
 
@@ -296,7 +296,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
-            'key' => $key = $attribute->key,
+            'key' => $key = $attribute->key_string,
         ]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
@@ -343,7 +343,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
-            'key' => $key = $attribute->key,
+            'key' => $key = $attribute->key_string,
         ]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
