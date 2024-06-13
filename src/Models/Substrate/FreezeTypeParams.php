@@ -45,7 +45,7 @@ class FreezeTypeParams
             FreezeType::TOKEN => [
                 'Token' => [
                     'tokenId' => gmp_init($this->token),
-                    'freezeState' => $this->freezeState?->value ?? FreezeStateType::TEMPORARY->value,
+                    'freezeState' => $this->freezeState?->value,
                 ],
             ],
             FreezeType::COLLECTION_ACCOUNT => [

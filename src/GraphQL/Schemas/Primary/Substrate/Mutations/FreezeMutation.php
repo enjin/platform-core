@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -109,6 +110,11 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
         TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
+
+        if (is_null($params->freezeState)) {
+            $params->freezeState = FreezeStateType::TEMPORARY;
+        }
+
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             freezeParams: $params
