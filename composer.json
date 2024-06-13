@@ -56,7 +56,7 @@
     "dms/phpunit-arraysubset-asserts": "dev-master",
     "laravel/pint": "^1.15",
     "nunomaduro/collision": "^8.1",
-    "nunomaduro/larastan": "^2.0",
+    "larastan/larastan": "^2.0",
     "orchestra/testbench": "^9.0",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan-deprecation-rules": "^1.0",
