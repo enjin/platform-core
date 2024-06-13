@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageType;
