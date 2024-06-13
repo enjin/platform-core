@@ -38,7 +38,7 @@ class AttributeRemoved extends SubstrateEvent
             'collection_id' =>  $collection->id,
             'token_id' => $token?->id,
             'key' => $this->event->key,
-        ])->delete();
+        ])?->delete();
 
         is_null($this->event->tokenId)
             ? $collection->decrement('attribute_count')

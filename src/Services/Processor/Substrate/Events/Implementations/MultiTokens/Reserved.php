@@ -40,7 +40,7 @@ class Reserved extends SubstrateEvent
             'pallet' => PalletIdentifier::from($this->event->reserveId)->name,
         ]);
 
-        if (is_null($namedReserve)) {
+        if (empty($namedReserve)) {
             TokenAccountNamedReserve::create([
                 'token_account_id' => $tokenAccount->id,
                 'pallet' => PalletIdentifier::from($this->event->reserveId)->name,

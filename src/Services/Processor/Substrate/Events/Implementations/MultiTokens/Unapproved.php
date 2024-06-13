@@ -31,23 +31,7 @@ class Unapproved extends SubstrateEvent
         $operator = $this->firstOrStoreAccount($this->event->operator);
         $owner = $this->firstOrStoreAccount($this->event->owner);
 
-        if ($this->event->tokenId) {
-            // Fails if it doesn't find the token
-            $token = $this->getToken($collection->id, $this->event->tokenId);
-            // Fails if it doesn't find the token account
-            $collectionAccount = $this->getTokenAccount(
-                $collection->id,
-                $token->id,
-                $owner->id
-            );
-
-            TokenAccountApproval::where([
-                'token_account_id' => $collectionAccount->id,
-                'wallet_id' => $operator->id,
-            ])?->delete();
-
-
-        } else {
+        if (is_null($this->event->tokenId)) {
             // Fails if it doesn't find the collection account
             $collectionAccount = $this->getCollectionAccount(
                 $collection->id,
@@ -58,7 +42,23 @@ class Unapproved extends SubstrateEvent
                 'collection_account_id' => $collectionAccount->id,
                 'wallet_id' => $operator->id,
             ])?->delete();
+
+            return;
         }
+
+        // Fails if it doesn't find the token
+        $token = $this->getToken($collection->id, $this->event->tokenId);
+        // Fails if it doesn't find the token account
+        $collectionAccount = $this->getTokenAccount(
+            $collection->id,
+            $token->id,
+            $owner->id
+        );
+
+        TokenAccountApproval::where([
+            'token_account_id' => $collectionAccount->id,
+            'wallet_id' => $operator->id,
+        ])?->delete();
     }
 
     public function log(): void

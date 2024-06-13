@@ -21,7 +21,7 @@ class CollectionCreated extends SubstrateEvent
 {
     /** @var CollectionCreatedPolkadart */
     protected Event $event;
-    protected Collection $collectionCreated;
+    protected ?Collection $collectionCreated = null;
 
     public function run(): void
     {

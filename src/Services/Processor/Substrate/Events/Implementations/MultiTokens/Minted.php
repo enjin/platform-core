@@ -15,7 +15,7 @@ class Minted extends SubstrateEvent
 {
     /** @var MintedPolkadart */
     protected Event $event;
-    protected Token $tokenMinted;
+    protected ?Token $tokenMinted = null;
 
     /**
      * @throws PlatformException
