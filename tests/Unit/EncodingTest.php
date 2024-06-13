@@ -1033,7 +1033,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.freeze', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff00000000000000000000000000000000",
+            "0x{$callIndex}b67a030001ff0000000000000000000000000000000100",
             $data
         );
     }
