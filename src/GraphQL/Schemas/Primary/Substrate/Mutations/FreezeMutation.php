@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -122,9 +123,15 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
 
     public static function getEncodableParams(...$params): array
     {
+        $freezeType = Arr::get($params, 'freezeParams', new FreezeTypeParams(FreezeType::TOKEN));
+
+        if (is_null($freezeType->freezeState) && $freezeType->type === FreezeType::TOKEN) {
+            $freezeType->freezeState = FreezeStateType::TEMPORARY;
+        }
+
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'freezeType' => Arr::get($params, 'freezeParams', new FreezeTypeParams(FreezeType::TOKEN))->toEncodable(),
+            'freezeType' => $freezeType->toEncodable(),
         ];
     }
 

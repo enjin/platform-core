@@ -372,7 +372,7 @@ class FreezeTest extends TestCaseGraphQL
         ]);
     }
 
-    public function test_can_freeze_a_token(): void
+    public function test_can_freeze_a_token_without_freeze_state(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
