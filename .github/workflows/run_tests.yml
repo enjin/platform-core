@@ -43,7 +43,7 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, gmp, intl, json, mysql, readline, sodium, bcmath, pcov
           tools: composer:v2
         env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup GO
         uses: actions/setup-go@v5
@@ -59,7 +59,7 @@ jobs:
         run: |
           composer install --no-interaction --no-progress
           composer build-sr25519
-          composer dumpautoload
+          composer dump-autoload      
 
       - name: Run Laravel Pint
         run: |

@@ -12,12 +12,10 @@ use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Token extends BaseModel
 {
     use EagerLoadSelectFields;
-    use HasEagerLimit;
     use HasFactory;
     use TokenMethods;
 
