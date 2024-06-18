@@ -8,13 +8,11 @@ use Enjin\Platform\Models\Laravel\Traits\Collection as CollectionMethods;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Collection extends BaseModel
 {
     use CollectionMethods;
     use EagerLoadSelectFields;
-    use HasEagerLimit;
     use HasFactory;
 
     /**

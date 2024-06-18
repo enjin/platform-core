@@ -7,13 +7,11 @@ use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\CollectionAccount as CollectionAccountMethods;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class CollectionAccount extends BaseModel
 {
     use CollectionAccountMethods;
     use EagerLoadSelectFields;
-    use HasEagerLimit;
     use HasFactory;
 
     /**

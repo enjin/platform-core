@@ -7,13 +7,11 @@ use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\Event as EventMethods;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Event extends BaseModel
 {
     use EagerLoadSelectFields;
     use EventMethods;
-    use HasEagerLimit;
     use HasFactory;
 
     /**

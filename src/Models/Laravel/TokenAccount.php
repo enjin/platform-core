@@ -7,12 +7,10 @@ use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\TokenAccount as TokenAccountMethods;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class TokenAccount extends BaseModel
 {
     use EagerLoadSelectFields;
-    use HasEagerLimit;
     use HasFactory;
     use TokenAccountMethods;
 
