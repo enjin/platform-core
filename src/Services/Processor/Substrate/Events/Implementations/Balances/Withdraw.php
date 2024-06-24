@@ -13,9 +13,7 @@ class Withdraw extends SubstrateEvent
     /** @var WithdrawPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {

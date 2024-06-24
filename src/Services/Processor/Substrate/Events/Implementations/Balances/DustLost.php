@@ -13,9 +13,7 @@ class DustLost extends SubstrateEvent
     /** @var DustLostPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {

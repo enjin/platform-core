@@ -13,9 +13,7 @@ class Reserved extends SubstrateEvent
     /** @var ReservedPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {

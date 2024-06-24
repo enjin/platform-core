@@ -13,9 +13,7 @@ class Slashed extends SubstrateEvent
     /** @var SlashedPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {

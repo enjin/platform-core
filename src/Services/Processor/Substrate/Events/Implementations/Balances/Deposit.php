@@ -13,9 +13,7 @@ class Deposit extends SubstrateEvent
     /** @var DepositPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {
