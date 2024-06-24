@@ -22,8 +22,7 @@ class CreateTokenParams
         public ?bool $listingForbidden = false,
         public ?FreezeStateType $freezeState = null,
         public ?array $attributes = [],
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

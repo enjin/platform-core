@@ -17,8 +17,7 @@ class TransferBalanceParamsInputType extends InputType implements PlatformGraphQ
 
     public function __construct(
         protected SerializationServiceInterface $serializationService
-    ) {
-    }
+    ) {}
 
     /**
      * Get the type's attributes.

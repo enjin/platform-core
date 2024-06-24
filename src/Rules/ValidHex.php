@@ -10,9 +10,7 @@ class ValidHex implements ValidationRule
     /**
      * Create a new rule instance.
      */
-    public function __construct(protected ?int $bytesLength = null)
-    {
-    }
+    public function __construct(protected ?int $bytesLength = null) {}
 
     /**
      * Determine if the validation rule passes.

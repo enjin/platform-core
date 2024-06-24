@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Block extends ModelResolver
-{
-}
+class Block extends ModelResolver {}

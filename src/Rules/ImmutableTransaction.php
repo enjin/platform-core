@@ -12,9 +12,7 @@ class ImmutableTransaction implements DataAwareRule, ValidationRule
 {
     use HasDataAwareRule;
 
-    public function __construct(protected string $column = 'transaction_chain_id')
-    {
-    }
+    public function __construct(protected string $column = 'transaction_chain_id') {}
 
     /**
      * Determine if the validation rule passes.

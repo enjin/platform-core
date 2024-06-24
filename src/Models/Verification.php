@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Verification extends ModelResolver
-{
-}
+class Verification extends ModelResolver {}

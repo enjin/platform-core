@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class CollectionRoyaltyCurrency extends ModelResolver
-{
-}
+class CollectionRoyaltyCurrency extends ModelResolver {}

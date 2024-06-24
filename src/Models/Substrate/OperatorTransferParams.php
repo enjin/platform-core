@@ -15,8 +15,7 @@ class OperatorTransferParams
         public string $source,
         public string $amount,
         public ?bool $keepAlive = false
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

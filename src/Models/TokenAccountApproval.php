@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class TokenAccountApproval extends ModelResolver
-{
-}
+class TokenAccountApproval extends ModelResolver {}

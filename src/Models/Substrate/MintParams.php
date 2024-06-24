@@ -13,8 +13,7 @@ class MintParams
         public string $tokenId,
         public string $amount,
         public ?string $unitPrice = null
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

@@ -11,9 +11,7 @@ class CheckTokenCount implements ValidationRule
     /**
      * Create a new rule instance.
      */
-    public function __construct(protected int $offset = 1)
-    {
-    }
+    public function __construct(protected int $offset = 1) {}
 
     /**
      * Determine if the validation rule passes.

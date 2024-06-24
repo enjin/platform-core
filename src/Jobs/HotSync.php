@@ -21,9 +21,7 @@ class HotSync implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected array $storageKeys, protected ?int $keysPerPage = 1000)
-    {
-    }
+    public function __construct(protected array $storageKeys, protected ?int $keysPerPage = 1000) {}
 
     /**
      * Execute the job.

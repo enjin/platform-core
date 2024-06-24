@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class TokenAccountNamedReserve extends ModelResolver
-{
-}
+class TokenAccountNamedReserve extends ModelResolver {}

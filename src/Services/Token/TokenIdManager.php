@@ -19,9 +19,7 @@ class TokenIdManager
     /**
      * Create a new Token ID Manager instance.
      */
-    public function __construct(protected Application $app)
-    {
-    }
+    public function __construct(protected Application $app) {}
 
     /**
      * Dynamically call the default driver instance.

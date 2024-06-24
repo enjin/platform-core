@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Transaction extends ModelResolver
-{
-}
+class Transaction extends ModelResolver {}
