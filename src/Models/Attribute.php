@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Attribute extends ModelResolver
-{
-}
+class Attribute extends ModelResolver {}

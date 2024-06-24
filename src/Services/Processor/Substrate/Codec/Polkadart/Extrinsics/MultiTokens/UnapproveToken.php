@@ -5,9 +5,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
 
-class UnapproveToken extends Extrinsic implements PolkadartExtrinsic
-{
-}
+class UnapproveToken extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
 */

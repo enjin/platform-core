@@ -25,8 +25,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
      */
     public function __construct(
         protected BlockchainServiceInterface $blockchainService
-    ) {
-    }
+    ) {}
 
     /**
      * Get the type's attributes.

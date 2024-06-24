@@ -16,9 +16,7 @@ class MaxBigInt implements ValidationRule
     /**
      * Create a new rule instance.
      */
-    public function __construct(protected string|int $max = Hex::MAX_UINT256)
-    {
-    }
+    public function __construct(protected string|int $max = Hex::MAX_UINT256) {}
 
     /**
      * Determine if the validation rule passes.

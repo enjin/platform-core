@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -44,6 +45,8 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'collection_id' => $this->collection,
             'token_id' => null,
         ])->create();
+        $this->attribute->key = HexConverter::hexToString($this->attribute->key);
+        $this->attribute->value = HexConverter::hexToString($this->attribute->value);
     }
 
     // Happy Path
@@ -117,7 +120,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         ])->create();
         $response = $this->graphql($this->method, $params = [
             'collectionId' => $collection->collection_chain_id,
-            'key' => $attribute->key,
+            'key' => HexConverter::hexToString($attribute->key),
             'nonce' => fake()->numberBetween(),
         ], true);
         $this->assertEquals(
@@ -179,7 +182,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $collection->collection_chain_id,
-            'key' => $key = $attribute->key,
+            'key' => $key = HexConverter::hexToString($attribute->key),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
@@ -222,7 +225,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         ])->create();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $collection->collection_chain_id,
-            'key' => $key = $attribute->key,
+            'key' => $key = HexConverter::hexToString($attribute->key),
             'signingAccount' => $signingAccount,
         ]);
 
@@ -300,7 +303,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => null,
-            'key' => $key = $attribute->key,
+            'key' => $key = HexConverter::hexToString($attribute->key),
         ]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveCollectionAttributeMutation::getEncodableParams(

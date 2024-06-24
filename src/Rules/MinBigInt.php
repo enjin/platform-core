@@ -15,9 +15,7 @@ class MinBigInt implements ValidationRule
     /**
      * Create a new rule instance.
      */
-    public function __construct(protected string|int $min = 0)
-    {
-    }
+    public function __construct(protected string|int $min = 0) {}
 
     /**
      * Determine if the validation rule passes.

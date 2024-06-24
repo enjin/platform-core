@@ -13,9 +13,7 @@ class Endowed extends SubstrateEvent
     /** @var EndowedPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {

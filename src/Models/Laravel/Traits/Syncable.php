@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models\Laravel\Traits;
 
-trait Syncable
-{
-}
+trait Syncable {}

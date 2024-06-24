@@ -4,6 +4,4 @@ namespace Enjin\Platform\Events\Substrate\Commands;
 
 use Enjin\Platform\Events\PlatformEvent;
 
-class PlatformBlockIngesting extends PlatformEvent
-{
-}
+class PlatformBlockIngesting extends PlatformEvent {}

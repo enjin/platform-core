@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Database;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Jobs\HotSync;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
@@ -17,9 +18,7 @@ class CollectionService
     /**
      * Create a new CollectionService instance.
      */
-    public function __construct(protected WalletService $walletService)
-    {
-    }
+    public function __construct(protected WalletService $walletService) {}
 
     /**
      * Get the collection by column and value.
@@ -70,7 +69,7 @@ class CollectionService
     {
         return Attribute::withoutGlobalScopes()->with('collection')
             ->whereRelation('collection', 'collection_chain_id', $collectionId)
-            ->where('key', '=', $key)
+            ->where('key', '=', HexConverter::stringToHexPrefixed($key))
             ->exists();
     }
 

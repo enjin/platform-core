@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Wallet extends ModelResolver
-{
-}
+class Wallet extends ModelResolver {}

@@ -13,9 +13,7 @@ class Transfer extends SubstrateEvent
     /** @var TransferPolkadart */
     protected Event $event;
 
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 
     public function log(): void
     {

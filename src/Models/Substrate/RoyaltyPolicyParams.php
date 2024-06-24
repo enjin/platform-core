@@ -14,8 +14,7 @@ class RoyaltyPolicyParams
     public function __construct(
         public string $beneficiary,
         public float $percentage,
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

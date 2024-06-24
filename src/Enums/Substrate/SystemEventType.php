@@ -14,7 +14,5 @@ enum SystemEventType: string
     /**
      * Get the processor for the event.
      */
-    public function getProcessor(): void
-    {
-    }
+    public function getProcessor(): void {}
 }

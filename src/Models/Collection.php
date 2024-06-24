@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Collection extends ModelResolver
-{
-}
+class Collection extends ModelResolver {}

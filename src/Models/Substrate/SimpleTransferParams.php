@@ -13,8 +13,7 @@ class SimpleTransferParams
         public string $tokenId,
         public string $amount,
         public ?bool $keepAlive = false
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.
