@@ -10,9 +10,7 @@ class MetadataService
     /**
      * Create a new instance.
      */
-    public function __construct(protected MetadataClient $client)
-    {
-    }
+    public function __construct(protected MetadataClient $client) {}
 
     /**
      * Fetch the metadata from the attribute URL.

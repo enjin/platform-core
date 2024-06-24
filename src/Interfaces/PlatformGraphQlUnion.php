@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Interfaces;
 
-interface PlatformGraphQlUnion
-{
-}
+interface PlatformGraphQlUnion {}

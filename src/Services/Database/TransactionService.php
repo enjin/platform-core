@@ -16,9 +16,7 @@ class TransactionService
     /**
      * Create a new instance.
      */
-    public function __construct(protected SerializationServiceInterface $serializationService)
-    {
-    }
+    public function __construct(protected SerializationServiceInterface $serializationService) {}
 
     /**
      * Get a transaction by column and value.

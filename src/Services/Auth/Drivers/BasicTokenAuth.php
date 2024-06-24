@@ -12,9 +12,7 @@ class BasicTokenAuth implements Authenticator
     /**
      * Create instance.
      */
-    public function __construct(public string $token)
-    {
-    }
+    public function __construct(public string $token) {}
 
     /**
      * Authenticate user by request.

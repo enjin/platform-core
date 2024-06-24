@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Interfaces;
 
-interface PlatformPublicGraphQlOperation
-{
-}
+interface PlatformPublicGraphQlOperation {}

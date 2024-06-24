@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class CollectionAccountApproval extends ModelResolver
-{
-}
+class CollectionAccountApproval extends ModelResolver {}

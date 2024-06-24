@@ -9,16 +9,28 @@ use Illuminate\Support\Str;
 
 class Package
 {
+    public static $path;
+
+    public static function setPath(string $path)
+    {
+        self::$path = $path;
+    }
+
+    public static function clearPath()
+    {
+        self::$path = null;
+    }
+
     /**
      * Get the composer autoloader for auto-bootstrapping services.
      */
     public static function getAutoloader()
     {
-        // TODO: It doesn't work on a real laravel env if using the bellow
-        // $loader = require realpath(__DIR__ . 'vendor/autoload.php');
-        // TODO: If using the bellow it doesn't work on testbench, neither composer will install
-        // $loader = require app()->basePath('../../../autoload.php')
-        return app()->runningUnitTests() ? require app()->basePath('../../../autoload.php') : require app()->basePath('vendor/autoload.php');
+        $autoloadPath = self::$path ?? (app()->runningUnitTests() ? app()->basePath('../../../..') : app()->basePath());
+        $autoloadPath = rtrim($autoloadPath, DIRECTORY_SEPARATOR);
+
+        return require "{$autoloadPath}/vendor/autoload.php";
+
     }
 
     /**

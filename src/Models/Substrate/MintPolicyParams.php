@@ -13,8 +13,7 @@ class MintPolicyParams
         public bool $forceSingleMint,
         public ?string $maxTokenCount = null,
         public ?string $maxTokenSupply = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

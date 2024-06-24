@@ -19,9 +19,7 @@ class ParseChainData implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $storageKey, protected $storageValue)
-    {
-    }
+    public function __construct(protected $storageKey, protected $storageValue) {}
 
     /**
      * Execute the job.

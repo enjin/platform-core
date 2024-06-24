@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class PendingEvent extends ModelResolver
-{
-}
+class PendingEvent extends ModelResolver {}

@@ -20,9 +20,7 @@ class TokenService
     /**
      * Create a new instance.
      */
-    public function __construct(protected WalletService $walletService)
-    {
-    }
+    public function __construct(protected WalletService $walletService) {}
 
     /**
      * Create a new token.

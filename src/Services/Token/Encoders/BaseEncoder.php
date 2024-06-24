@@ -10,9 +10,7 @@ abstract class BaseEncoder implements Encoder
     /**
      * Construct a new encoder.
      */
-    public function __construct(protected mixed $data = null)
-    {
-    }
+    public function __construct(protected mixed $data = null) {}
 
     /**
      * Get the name of the encoder.

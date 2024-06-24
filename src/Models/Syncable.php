@@ -2,6 +2,4 @@
 
 namespace Enjin\Platform\Models;
 
-class Syncable extends ModelResolver
-{
-}
+class Syncable extends ModelResolver {}

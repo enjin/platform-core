@@ -18,9 +18,7 @@ class CollectionService
     /**
      * Create a new CollectionService instance.
      */
-    public function __construct(protected WalletService $walletService)
-    {
-    }
+    public function __construct(protected WalletService $walletService) {}
 
     /**
      * Get the collection by column and value.

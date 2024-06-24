@@ -17,8 +17,7 @@ class FreezeTypeParams
         public ?string $token = null,
         public ?string $account = null,
         public ?FreezeStateType $freezeState = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

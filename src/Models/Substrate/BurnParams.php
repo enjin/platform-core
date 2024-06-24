@@ -14,8 +14,7 @@ class BurnParams
         public string $amount,
         public ?bool $keepAlive = false,
         public ?bool $removeTokenStorage = false,
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

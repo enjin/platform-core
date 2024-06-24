@@ -12,8 +12,7 @@ class TokenMarketBehaviorParams
     public function __construct(
         public ?RoyaltyPolicyParams $hasRoyalty = null,
         public ?bool $isCurrency = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Create new instance from GMP encoded data.

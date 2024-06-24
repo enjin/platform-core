@@ -6,9 +6,7 @@ use Enjin\Platform\Exceptions\PlatformException;
 
 class StorageKey
 {
-    public function __construct(public StorageType $type, public string $value)
-    {
-    }
+    public function __construct(public StorageType $type, public string $value) {}
 
     public static function collections(?string $value = null): self
     {
