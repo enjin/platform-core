@@ -3,7 +3,8 @@
 namespace Enjin\Platform\Commands;
 
 use Amp\Future;
-use Amp\Parallel\Context\ProcessContextFactory;
+use Amp\Serialization\SerializationException;
+use Amp\Sync\ChannelException;
 use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
@@ -28,6 +29,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
 
 use function Amp\async;
+use function Amp\Parallel\Context\contextFactory;
 
 class Sync extends Command
 {
@@ -160,6 +162,8 @@ class Sync extends Command
 
     /**
      * Get the storage at the given block hash.
+     *
+     * @throws PlatformException
      */
     protected function getStorageAt(string $blockHash): array
     {
@@ -170,18 +174,22 @@ class Sync extends Command
         $storages = Future\await(
             array_map(
                 fn ($keyAndHash) => async(function () use ($progress, $keyAndHash) {
-                    $storageKey = $keyAndHash[0];
+                    try {
+                        $storageKey = $keyAndHash[0];
 
-                    $context = (new ProcessContextFactory())->start(__DIR__ . '/contexts/get_storage.php');
-                    $context->send($keyAndHash);
-                    [$storage, $total] = $context->join();
+                        $context = contextFactory()->start(__DIR__ . '/contexts/get_storage.php');
+                        $context->send($keyAndHash);
+                        [$storage, $total] = $context->join();
 
-                    $this->newLine();
-                    $this->info('Finished to fetch: ' . $storageKey->type->name . ' storage');
+                        $this->newLine();
+                        $this->info('Finished to fetch: ' . $storageKey->type->name . ' storage');
 
-                    $progress->advance();
+                        $progress->advance();
 
-                    return [$storageKey, $storage, $total];
+                        return [$storageKey, $storage, $total];
+                    } catch (SerializationException|ChannelException $e) {
+                        throw new PlatformException("Failed to sync: {$e->getMessage()}");
+                    }
                 }),
                 $storageKeys,
             )
