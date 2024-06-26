@@ -2,10 +2,15 @@
 
 namespace Enjin\Platform\Clients\Implementations;
 
+use Amp\ByteStream\BufferException;
+use Amp\Http\Client\HttpException;
+use Amp\Websocket\Client\WebsocketConnectException;
 use Amp\Websocket\Client\WebsocketConnection;
-use Amp\Websocket\Client\WebsocketHandshake;
+use Amp\Websocket\WebsocketClosedException;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+use JsonException;
 
 use function Amp\Websocket\Client\connect;
 
@@ -23,6 +28,8 @@ class AsyncWebsocket
 
     /**
      * Create a new websocket client instance.
+     *
+     * @throws PlatformException
      */
     public function __construct(?string $url = null)
     {
@@ -32,16 +39,24 @@ class AsyncWebsocket
 
     /**
      * Connect to the websocket server.
+     *
+     * @throws PlatformException
      */
     public function connect(): WebsocketConnection
     {
-        $handshake = (new WebsocketHandshake($this->host))->withHeader('Sec-WebSocket-Protocol', 'dumb-increment-protocol');
-
-        return connect($handshake);
+        try {
+            return connect($this->host);
+        } catch (WebsocketConnectException|HttpException $e) {
+            throw new PlatformException($e->getMessage());
+        }
     }
 
     /**
      * Send a request to the websocket server.
+     *
+     * @throws JsonException
+     * @throws WebsocketClosedException
+     * @throws BufferException
      */
     public function send(string $method, array $params = [], bool $rawResponse = false): mixed
     {
@@ -52,10 +67,13 @@ class AsyncWebsocket
 
     /**
      * Send a raw request to the websocket server.
+     *
+     * @throws WebsocketClosedException
+     * @throws BufferException
      */
     public function sendRaw(string $payload): ?array
     {
-        $this->client->send($payload);
+        $this->client->sendText($payload);
         $received = $this->client->receive();
 
         if (!$received) {
