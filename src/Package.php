@@ -11,9 +11,14 @@ class Package
 {
     public static $path;
 
-    public static function setPath(string $path)
+    public static function getPath()
     {
-        self::$path = $path;
+        return self::$path;
+    }
+
+    public static function setPath(string $path, bool $overwrite = false)
+    {
+        self::$path = $overwrite ? $path : self::$path ?? $path;
     }
 
     public static function clearPath()
@@ -21,15 +26,22 @@ class Package
         self::$path = null;
     }
 
+    public static function getPathToVendorFolder()
+    {
+        $basePath = app()->basePath();
+
+        return Str::before($basePath, 'vendor');
+    }
+
     /**
      * Get the composer autoloader for auto-bootstrapping services.
      */
     public static function getAutoloader()
     {
-        $autoloadPath = self::$path ?? (app()->runningUnitTests() ? app()->basePath('../../../..') : app()->basePath());
-        $autoloadPath = rtrim($autoloadPath, DIRECTORY_SEPARATOR);
+        $vendorPath = self::$path ?? self::getPathToVendorFolder();
+        $vendorPath = rtrim($vendorPath, DIRECTORY_SEPARATOR);
 
-        return require "{$autoloadPath}/vendor/autoload.php";
+        return require "{$vendorPath}/vendor/autoload.php";
 
     }
 
