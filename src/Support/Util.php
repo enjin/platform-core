@@ -2,10 +2,16 @@
 
 namespace Enjin\Platform\Support;
 
+use JsonException;
+use Random\RandomException;
+
 class Util
 {
     /**
      * Create a JSON-RPC encoded string.
+     *
+     * @throws JsonException
+     * @throws RandomException
      */
     public static function createJsonRpc(string $method, array $params = [], ?int $id = null): string
     {
@@ -17,7 +23,7 @@ class Util
         ], JSON_THROW_ON_ERROR);
     }
 
-    public static function isBase64String(string $string)
+    public static function isBase64String(string $string): bool
     {
         return base64_encode(base64_decode($string, true)) === $string;
     }

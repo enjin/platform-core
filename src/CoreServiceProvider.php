@@ -3,6 +3,7 @@
 namespace Enjin\Platform;
 
 use Enjin\Platform\Commands\ClearCache;
+use Enjin\Platform\Commands\FastSync;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\RelayWatcher;
 use Enjin\Platform\Commands\Sync;
@@ -75,6 +76,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasCommand(ClearCache::class)
             ->hasCommand(TransactionChecker::class)
             ->hasCommand(RelayWatcher::class)
+            ->hasCommand(FastSync::class)
             ->hasTranslations();
     }
 

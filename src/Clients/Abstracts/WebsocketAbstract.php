@@ -44,7 +44,7 @@ abstract class WebsocketAbstract
      */
     public function sendRaw(string $payload): ?array
     {
-        $this->client()->send($payload);
+        $this->client()->text($payload);
 
         return JSON::decode($this->client->receive(), true);
     }
@@ -73,7 +73,7 @@ abstract class WebsocketAbstract
     /**
      * Get data from the websocket server.
      */
-    public function receive(): mixed
+    public function receive(): \WebSocket\Message\Message
     {
         return $this->client()->receive();
     }
@@ -97,10 +97,7 @@ abstract class WebsocketAbstract
     protected function client(): Client
     {
         if (!$this->client || !$this->client->isConnected()) {
-            $this->client = app(Client::class, [
-                'uri' => $this->host,
-                'options' => ['timeout' => 20],
-            ]);
+            $this->client = new Client($this->host);
         }
 
         return $this->client;

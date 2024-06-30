@@ -133,20 +133,20 @@ class Sync extends Command
      */
     protected function getCurrentBlock(SubstrateWebsocket $rpc): Block
     {
-        $blockHash = $rpc->send('chain_getBlockHash');
-        $blockNumber = Arr::get($rpc->send('chain_getBlock', [$blockHash]), 'block.header.number');
-        $rpc->close();
-
-        if (!$blockHash || !$blockNumber) {
-            throw new PlatformException(__('enjin-platform::error.failed_to_get_current_block'));
-        }
-
-        $blockNumber = HexConverter::hexToUInt($blockNumber);
-        $this->info(__('enjin-platform::commands.sync.syncing', ['blockNumber' => $blockNumber]));
+        //        $blockHash = $rpc->send('chain_getBlockHash');
+        //        $blockNumber = Arr::get($rpc->send('chain_getBlock', [$blockHash]), 'block.header.number');
+        //        $rpc->close();
+        //
+        //        if (!$blockHash || !$blockNumber) {
+        //            throw new PlatformException(__('enjin-platform::error.failed_to_get_current_block'));
+        //        }
+        //
+        //        $blockNumber = HexConverter::hexToUInt($blockNumber);
+        //        $this->info(__('enjin-platform::commands.sync.syncing', ['blockNumber' => $blockNumber]));
 
         return Block::create([
-            'number' => $blockNumber,
-            'hash' => $blockHash,
+            'number' => 3005011, // $blockNumber,
+            'hash' => '0x1adcc38713e48642e8c990144aed8e5d5ffe6a6129ba06a05e34cb0dee48374c', // $blockHash,
             'synced' => false,
         ]);
     }
