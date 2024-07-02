@@ -10,7 +10,27 @@ use Illuminate\Support\Facades\Cache;
 class Account
 {
     public static $publicKey;
+    public static $walletAccounts = [];
     private static $account;
+
+    /**
+     * Check if account is owner.
+     */
+    public static function isAccountOwner(string $publicKey, string $others = ''): bool
+    {
+        $accounts = array_merge(
+            static::$publicKey,
+            static::$walletAccounts,
+            $others
+        );
+        foreach (array_filter($accounts) as $account) {
+            if ($account && SS58Address::isSameAddress($publicKey, $account)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Get daemon account public key.
