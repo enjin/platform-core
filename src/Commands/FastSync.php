@@ -79,7 +79,7 @@ class FastSync extends Command
         parent::__construct();
 
         $this->description = __('enjin-platform::commands.sync.description');
-        $this->nodeUrl = 'wss://archive.matrix.canary.enjin.io'; // networkConfig('node');
+        $this->nodeUrl = 'ws://127.0.0.1:35063'; // networkConfig('node');
         $this->fetchKeys = $this->getKeys();
         $this->start = now();
 
@@ -144,7 +144,7 @@ class FastSync extends Command
 
                             break;
                         default:
-                            $this->info($step);
+                            $this->info("Unknown step: {$step}");
                     }
 
 
@@ -243,8 +243,13 @@ class FastSync extends Command
     {
         $initialId = $id - (2 << 20);
         $lastKey = Arr::last($result);
+        ray($lastKey);
 
         if ($lastKey === null) {
+//            if (is_null($this->pendingKeys)) {
+//                $this->pendingKeys = [];
+//            }
+
             $this->finishedFetchingAllKeys = true;
 
             return;
@@ -265,9 +270,12 @@ class FastSync extends Command
 
     protected function handleLoop($client, $connection, $message): void
     {
+        ray($message);
         $content = JSON::decode($message->getContent(), true);
         $category = $this->getCategory($id = Arr::get($content, 'id'));
         $result = Arr::get($content, 'result');
+        ray($result);
+        ray(sprintf("%d", $category));
 
         switch ($category) {
             case 0:
@@ -279,7 +287,22 @@ class FastSync extends Command
 
                 break;
             case 2:
+                ray($result);
                 $this->parseKeysPaged($client, $id, $result);
+
+                if ($this->finishedFetchingAllKeys) {
+                    if ($this->storageCount == $this->keysCount - 1 || ($this->storageCount == 0 && $this->keysCount == 0)) {
+                        ray('here');
+                        $this->pendingKeys = null;
+                        $this->keysCount = 0;
+                        $this->storageCount = 0;
+                        $this->currentlyFetchingKey++;
+                        $this->finishedFetchingAllKeys = false;
+
+                        $this->info('Fetching key ' . $this->currentlyFetchingKey . ' of ' . count($this->fetchKeys));
+                        $this->sendGetKeysPaged($client);
+                    }
+                }
 
                 break;
             case 3:
@@ -336,6 +359,8 @@ class FastSync extends Command
                 $progress->advance();
 
             }
+
+            unset($this->data[$x]);
 
             $progress->finish();
             $this->newLine();
