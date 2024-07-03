@@ -49,5 +49,48 @@
     "name": "Bytes",
     "symbol": "Bytes",
     "location": "Option<XcmV1MultiLocation>"
-   }
+   },
+  "TokenStorageDataV1010": {
+    "supply": "Compact<u128>",
+    "cap": "Option<TokenCapV1010>",
+    "freezeState": "Option<FreezeState>",
+    "requiresDeposit": "bool",
+    "creationDeposit": "TokenCreationDeposit",
+    "ownerDeposit": "Compact<u128>",
+    "totalTokenAccountDeposit": "Compact<u128>",
+    "attributeCount": "Compact<u32>",
+    "accountCount": "Compact<u32>",
+    "marketBehavior": "Option<TokenMarketBehaviorV1010>",
+    "listingForbidden": "bool",
+    "metadata": "TokenMetadataV1010",
+    "infusion": "u128",
+    "anyoneCanInfuse": "bool",
+    "groups": "Vec<u128>"
+  },
+  "TokenMetadataV1010": {
+    "decimalCount": "u8",
+    "name": "Bytes",
+    "symbol": "Bytes",
+    "foreign": "Option<XcmV1MultiLocation>"
+  },
+  "TokenCapV1010": {
+    "_enum": {
+      "Supply": "Compact<u128>",
+      "CollapsingSupply": "Compact<u128>"
+    }
+  },
+  "TokenMarketBehaviorV1010": {
+    "_enum": {
+      "HasRoyalty": "RoyaltyPolicyDescriptorV1010",
+      "IsCurrency": "Null"
+    }
+  },
+  "RoyaltyPolicyDescriptorV1010": {
+    "beneficiary": "AccountId",
+    "percentage": "Compact<Perbill>"
+  },
+  "TokenCreationDeposit": {
+    "depositor": "Option<AccountId>",
+    "amount": "Compact<u128>"
   }
+}
