@@ -87,5 +87,22 @@
   "ExtrinsicInfo": {
     "palletName": "Bytes",
     "extrinsicName": "Bytes"
+  },
+  "TankStorageDataV1010": {
+    "owner": "AccountId",
+    "name": "Bytes",
+    "ruleSets": "BTreeMap<u32, DispatchRuleSet>",
+    "totalReserved": "Compact<u128>",
+    "accountCount": "Compact<u32>",
+    "userAccountManagement": "Option<UserAccountManagement>",
+    "isFrozen": "bool",
+    "coveragePolicy": "CoveragePolicy",
+    "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
+  },
+  "CoveragePolicy": {
+    "_enum": [
+      "Fees",
+      "FeesAndDeposit"
+    ]
   }
 }
