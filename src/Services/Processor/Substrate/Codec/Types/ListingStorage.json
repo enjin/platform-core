@@ -79,9 +79,9 @@
     }
   },
   "OfferStateV1010": {
-    "counter": "Option<OfferCounterOfferV1010>"
+    "counter": "Option<CounterOfferV1010>"
   },
-  "OfferCounterOfferV1010": {
+  "CounterOfferV1010": {
     "accountId": "AccountId",
     "price": "u128"
   }
