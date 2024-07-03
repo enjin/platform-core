@@ -18,11 +18,11 @@ class Account
      */
     public static function isAccountOwner(string $publicKey, string $others = ''): bool
     {
-        $accounts = array_merge(
+        $accounts = [
             static::$publicKey,
-            static::$walletAccounts,
-            $others
-        );
+            ...static::$walletAccounts,
+            $others,
+        ];
         foreach (array_filter($accounts) as $account) {
             if ($account && SS58Address::isSameAddress($publicKey, $account)) {
                 return true;
