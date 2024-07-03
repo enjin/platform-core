@@ -40,7 +40,7 @@ return function (Channel $channel): array {
         }
 
         $total += count($keys);
-        $asyncQueries[] = async(function () use ($rpcStorage, $keys, $blockHash, &$storageValues) {
+        $asyncQueries[] = async(function () use ($rpcStorage, $keys, $blockHash, &$storageValues): void {
             $storage = $rpcStorage->send(
                 'state_queryStorageAt',
                 [

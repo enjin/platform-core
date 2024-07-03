@@ -66,8 +66,8 @@ trait HasIntegerRanges
 
     protected function validateValue($range): bool
     {
-        if (preg_match('/-?[0-9]+(\.\.)-?[0-9]+/', $range)) {
-            [$start, $end] = explode('..', $range, 2);
+        if (preg_match('/-?[0-9]+(\.\.)-?[0-9]+/', (string) $range)) {
+            [$start, $end] = explode('..', (string) $range, 2);
             if (!is_numeric($start) || !is_numeric($end)) {
                 return true;
             }

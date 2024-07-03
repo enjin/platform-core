@@ -1,4 +1,4 @@
-name: Run static application security testing
+name: Static Application Security Testing
 
 on:
   pull_request:

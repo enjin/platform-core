@@ -27,8 +27,6 @@ class Parser
     protected static $tokenCache = [];
     protected static $tokenAccountCache = [];
 
-    protected Substrate $serializationService;
-
     protected CollectionService $collectionService;
 
     protected TokenService $tokenService;
@@ -38,9 +36,8 @@ class Parser
     /**
      * Create instance.
      */
-    public function __construct(?Substrate $serializationService = null)
+    public function __construct(protected Substrate $serializationService = new Substrate())
     {
-        $this->serializationService = $serializationService ?? new Substrate();
         $this->walletService = new WalletService();
         $this->collectionService = new CollectionService($this->walletService);
         $this->tokenService = new TokenService($this->walletService);

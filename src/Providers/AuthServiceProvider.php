@@ -12,8 +12,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(AuthManager::class, function ($app) {
-            return new AuthManager($app);
-        });
+        $this->app->singleton(AuthManager::class, fn($app) => new AuthManager($app));
     }
 }

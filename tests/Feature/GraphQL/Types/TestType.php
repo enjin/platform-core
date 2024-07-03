@@ -35,7 +35,7 @@ class TestType
     {
         try {
             $hasField = (bool) $this->resolveField($field);
-        } catch (InvariantViolation $e) {
+        } catch (InvariantViolation) {
             $hasField = false;
         }
 
@@ -48,7 +48,7 @@ class TestType
     {
         try {
             $hasField = (bool) $this->resolveField($field);
-        } catch (InvariantViolation $e) {
+        } catch (InvariantViolation) {
             $hasField = false;
         }
 

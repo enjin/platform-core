@@ -402,7 +402,7 @@ class Substrate implements BlockchainServiceInterface
                 sodium_hex2bin(HexConverter::unPrefix($message)),
                 sodium_hex2bin(HexConverter::unPrefix($publicKey)),
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }

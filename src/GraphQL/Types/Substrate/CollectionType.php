@@ -99,34 +99,30 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.accounts'),
                 'args' => ConnectionInput::args(),
-                'resolve' => function ($collection, $args, $context, $info) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $collection?->accounts,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $collection?->accounts_count,
-                    ];
-                },
+                'resolve' => fn($collection, $args, $context, $info) => [
+                    'items' => new CursorPaginator(
+                        $collection?->accounts,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $collection?->accounts_count,
+                ],
                 'is_relation' => true,
             ],
             'tokens' => [
                 'type' => GraphQL::paginate('Token', 'TokenConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.tokens'),
                 'args' => ConnectionInput::args(),
-                'resolve' => function ($collection, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $collection?->tokens,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $collection?->tokens_count,
-                    ];
-                },
+                'resolve' => fn($collection, $args) => [
+                    'items' => new CursorPaginator(
+                        $collection?->tokens,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $collection?->tokens_count,
+                ],
                 'is_relation' => true,
             ],
         ];

@@ -15,7 +15,7 @@ class MetadataClient extends CachedHttpAbstract
             $result = $this->getClient()->get($url);
 
             return $this->getResponse($result);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return null;
         }
     }

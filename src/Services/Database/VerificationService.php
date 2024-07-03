@@ -14,25 +14,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class VerificationService
 {
-    protected WalletService $walletService;
-
-    protected BlockchainServiceInterface $blockchainService;
     private string $alphanumerics = 'ABCDEFGHJKLMNPQRTUVWXYZ0123456789';
     private string $letters = 'ABCDEFGHJKLMNPQRTUVWXYZ';
-    private ?string $network;
-    private ?string $platform;
+    private readonly ?string $network;
+    private readonly ?string $platform;
 
     /**
      * Create a new instance.
      */
     public function __construct(
-        WalletService $walletService,
-        BlockchainServiceInterface $blockchainService
+        protected WalletService $walletService,
+        protected BlockchainServiceInterface $blockchainService
     ) {
         $this->network = networkConfig('network-id');
         $this->platform = networkConfig('platform-id');
-        $this->walletService = $walletService;
-        $this->blockchainService = $blockchainService;
     }
 
     /**
@@ -137,7 +132,7 @@ class VerificationService
             $hexed = sodium_bin2hex($key);
 
             return HexConverter::prefix($hexed);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new PlatformException(__('enjin-platform::error.verification.unable_to_generate_verification_id'));
         }
     }

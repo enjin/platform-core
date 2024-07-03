@@ -16,6 +16,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/.well-known/enjin-platform.json', [PlatformController::class, 'getPlatformInfo']);
-Route::get('/.well-known/next-release', [PlatformController::class, 'getPlatformReleaseDiff']);
+Route::get('/.well-known/next-release', PlatformController::getPlatformReleaseDiff(...));
 
 Route::get(CoreRoute::QR->value, [QrController::class, 'get']);

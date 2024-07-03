@@ -155,7 +155,7 @@ class RelayWatcher extends Command
 
         array_filter(
             $events,
-            function ($event) use ($blockNumber) {
+            function ($event) use ($blockNumber): void {
                 if ($event->module === 'Balances' && $event->name === 'Transfer') {
                     if (in_array($account = HexConverter::prefix($event->to), Account::managedPublicKeys())) {
                         $this->info(json_encode($event));
@@ -213,7 +213,6 @@ class RelayWatcher extends Command
                     $wallet,
                     $tx->amount,
                     currentMatrix()->value,
-                    $tx,
                 );
             }
 

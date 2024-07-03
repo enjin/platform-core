@@ -11,7 +11,7 @@ class PlatformQrAdapter implements QrAdapterInterface
      */
     public function url(string $data, ?int $size = null): string
     {
-        $size = $size ?? config('enjin-platform.qr.size');
+        $size ??= config('enjin-platform.qr.size');
         $format = config('enjin-platform.qr.format');
         $platformUrl = config('app.url');
 

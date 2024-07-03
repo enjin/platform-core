@@ -21,7 +21,7 @@ class SS58Address
     {
         try {
             return self::getPublicKey($address1) === self::getPublicKey($address2);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
@@ -37,7 +37,7 @@ class SS58Address
 
         try {
             return HexConverter::prefix(HexConverter::bytesToHex(self::decode($address)));
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -128,7 +128,7 @@ class SS58Address
             self::encode(self::decode($address));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }

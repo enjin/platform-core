@@ -115,7 +115,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
 
     public function test_it_can_accept_with_signing_account(): void
     {
-        $newOwner = Wallet::factory()->create([
+        Wallet::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
         $collection = Collection::factory(['pending_transfer' => $signingAccount])->create();

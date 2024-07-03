@@ -66,8 +66,8 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
         $events = PendingEvent::loadSelectFields($resolveInfo, $this->name);
-        $filteredEvents = $events->when($args['channelFilters'] ?? false, function ($query) use ($args) {
-            $query->where(function ($query) use ($args) {
+        $filteredEvents = $events->when($args['channelFilters'] ?? false, function ($query) use ($args): void {
+            $query->where(function ($query) use ($args): void {
                 $orFilters = collect($args['channelFilters'])->where('type', FilterType::OR->value)->all();
                 $andFilters = collect($args['channelFilters'])->where('type', FilterType::AND->value)->all();
 
@@ -76,7 +76,7 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
                 }
 
                 if (count($orFilters) > 0) {
-                    $query->where(function ($query) use ($orFilters) {
+                    $query->where(function ($query) use ($orFilters): void {
                         foreach ($orFilters as $filter) {
                             $query->orWhereJsonContains('channels', $filter['filter']);
                         }

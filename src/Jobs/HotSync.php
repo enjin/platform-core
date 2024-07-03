@@ -28,7 +28,7 @@ class HotSync implements ShouldQueue
      */
     public function handle(WebsocketAbstract $websocket): void
     {
-        collect($this->storageKeys)->each(function ($storageKey) use ($websocket) {
+        collect($this->storageKeys)->each(function ($storageKey) use ($websocket): void {
             try {
                 $storageValues = [];
 
@@ -53,7 +53,7 @@ class HotSync implements ShouldQueue
 
                 $websocket->close();
 
-                collect($storageValues)->each(function ($storageValue) use ($storageKey) {
+                collect($storageValues)->each(function ($storageValue) use ($storageKey): void {
                     ParseChainData::dispatch($storageKey, $storageValue);
                 });
             } catch (\Throwable $e) {

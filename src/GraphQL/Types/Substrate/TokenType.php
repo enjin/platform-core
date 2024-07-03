@@ -113,17 +113,15 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::paginate('TokenAccount', 'TokenAccountConnection'),
                 'description' => __('enjin-platform::type.token.field.accounts'),
                 'args' => ConnectionInput::args(),
-                'resolve' => function ($token, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $token?->accounts,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $token?->accounts_count,
-                    ];
-                },
+                'resolve' => fn($token, $args) => [
+                    'items' => new CursorPaginator(
+                        $token?->accounts,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $token?->accounts_count,
+                ],
                 'is_relation' => true,
             ],
 

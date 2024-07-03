@@ -138,11 +138,11 @@ class GraphQlServiceProvider extends ServiceProvider
 
         $schemas = [];
 
-        $queries->each(function ($query) use (&$schemas) {
+        $queries->each(function ($query) use (&$schemas): void {
             $schemas[$query::getSchemaName()]['query'][] = $query;
         });
 
-        $mutations->each(function ($mutation) use (&$schemas) {
+        $mutations->each(function ($mutation) use (&$schemas): void {
             $schemas[$mutation::getSchemaName()]['mutation'][] = $mutation;
         });
 
@@ -153,7 +153,7 @@ class GraphQlServiceProvider extends ServiceProvider
                 && $className::getSchemaNetwork() == chain()->value
         );
 
-        $types->each(function ($type) use (&$schemas) {
+        $types->each(function ($type) use (&$schemas): void {
             $schemas[$type::getSchemaName()]['types'][] = $type;
         });
 
@@ -172,14 +172,14 @@ class GraphQlServiceProvider extends ServiceProvider
         [$globalHttpMiddleware, $schemaHttpMiddleware] = $httpMiddlewares->partition(fn ($middleware) => empty($middleware::forSchema()) || $middleware::forSchema() === 'global');
 
         $globalHttpMiddleware
-            ->each(function ($middleware) {
+            ->each(function ($middleware): void {
                 $graphQlHttpMiddleware = config('graphql.route.middleware');
                 $graphQlHttpMiddleware[] = $middleware;
                 config(['graphql.route.middleware' => $graphQlHttpMiddleware]);
             });
 
         $schemaHttpMiddleware
-            ->each(function ($middleware) {
+            ->each(function ($middleware): void {
                 $schema = $middleware::forSchema();
                 $graphQlHttpMiddleware = config('graphql.route.middleware');
 
@@ -197,14 +197,14 @@ class GraphQlServiceProvider extends ServiceProvider
         [$globalExecutionMiddleware, $schemaExecutionMiddleware] = $executionMiddlewares->partition(fn ($middleware) => empty($middleware::forSchema()) || $middleware::forSchema() === 'global');
 
         $globalExecutionMiddleware
-            ->each(function ($middleware) {
+            ->each(function ($middleware): void {
                 $graphQlExecutionMiddleware = config('graphql.execution_middleware');
                 $graphQlExecutionMiddleware[] = $middleware;
                 config(['graphql.execution_middleware' => $graphQlExecutionMiddleware]);
             });
 
         $schemaExecutionMiddleware
-            ->each(function ($middleware) {
+            ->each(function ($middleware): void {
                 $schema = $middleware::forSchema();
                 $graphQlExecutionMiddleware = config('graphql.execution_middleware');
 
@@ -225,11 +225,9 @@ class GraphQlServiceProvider extends ServiceProvider
                     ->map(fn ($model, $class) => ['operation' => class_basename($class), 'middleware' => $resolverMiddleware])
                     ->filter(fn ($middleware, $operation) => $excludeFrom->doesntContain($middleware['operation']))
                     ->toArray();
-            })->pipe(function (Collection $middlewares) {
-                return $middlewares->flatten(1)
-                    ->mapToGroups(fn ($operation) => [$operation['operation'] => $operation['middleware']])
-                    ->toArray();
-            });
+            })->pipe(fn(Collection $middlewares) => $middlewares->flatten(1)
+                ->mapToGroups(fn ($operation) => [$operation['operation'] => $operation['middleware']])
+                ->toArray());
 
         $graphQlResolverMiddleware = config('graphql.resolver_middleware') ?? [];
 

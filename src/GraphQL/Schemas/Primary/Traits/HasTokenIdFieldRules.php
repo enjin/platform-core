@@ -104,12 +104,10 @@ trait HasTokenIdFieldRules
      */
     public function getEncodeTokenIdRules(?string $attribute = null, array $extraRules = [], ?bool $isOptional = false): array
     {
-        $rules = [
+        return [
             $isOptional ? 'filled' : 'required',
             ...$extraRules,
         ];
-
-        return $rules;
     }
 
     /**
@@ -117,14 +115,12 @@ trait HasTokenIdFieldRules
      */
     public function getEncodeTokenIdRuleExist(?string $attribute = null, array $extraRules = [], ?bool $isOptional = false): array
     {
-        $rules = [
+        return [
             'bail',
             $isOptional ? 'filled' : 'required',
             new TokenEncodeExistInCollection(),
             ...$extraRules,
         ];
-
-        return $rules;
     }
 
     /**
@@ -132,14 +128,12 @@ trait HasTokenIdFieldRules
      */
     public function getEncodeTokenIdRuleDoesntExist(?string $attribute = null, array $extraRules = [], ?bool $isOptional = false): array
     {
-        $rules = [
+        return [
             'bail',
             $isOptional ? 'filled' : 'required',
             new TokenEncodeDoesNotExistInCollection(),
             ...$extraRules,
         ];
-
-        return $rules;
     }
 
     /**

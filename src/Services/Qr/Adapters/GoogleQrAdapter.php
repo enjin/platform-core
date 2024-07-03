@@ -11,7 +11,7 @@ class GoogleQrAdapter implements QrAdapterInterface
      */
     public function url(string $data, ?int $size = null): string
     {
-        $size = $size ?? config('enjin-platform.qr.size');
+        $size ??= config('enjin-platform.qr.size');
 
         return "https://chart.googleapis.com/chart?cht=qr&chs={$size}x{$size}&chl={$data}";
     }

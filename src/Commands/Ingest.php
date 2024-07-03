@@ -42,7 +42,7 @@ class Ingest extends Command
         try {
             $backoff->setStrategy(new PolynomialStrategy(300))
                 ->setMaxAttempts(10)
-                ->setErrorHandler(function (?Throwable $e, int $attempt) {
+                ->setErrorHandler(function (?Throwable $e, int $attempt): void {
                     Log::error('We got an exception in the ingest process...');
                     if ($e) {
                         Log::error("On run {$attempt} error in {$e->getFile()}:{$e->getLine()}: {$e->getMessage()}");

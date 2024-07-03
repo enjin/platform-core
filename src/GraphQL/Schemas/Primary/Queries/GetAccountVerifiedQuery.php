@@ -72,12 +72,8 @@ class GetAccountVerifiedQuery extends Query implements PlatformGraphQlQuery
         VerificationService $verificationService
     ): mixed {
         $verification = Verification::query()
-            ->when($args['verificationId'] ?? false, function (Builder $query) use ($args) {
-                return $query->where('verification_id', '=', $args['verificationId']);
-            })
-            ->when($args['account'] ?? false, function (Builder $query) use ($args) {
-                return $query->where('public_key', '=', SS58Address::getPublicKey($args['account']));
-            })
+            ->when($args['verificationId'] ?? false, fn(Builder $query) => $query->where('verification_id', '=', $args['verificationId']))
+            ->when($args['account'] ?? false, fn(Builder $query) => $query->where('public_key', '=', SS58Address::getPublicKey($args['account'])))
             ->first();
 
         return [

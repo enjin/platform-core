@@ -39,7 +39,7 @@ class Package
     public static function getAutoloader()
     {
         $vendorPath = self::$path ?? self::getPathToVendorFolder();
-        $vendorPath = rtrim($vendorPath, DIRECTORY_SEPARATOR);
+        $vendorPath = rtrim((string) $vendorPath, DIRECTORY_SEPARATOR);
 
         return require "{$vendorPath}/vendor/autoload.php";
 
@@ -61,7 +61,7 @@ class Package
         return collect(self::getAutoloader()->getClassMap())
             ->keys()
             ->filter(function ($className) {
-                $appNamespace = trim(app()->getNamespace(), '\\');
+                $appNamespace = trim((string) app()->getNamespace(), '\\');
                 $namespaceFilter = "/^(Enjin\\\\Platform|{$appNamespace})\\\\/";
 
                 return preg_match($namespaceFilter, $className)
@@ -118,7 +118,7 @@ class Package
     {
         $packageName = self::getPackageName($package);
         if ($packageName == 'Core') {
-            $packageClass = 'Enjin\\Platform\\Package';
+            $packageClass = \Enjin\Platform\Package::class;
         } else {
             $packageClass = "Enjin\\Platform\\{$packageName}\\Package";
         }

@@ -339,7 +339,7 @@ class EncodingTest extends TestCase
             ),
         ));
 
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.transfer', true, true);
+        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.transfer', true);
         $this->assertEquals(
             "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f01fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0400",
             $data

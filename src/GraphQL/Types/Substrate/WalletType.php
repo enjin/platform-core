@@ -53,12 +53,10 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
             'account' => [
                 'type' => GraphQL::type('Account'),
                 'description' => __('enjin-platform::type.wallet.field.account'),
-                'resolve' => function ($wallet) {
-                    return [
-                        'publicKey' => $wallet->public_key,
-                        'address' => $wallet->address,
-                    ];
-                },
+                'resolve' => fn($wallet) => [
+                    'publicKey' => $wallet->public_key,
+                    'address' => $wallet->address,
+                ],
                 'is_relation' => false,
                 'selectable' => false,
                 'always' => ['public_key'],
@@ -81,17 +79,13 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
             'nonce' => [
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::type.wallet.field.nonce'),
-                'resolve' => function ($wallet) {
-                    return $this->blockchainService->walletWithBalanceAndNonce($wallet)->nonce;
-                },
+                'resolve' => fn($wallet) => $this->blockchainService->walletWithBalanceAndNonce($wallet)->nonce,
                 'selectable' => false,
             ],
             'balances' => [
                 'type' => GraphQL::type('Balances'),
                 'description' => __('enjin-platform::type.wallet.field.balances'),
-                'resolve' => function ($wallet) {
-                    return $this->blockchainService->walletWithBalanceAndNonce($wallet)->balances;
-                },
+                'resolve' => fn($wallet) => $this->blockchainService->walletWithBalanceAndNonce($wallet)->balances,
                 'selectable' => false,
                 'is_relation' => false,
             ],
@@ -104,17 +98,15 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                         'description' => __('enjin-platform::type.wallet.field.collectionIds'),
                     ],
                 ]),
-                'resolve' => function ($wallet, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $wallet?->collectionAccounts,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $wallet?->collection_accounts_count,
-                    ];
-                },
+                'resolve' => fn($wallet, $args) => [
+                    'items' => new CursorPaginator(
+                        $wallet?->collectionAccounts,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $wallet?->collection_accounts_count,
+                ],
                 'is_relation' => true,
             ],
             'tokenAccounts' => [
@@ -130,68 +122,60 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                         'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
                     ],
                 ]),
-                'resolve' => function ($wallet, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $wallet?->tokenAccounts,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $wallet?->token_accounts_count,
-                    ];
-                },
+                'resolve' => fn($wallet, $args) => [
+                    'items' => new CursorPaginator(
+                        $wallet?->tokenAccounts,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $wallet?->token_accounts_count,
+                ],
                 'is_relation' => true,
             ],
             'collectionAccountApprovals' => [
                 'type' => GraphQL::paginate('CollectionAccountApproval', 'CollectionAccountApprovalConnection'),
                 'description' => __('enjin-platform::type.wallet.field.collectionAccountApprovals'),
                 'args' => ConnectionInput::args(),
-                'resolve' => function ($wallet, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $wallet?->collectionAccountApprovals,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $wallet?->collection_account_approvals_count,
-                    ];
-                },
+                'resolve' => fn($wallet, $args) => [
+                    'items' => new CursorPaginator(
+                        $wallet?->collectionAccountApprovals,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $wallet?->collection_account_approvals_count,
+                ],
                 'is_relation' => true,
             ],
             'tokenAccountApprovals' => [
                 'type' => GraphQL::paginate('TokenAccountApproval', 'TokenAccountApprovalConnection'),
                 'description' => __('enjin-platform::type.wallet.field.tokenAccountApprovals'),
                 'args' => ConnectionInput::args(),
-                'resolve' => function ($wallet, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $wallet?->tokenAccountApprovals,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $wallet?->token_account_approvals_count,
-                    ];
-                },
+                'resolve' => fn($wallet, $args) => [
+                    'items' => new CursorPaginator(
+                        $wallet?->tokenAccountApprovals,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $wallet?->token_account_approvals_count,
+                ],
                 'is_relation' => true,
             ],
             'transactions' => [
                 'type' => GraphQL::paginate('Transaction', 'TransactionConnection'),
                 'description' => __('enjin-platform::type.wallet.field.transactions'),
                 'args' => Arr::except(GetTransactionsQuery::resolveArgs(), ['accounts']),
-                'resolve' => function ($wallet, array $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $wallet?->transactions,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $wallet?->transactions_count,
-                    ];
-                },
+                'resolve' => fn($wallet, array $args) => [
+                    'items' => new CursorPaginator(
+                        $wallet?->transactions,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $wallet?->transactions_count,
+                ],
                 'is_relation' => true,
             ],
             'ownedCollections' => [
@@ -203,17 +187,15 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                         'description' => __('enjin-platform::type.wallet.field.collectionIds'),
                     ],
                 ]),
-                'resolve' => function ($wallet, $args) {
-                    return [
-                        'items' => new CursorPaginator(
-                            $wallet?->ownedCollections,
-                            $args['first'],
-                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                            ['parameters' => ['id']]
-                        ),
-                        'total' => (int) $wallet?->owned_collections_count,
-                    ];
-                },
+                'resolve' => fn($wallet, $args) => [
+                    'items' => new CursorPaginator(
+                        $wallet?->ownedCollections,
+                        $args['first'],
+                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                        ['parameters' => ['id']]
+                    ),
+                    'total' => (int) $wallet?->owned_collections_count,
+                ],
                 'is_relation' => true,
             ],
         ];

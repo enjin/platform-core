@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Cache;
 
 class Encoder
 {
-    public ScaleInstance $scaleInstance;
     protected static array $callIndexes = [];
 
     protected static array $callIndexKeys = [
@@ -55,9 +54,8 @@ class Encoder
         'MultiTokens.accept_collection_transfer' => [40, 41],
     ];
 
-    public function __construct(ScaleInstance $scaleInstance)
+    public function __construct(public ScaleInstance $scaleInstance)
     {
-        $this->scaleInstance = $scaleInstance;
         static::$callIndexes = $this->loadCallIndexes();
     }
 
@@ -327,7 +325,7 @@ class Encoder
             return static::$overrideCallIndex[$call];
         }
 
-        $index = str_split(static::$callIndexes[$call], 2);
+        $index = str_split((string) static::$callIndexes[$call], 2);
 
         return [HexConverter::hexToInt($index[0]), HexConverter::hexToInt($index[1])];
     }

@@ -17,7 +17,7 @@ class IntegerRangeType extends ScalarType implements PlatformGraphQlType, TypeCo
     use HasIntegerRanges;
     use InGlobalSchema;
 
-    public function __construct(array $config = [])
+    public function __construct()
     {
         parent::__construct(['description' => __('enjin-platform::type.integer_range.description')]);
     }

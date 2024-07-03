@@ -35,11 +35,7 @@ class Extrinsic implements PolkadartExtrinsic
             return $data['call'];
         }
 
-        if (isset($data['calls'])) {
-            return $data['calls'];
-        }
-
-        return [];
+        return $data['calls'] ?? [];
     }
 }
 

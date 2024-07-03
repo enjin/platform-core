@@ -68,12 +68,10 @@ class GetCollectionsQuery extends Query implements PlatformGraphQlQuery
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
     ): mixed {
-        $collections = Collection::loadSelectFields($resolveInfo, $this->name)
+        return Collection::loadSelectFields($resolveInfo, $this->name)
             ->addSelect(DB::raw('cast(collection_chain_id as unsigned integer) as collection_id'))
             ->when(!empty($args['collectionIds']), fn (Builder $query) => $query->whereIn('collection_chain_id', $args['collectionIds']))
             ->cursorPaginateWithTotalDesc('collection_id', $args['first']);
-
-        return $collections;
     }
 
     /**

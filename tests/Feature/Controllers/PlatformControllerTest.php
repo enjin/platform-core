@@ -15,16 +15,14 @@ class PlatformControllerTest extends TestCaseGraphQL
         Http::fake([
             config('enjin-platform.github.api_url') . '*' => Http::response([]),
         ]);
-        Cache::shouldReceive('remember')->andReturnUsing(function (...$args) {
-            return [];
-        });
+        Cache::shouldReceive('remember')->andReturnUsing(fn(...$args) => []);
 
         $response = $this->json('GET', '/.well-known/enjin-platform.json');
         $this->assertTrue($response->isOk());
         $this->assertEquals(
             [
                 'root' => 'enjin/platform-core',
-                'url' => trim(config('app.url'), '/'),
+                'url' => trim((string) config('app.url'), '/'),
                 'chain' => chain()->value,
                 'network' => network() === NetworkType::ENJIN_MATRIX ? 'enjin' : 'canary',
                 'packages' => PlatformController::getPlatformPackages(),

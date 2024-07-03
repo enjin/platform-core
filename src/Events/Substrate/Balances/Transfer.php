@@ -13,7 +13,7 @@ class Transfer extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(TransferPolkadart $event, ?Model $transaction = null, ?array $extra = null)
+    public function __construct(TransferPolkadart $event, ?Model $transaction = null)
     {
         parent::__construct();
 

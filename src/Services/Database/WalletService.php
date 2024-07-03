@@ -57,7 +57,7 @@ class WalletService
      */
     public function store(array $data): Model
     {
-        $data['network'] = $data['network'] ?? config('enjin-platform.chains.network');
+        $data['network'] ??= config('enjin-platform.chains.network');
 
         return Wallet::create($data);
     }
@@ -72,7 +72,7 @@ class WalletService
             unset($key['account']);
         }
 
-        $data['network'] = $data['network'] ?? config('enjin-platform.chains.network');
+        $data['network'] ??= config('enjin-platform.chains.network');
 
         return Wallet::firstOrCreate($key, $data);
     }

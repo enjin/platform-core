@@ -44,7 +44,7 @@ class SubstrateProvider extends Base
                 if (SS58Address::encode($key)) {
                     $publicKey = HexConverter::prefix($hexKey);
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
 
@@ -62,7 +62,7 @@ class SubstrateProvider extends Base
             try {
                 $key = HexConverter::hexToBytes(bin2hex(random_bytes(32)));
                 $address = SS58Address::encode($key);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
 
@@ -89,7 +89,7 @@ class SubstrateProvider extends Base
                     'publicKey' => HexConverter::prefix($publicKey),
                     'signature' => $signature,
                 ];
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
     }
@@ -127,7 +127,7 @@ class SubstrateProvider extends Base
      */
     public function signWithCode(string $code, ?string $keypair = null): string
     {
-        $keypair = $keypair ?? sodium_crypto_sign_keypair();
+        $keypair ??= sodium_crypto_sign_keypair();
         $message = Blake2::hash(HexConverter::stringToHex('Enjin Signed Message:' . $code));
 
         return $this->sign($message, $keypair);
@@ -138,7 +138,7 @@ class SubstrateProvider extends Base
      */
     public function signWithMessage(string $message, ?string $keypair = null): string
     {
-        $keypair = $keypair ?? sodium_crypto_sign_keypair();
+        $keypair ??= sodium_crypto_sign_keypair();
 
         return $this->sign($message, $keypair);
     }

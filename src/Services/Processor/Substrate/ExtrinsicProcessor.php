@@ -21,13 +21,8 @@ use Throwable;
 
 class ExtrinsicProcessor
 {
-    protected Block $block;
-    protected Codec $codec;
-
-    public function __construct(Block $block, Codec $codec)
+    public function __construct(protected Block $block, protected Codec $codec)
     {
-        $this->block = $block;
-        $this->codec = $codec;
     }
 
     public function run(): array
@@ -40,7 +35,7 @@ class ExtrinsicProcessor
             try {
                 $this->processExtrinsic($extrinsic, $index);
             } catch (Throwable $exception) {
-                $errors[] = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
+                $errors[] = sprintf('%s: %s (Line %s in %s)', $exception::class, $exception->getMessage(), $exception->getLine(), $exception->getFile());
             }
         }
 
@@ -105,16 +100,14 @@ class ExtrinsicProcessor
         Event::where('transaction_id', $transaction->id)->delete();
 
         $eventsWithTransaction = collect($this->block->events)->filter(fn ($event) => $event->extrinsicIndex == $index)
-            ->map(function ($event) use ($transaction) {
-                return [
-                    'transaction_id' => $transaction->id,
-                    'phase' => '2',
-                    'look_up' => 'unknown',
-                    'module_id' => $event->module,
-                    'event_id' => $event->name,
-                    'params' => json_encode($event->getParams()),
-                ];
-            })->toArray();
+            ->map(fn($event) => [
+                'transaction_id' => $transaction->id,
+                'phase' => '2',
+                'look_up' => 'unknown',
+                'module_id' => $event->module,
+                'event_id' => $event->name,
+                'params' => json_encode($event->getParams()),
+            ])->toArray();
 
         Event::insert($eventsWithTransaction);
     }

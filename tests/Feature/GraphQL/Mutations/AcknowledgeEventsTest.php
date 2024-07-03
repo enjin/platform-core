@@ -120,7 +120,7 @@ class AcknowledgeEventsTest extends TestCaseGraphQL
 
     protected function generateEvents(?int $numberOfEvents = 5): void
     {
-        collect(range(0, $numberOfEvents))->each(function () {
+        collect(range(0, $numberOfEvents))->each(function (): void {
             $collection = Collection::factory()->create()->load(['owner']);
             $event = CollectionCreatedPolkadart::fromChain([
                 'phase' => [

@@ -84,7 +84,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 'array',
                 'min:1',
                 'max:1000',
-                function (string $attribute, mixed $value, Closure $fail) {
+                function (string $attribute, mixed $value, Closure $fail): void {
                     if (!Transaction::whereIn('id', $value)
                         ->where('state', '!=', TransactionState::FINALIZED->name)
                         ->exists()) {
@@ -99,7 +99,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 'array',
                 'min:1',
                 'max:1000',
-                function (string $attribute, mixed $value, Closure $fail) {
+                function (string $attribute, mixed $value, Closure $fail): void {
                     if (!Transaction::whereIn('idempotency_key', $value)
                         ->where('state', '!=', TransactionState::FINALIZED->name)
                         ->exists()) {
