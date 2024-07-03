@@ -225,9 +225,9 @@ class GraphQlServiceProvider extends ServiceProvider
                     ->map(fn ($model, $class) => ['operation' => class_basename($class), 'middleware' => $resolverMiddleware])
                     ->filter(fn ($middleware, $operation) => $excludeFrom->doesntContain($middleware['operation']))
                     ->toArray();
-            })->pipe(fn(Collection $middlewares) => $middlewares->flatten(1)
-                ->mapToGroups(fn ($operation) => [$operation['operation'] => $operation['middleware']])
-                ->toArray());
+            })->pipe(fn (Collection $middlewares) => $middlewares->flatten(1)
+            ->mapToGroups(fn ($operation) => [$operation['operation'] => $operation['middleware']])
+            ->toArray());
 
         $graphQlResolverMiddleware = config('graphql.resolver_middleware') ?? [];
 

@@ -59,7 +59,7 @@ class Wallet extends BaseModel
     public function tokens(): Attribute
     {
         return new Attribute(
-            get: fn() => $this->tokenAccounts->pluck('token')
+            get: fn () => $this->tokenAccounts->pluck('token')
         );
     }
 

@@ -55,7 +55,7 @@ class EventType extends GraphQLType implements PlatformGraphQlType
             'params' => [
                 'type' => GraphQL::type('[EventParam]'),
                 'description' => __('enjin-platform::type.event.field.params'),
-                'resolve' => fn($event) => JSON::decode($event['params']),
+                'resolve' => fn ($event) => JSON::decode($event['params']),
             ],
         ];
     }

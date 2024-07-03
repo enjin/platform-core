@@ -99,7 +99,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.accounts'),
                 'args' => ConnectionInput::args(),
-                'resolve' => fn($collection, $args, $context, $info) => [
+                'resolve' => fn ($collection, $args, $context, $info) => [
                     'items' => new CursorPaginator(
                         $collection?->accounts,
                         $args['first'],
@@ -114,7 +114,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::paginate('Token', 'TokenConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.tokens'),
                 'args' => ConnectionInput::args(),
-                'resolve' => fn($collection, $args) => [
+                'resolve' => fn ($collection, $args) => [
                     'items' => new CursorPaginator(
                         $collection?->tokens,
                         $args['first'],

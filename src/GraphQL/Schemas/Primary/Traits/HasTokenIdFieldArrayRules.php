@@ -66,7 +66,7 @@ trait HasTokenIdFieldArrayRules
      */
     public function getEncodableTokenIdRules(array $args = [], array $extraRules = []): NestedRules
     {
-        return Rule::forEach(fn($value, $attribute) => [
+        return Rule::forEach(fn ($value, $attribute) => [
             'bail',
             'filled',
             new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
@@ -79,7 +79,7 @@ trait HasTokenIdFieldArrayRules
      */
     public function getEncodableTokenIdRulesExist(array $args = [], array $extraRules = []): NestedRules
     {
-        return Rule::forEach(fn($value, $attribute) => [
+        return Rule::forEach(fn ($value, $attribute) => [
             'bail',
             'filled',
             new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
@@ -93,7 +93,7 @@ trait HasTokenIdFieldArrayRules
      */
     public function getEncodableTokenIdRulesDoesntExist(array $args = [], array $extraRules = []): NestedRules
     {
-        return Rule::forEach(fn($value, $attribute) => [
+        return Rule::forEach(fn ($value, $attribute) => [
             'bail',
             'filled',
             new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),

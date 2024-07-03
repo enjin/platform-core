@@ -15,7 +15,7 @@ class PlatformControllerTest extends TestCaseGraphQL
         Http::fake([
             config('enjin-platform.github.api_url') . '*' => Http::response([]),
         ]);
-        Cache::shouldReceive('remember')->andReturnUsing(fn(...$args) => []);
+        Cache::shouldReceive('remember')->andReturnUsing(fn (...$args) => []);
 
         $response = $this->json('GET', '/.well-known/enjin-platform.json');
         $this->assertTrue($response->isOk());

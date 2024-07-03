@@ -59,7 +59,6 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     /**
      * Validate json data.
      *
-     *
      * @throws Exception
      */
     public function decodeJson(mixed $data): array

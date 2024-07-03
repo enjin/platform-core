@@ -21,9 +21,7 @@ use Throwable;
 
 class ExtrinsicProcessor
 {
-    public function __construct(protected Block $block, protected Codec $codec)
-    {
-    }
+    public function __construct(protected Block $block, protected Codec $codec) {}
 
     public function run(): array
     {
@@ -100,7 +98,7 @@ class ExtrinsicProcessor
         Event::where('transaction_id', $transaction->id)->delete();
 
         $eventsWithTransaction = collect($this->block->events)->filter(fn ($event) => $event->extrinsicIndex == $index)
-            ->map(fn($event) => [
+            ->map(fn ($event) => [
                 'transaction_id' => $transaction->id,
                 'phase' => '2',
                 'look_up' => 'unknown',

@@ -76,7 +76,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
             ->where('state', '=', TransactionState::PENDING->name)
             ->when(
                 $args['network'] ?? false,
-                fn(Builder $query) => $query->where(
+                fn (Builder $query) => $query->where(
                     'network',
                     '=',
                     $args['network'] === 'relay' ? currentRelay()->name : currentMatrix()->name

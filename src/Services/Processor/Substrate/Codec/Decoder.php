@@ -16,9 +16,7 @@ use Illuminate\Support\Arr;
 
 class Decoder
 {
-    public function __construct(protected ScaleInstance $codec)
-    {
-    }
+    public function __construct(protected ScaleInstance $codec) {}
 
     public function compact(string $data)
     {

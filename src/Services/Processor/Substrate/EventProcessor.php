@@ -10,9 +10,7 @@ use Throwable;
 
 class EventProcessor
 {
-    public function __construct(protected Block $block, protected Codec $codec)
-    {
-    }
+    public function __construct(protected Block $block, protected Codec $codec) {}
 
     public function run(): array
     {

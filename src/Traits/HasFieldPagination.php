@@ -12,6 +12,6 @@ trait HasFieldPagination
      */
     protected function resolveCurrentPageForPagination(?string $cursor): void
     {
-        CursorPaginator::currentCursorResolver(fn() => Cursor::fromEncoded($cursor ?? null));
+        CursorPaginator::currentCursorResolver(fn () => Cursor::fromEncoded($cursor ?? null));
     }
 }

@@ -118,7 +118,7 @@ class Package
     {
         $packageName = self::getPackageName($package);
         if ($packageName == 'Core') {
-            $packageClass = \Enjin\Platform\Package::class;
+            $packageClass = self::class;
         } else {
             $packageClass = "Enjin\\Platform\\{$packageName}\\Package";
         }

@@ -25,9 +25,7 @@ abstract class SubstrateEvent
 {
     protected array $extra = [];
 
-    public function __construct(protected Event $event, protected Block $block, protected Codec $codec)
-    {
-    }
+    public function __construct(protected Event $event, protected Block $block, protected Codec $codec) {}
 
     public function __destruct()
     {

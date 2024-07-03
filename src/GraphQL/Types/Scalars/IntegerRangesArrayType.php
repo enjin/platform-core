@@ -66,7 +66,7 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
     {
         return collect($value)
             ->sort()
-            ->filter(fn($range) => $this->validateValue($range))->isEmpty();
+            ->filter(fn ($range) => $this->validateValue($range))->isEmpty();
     }
 
     /**

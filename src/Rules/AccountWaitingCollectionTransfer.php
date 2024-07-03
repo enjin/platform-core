@@ -16,9 +16,7 @@ class AccountWaitingCollectionTransfer implements DataAwareRule, ValidationRule
     /**
      * Create a new rule instance.
      */
-    public function __construct(protected string $account)
-    {
-    }
+    public function __construct(protected string $account) {}
 
     /**
      * Determine if the validation rule passes.

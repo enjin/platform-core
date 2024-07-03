@@ -83,7 +83,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                         'defaultValue' => '0',
                     ],
                 ],
-                'resolve' => fn($transaction, $args) => Substrate::getSigningPayload($transaction['encoded_data'], $args),
+                'resolve' => fn ($transaction, $args) => Substrate::getSigningPayload($transaction['encoded_data'], $args),
                 'selectable' => false,
             ],
             'signingPayloadJson' => [
@@ -101,13 +101,13 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                         'defaultValue' => '0',
                     ],
                 ],
-                'resolve' => fn($transaction, $args) => Substrate::getSigningPayloadJSON($transaction, $args),
+                'resolve' => fn ($transaction, $args) => Substrate::getSigningPayloadJSON($transaction, $args),
                 'selectable' => false,
             ],
             'fee' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.transaction.field.fee'),
-                'resolve' => fn($transaction) => isset($transaction['idempotency_key']) ? Arr::get($transaction, 'fee') : Substrate::getFee($transaction['encoded_data']),
+                'resolve' => fn ($transaction) => isset($transaction['idempotency_key']) ? Arr::get($transaction, 'fee') : Substrate::getFee($transaction['encoded_data']),
             ],
             'deposit' => [
                 'type' => GraphQL::type('BigInt'),
@@ -148,7 +148,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'type' => GraphQL::paginate('Event', 'EventConnection'),
                 'description' => __('enjin-platform::type.transaction.field.events'),
                 'args' => ConnectionInput::args(),
-                'resolve' => fn($transaction, $args) => [
+                'resolve' => fn ($transaction, $args) => [
                     'items' => new CursorPaginator(
                         $transaction?->events,
                         $args['first'],
