@@ -6,7 +6,6 @@ use Closure;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Support\Account;
-use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
@@ -31,7 +30,7 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
         }
 
         if (!static::$bypass &&
-            (!$collection->owner || !SS58Address::isSameAddress(
+            (!$collection->owner || !Account::isAccountOwner(
                 $collection->owner->public_key,
                 Arr::get($this->data, 'signingAccount') ?: Account::daemonPublicKey()
             ))

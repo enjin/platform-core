@@ -6,7 +6,6 @@ use Closure;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Support\Account;
-use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class IsCollectionOwnerOrApproved implements ValidationRule
@@ -32,7 +31,7 @@ class IsCollectionOwnerOrApproved implements ValidationRule
         $daemonAccount = Account::daemonPublicKey();
 
         if (!$collection ||
-            (!SS58Address::isSameAddress($collection->owner->public_key, $daemonAccount) &&
+            (!Account::isAccountOwner($collection->owner->public_key, $daemonAccount) &&
             !$this->collectionService->approvalExistsInCollection(
                 $collection->collection_chain_id,
                 $daemonAccount,
