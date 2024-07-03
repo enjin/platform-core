@@ -11,5 +11,11 @@
     "tankDeposit": "u128",
     "userDeposit": "u128",
     "totalReceived": "Compact"
+  },
+  "FuelTankAccountStorageDataV1010": {
+    "tankDeposit": "Compact<u128>",
+    "userDeposit": "Compact<u128>",
+    "totalReceived": "Compact<u128>",
+    "ruleDataSets": "BTreeMap<u32, Vec<DispatchRule>>"
   }
 }
