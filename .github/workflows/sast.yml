@@ -55,6 +55,6 @@ jobs:
           composer install --no-interaction --no-progress
           composer dump-autoload      
 
-      - name: Run Laravel Pint
+      - name: Run Rector
         run: |
           ./vendor/bin/rector process --dry-run
