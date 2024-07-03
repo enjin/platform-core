@@ -30,5 +30,31 @@
   },
   "TransferPolicy": {
     "isFrozen": "bool"
+  },
+  "CollectionStorageDataV1010": {
+    "owner": "AccountId",
+    "policy": "CollectionPolicyV1010",
+    "tokenCount": "Compact",
+    "attributeCount": "Compact",
+    "creationDeposit": "CreationDeposit",
+    "totalDeposit": "Compact",
+    "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
+    "totalInfusion": "Compact"
+  },
+  "CollectionPolicyV1010": {
+    "mint": "MintPolicyV1010",
+    "burn": "Null",
+    "transfer": "TransferPolicy",
+    "attribute": "Null",
+    "market": "RoyaltyPolicy"
+  },
+  "MintPolicyV1010": {
+    "maxTokenCount": "Option<u64>",
+    "maxTokenSupply": "Option<u128>",
+    "forceCollapsingSupply": "bool"
+  },
+  "CreationDeposit": {
+    "depositor": "AccountId",
+    "amount": "Compact<u128>"
   }
 }

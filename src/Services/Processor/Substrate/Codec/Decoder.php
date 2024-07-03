@@ -181,15 +181,29 @@ class Decoder
         ];
     }
 
+    public function getValue(array $data, array $keys, ?string $prefix = null, ?string $suffix = null): mixed
+    {
+        foreach ($keys as $key) {
+            $keyValue = $prefix ? "{$prefix}.{$key}" : $key;
+            $keyValue .= $suffix ? ".{$suffix}" : '';
+
+            if (Arr::has($data, $keyValue)) {
+                return Arr::get($data, $keyValue);
+            }
+        }
+
+        return null;
+    }
+
     public function collectionStorageData(string $data): array
     {
-        $decoded = $this->codec->process('CollectionStorageData', new ScaleBytes($data));
+        $decoded = $this->codec->process(isRunningLatest() ? 'CollectionStorageDataV1010' : 'CollectionStorageData', new ScaleBytes($data));
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
             'maxTokenCount' => ($value = Arr::get($decoded, 'policy.mint.maxTokenCount')) !== null ? gmp_strval($value) : null,
             'maxTokenSupply' => ($value = Arr::get($decoded, 'policy.mint.maxTokenSupply')) !== null ? gmp_strval($value) : null,
-            'forceSingleMint' => Arr::get($decoded, 'policy.mint.forceSingleMint'),
+            'forceSingleMint' => $this->getValue($decoded, ['forceSingleMint', 'forceCollapsingSupply'], 'policy.mint'),
             'burn' => Arr::get($decoded, 'policy.burn'),
             'isFrozen' => Arr::get($decoded, 'policy.transfer.isFrozen'),
             'royaltyBeneficiary' => ($beneficiary = Arr::get($decoded, 'policy.market.royalty.beneficiary')) !== null ? HexConverter::prefix($beneficiary) : null,
@@ -214,7 +228,7 @@ class Decoder
 
     public function tokenStorageData(string $data): array
     {
-        $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
+        $decoded = $this->codec->process(isRunningLatest() ? 'TokenStorageDataV1010' : 'TokenStorageData', new ScaleBytes($data));
 
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first()) ?? TokenMintCapType::INFINITE;
         $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
@@ -232,10 +246,19 @@ class Decoder
             'isCurrency' => $isCurrency,
             'listingForbidden' => Arr::get($decoded, 'listingForbidden'),
             'minimumBalance' => gmp_strval(Arr::get($decoded, 'minimumBalance')),
+            // TODO: unitPrice and mintDeposit don't exists anymore on v1010
             'unitPrice' => gmp_strval($unitPrice),
             'mintDeposit' => gmp_strval(Arr::get($decoded, 'mintDeposit')),
             'attributeCount' => gmp_strval(Arr::get($decoded, 'attributeCount')),
+            // TODO: Implement new v1010 fields
+            //            'requiresDeposit' => Arr::get($decoded, 'requiresDeposit'),
+            //            'creationDepositDepositor' => Arr::get($decoded, 'creationDeposit.depositor'),
+            //            'creationDepositAmount' => gmp_strval(Arr::get($decoded, 'creationDeposit.amount')),
+            //            'ownerDeposit' => gmp_strval(Arr::get($decoded, 'ownerDeposit')),
+            //            'infusion' => gmp_strval(Arr::get($decoded, 'infusion')),
+            //            'anyoneCanInfuse' => Arr::get($decoded, 'anyoneCanInfuse'),
         ];
+
     }
 
     public function collectionAccountStorageKey(string $data): array
@@ -303,6 +326,9 @@ class Decoder
             'namedReserves' => $namedReserves,
             'approvals' => $approvals,
             'isFrozen' => Arr::get($decoded, 'isFrozen'),
+            // TODO: To implement at v1010
+            //            'depositDepositor' => Arr::get($decoded, 'deposit.depositor'),
+            //            'depositAmount' => gmp_strval(Arr::get($decoded, 'deposit.amount')),
         ];
     }
 }

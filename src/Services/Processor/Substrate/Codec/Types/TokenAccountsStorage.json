@@ -18,6 +18,16 @@
     "approvals": "BTreeMap<AccountId,TokenApproval>",
     "isFrozen": "bool"
   },
+  "TokenAccountsStorageDataV1010": {
+    "balance": "Compact",
+    "reservedBalance": "Compact",
+    "lockedBalance": "Compact",
+    "namedReserves": "BTreeMap<[u8;8],u128>",
+    "locks": "BTreeMap<[u8;8],u128>",
+    "approvals": "BTreeMap<AccountId,TokenApproval>",
+    "isFrozen": "bool",
+    "deposits": "Option<CreationDeposit>"
+  },
   "TokenApproval": {
     "amount": "Compact",
     "expiration": "Option<BlockNumber>"
