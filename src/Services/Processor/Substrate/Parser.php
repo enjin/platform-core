@@ -418,6 +418,10 @@ class Parser
 
         foreach ($data as [$key, $attribute]) {
             $attributeKey = $this->serializationService->decode('attributeStorageKey', $key);
+            // TODO: We dont use but we could decode the storage of an attribute to get
+            //          value: Bytes
+            //          deposit: Compact<u128>
+            //          depositor: Option<AccountId>
             $attributeData = $this->serializationService->decode('bytes', $attribute);
 
             $collection = $this->getCachedCollection(
@@ -562,11 +566,7 @@ class Parser
             }
         }
 
-        if ($hotSync) {
-            CollectionRoyaltyCurrency::upsert($insertData, uniqueBy: ['collection_id', 'currency_collection_chain_id', 'currency_token_chain_id']);
-        } else {
-            CollectionRoyaltyCurrency::insert($insertData);
-        }
+        CollectionRoyaltyCurrency::upsert($insertData, uniqueBy: ['collection_id', 'currency_collection_chain_id', 'currency_token_chain_id']);
     }
 
     /**

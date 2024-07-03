@@ -27,6 +27,17 @@ if (!function_exists('network')) {
     }
 }
 
+if (!function_exists('isRunningLatest')) {
+    /**
+     * Check if the network is matrix.
+     */
+    function isRunningLatest(): bool
+    {
+        return networkConfig('spec-version') === 1010;
+    }
+}
+
+
 if (!function_exists('isMainnet')) {
     /**
      * Check if the network is mainnet.
