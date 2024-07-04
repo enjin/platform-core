@@ -5,10 +5,6 @@ namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MaxTokenBalance;
-use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Support\Hex;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 
@@ -38,7 +34,6 @@ class SimpleTransferParamsInputType extends InputType implements PlatformGraphQl
             'amount' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
-                'rules' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ],
             'keepAlive' => [
                 'type' => GraphQL::type('Boolean'),

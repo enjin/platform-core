@@ -7,5 +7,14 @@
   "MintRecipient": {
     "accountId": "AccountId",
     "params": "MintParamsOf"
+  },
+  "BatchMintV1010": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "recipients": "Vec<MintRecipientV1010>"
+  },
+  "MintRecipientV1010": {
+    "accountId": "AccountId",
+    "params": "MintParamsOfV1010"
   }
 }

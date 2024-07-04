@@ -115,7 +115,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
      */
     public function getMethodName(): string
     {
-        return 'SetAttribute';
+        return isRunningLatest() ? 'SetAttributeV1010' : 'SetAttribute';
     }
 
     public static function getEncodableParams(...$params): array
@@ -125,6 +125,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
             'key' => HexConverter::stringToHexPrefixed(Arr::get($params, 'key', '0')),
             'value' => HexConverter::stringToHexPrefixed(Arr::get($params, 'value', '0')),
+            'depositor' => null, // This is an internal input used by the blockchain internally
         ];
     }
 

@@ -47,12 +47,11 @@ class BurnParams
      */
     public function toEncodable(): array
     {
-        return [
+        return array_merge([
             'tokenId' => gmp_init($this->tokenId),
             'amount' => gmp_init($this->amount),
-            'keepAlive' => $this->keepAlive,
             'removeTokenStorage' => $this->removeTokenStorage,
-        ];
+        ], isRunningLatest() ? [] : ['keepAlive' => $this->keepAlive]);
     }
 
     /**
@@ -60,11 +59,11 @@ class BurnParams
      */
     public function toArray(): array
     {
-        return [
+        return array_merge([
             'tokenId' => $this->tokenId,
             'amount' => $this->amount,
             'keepAlive' => $this->keepAlive,
             'removeTokenStorage' => $this->removeTokenStorage,
-        ];
+        ], isRunningLatest() ? [] : ['keepAlive' => $this->keepAlive]);
     }
 }

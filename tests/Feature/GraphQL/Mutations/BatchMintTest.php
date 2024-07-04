@@ -90,7 +90,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -105,6 +106,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ],
             ],
             'skipValidation' => true,
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -138,7 +140,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -153,6 +156,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ],
             ],
             'simulate' => null,
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -184,7 +188,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -200,6 +205,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ],
             ],
             'simulate' => true,
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertIsNumeric($response['deposit']);
@@ -229,7 +235,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -244,6 +251,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ],
             ],
             'nonce' => $nonce = fake()->numberBetween(),
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -325,7 +333,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -340,6 +349,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ],
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -383,7 +393,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -398,6 +409,7 @@ class BatchMintTest extends TestCaseGraphQL
                 ],
             ],
             'signingAccount' => $signingAccount,
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -435,7 +447,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -449,6 +462,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -483,7 +497,8 @@ class BatchMintTest extends TestCaseGraphQL
                         supply: fake()->numberBetween($supply)
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -497,6 +512,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -532,7 +548,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -546,6 +563,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -585,7 +603,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($supply),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -599,6 +618,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -630,7 +650,8 @@ class BatchMintTest extends TestCaseGraphQL
                         amount: fake()->numberBetween(1),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $mintParams->toArray()['Mint'];
@@ -644,6 +665,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'mintParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -679,7 +701,8 @@ class BatchMintTest extends TestCaseGraphQL
                         unitPrice: $this->randomGreaterThanMinUnitPriceFor($amount),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $mintParams->toArray()['Mint'];
@@ -693,6 +716,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'mintParams' => $params,
                 ],
             ],
+            'continueOnFailure' => true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -733,7 +757,8 @@ class BatchMintTest extends TestCaseGraphQL
                         amount: fake()->numberBetween(1),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $mintParams->toArray()['Mint'];
@@ -747,6 +772,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'mintParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -784,7 +810,8 @@ class BatchMintTest extends TestCaseGraphQL
                         amount: fake()->numberBetween(1),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $mintParams->toArray()['Mint'];
@@ -798,6 +825,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'mintParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -836,11 +864,13 @@ class BatchMintTest extends TestCaseGraphQL
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            recipients: $recipients->toArray()
+            recipients: $recipients->toArray(),
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
             'recipients' => $recipients->map(function ($recipient) use ($tokenId) {
                 $params = $recipient['params']->toArray()['CreateToken'];
                 $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
@@ -888,7 +918,8 @@ class BatchMintTest extends TestCaseGraphQL
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            recipients: $recipients->toArray()
+            recipients: $recipients->toArray(),
+            continueOnFailure: true // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $response = $this->graphql($this->method, [
@@ -901,7 +932,8 @@ class BatchMintTest extends TestCaseGraphQL
                     'account' => SS58Address::encode($recipient['accountId']),
                     'mintParams' => $params,
                 ];
-            })->toArray(),
+            }),
+            'continueOnFailure' => true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -940,7 +972,8 @@ class BatchMintTest extends TestCaseGraphQL
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            recipients: $recipients->toArray()
+            recipients: $recipients->toArray(),
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $response = $this->graphql($this->method, [
@@ -1007,6 +1040,7 @@ class BatchMintTest extends TestCaseGraphQL
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
             recipients: $recipients->toArray(),
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $response = $this->graphql($this->method, [
@@ -1027,7 +1061,8 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $createParams,
                     'mintParams' => $mintParams,
                 ];
-            })->toArray(),
+            }),
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -1066,7 +1101,8 @@ class BatchMintTest extends TestCaseGraphQL
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            recipients: [$recipient]
+            recipients: [$recipient],
+            continueOnFailure: true // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = Arr::get($recipient['params']->toArray(), 'CreateToken');
@@ -1080,6 +1116,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'continueOnFailure' => true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -1123,7 +1160,8 @@ class BatchMintTest extends TestCaseGraphQL
                         ),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $response = $this->graphql($this->method, [
@@ -1147,6 +1185,7 @@ class BatchMintTest extends TestCaseGraphQL
                     ],
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([
@@ -1183,7 +1222,8 @@ class BatchMintTest extends TestCaseGraphQL
                         listingForbidden: fake()->boolean(),
                     ),
                 ],
-            ]
+            ],
+            continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
 
         $params = $createParams->toArray()['CreateToken'];
@@ -1197,6 +1237,7 @@ class BatchMintTest extends TestCaseGraphQL
                     'createParams' => $params,
                 ],
             ],
+            'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
         $this->assertArraySubset([

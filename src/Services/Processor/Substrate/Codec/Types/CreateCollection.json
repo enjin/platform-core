@@ -24,5 +24,24 @@
   "RoyaltyPolicyDescriptor": {
     "beneficiary": "AccountId",
     "percentage": "Compact<u32>"
+  },
+  "CreateCollectionV1010": {
+    "callIndex": "(u8, u8)",
+    "descriptor": "CollectionDescriptorV1010"
+  },
+  "CollectionDescriptorV1010": {
+    "policy": "CollectionPolicyDescriptorV1010",
+    "depositor": "Option<AccountId>",
+    "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
+    "attributes": "Vec<Attribute>"
+  },
+  "CollectionPolicyDescriptorV1010": {
+    "mint": "MintPolicyDescriptorV1010",
+    "market": "Option<RoyaltyPolicyDescriptor>"
+  },
+  "MintPolicyDescriptorV1010": {
+    "maxTokenCount": "Option<u64>",
+    "maxTokenSupply": "Option<u128>",
+    "forceCollapsingSupply": "bool"
   }
 }

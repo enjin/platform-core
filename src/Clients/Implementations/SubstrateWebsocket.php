@@ -11,7 +11,7 @@ class SubstrateWebsocket extends WebsocketAbstract
      */
     public function __construct(?string $url = null)
     {
-        $host = $url ?? networkConfig('node');
+        $host = $url ?? currentMatrixUrl();
 
         parent::__construct($host);
     }

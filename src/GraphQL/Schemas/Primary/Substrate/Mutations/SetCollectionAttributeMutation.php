@@ -103,7 +103,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
      */
     public function getMethodName(): string
     {
-        return 'SetAttribute';
+        return isRunningLatest() ? 'SetAttributeV1010' : 'SetAttribute';
     }
 
     public static function getEncodableParams(...$params): array
@@ -117,6 +117,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
             'tokenId' => null,
             'key' => HexConverter::stringToHexPrefixed($key),
             'value' => HexConverter::stringToHexPrefixed($value),
+            'depositor' => null, // This is an internal input used by the blockchain internally
         ];
     }
 
