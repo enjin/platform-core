@@ -345,9 +345,6 @@ class Substrate implements BlockchainServiceInterface
             $data['account'] = $accountWallet->public_key;
         }
 
-        // 0x2806411f040400
-        // 0x280500411f0400
-
         if (isset($args['freezeState'])) {
             $data['freezeState'] = FreezeStateType::getEnumCase($args['freezeState']);
         }
