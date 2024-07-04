@@ -45,7 +45,7 @@ class MintPolicyParams
     public function toEncodable(): array
     {
         return [
-            'forceSingleMint' => $this->forceSingleMint,
+            isRunningLatest() ? 'forceCollapsingSupply' : 'forceSingleMint' => $this->forceSingleMint,
             'maxTokenCount' => $this->maxTokenCount,
             'maxTokenSupply' => $this->maxTokenSupply !== null ? gmp_init($this->maxTokenSupply) : null,
         ];
@@ -57,7 +57,7 @@ class MintPolicyParams
     public function toArray(): array
     {
         return [
-            'forceSingleMint' => $this->forceSingleMint,
+            isRunningLatest() ? 'forceCollapsingSupply' : 'forceSingleMint' => $this->forceSingleMint,
             'maxTokenCount' => $this->maxTokenCount,
             'maxTokenSupply' => $this->maxTokenSupply,
         ];

@@ -9,5 +9,15 @@
     "amount": "Compact<u128>",
     "keepAlive": "bool",
     "removeTokenStorage": "bool"
+  },
+  "BurnV1010": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "params": "BurnParamsOfV1010"
+  },
+  "BurnParamsOfV1010": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>",
+    "removeTokenStorage": "bool"
   }
 }

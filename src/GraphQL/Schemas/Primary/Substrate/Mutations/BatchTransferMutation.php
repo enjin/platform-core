@@ -119,7 +119,8 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         );
 
         $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $method, static::getEncodableParams(
             collectionId: $args['collectionId'],
             recipients: $recipients->toArray(),
             continueOnFailure: $continueOnFailure
@@ -140,7 +141,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
 
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
-                fn ($recipient) => $serializationService->encode('TransferToken', [
+                fn ($recipient) => $serializationService->encode(isRunningLatest() ? 'TransferV1010' : 'TransferToken', [
                     'recipient' => [
                         'Id' => HexConverter::unPrefix($recipient['accountId']),
                     ],
@@ -188,7 +189,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {

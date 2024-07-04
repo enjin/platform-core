@@ -48,12 +48,16 @@ class OperatorTransferParams
      */
     public function toEncodable(): array
     {
+        $extra = isRunningLatest()
+            ? ['depositor' => null]
+            : ['keepAlive' => $this->keepAlive];
+
         return [
             'Operator' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'source' => SS58Address::getPublicKey($this->source),
                 'amount' => gmp_init($this->amount),
-                'keepAlive' => $this->keepAlive,
+                ...$extra,
             ],
         ];
     }
@@ -63,12 +67,16 @@ class OperatorTransferParams
      */
     public function toArray(): array
     {
+        isRunningLatest()
+            ? $extra['depositor'] = null
+            : $extra['keepAlive'] = $this->keepAlive;
+
         return [
             'Operator' => [
                 'tokenId' => $this->tokenId,
                 'source' => $this->source,
                 'amount' => $this->amount,
-                'keepAlive' => $this->keepAlive,
+                ...$extra,
             ],
         ];
     }
