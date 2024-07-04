@@ -29,9 +29,9 @@ enum PlatformCache: string implements PlatformCacheable
 
     case BLOCK_TRANSACTION = 'blockTransaction';
 
-    public function key(?string $suffix = null): string
+    public function key(?string $suffix = null, ?string $network = null): string
     {
-        return 'enjin-platform:core:' . $this->value . ($suffix ? ":{$suffix}" : '');
+        return 'enjin-platform:core:' . currentMatrix()->value . ':' . $this->value . ($suffix ? ":{$suffix}" : '');
     }
 
     public static function clearable(): Collection

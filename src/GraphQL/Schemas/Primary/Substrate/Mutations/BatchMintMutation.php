@@ -129,9 +129,11 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
             }
         );
 
-        // Hard-coded to false until we add support for this feature back into the mutations.
-        $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+        // TODO: With the v1010 upgrade we run into a bug with the php-scale-codec lib where it cannot
+        //  Encode the transaction with `0x` the solution here is to use Batch and within each call append the 0's
+        $continueOnFailure = true;
+        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $method, static::getEncodableParams(
             collectionId: $args['collectionId'],
             recipients: $recipients->toArray(),
             continueOnFailure: $continueOnFailure
@@ -152,13 +154,17 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
 
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
-                fn ($recipient) => $serializationService->encode('Mint', [
-                    'collectionId' => gmp_init($collectionId),
-                    'recipient' => [
-                        'Id' => HexConverter::unPrefix($recipient['accountId']),
-                    ],
-                    'params' => $recipient['params']->toEncodable(),
-                ])
+                function ($recipient) use ($serializationService, $collectionId) {
+                    $data = $serializationService->encode(isRunningLatest() ? 'MintV1010' : 'Mint', [
+                        'collectionId' => gmp_init($collectionId),
+                        'recipient' => [
+                            'Id' => HexConverter::unPrefix($recipient['accountId']),
+                        ],
+                        'params' => $recipient['params']->toEncodable(),
+                    ]);
+
+                    return isRunningLatest() ? $data . '00000000' : $data;
+                }
             );
 
             return [

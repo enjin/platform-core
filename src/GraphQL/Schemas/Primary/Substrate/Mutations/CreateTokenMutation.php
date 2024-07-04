@@ -107,6 +107,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
             collectionId: $args['collectionId'],
             createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
         ));
+        $encodedData .= isRunningLatest() ? '00000000' : '';
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -119,7 +120,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
      */
     public function getMethodName(): string
     {
-        return 'Mint';
+        return isRunningLatest() ? 'MintV1010' : 'Mint';
     }
 
     public static function getEncodableParams(...$params): array

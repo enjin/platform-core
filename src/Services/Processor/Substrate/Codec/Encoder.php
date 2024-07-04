@@ -32,19 +32,28 @@ class Encoder
         'ApproveToken' => 'MultiTokens.approve_token',
         'UnapproveToken' => 'MultiTokens.unapprove_token',
         'BatchSetAttribute' => 'MultiTokens.batch_set_attribute',
+        'BatchSetAttributeV1010' => 'MultiTokens.batch_set_attribute',
         'BatchTransfer' => 'MultiTokens.batch_transfer',
+        'BatchTransferV1010' => 'MultiTokens.batch_transfer',
         'Transfer' => 'MultiTokens.transfer',
+        'TransferV1010' => 'MultiTokens.transfer',
         'CreateCollection' => 'MultiTokens.create_collection',
+        'CreateCollectionV1010' => 'MultiTokens.create_collection',
         'DestroyCollection' => 'MultiTokens.destroy_collection',
         'MutateCollection' => 'MultiTokens.mutate_collection',
         'MutateToken' => 'MultiTokens.mutate_token',
+        'MutateTokenV1010' => 'MultiTokens.mutate_token',
         'Mint' => 'MultiTokens.mint',
+        'MintV1010' => 'MultiTokens.mint',
         'BatchMint' => 'MultiTokens.batch_mint',
+        'BatchMintV1010' => 'MultiTokens.batch_mint',
         'Burn' => 'MultiTokens.burn',
+        'BurnV1010' => 'MultiTokens.burn',
         'Freeze' => 'MultiTokens.freeze',
         'Thaw' => 'MultiTokens.thaw',
         'SetRoyalty' => 'MultiTokens.set_royalty',
         'SetAttribute' => 'MultiTokens.set_attribute',
+        'SetAttributeV1010' => 'MultiTokens.set_attribute',
         'RemoveAttribute' => 'MultiTokens.remove_attribute',
         'RemoveAllAttributes' => 'MultiTokens.remove_all_attributes',
         'AcceptCollectionTransfer' => 'MultiTokens.accept_collection_transfer',
@@ -349,7 +358,7 @@ class Encoder
         }
 
         return Cache::rememberForever(
-            PlatformCache::CALL_INDEXES->key(chain()->value . network()->value),
+            PlatformCache::CALL_INDEXES->key(network()->value),
             function () use ($metadata) {
                 $decode = $this->scaleInstance->process('metadata', new ScaleBytes($metadata));
                 $callIndexes = collect(Arr::get($decode, 'metadata.call_index'))->mapWithKeys(

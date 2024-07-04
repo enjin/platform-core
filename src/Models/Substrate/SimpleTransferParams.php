@@ -44,11 +44,15 @@ class SimpleTransferParams
      */
     public function toEncodable(): array
     {
+        $extra = isRunningLatest()
+            ? ['depositor' => null]
+            : ['keepAlive' => $this->keepAlive];
+
         return [
             'Simple' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'amount' => gmp_init($this->amount),
-                'keepAlive' => $this->keepAlive,
+                ...$extra,
             ],
         ];
     }
@@ -58,11 +62,15 @@ class SimpleTransferParams
      */
     public function toArray(): array
     {
+        isRunningLatest()
+            ? $extra['depositor'] = null
+            : $extra['keepAlive'] = $this->keepAlive;
+
         return [
             'Simple' => [
                 'tokenId' => $this->tokenId,
                 'amount' => $this->amount,
-                'keepAlive' => $this->keepAlive,
+                ...$extra,
             ],
         ];
     }

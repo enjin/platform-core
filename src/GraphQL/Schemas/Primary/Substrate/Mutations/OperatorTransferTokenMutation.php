@@ -18,12 +18,16 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MaxTokenBalance;
+use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -115,7 +119,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
      */
     public function getMethodName(): string
     {
-        return 'Transfer';
+        return isRunningLatest() ? 'TransferV1010' : 'Transfer';
     }
 
     public static function getEncodableParams(...$params): array
@@ -136,6 +140,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'recipient' => ['filled', new ValidSubstrateAccount()],
+            'params.source' => ['filled', new ValidSubstrateAccount()],
         ];
     }
 
@@ -146,6 +151,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'collectionId' => [new IsCollectionOwner()],
+            'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
     }
@@ -155,6 +161,8 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
      */
     protected function rulesWithoutValidation(array $args): array
     {
-        return $this->getTokenFieldRules('params');
+        return [
+            'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getTokenFieldRules('params')];
     }
 }

@@ -65,16 +65,36 @@ class CreateTokenParams
      */
     public function toEncodable(): array
     {
-        return [
-            'CreateToken' => [
-                'tokenId' => gmp_init($this->tokenId),
-                'initialSupply' => gmp_init($this->initialSupply),
+        $extra = isRunningLatest()
+            ? [
+                'accountDepositCount' => 0,
+                'cap' => in_array($this->cap, [TokenMintCapType::INFINITE, TokenMintCapType::SINGLE_MINT]) ? null : [
+                    $this->cap->value => gmp_init($this->supply),
+                ],
+                'infusion' => 0,
+                'anyoneCanInfuse' => false,
+                // TODO: This is being ignored for now as php-scale-codec does not support encoding `0x` values.
+                //      'metadata' => [
+                //          'name' => '0x',
+                //          'symbol' => '0x',
+                //          'decimals' => 0,
+                //      ],
+                //      'privilegedParams' => null,
+            ]
+            : [
                 'sufficiency' => [
                     'Insufficient' => $this->unitPrice ? gmp_init($this->unitPrice) : null,
                 ],
                 'cap' => $this->cap === TokenMintCapType::INFINITE ? null : [
                     $this->cap->value => $this->cap === TokenMintCapType::SINGLE_MINT ? null : gmp_init($this->supply),
                 ],
+                'foreignParams' => null,
+            ];
+
+        return [
+            'CreateToken' => [
+                'tokenId' => gmp_init($this->tokenId),
+                'initialSupply' => gmp_init($this->initialSupply),
                 'behavior' => $this->behavior?->toEncodable(),
                 'listingForbidden' => $this->listingForbidden,
                 'freezeState' => $this->freezeState?->value,
@@ -85,7 +105,7 @@ class CreateTokenParams
                     ],
                     $this->attributes
                 ),
-                'foreignParams' => null,
+                ...$extra,
             ],
         ];
     }

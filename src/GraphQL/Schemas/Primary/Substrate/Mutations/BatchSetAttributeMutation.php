@@ -98,7 +98,8 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService
     ): mixed {
         $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $method, static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             attributes: $args['attributes'],
@@ -116,7 +117,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         $serializationService = resolve(SerializationServiceInterface::class);
         $continueOnFailure = Arr::get($params, 'continueOnFailure', false);
         $collectionId = Arr::get($params, 'collectionId', 0);
-        $tokenId = Arr::get($params, 'tokenId', null);
+        $tokenId = Arr::get($params, 'tokenId');
         $attributes = Arr::get($params, 'attributes', []);
 
         if ($continueOnFailure) {
@@ -126,6 +127,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
                     'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
                     'key' => HexConverter::stringToHexPrefixed($attribute['key']),
                     'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                    'depositor' => null, // This is an internal input used by the blockchain internally
                 ])
             );
 
@@ -138,6 +140,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         return [
             'collectionId' => gmp_init($collectionId),
             'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
+            'depositor' => null, // This is an internal input used by the blockchain internally
             'attributes' => collect($attributes)
                 ->map(fn ($attribute) => [
                     'key' => HexConverter::stringToHexPrefixed($attribute['key']),
@@ -147,7 +150,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     }
 
     /**
-     * Get the commond rules.
+     * Get the common rules.
      */
     protected function rulesCommon(array $args): array
     {

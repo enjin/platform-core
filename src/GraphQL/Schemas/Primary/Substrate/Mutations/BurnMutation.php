@@ -95,7 +95,9 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     ): mixed {
         $args['params']['tokenId'] = $this->encodeTokenId($args['params']);
         unset($args['params']['encodeTokenId']);
-        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
+
+        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
+        $encodedData = $serializationService->encode($method, static::getEncodableParams(
             collectionId: $args['collectionId'],
             burnParams: new BurnParams(...$args['params'])
         ));

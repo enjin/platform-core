@@ -95,13 +95,13 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         TransactionService $transactionService,
         Substrate $blockchainService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
+        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
+        $encodedData = $serializationService->encode($method, static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
             listingForbidden: Arr::get($args, 'mutation.listingForbidden')
         ));
-
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -121,15 +121,21 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
 
     public static function getEncodableParams(...$params): array
     {
-        $behavior = Arr::get($params, 'behavior', null);
+        $behavior = Arr::get($params, 'behavior');
+        $extra = isRunningLatest() ? [
+            'anyoneCanInfuse' => null,
+            'name' => null,
+        ] : [
+            'metadata' => null,
+        ];
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
             'mutation' => [
                 'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
-                'listingForbidden' => Arr::get($params, 'listingForbidden', null),
-                'metadata' => null,
+                'listingForbidden' => Arr::get($params, 'listingForbidden'),
+                ...$extra,
             ],
         ];
     }

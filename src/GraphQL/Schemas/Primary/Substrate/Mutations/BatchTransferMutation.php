@@ -19,10 +19,15 @@ use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MaxTokenBalance;
+use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -119,7 +124,8 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         );
 
         $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
+        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $method, static::getEncodableParams(
             collectionId: $args['collectionId'],
             recipients: $recipients->toArray(),
             continueOnFailure: $continueOnFailure
@@ -140,7 +146,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
 
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
-                fn ($recipient) => $serializationService->encode('TransferToken', [
+                fn ($recipient) => $serializationService->encode(isRunningLatest() ? 'TransferV1010' : 'TransferToken', [
                     'recipient' => [
                         'Id' => HexConverter::unPrefix($recipient['accountId']),
                     ],
@@ -172,6 +178,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     {
         return [
             'recipients' => ['array', 'min:1', 'max:250'],
+            'recipients.*.operatorParams.source' => [new ValidSubstrateAccount()],
         ];
     }
 
@@ -184,17 +191,21 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
             'collectionId' => [new IsCollectionOwner()],
             ...$this->getTokenFieldRulesExist('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRulesExist('recipients.*.operatorParams', $args),
+            'recipients.*.simpleParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
+            'recipients.*.operatorParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
         ];
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {
         return [
             ...$this->getTokenFieldRules('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRules('recipients.*.operatorParams', $args),
+            'recipients.*.simpleParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            'recipients.*.operatorParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }

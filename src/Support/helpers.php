@@ -75,6 +75,17 @@ if (!function_exists('currentRelayUrl')) {
 
 }
 
+if (!function_exists('currentMatrixUrl')) {
+    /**
+     * Get the equivalent matrixchain url for the current used network.
+     */
+    function currentMatrixUrl(): string
+    {
+        return networkConfig('node', currentMatrix());
+    }
+
+}
+
 if (!function_exists('currentRelay')) {
     /**
      * Get the equivalent relaychain for the current used network.

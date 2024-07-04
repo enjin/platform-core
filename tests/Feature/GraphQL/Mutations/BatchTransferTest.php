@@ -302,7 +302,7 @@ class BatchTransferTest extends TestCaseGraphQL
         $this->assertEquals(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
-                'recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.'],
+                'recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.'],
             ],
             $response['error']
         );
@@ -310,7 +310,7 @@ class BatchTransferTest extends TestCaseGraphQL
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
         $this->assertEquals(
-            ['recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
         IsCollectionOwner::unBypass();
@@ -1752,7 +1752,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is too small, the minimum value it can be is 1.']],
+            ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
 
@@ -1821,7 +1821,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['recipients.0.simpleParams.amount' => ['The recipients.0.simple params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error'],
         );
 
@@ -2133,7 +2133,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['recipients.0.operatorParams.source' => ['The recipients.0.operator params.source is not a valid substrate account.']],
+            ['recipients.0.operatorParams.source' => ['The recipients.0.operatorParams.source is not a valid substrate account.']],
             $response['error'],
         );
 
@@ -2159,7 +2159,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['recipients.0.operatorParams.amount' => ['The recipients.0.operator params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            ['recipients.0.operatorParams.amount' => ['The recipients.0.operatorParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error'],
         );
 
@@ -2206,7 +2206,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['recipients.0.operatorParams.amount' => ['The recipients.0.operator params.amount is too small, the minimum value it can be is 1.']],
+            ['recipients.0.operatorParams.amount' => ['The recipients.0.operatorParams.amount is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
 
@@ -2278,7 +2278,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['recipients.0.operatorParams.amount' => ['The recipients.0.operator params.amount is invalid, the amount provided is bigger than the token account balance.']],
+            ['recipients.0.operatorParams.amount' => ['The recipients.0.operatorParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error'],
         );
 
