@@ -76,13 +76,11 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
             ->where('state', '=', TransactionState::PENDING->name)
             ->when(
                 $args['network'] ?? false,
-                function (Builder $query) use ($args) {
-                    return $query->where(
-                        'network',
-                        '=',
-                        $args['network'] === 'relay' ? currentRelay()->name : currentMatrix()->name
-                    );
-                },
+                fn (Builder $query) => $query->where(
+                    'network',
+                    '=',
+                    $args['network'] === 'relay' ? currentRelay()->name : currentMatrix()->name
+                ),
             )
             ->when(
                 $args['accounts'] ?? false,
@@ -91,7 +89,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
 
                     return $query->whereIn('wallet_public_key', $publicKeys);
                 },
-                function (Builder $query) {
+                function (Builder $query): void {
                     $query->where(
                         fn ($subquery) => $subquery
                             ->whereIn('wallet_public_key', Account::managedPublicKeys())

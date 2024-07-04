@@ -59,7 +59,7 @@ class Transaction extends BaseModel
      */
     public function __construct(array $attributes = [])
     {
-        $attributes['state'] = $attributes['state'] ?? TransactionState::PENDING->name;
+        $attributes['state'] ??= TransactionState::PENDING->name;
 
         parent::__construct($attributes);
     }

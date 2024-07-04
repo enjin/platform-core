@@ -20,7 +20,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
-    public ?Model $model;
+    public ?Model $model = null;
 
     /**
      * An array of functions to call prior to broadcasting the event.

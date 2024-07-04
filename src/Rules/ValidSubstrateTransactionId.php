@@ -24,6 +24,6 @@ class ValidSubstrateTransactionId implements ValidationRule
      */
     protected function isValidTransactionId($value): bool
     {
-        return preg_match('/^\d*-\d*$/', $value) >= 1;
+        return preg_match('/^\d*-\d*$/', (string) $value) >= 1;
     }
 }

@@ -86,7 +86,7 @@ abstract class WebsocketAbstract
         if ($this->client) {
             try {
                 $this->client->close();
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
             }
         }
     }

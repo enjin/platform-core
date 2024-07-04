@@ -31,15 +31,7 @@ class Extrinsic implements PolkadartExtrinsic
 
     public static function callOrCalls(array $data): array
     {
-        if (isset($data['call'])) {
-            return $data['call'];
-        }
-
-        if (isset($data['calls'])) {
-            return $data['calls'];
-        }
-
-        return [];
+        return $data['call'] ?? $data['calls'] ?? [];
     }
 }
 

@@ -28,7 +28,7 @@ class ParseChainData implements ShouldQueue
     {
         try {
             $facade = $this->storageKey->parserFacade();
-            $facade::{$this->storageKey->parser()}($this->storageValue, true);
+            $facade::{$this->storageKey->parser()}($this->storageValue);
         } catch (\Throwable $e) {
             Log::error("There was an error parsing hot sync data {$this->storageKey->type->name} {$this->storageKey->value} : {$e->getMessage()}");
 

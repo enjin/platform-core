@@ -17,7 +17,7 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
     use HasIntegerRanges;
     use InGlobalSchema;
 
-    public function __construct(array $config = [])
+    public function __construct()
     {
         parent::__construct(['description' => __('enjin-platform::type.integer_ranges_array.description')]);
     }
@@ -66,9 +66,7 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
     {
         return collect($value)
             ->sort()
-            ->filter(function ($range) {
-                return $this->validateValue($range);
-            })->isEmpty();
+            ->filter(fn ($range) => $this->validateValue($range))->isEmpty();
     }
 
     /**

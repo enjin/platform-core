@@ -77,7 +77,7 @@ trait EagerLoadSelectFields
 
         if (!$isParent) {
             $with = [
-                $key => function ($query) use ($select, $args) {
+                $key => function ($query) use ($select, $args): void {
                     $query->select(array_unique($select))
                         ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                         ->when(Arr::get($args, 'collectionIds'), fn ($q) => $q->whereIn('collection_chain_id', $args['collectionIds']))
@@ -139,7 +139,7 @@ trait EagerLoadSelectFields
 
         if (!$isParent) {
             $with = [
-                $key => function ($query) use ($select, $args) {
+                $key => function ($query) use ($select, $args): void {
                     $query->select(array_unique($select))
                         ->when(
                             Arr::get($args, 'after'),
@@ -202,7 +202,7 @@ trait EagerLoadSelectFields
 
         if (!$isParent) {
             $with = [
-                $key => function ($query) use ($select, $args) {
+                $key => function ($query) use ($select, $args): void {
                     $query->select(array_unique($select))
                         ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                         ->when(Arr::get($args, 'transactionIds'), fn ($q) => $q->whereIn('transaction_chain_id', $args['transactionIds']))
@@ -266,7 +266,7 @@ trait EagerLoadSelectFields
 
         if (!$isParent) {
             $with = [
-                $key => function ($query) use ($select, $args) {
+                $key => function ($query) use ($select, $args): void {
                     $query->select($select)
                         ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                         ->when(Arr::get($args, 'transactionIds'), fn ($q) => $q->whereIn('transaction_chain_id', $args['transactionIds']))
@@ -564,7 +564,7 @@ trait EagerLoadSelectFields
 
                 $withs = array_merge(
                     $withs,
-                    [$key => function ($query) use ($select, $args) {
+                    [$key => function ($query) use ($select, $args): void {
                         $query->select(array_unique($select))
                             ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                             ->when(
@@ -618,7 +618,7 @@ trait EagerLoadSelectFields
 
                 $withs = array_merge(
                     $withs,
-                    [$key => function ($query) use ($select, $args) {
+                    [$key => function ($query) use ($select, $args): void {
                         $query->select(array_unique($select))
                             ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
                             ->when(

@@ -836,7 +836,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'encoded_data' => $encodedData,
         ]);
 
-        $this > $this->assertDatabaseHas('wallets', [
+        $this->assertDatabaseHas('wallets', [
             'public_key' => $recipient,
         ]);
 

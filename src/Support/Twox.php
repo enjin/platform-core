@@ -15,17 +15,12 @@ class Twox
 
     public function ByHasherName(string $hasher, string $hex): string
     {
-        switch ($hasher) {
-            case 'Twox128':
-                // https://php.watch/versions/8.1/xxHash
-                return sprintf('%s', $this->TwoxHash($hex, 128));
-            case 'Twox256':
-                return sprintf('%s', $this->TwoxHash($hex, 256));
-            case 'Twox64Concat':
-                return sprintf('%s%s', $this->XXHash64(0, $hex), self::trimHex($hex));
-            default:
-                throw new \InvalidArgumentException(sprintf('invalid hasher %s', $hasher));
-        }
+        return match ($hasher) {
+            'Twox128' => sprintf('%s', $this->TwoxHash($hex, 128)),
+            'Twox256' => sprintf('%s', $this->TwoxHash($hex, 256)),
+            'Twox64Concat' => sprintf('%s%s', $this->XXHash64(0, $hex), self::trimHex($hex)),
+            default => throw new \InvalidArgumentException(sprintf('invalid hasher %s', $hasher)),
+        };
     }
 
     /**

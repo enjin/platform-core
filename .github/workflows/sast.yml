@@ -1,4 +1,4 @@
-name: Unit & Functional Tests
+name: Static Application Security Testing
 
 on:
   pull_request:
@@ -45,11 +45,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup GO
-        uses: actions/setup-go@v5
-        with:
-          go-version: "^1.19"
-
       - name: Setup problem matchers
         run: |
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
@@ -58,25 +53,8 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-interaction --no-progress
-          composer build-sr25519
           composer dump-autoload      
 
-      - name: Run Laravel Pint
+      - name: Run Rector
         run: |
-          ./vendor/bin/pint --test
-
-      - name: Execute tests
-        run: |
-          php -d pcov.enabled=1 ./vendor/bin/phpunit --colors=always --coverage-clover coverage.xml
-        env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: ${{ job.services.mysql.ports[3306] }}
-          DB_DATABASE: platform
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          dry_run: github.event.pull_request.draft == true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          verbose: true
+          ./vendor/bin/rector process --dry-run

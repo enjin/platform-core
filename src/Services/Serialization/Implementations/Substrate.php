@@ -12,10 +12,7 @@ class Substrate implements SerializationServiceInterface
     /**
      * Create a new instance.
      */
-    public function __construct(protected ?Codec $codec = null)
-    {
-        $this->codec = $codec ?? new Codec();
-    }
+    public function __construct(protected Codec $codec = new Codec()) {}
 
     /**
      * Encode the given data.

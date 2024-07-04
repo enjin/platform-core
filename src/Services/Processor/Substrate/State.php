@@ -95,7 +95,7 @@ class State
 
     public function checkCollectionAccount($collection, string $addressId, string $blockHash, ?Codec $codec = null): mixed
     {
-        $codec = $codec ?? new Codec();
+        $codec ??= new Codec();
         $collectionId = $collection->collection_chain_id;
         $collectionAccount = $this->getParsedStorage(
             key: $codec->encoder()->collectionAccountStorageKey($collectionId, $addressId),
@@ -147,14 +147,14 @@ class State
 
         try {
             return Parser::{$parser}($key, $data);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
     }
 
     public function checkTokenAccount($collection, $token, string $tokenId, string $addressId, string $blockHash, ?Codec $codec = null)
     {
-        $codec = $codec ?? new Codec();
+        $codec ??= new Codec();
         $collectionId = $collection->collection_chain_id;
 
         $tokenAccount = $this->getParsedStorage(
@@ -211,7 +211,7 @@ class State
 
     public function checkToken($collection, string $tokenId, string $blockHash, ?Codec $codec = null): mixed
     {
-        $codec = $codec ?? new Codec();
+        $codec ??= new Codec();
         $collectionId = $collection->collection_chain_id;
 
         $token = $this->getParsedStorage(

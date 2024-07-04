@@ -47,23 +47,19 @@ class ConnectionType extends ObjectType
                         )
                     )
                 ),
-                'resolve' => function ($data): Collection {
-                    return $data['items']->getCollection()->map(fn ($item) => [
-                        'cursor' => $data['items']->getCursorForItem($item)?->encode() ?? '',
-                        'node' => $item,
-                    ]);
-                },
+                'resolve' => fn ($data): Collection => $data['items']->getCollection()->map(fn ($item) => [
+                    'cursor' => $data['items']->getCursorForItem($item)?->encode() ?? '',
+                    'node' => $item,
+                ]),
             ],
             'pageInfo' => [
                 'type' => GraphQL::type('PageInfo!'),
-                'resolve' => function ($data): array {
-                    return [
-                        'hasNextPage' => $data['items']->hasMorePages(),
-                        'hasPreviousPage' => !$data['items']->onFirstPage(),
-                        'startCursor' => $data['items']->cursor()?->encode() ?? '',
-                        'endCursor' => $data['items']->nextCursor()?->encode() ?? '',
-                    ];
-                },
+                'resolve' => fn ($data): array => [
+                    'hasNextPage' => $data['items']->hasMorePages(),
+                    'hasPreviousPage' => !$data['items']->onFirstPage(),
+                    'startCursor' => $data['items']->cursor()?->encode() ?? '',
+                    'endCursor' => $data['items']->nextCursor()?->encode() ?? '',
+                ],
             ],
             'totalCount' => [
                 'type' => GraphQL::type('Int!'),
