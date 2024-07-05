@@ -11,5 +11,25 @@
     "AuctionData": {
         "startBlock": "Compact<u32>",
         "endBlock": "Compact<u32>"
+    },
+    "CreateListingV1010": {
+        "callIndex": "(u8, u8)",
+        "makeAssetId": "MultiTokensAssetId",
+        "takeAssetId": "MultiTokensAssetId",
+        "amount": "Compact<u128>",
+        "price": "Compact<u128>",
+        "salt": "Bytes",
+        "listingData": "ListingDataV1010",
+        "depositor": "Option<AccountId>"
+    },
+    "ListingDataV1010": {
+        "_enum": {
+            "FixedPrice": "Null",
+            "Auction": "AuctionData",
+            "Offer": "OfferData"
+        }
+    },
+    "OfferData": {
+        "expiration": "Option<u32>"
     }
 }
