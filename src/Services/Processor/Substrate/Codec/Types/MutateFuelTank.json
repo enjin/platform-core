@@ -14,5 +14,21 @@
       "NoMutation": "Null",
       "SomeMutation": "Option<UserAccountManagement>"
     }
+  },
+  "MutateFuelTankV1010": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "mutation": "TankMutationV1010"
+  },
+  "TankMutationV1010": {
+    "userAccountManagement": "TankShouldMutate",
+    "coveragePolicy": "Option<CoveragePolicy>",
+    "accountRules": "Option<Vec<AccountRule>>"
+  },
+  "TankShouldMutateV1010": {
+    "_enum": {
+      "NoMutation": "Null",
+      "SomeMutation": "Option<UserAccountManagementV1010>"
+    }
   }
 }
