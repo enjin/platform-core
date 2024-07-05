@@ -18,6 +18,7 @@ class Substrate implements SerializationServiceInterface
     {
         return $this->codec->encoder()->encodeRaw($type, $data);
     }
+
     /**
      * Encode the given data.
      */

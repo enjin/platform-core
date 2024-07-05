@@ -106,7 +106,7 @@ class Encoder
 
     public function encodeRaw(string $type, array $data): string
     {
-        return $this->scaleInstance->createTypeByTypeString($type)->encode($data);;
+        return $this->scaleInstance->createTypeByTypeString($type)->encode($data);
     }
 
     public function signingPayload(
