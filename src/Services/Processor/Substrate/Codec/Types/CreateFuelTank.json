@@ -50,5 +50,61 @@
   },
   "PermittedExtrinsicsRule": {
     "extrinsics": "Vec<Call>"
+  },
+  "CreateFuelTankV1010": {
+  "callIndex": "(u8, u8)",
+  "descriptor": "FuelTankDescriptorV1010"
+  },
+  "FuelTankDescriptorV1010": {
+    "name": "Bytes",
+    "userAccountManagement": "Option<UserAccountManagementV1010>",
+    "ruleSets": "BTreeMap<u32, RuleSetDescriptorV1010>",
+    "coveragePolicy": "CoveragePolicy",
+    "accountRules": "Vec<AccountRule>"
+  },
+  "UserAccountManagementV1010": {
+    "tankReservesAccountCreationDeposit": "bool"
+  },
+  "AccountRule": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "RequireToken": "RequireTokenRule"
+    }
+  },
+  "RequireTokenRule": {
+    "collectionId": "u128",
+    "tokenId": "u128"
+  },
+  "RuleSetDescriptorV1010": {
+    "rules": "Vec<DispatchRuleV1010>",
+    "requireAccount": "bool"
+  },
+  "DispatchRuleV1010": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "WhitelistedCollections": "Vec<u128>",
+      "MaxFuelBurnPerTransaction": "u128",
+      "UserFuelBudget": "UserFuelBudgetRule",
+      "TankFuelBudget": "TankFuelBudgetRule",
+      "RequireToken": "RequireTokenRule",
+      "PermittedCalls": "PermittedCallsRule",
+      "PermittedExtrinsics": "PermittedExtrinsicsRule",
+      "WhitelistedPallets": "Vec<Bytes>",
+      "RequireSignature": "[u8; 32]"
+    }
+  },
+  "UserFuelBudgetRule": {
+    "amount": "Compact",
+    "resetPeriod": "u32"
+  },
+  "TankFuelBudgetRule": {
+    "amount": "Compact",
+    "resetPeriod": "u32"
+  },
+  "PermittedCallsRule": {
+    "calls": "Vec<Bytes>"
+  },
+  "PermittedExtrinsicsRule": {
+    "extrinsics": "Vec<Call>"
   }
 }

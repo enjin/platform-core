@@ -3,5 +3,29 @@
     "callIndex": "(u8, u8)",
     "tankId": "MultiAddress",
     "ruleSetId": "u32"
+  },
+  "OptionDispatchSettings": {
+    "option": "Option<DispatchSettings>"
+  },
+  "DispatchSettings": {
+    "useNoneOrigin": "bool",
+    "paysRemainingFee": "bool"
+  },
+  "DispatchV1010": {
+    "callIndex": "(u8, u8)",
+    "tankId": "MultiAddress",
+    "ruleSetId": "u32"
+  },
+  "OptionDispatchSettingsV1010": {
+    "option": "Option<DispatchSettingsV1010>"
+  },
+  "DispatchSettingsV1010": {
+    "useNoneOrigin": "bool",
+    "paysRemainingFee": "bool",
+    "signature": "Option<ExpirableSignature>"
+  },
+  "ExpirableSignature": {
+    "signature": "[u8; 32]",
+    "expiryBlock": "u32"
   }
 }
