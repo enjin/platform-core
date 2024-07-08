@@ -14,6 +14,11 @@ class Substrate implements SerializationServiceInterface
      */
     public function __construct(protected Codec $codec = new Codec()) {}
 
+    public function encodeRaw(string $type, array $data): string
+    {
+        return $this->codec->encoder()->encodeRaw($type, $data);
+    }
+
     /**
      * Encode the given data.
      */
