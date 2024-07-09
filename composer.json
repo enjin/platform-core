@@ -61,7 +61,7 @@
     "phpstan/phpstan-deprecation-rules": "^1.0",
     "phpstan/phpstan-phpunit": "^1.0",
     "phpunit/php-code-coverage": "^10.0",
-    "phpunit/phpunit": "^10.0",
+    "phpunit/phpunit": "^11.2",
     "rector/rector": "^1.0",
     "roave/security-advisories": "dev-latest"
   },
