@@ -31,10 +31,12 @@ class TokenBurned extends SubstrateEvent
 
         $account = $this->firstOrStoreAccount($this->event->account);
 
-        $token = Token::where([
+        $token = Token::firstWhere([
             'collection_id' => $collection->id,
             'token_chain_id' => $this->event->tokenId,
-        ])?->decrement('supply', $this->event->amount);
+        ]);
+
+        $token?->decrement('supply', $this->event->amount);
 
         TokenAccount::where([
             'wallet_id' => $account->id,

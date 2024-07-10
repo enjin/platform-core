@@ -39,4 +39,24 @@ class ExtrinsicSuccess extends Event implements PolkadartEvent
 }
 
 /* Example 1
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "System" => array:1 [▼
+        "ExtrinsicSuccess" => array:1 [▼
+          "DispatchInfo" => array:3 [▼
+            "weight" => array:2 [▼
+              "ref_time" => "272548000"
+              "proof_size" => "6608"
+            ]
+            "class" => "Normal"
+            "pays_fee" => "Yes"
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

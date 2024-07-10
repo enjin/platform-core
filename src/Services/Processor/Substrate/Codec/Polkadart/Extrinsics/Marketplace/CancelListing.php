@@ -8,31 +8,67 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class CancelListing extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-{
-    "extrinsic_length": 138,
-    "version": 4,
-    "signature": {
-        "address": {
-            "Id": "b882d3135b23eefc56ff0fd9e7d3f87c732040b49282cbd836f142c2435c0d11"
-        },
-        "signature": {
-            "Sr25519": "561821de4f8b95efa598fbd78ab82c4016a851d35edf312c846b5df7e6bdfc228f48f0ed7a0a922a6d286ab2334d7ef79ea242c3b9cafa8dd924798e3d083583"
-        },
-        "signedExtensions": {
-            "CheckMortality": {
-                "Mortal244": 1
-            },
-            "CheckNonce": 111,
-            "ChargeTransactionPayment": "0"
-        }
-    },
-    "call": {
-        "Marketplace": {
-            "cancel_listing": {
-                "listing_id": "a7511f79d0fba9bd3e4239672bdf1ae7429596035d0d2cc04ae9b0d73d49290b"
-            }
-        }
-    },
-    "extrinsic_hash": "0x960e7ad6fce0f579c9ae8c95df7a23d92fad5d31742d2624016ae59025068d1e"
-}
+[▼
+  "hash" => "5f46ce461a0989fbec512f05e9b9576da4887b54d72a7356f69de537f5f7ed12"
+  "extrinsic_length" => 139
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 24
+      ]
+      "nonce" => 115
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "Marketplace" => array:1 [▼
+      "cancel_listing" => array:1 [▼
+        "listing_id" => array:32 [▼
+          0 => 149
+          1 => 73
+          2 => 178
+          3 => 222
+          4 => 67
+          5 => 104
+          6 => 222
+          7 => 175
+          8 => 149
+          9 => 83
+          10 => 84
+          11 => 31
+          12 => 134
+          13 => 78
+          14 => 114
+          15 => 8
+          16 => 129
+          17 => 106
+          18 => 15
+          19 => 118
+          20 => 41
+          21 => 217
+          22 => 140
+          23 => 9
+          24 => 96
+          25 => 137
+          26 => 32
+          27 => 181
+          28 => 230
+          29 => 57
+          30 => 191
+          31 => 199
+        ]
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "5f46ce461a0989fbec512f05e9b9576da4887b54d72a7356f69de537f5f7ed12"
+]
 */

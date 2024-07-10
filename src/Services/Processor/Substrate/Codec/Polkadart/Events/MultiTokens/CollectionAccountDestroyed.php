@@ -38,18 +38,51 @@ class CollectionAccountDestroyed extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-        ],
-        "event" => [
-            "MultiTokens" => [
-                "CollectionAccountDestroyed" => [
-                    "collection_id" => "10133",
-                    "account_id" => "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48",
-                ],
-            ],
-        ],
-        "topics" => [],
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
     ]
+    "event" => array:1 [▼
+      "MultiTokens" => array:1 [▼
+        "CollectionAccountDestroyed" => array:2 [▼
+          "T::CollectionId" => "77160"
+          "T::AccountId" => array:32 [▼
+            0 => 212
+            1 => 53
+            2 => 147
+            3 => 199
+            4 => 21
+            5 => 253
+            6 => 211
+            7 => 28
+            8 => 97
+            9 => 20
+            10 => 26
+            11 => 189
+            12 => 4
+            13 => 169
+            14 => 159
+            15 => 214
+            16 => 130
+            17 => 44
+            18 => 133
+            19 => 88
+            20 => 133
+            21 => 76
+            22 => 205
+            23 => 227
+            24 => 154
+            25 => 86
+            26 => 132
+            27 => 231
+            28 => 165
+            29 => 109
+            30 => 162
+            31 => 125
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

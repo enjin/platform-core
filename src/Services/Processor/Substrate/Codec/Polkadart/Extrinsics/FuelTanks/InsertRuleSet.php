@@ -8,52 +8,80 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class InsertRuleSet extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 160,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "78143729c27c7cc3d4c174ff7f0cd0d5e375295f25913474f884a3b2eb05f02e6980b63f24af15ba002c539cf3a1996b0b3d814d8ce4eab97009e3508acb1088"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal52": 1
-                },
-                "CheckNonce": 11960,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "insert_rule_set": {
-                    "tank_id": {
-                        "Id": "bf6059d424bd518ef7a80e70c83d69a7a030ec60a4a6ab6460f5e99e3fffa260"
-                    },
-                    "rule_set_id": 12849,
-                    "rules": [
-                        {
-                            "TankFuelBudget": {
-                                "budget": {
-                                    "amount": "1000000000000000000",
-                                    "reset_period": 123
-                                },
-                                "consumption": {
-                                    "total_consumed": "0",
-                                    "last_reset_block": {
-                                        "None": null
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        "extrinsic_hash": "0x64fe01cb6fb13c6edb3663ce7064473cbdb5065e11a3325255475adaff2b428d"
-    }
+[▼
+  "hash" => "537044ac137b165605b6077d6df16f6db562a332c3f28fed1817bf3880bb4ad1"
+  "extrinsic_length" => 164
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 22
+      ]
+      "nonce" => 134
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "insert_rule_set" => array:3 [▼
+        "tank_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 140
+            1 => 184
+            2 => 230
+            3 => 192
+            4 => 80
+            5 => 13
+            6 => 8
+            7 => 132
+            8 => 49
+            9 => 34
+            10 => 135
+            11 => 124
+            12 => 42
+            13 => 192
+            14 => 250
+            15 => 84
+            16 => 54
+            17 => 112
+            18 => 201
+            19 => 96
+            20 => 152
+            21 => 168
+            22 => 6
+            23 => 104
+            24 => 223
+            25 => 99
+            26 => 109
+            27 => 254
+            28 => 59
+            29 => 148
+            30 => 159
+            31 => 19
+          ]
+        ]
+        "rule_set_id" => 1
+        "rule_set" => array:2 [▼
+          "rules" => array:1 [▼
+            0 => array:1 [▼
+              "WhitelistedCollections" => array:1 [▼
+                0 => "2000"
+              ]
+            ]
+          ]
+          "require_account" => false
+        ]
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "537044ac137b165605b6077d6df16f6db562a332c3f28fed1817bf3880bb4ad1"
 ]
 */

@@ -44,22 +44,22 @@ class TokenCreated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-        ],
-        "event" => [
-            "MultiTokens" => [
-                "TokenCreated" => [
-                    "collection_id" => "9248",
-                    "token_id" => "1",
-                    "issuer" => [
-                        "Signed" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
-                    ],
-                    "initial_supply" => "1",
-                ],
-            ],
-        ],
-        "topics" => [],
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
     ]
+    "event" => array:1 [▼
+      "MultiTokens" => array:1 [▼
+        "TokenCreated" => array:4 [▼
+          "T::CollectionId" => "77160"
+          "T::TokenId" => "1"
+          "RootOrSigned<T::AccountId>" => array:1 [▼
+            "Signed" => array:32 [▶]
+          ]
+          "T::TokenBalance" => "1000"
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
 */

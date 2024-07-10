@@ -8,40 +8,143 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class BatchAddAccount extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 173,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "eec0a671e5a832a25f5caa8bbd78cea850df3f6a2e9b4d453251159710b7de7041cca76f541b73409985d548a47098654bc4e1fce58d149217625a1995f9aa83"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal84": 0
-                },
-                "CheckNonce": 12011,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "batch_add_account": {
-                    "tank_id": {
-                        "Id": "5baca881467045ad17d4b46a034fd0e24fad6139b65cb75a2ed76cf23d5a3aca"
-                    },
-                    "user_ids": [
-                        {
-                            "Id": "d262026b9f63cff14e06d54e85485e2c4d6458de2cf4858b4ce365a519fa3e51"
-                        }
-                    ]
-                }
-            }
-        },
-        "extrinsic_hash": "0x48a8e23dc59af033cff424d7c15b44a38d4e6b411f0c8447699fd2765f302571"
-    }
+[▼
+  "hash" => "a8ad615860e2762c3f0231fd90e313b139d2e9055f4bb274e05f519313f37071"
+  "extrinsic_length" => 207
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 28
+      ]
+      "nonce" => 149
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "batch_add_account" => array:2 [▼
+        "tank_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 89
+            1 => 184
+            2 => 117
+            3 => 198
+            4 => 158
+            5 => 220
+            6 => 161
+            7 => 224
+            8 => 130
+            9 => 188
+            10 => 156
+            11 => 88
+            12 => 51
+            13 => 69
+            14 => 25
+            15 => 88
+            16 => 225
+            17 => 190
+            18 => 240
+            19 => 218
+            20 => 217
+            21 => 220
+            22 => 14
+            23 => 215
+            24 => 197
+            25 => 225
+            26 => 53
+            27 => 227
+            28 => 59
+            29 => 159
+            30 => 183
+            31 => 137
+          ]
+        ]
+        "user_ids" => array:2 [▼
+          0 => array:1 [▼
+            "Id" => array:32 [▼
+              0 => 230
+              1 => 89
+              2 => 167
+              3 => 161
+              4 => 98
+              5 => 140
+              6 => 221
+              7 => 147
+              8 => 254
+              9 => 188
+              10 => 4
+              11 => 164
+              12 => 224
+              13 => 100
+              14 => 110
+              15 => 162
+              16 => 14
+              17 => 159
+              18 => 95
+              19 => 12
+              20 => 224
+              21 => 151
+              22 => 217
+              23 => 160
+              24 => 82
+              25 => 144
+              26 => 212
+              27 => 169
+              28 => 224
+              29 => 84
+              30 => 223
+              31 => 78
+            ]
+          ]
+          1 => array:1 [▼
+            "Id" => array:32 [▼
+              0 => 28
+              1 => 189
+              2 => 45
+              3 => 67
+              4 => 83
+              5 => 10
+              6 => 68
+              7 => 112
+              8 => 90
+              9 => 208
+              10 => 136
+              11 => 175
+              12 => 49
+              13 => 62
+              14 => 24
+              15 => 248
+              16 => 11
+              17 => 83
+              18 => 239
+              19 => 22
+              20 => 179
+              21 => 97
+              22 => 119
+              23 => 205
+              24 => 75
+              25 => 119
+              26 => 184
+              27 => 70
+              28 => 242
+              29 => 165
+              30 => 240
+              31 => 124
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "a8ad615860e2762c3f0231fd90e313b139d2e9055f4bb274e05f519313f37071"
 ]
 */

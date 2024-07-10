@@ -35,17 +35,50 @@ class FuelTankDestroyed extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    {
-        "phase": {
-            "ApplyExtrinsic": 6
-        },
-        "event": {
-            "FuelTanks": {
-                "FuelTankDestroyed": {
-                    "tank_id": "06ce2ac56eab3948f24a3a8613d38d58dec3bd796cd4c1035c08b7034b4d5d3e"
-                }
-            }
-        },
-        "topics": []
-    },
+[▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "FuelTanks" => array:1 [▼
+        "FuelTankDestroyed" => array:1 [▼
+          "T::AccountId" => array:32 [▼
+            0 => 2
+            1 => 237
+            2 => 43
+            3 => 57
+            4 => 28
+            5 => 39
+            6 => 85
+            7 => 106
+            8 => 76
+            9 => 108
+            10 => 189
+            11 => 241
+            12 => 198
+            13 => 103
+            14 => 34
+            15 => 131
+            16 => 245
+            17 => 116
+            18 => 175
+            19 => 192
+            20 => 108
+            21 => 155
+            22 => 70
+            23 => 93
+            24 => 205
+            25 => 37
+            26 => 28
+            27 => 79
+            28 => 22
+            29 => 58
+            30 => 166
+            31 => 36
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

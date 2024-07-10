@@ -8,31 +8,67 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class FinalizeAuction extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-{
-    "extrinsic_length": 138,
-    "version": 4,
-    "signature": {
-        "address": {
-            "Id": "e4569fb538b1cb511472919417e748d96aaab546f15d89f3d387122ab72eef79"
-        },
-        "signature": {
-            "Sr25519": "a02d7a581fb0adf14b31de4016d0da0b9ccc205f49635eefc56dcc3da7617708bace909fd14177c45c79e41333a0592dfa870c83c604d9e98851b062b4bb1b85"
-        },
-        "signedExtensions": {
-            "CheckMortality": {
-                "Mortal116": 0
-            },
-            "CheckNonce": 79,
-            "ChargeTransactionPayment": "0"
-        }
-    },
-    "call": {
-        "Marketplace": {
-            "finalize_auction": {
-                "listing_id": "0aabea26ce1a43e14775b4b2be60e08a1bc3fcbaaeedfba2f3a5ce934d24d73e"
-            }
-        }
-    },
-    "extrinsic_hash": "0x0be7f6575781b22339ee08f1812a5db6f2ebf9685378c4cee36004de4297ac69"
-}
+[▼
+    "hash" => "605d1e0453c1bb855608e276906d2af331a0d3da75b9243e41fe55769619b5a4"
+    "extrinsic_length" => 139
+    "version" => 4
+    "signature" => array:3 [▼
+      "address" => array:1 [▼
+        "Id" => array:32 [▶]
+      ]
+      "signature" => array:1 [▼
+        "Sr25519" => array:64 [▶]
+      ]
+      "signedExtensions" => array:4 [▼
+        "era" => array:2 [▼
+          "period" => 32
+          "phase" => 19
+        ]
+        "nonce" => 119
+        "tip" => "0"
+        "metadata_hash" => "Disabled"
+      ]
+    ]
+    "calls" => array:1 [▼
+      "Marketplace" => array:1 [▼
+        "finalize_auction" => array:1 [▼
+          "listing_id" => array:32 [▼
+            0 => 57
+            1 => 116
+            2 => 137
+            3 => 159
+            4 => 32
+            5 => 135
+            6 => 226
+            7 => 53
+            8 => 97
+            9 => 171
+            10 => 138
+            11 => 227
+            12 => 157
+            13 => 252
+            14 => 214
+            15 => 65
+            16 => 207
+            17 => 67
+            18 => 210
+            19 => 101
+            20 => 100
+            21 => 134
+            22 => 230
+            23 => 149
+            24 => 153
+            25 => 36
+            26 => 208
+            27 => 235
+            28 => 193
+            29 => 151
+            30 => 173
+            31 => 133
+          ]
+        ]
+      ]
+    ]
+    "extrinsic_hash" => "605d1e0453c1bb855608e276906d2af331a0d3da75b9243e41fe55769619b5a4"
+  ]
 */

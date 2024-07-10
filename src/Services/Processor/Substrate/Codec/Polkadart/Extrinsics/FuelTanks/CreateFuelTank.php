@@ -8,111 +8,137 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class CreateFuelTank extends Extrinsic implements PolkadartExtrinsic {}
 
 /* Example 1
-[
-    {
-        "extrinsic_length": 138,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "56fba7af9da63a74853ced5555fec97ce993bd02060ed5954938f72636bb0800"
-            },
-            "signature": {
-                "Sr25519": "5072bfce18686680908bc383e170db94d1b0a05360d605b3ab65c2c921ec7a035a75363adda0c5a5c247e6b48d3691801de48108f80d3547df8ecfd48cee5e8b"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal116": 0
-                },
-                "CheckNonce": 5778,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "create_fuel_tank": {
-                    "descriptor": {
-                        "name": [
-                            108,
-                            102,
-                            109,
-                            119,
-                            112,
-                            120,
-                            119,
-                            107
-                        ],
-                        "user_account_management": {
-                            "None": null
-                        },
-                        "rule_sets": [
-                            [
-                                1,
-                                [
-                                    {
-                                        "UserFuelBudget": {
-                                            "amount": "100000000000000000",
-                                            "reset_period": 5
-                                        }
-                                    }
-                                ]
-                            ]
-                        ],
-                        "provides_deposit": false,
-                        "account_rules": []
-                    }
-                }
-            }
-        },
-        "extrinsic_hash": "0x34ae20154ab4d6e804a2ffa3bfca14a000f9ec02c765f9e54a1cf152c87ce172"
-    }
+[▼
+  "hash" => "eb2d724b655a0a8cb8c43f5d11cda3bcaf008f94c6db1417d0e6a70efe1aa015"
+  "extrinsic_length" => 200
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▶]
+      "nonce" => 124
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "create_fuel_tank" => array:1 [▼
+        "descriptor" => array:5 [▼
+          "name" => array:13 [▼
+            0 => 84
+            1 => 104
+            2 => 101
+            3 => 32
+            4 => 70
+            5 => 117
+            6 => 101
+            7 => 108
+            8 => 32
+            9 => 84
+            10 => 97
+            11 => 110
+            12 => 107
+          ]
+          "user_account_management" => true
+          "rule_sets" => array:1 [▼
+            0 => array:2 [▼
+              0 => 0
+              1 => array:2 [▼
+                "rules" => array:1 [▼
+                  0 => array:1 [▼
+                    "WhitelistedCallers" => array:1 [▼
+                      0 => array:32 [▼
+                        0 => 212
+                        1 => 53
+                        2 => 147
+                        3 => 199
+                        4 => 21
+                        5 => 253
+                        6 => 211
+                        7 => 28
+                        8 => 97
+                        9 => 20
+                        10 => 26
+                        11 => 189
+                        12 => 4
+                        13 => 169
+                        14 => 159
+                        15 => 214
+                        16 => 130
+                        17 => 44
+                        18 => 133
+                        19 => 88
+                        20 => 133
+                        21 => 76
+                        22 => 205
+                        23 => 227
+                        24 => 154
+                        25 => 86
+                        26 => 132
+                        27 => 231
+                        28 => 165
+                        29 => 109
+                        30 => 162
+                        31 => 125
+                      ]
+                    ]
+                  ]
+                ]
+                "require_account" => true
+              ]
+            ]
+          ]
+          "coverage_policy" => "FeesAndDeposit"
+          "account_rules" => array:1 [▼
+            0 => array:1 [▼
+              "WhitelistedCallers" => array:1 [▼
+                0 => array:32 [▼
+                  0 => 212
+                  1 => 53
+                  2 => 147
+                  3 => 199
+                  4 => 21
+                  5 => 253
+                  6 => 211
+                  7 => 28
+                  8 => 97
+                  9 => 20
+                  10 => 26
+                  11 => 189
+                  12 => 4
+                  13 => 169
+                  14 => 159
+                  15 => 214
+                  16 => 130
+                  17 => 44
+                  18 => 133
+                  19 => 88
+                  20 => 133
+                  21 => 76
+                  22 => 205
+                  23 => 227
+                  24 => 154
+                  25 => 86
+                  26 => 132
+                  27 => 231
+                  28 => 165
+                  29 => 109
+                  30 => 162
+                  31 => 125
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "eb2d724b655a0a8cb8c43f5d11cda3bcaf008f94c6db1417d0e6a70efe1aa015"
 ]
-
-Example 2
-{
-    "extrinsic_length": 121,
-    "version": 4,
-    "signature": {
-        "address": {
-            "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-        },
-        "signature": {
-            "Sr25519": "684155414ab95477307bd4e0ad20388db978297c1fdc8d824e6d226974cad03372e23cf3cf408a3575044d3b2ee73bacb12ee783a56ec4653adc0a8f1a603b82"
-        },
-        "signedExtensions": {
-            "CheckMortality": {
-                "Mortal52": 1
-            },
-            "CheckNonce": 12927,
-            "ChargeTransactionPayment": "0"
-        }
-    },
-    "call": {
-        "FuelTanks": {
-            "create_fuel_tank": {
-                "descriptor": {
-                    "name": [
-                        108,
-                        102,
-                        112,
-                        115,
-                        108,
-                        53,
-                        48,
-                        116
-                    ],
-                    "user_account_management": {
-                        "Some": {
-                            "tank_reserves_existential_deposit": false,
-                            "tank_reserves_account_creation_deposit": false
-                        }
-                    },
-                    "rule_sets": [],
-                    "provides_deposit": false,
-                    "account_rules": []
-                }
-            }
-        }
-    },
-    "extrinsic_hash": "0xcfbf46a534901582260467827723eb7538367d55d910f63dde4d3f1fc720f234"
-}
 */

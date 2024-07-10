@@ -8,36 +8,70 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class RemoveRuleSet extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 143,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "dc782a370cc7f27171d23030c7bcbf68e905e3df4515d85ecca4b6cbdff18b00b338fd57b84b6ed563b0342b0d7dc6befde0084643f05d75653956f5662b8c87"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal68": 1
-                },
-                "CheckNonce": 11977,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "remove_rule_set": {
-                    "tank_id": {
-                        "Id": "019c63df7d06220d8f42e4a04eeafc69c01849c1b4df1270f455e8fb49531368"
-                    },
-                    "rule_set_id": 1
-                }
-            }
-        },
-        "extrinsic_hash": "0xa412c28574ad79b95c8de7a964879ad3f27a054166fc7508b806c3fa592808de"
-    }
+[▼
+  "hash" => "96d4cb72d81bd9ea2968a882f46bb67818aa5e2aa74c5c8aae965cfcd32e6831"
+  "extrinsic_length" => 144
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 29
+      ]
+      "nonce" => 135
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "remove_rule_set" => array:2 [▼
+        "tank_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 140
+            1 => 184
+            2 => 230
+            3 => 192
+            4 => 80
+            5 => 13
+            6 => 8
+            7 => 132
+            8 => 49
+            9 => 34
+            10 => 135
+            11 => 124
+            12 => 42
+            13 => 192
+            14 => 250
+            15 => 84
+            16 => 54
+            17 => 112
+            18 => 201
+            19 => 96
+            20 => 152
+            21 => 168
+            22 => 6
+            23 => 104
+            24 => 223
+            25 => 99
+            26 => 109
+            27 => 254
+            28 => 59
+            29 => 148
+            30 => 159
+            31 => 19
+          ]
+        ]
+        "rule_set_id" => 1
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "96d4cb72d81bd9ea2968a882f46bb67818aa5e2aa74c5c8aae965cfcd32e6831"
 ]
 */
