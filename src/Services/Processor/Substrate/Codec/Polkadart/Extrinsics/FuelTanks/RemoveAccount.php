@@ -8,38 +8,105 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class RemoveAccount extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 172,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "9a04bb98afdaf308d35b0292457616b5839dec5b65b2b386c453ad72d47d2f7f5f5ba4d2f1fedde37cabdcee2d8333c8b50e2f47320bc8efb0e573c5cc06128c"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal4": 0
-                },
-                "CheckNonce": 12096,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "remove_account": {
-                    "tank_id": {
-                        "Id": "3bcde4366eeb3372ae358fc725842e62d5b6ee9e2feb606ebfc36c27a3b23925"
-                    },
-                    "user_id": {
-                        "Id": "d262026b9f63cff14e06d54e85485e2c4d6458de2cf4858b4ce365a519fa3e51"
-                    }
-                }
-            }
-        },
-        "extrinsic_hash": "0x980b49f65b2ad4735de79e24081fa8191797e87b6ef593196a1aea0093587223"
-    }
+[▼
+  "hash" => "1857e7a63142b609c12b81e1a857d7a637f5fcb5400cb120c3a387ee8df00616"
+  "extrinsic_length" => 173
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 19
+      ]
+      "nonce" => 152
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "remove_account" => array:2 [▼
+        "tank_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 89
+            1 => 184
+            2 => 117
+            3 => 198
+            4 => 158
+            5 => 220
+            6 => 161
+            7 => 224
+            8 => 130
+            9 => 188
+            10 => 156
+            11 => 88
+            12 => 51
+            13 => 69
+            14 => 25
+            15 => 88
+            16 => 225
+            17 => 190
+            18 => 240
+            19 => 218
+            20 => 217
+            21 => 220
+            22 => 14
+            23 => 215
+            24 => 197
+            25 => 225
+            26 => 53
+            27 => 227
+            28 => 59
+            29 => 159
+            30 => 183
+            31 => 137
+          ]
+        ]
+        "user_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 28
+            1 => 189
+            2 => 45
+            3 => 67
+            4 => 83
+            5 => 10
+            6 => 68
+            7 => 112
+            8 => 90
+            9 => 208
+            10 => 136
+            11 => 175
+            12 => 49
+            13 => 62
+            14 => 24
+            15 => 248
+            16 => 11
+            17 => 83
+            18 => 239
+            19 => 22
+            20 => 179
+            21 => 97
+            22 => 119
+            23 => 205
+            24 => 75
+            25 => 119
+            26 => 184
+            27 => 70
+            28 => 242
+            29 => 165
+            30 => 240
+            31 => 124
+          ]
+        ]
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "1857e7a63142b609c12b81e1a857d7a637f5fcb5400cb120c3a387ee8df00616"
 ]
 */

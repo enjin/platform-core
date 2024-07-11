@@ -43,18 +43,51 @@ class CollectionAccountCreated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-        ],
-        "event" => [
-            "MultiTokens" => [
-                "CollectionAccountCreated" => [
-                    "collection_id" => "9248",
-                    "account_id" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
-                ],
-            ],
-        ],
-      "topics" => [],
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
     ]
+    "event" => array:1 [▼
+      "MultiTokens" => array:1 [▼
+        "CollectionAccountCreated" => array:2 [▼
+          "T::CollectionId" => "77160"
+          "T::AccountId" => array:32 [▼
+            0 => 144
+            1 => 181
+            2 => 171
+            3 => 32
+            4 => 92
+            5 => 105
+            6 => 116
+            7 => 201
+            8 => 234
+            9 => 132
+            10 => 27
+            11 => 230
+            12 => 136
+            13 => 134
+            14 => 70
+            15 => 51
+            16 => 220
+            17 => 156
+            18 => 168
+            19 => 163
+            20 => 87
+            21 => 132
+            22 => 62
+            23 => 234
+            24 => 207
+            25 => 35
+            26 => 20
+            27 => 100
+            28 => 153
+            29 => 101
+            30 => 254
+            31 => 34
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

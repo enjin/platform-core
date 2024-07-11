@@ -43,18 +43,51 @@ class RuleSetRemoved extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    {
-        "phase": {
-            "ApplyExtrinsic": 2
-        },
-        "event": {
-            "FuelTanks": {
-                "RuleSetRemoved": {
-                    "tank_id": "ef8a434c13749766ea5857e1802bd735dba5b73ba6704a6700e835a2f2544dd2",
-                    "rule_set_id": 1
-                }
-            }
-        },
-        "topics": []
-    },
+[▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "FuelTanks" => array:1 [▼
+        "RuleSetRemoved" => array:2 [▼
+          "T::AccountId" => array:32 [▼
+            0 => 140
+            1 => 184
+            2 => 230
+            3 => 192
+            4 => 80
+            5 => 13
+            6 => 8
+            7 => 132
+            8 => 49
+            9 => 34
+            10 => 135
+            11 => 124
+            12 => 42
+            13 => 192
+            14 => 250
+            15 => 84
+            16 => 54
+            17 => 112
+            18 => 201
+            19 => 96
+            20 => 152
+            21 => 168
+            22 => 6
+            23 => 104
+            24 => 223
+            25 => 99
+            26 => 109
+            27 => 254
+            28 => 59
+            29 => 148
+            30 => 159
+            31 => 19
+          ]
+          "T::RuleSetId" => 1
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

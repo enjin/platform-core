@@ -44,4 +44,35 @@ class ExtrinsicFailed extends Event implements PolkadartEvent
 }
 
 /* Example 1
- */
+[▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "System" => array:1 [▼
+        "ExtrinsicFailed" => array:2 [▼
+          "DispatchError" => array:1 [▼
+            "Module" => array:2 [▼
+              "index" => 54
+              "error" => array:4 [▼
+                0 => 0
+                1 => 0
+                2 => 0
+                3 => 0
+              ]
+            ]
+          ]
+          "DispatchInfo" => array:3 [▼
+            "weight" => array:2 [▼
+              "ref_time" => "267226000"
+              "proof_size" => "2076114"
+            ]
+            "class" => "Normal"
+            "pays_fee" => "Yes"
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
+*/

@@ -62,34 +62,79 @@ class TokenMutated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-         ],
-        "event" => [
-            "MultiTokens" => [
-                "TokenMutated" => [
-                    "collection_id" => "10685",
-                    "token_id" => "1",
-                    "mutation" => [
-                        "behavior" => [
-                            "SomeMutation" => [
-                                "Some" => [
-                                    "HasRoyalty" => [
-                                        "beneficiary" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
-                                        "percentage" => 10000000,
-                                    ],
-                                ],
-                            ],
-                        ],
-                        "listing_forbidden" => [
-                            "SomeMutation" => true,
-                        ],
-                        "metadata" => "NoMutation",
-                    ],
-                ],
-            ],
-        ],
-        "topics" => [],
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
     ]
+    "event" => array:1 [▼
+      "MultiTokens" => array:1 [▼
+        "TokenMutated" => array:3 [▼
+          "T::CollectionId" => "77160"
+          "T::TokenId" => "1"
+          "T::TokenMutation" => array:4 [▼
+            "behavior" => array:1 [▼
+              "SomeMutation" => array:1 [▼
+                "HasRoyalty" => array:2 [▼
+                  "beneficiary" => array:32 [▼
+                    0 => 212
+                    1 => 53
+                    2 => 147
+                    3 => 199
+                    4 => 21
+                    5 => 253
+                    6 => 211
+                    7 => 28
+                    8 => 97
+                    9 => 20
+                    10 => 26
+                    11 => 189
+                    12 => 4
+                    13 => 169
+                    14 => 159
+                    15 => 214
+                    16 => 130
+                    17 => 44
+                    18 => 133
+                    19 => 88
+                    20 => 133
+                    21 => 76
+                    22 => 205
+                    23 => 227
+                    24 => 154
+                    25 => 86
+                    26 => 132
+                    27 => 231
+                    28 => 165
+                    29 => 109
+                    30 => 162
+                    31 => 125
+                  ]
+                  "percentage" => 10000000
+                ]
+              ]
+            ]
+            "listing_forbidden" => array:1 [▼
+              "SomeMutation" => true
+            ]
+            "anyone_can_infuse" => array:1 [▼
+              "SomeMutation" => true
+            ]
+            "name" => array:1 [▼
+              "SomeMutation" => array:8 [▼
+                0 => 76
+                1 => 101
+                2 => 32
+                3 => 84
+                4 => 111
+                5 => 107
+                6 => 101
+                7 => 110
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

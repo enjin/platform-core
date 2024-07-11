@@ -7,13 +7,14 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 
-class AccountRemoved extends Event implements PolkadartEvent
+class ConsumptionSet extends Event implements PolkadartEvent
 {
     public readonly ?string $extrinsicIndex;
     public readonly string $module;
     public readonly string $name;
     public readonly string $tankId;
-    public readonly string $userId;
+    public readonly ?string $userId;
+    public readonly array $consumption;
 
     public static function fromChain(array $data): self
     {
@@ -22,15 +23,11 @@ class AccountRemoved extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', '0']));
-        $self->userId = Account::parseAccount($self->getValue($data, ['user_id', '1']));
+        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', 'T::AccountId']));
+        $self->userId = Account::parseAccount($self->getValue($data, ['user_id', 'Option<T::AccountId>']));
+        $self->consumption = $self->getValue($data, ['consumption', 'ConsumptionOf<T>']);
 
         return $self;
-    }
-
-    public function getPallet(): string
-    {
-        return $this->module;
     }
 
     public function getParams(): array
@@ -38,6 +35,7 @@ class AccountRemoved extends Event implements PolkadartEvent
         return [
             ['type' => 'tankId', 'value' => $this->tankId],
             ['type' => 'userId', 'value' => $this->userId],
+            ['type' => 'consumption', 'value' => $this->consumption],
         ];
     }
 }
@@ -49,8 +47,8 @@ class AccountRemoved extends Event implements PolkadartEvent
     ]
     "event" => array:1 [▼
       "FuelTanks" => array:1 [▼
-        "AccountRemoved" => array:2 [▼
-          0 => array:32 [▼
+        "ConsumptionSet" => array:4 [▼
+          "T::AccountId" => array:32 [▼
             0 => 89
             1 => 184
             2 => 117
@@ -84,39 +82,11 @@ class AccountRemoved extends Event implements PolkadartEvent
             30 => 183
             31 => 137
           ]
-          1 => array:32 [▼
-            0 => 28
-            1 => 189
-            2 => 45
-            3 => 67
-            4 => 83
-            5 => 10
-            6 => 68
-            7 => 112
-            8 => 90
-            9 => 208
-            10 => 136
-            11 => 175
-            12 => 49
-            13 => 62
-            14 => 24
-            15 => 248
-            16 => 11
-            17 => 83
-            18 => 239
-            19 => 22
-            20 => 179
-            21 => 97
-            22 => 119
-            23 => 205
-            24 => 75
-            25 => 119
-            26 => 184
-            27 => 70
-            28 => 242
-            29 => 165
-            30 => 240
-            31 => 124
+          "Option<T::AccountId>" => null
+          "T::RuleSetId" => 4
+          "ConsumptionOf<T>" => array:2 [▼
+            "total_consumed" => "1000000000"
+            "last_reset_block" => 38000
           ]
         ]
       ]

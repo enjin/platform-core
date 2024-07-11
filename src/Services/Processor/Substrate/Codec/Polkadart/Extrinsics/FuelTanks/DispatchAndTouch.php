@@ -8,62 +8,80 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class DispatchAndTouch extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 164,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "be966395b6b605aabfa591697c08c5ae6b5f67f4b1185c1715c57c6bac620d77483d7f09e4a020bc2c40bf217edc00d0dc5d338fd03164ec17920ee265867488"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal148": 1
-                },
-                "CheckNonce": 12057,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "dispatch_and_touch": {
-                    "tank_id": {
-                        "Id": "933b3489626796e32b08602d248f9c0e9132dd20bdf588ef7bfef04d098539f6"
-                    },
-                    "rule_set_id": 0,
-                    "call": {
-                        "System": {
-                            "remark": {
-                                "remark": [
-                                    119,
-                                    105,
-                                    116,
-                                    104,
-                                    32,
-                                    116,
-                                    101,
-                                    115,
-                                    116,
-                                    32,
-                                    97,
-                                    99,
-                                    99,
-                                    111,
-                                    117,
-                                    110,
-                                    116
-                                ]
-                            }
-                        }
-                    },
-                    "pays_remaining_fee": false
-                }
-            }
-        },
-        "extrinsic_hash": "0xec69fcd4328c8f201576d6a3419732f69ecc59ae45bdc063db88f5064442b0c6"
-    }
+[▼
+  "hash" => "462a1f0f49d5afd44f915443413869469f0e003e28a5f4fd83b0a83715acf027"
+  "extrinsic_length" => 156
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▼
+      "Sr25519" => array:64 [▶]
+    ]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▶]
+      "nonce" => 167
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "dispatch_and_touch" => array:4 [▼
+        "tank_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 89
+            1 => 184
+            2 => 117
+            3 => 198
+            4 => 158
+            5 => 220
+            6 => 161
+            7 => 224
+            8 => 130
+            9 => 188
+            10 => 156
+            11 => 88
+            12 => 51
+            13 => 69
+            14 => 25
+            15 => 88
+            16 => 225
+            17 => 190
+            18 => 240
+            19 => 218
+            20 => 217
+            21 => 220
+            22 => 14
+            23 => 215
+            24 => 197
+            25 => 225
+            26 => 53
+            27 => 227
+            28 => 59
+            29 => 159
+            30 => 183
+            31 => 137
+          ]
+        ]
+        "rule_set_id" => 0
+        "call" => array:1 [▼
+          "MultiTokens" => array:1 [▼
+            "create_collection" => array:1 [▼
+              "descriptor" => array:4 [▼
+                "policy" => array:5 [▶]
+                "depositor" => null
+                "explicit_royalty_currencies" => array:1 [▶]
+                "attributes" => []
+              ]
+            ]
+          ]
+        ]
+        "settings" => null
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "462a1f0f49d5afd44f915443413869469f0e003e28a5f4fd83b0a83715acf027"
 ]
 */

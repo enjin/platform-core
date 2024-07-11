@@ -87,30 +87,96 @@ class CollectionMutated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-        ],
-        "event" => [
-            "MultiTokens" => [
-                "CollectionMutated" => [
-                    "collection_id" => "10685",
-                    "mutation" => [
-                        "owner" => [
-                            "Some" => "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48",
-                        ],
-                        "royalty" => [
-                            "SomeMutation" => [
-                                "None" => null,
-                            ],
-                        ],
-                        "explicit_royalty_currencies" => [
-                            "Some" => [],
-                        ],
-                    ],
-                ],
-            ],
-        ],
-        "topics" => [],
+  [▼
+    "phase" => array:1 [▶]
+    "event" => array:1 [▼
+      "MultiTokens" => array:1 [▼
+        "CollectionMutated" => array:2 [▼
+          "T::CollectionId" => "77160"
+          "T::CollectionMutation" => array:3 [▼
+            "owner" => array:32 [▼
+              0 => 144
+              1 => 181
+              2 => 171
+              3 => 32
+              4 => 92
+              5 => 105
+              6 => 116
+              7 => 201
+              8 => 234
+              9 => 132
+              10 => 27
+              11 => 230
+              12 => 136
+              13 => 134
+              14 => 70
+              15 => 51
+              16 => 220
+              17 => 156
+              18 => 168
+              19 => 163
+              20 => 87
+              21 => 132
+              22 => 62
+              23 => 234
+              24 => 207
+              25 => 35
+              26 => 20
+              27 => 100
+              28 => 153
+              29 => 101
+              30 => 254
+              31 => 34
+            ]
+            "royalty" => array:1 [▼
+              "SomeMutation" => array:2 [▼
+                "beneficiary" => array:32 [▼
+                  0 => 144
+                  1 => 181
+                  2 => 171
+                  3 => 32
+                  4 => 92
+                  5 => 105
+                  6 => 116
+                  7 => 201
+                  8 => 234
+                  9 => 132
+                  10 => 27
+                  11 => 230
+                  12 => 136
+                  13 => 134
+                  14 => 70
+                  15 => 51
+                  16 => 220
+                  17 => 156
+                  18 => 168
+                  19 => 163
+                  20 => 87
+                  21 => 132
+                  22 => 62
+                  23 => 234
+                  24 => 207
+                  25 => 35
+                  26 => 20
+                  27 => 100
+                  28 => 153
+                  29 => 101
+                  30 => 254
+                  31 => 34
+                ]
+                "percentage" => 10000000
+              ]
+            ]
+            "explicit_royalty_currencies" => array:1 [▼
+              0 => array:2 [▼
+                "collection_id" => "0"
+                "token_id" => "0"
+              ]
+            ]
+          ]
+        ]
+      ]
     ]
+    "topics" => []
+  ]
 */

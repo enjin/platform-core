@@ -8,35 +8,67 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class DestroyFuelTank extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 139,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "b0537327ee2a1cdadf0cf52a0a9d8afe336dfec421758522382eed228fad1c0144cba65c7184aeba248dd21862df910bc50b4efcd211583db19045492f090d81"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal244": 1
-                },
-                "CheckNonce": 11950,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "destroy_fuel_tank": {
-                    "tank_id": {
-                        "Id": "9fcf27d80fb439424f312d42e608bc7469b3000d4b7a8bb5ccc7000c086a8a33"
-                    }
-                }
-            }
-        },
-        "extrinsic_hash": "0xfa4ba778209af8803f019dccb7f27dcc69e13d9de85de7c6bf72376857da29f0"
-    }
-]
+[▼
+    "hash" => "892d4ee5e965a728ea4a7b7c553d6ecb3d43af7a1ab730093ec64f0f23d15a6c"
+    "extrinsic_length" => 140
+    "version" => 4
+    "signature" => array:3 [▼
+      "address" => array:1 [▼
+        "Id" => array:32 [▶]
+      ]
+      "signature" => array:1 [▶]
+      "signedExtensions" => array:4 [▼
+        "era" => array:2 [▼
+          "period" => 32
+          "phase" => 30
+        ]
+        "nonce" => 142
+        "tip" => "0"
+        "metadata_hash" => "Disabled"
+      ]
+    ]
+    "calls" => array:1 [▼
+      "FuelTanks" => array:1 [▼
+        "destroy_fuel_tank" => array:1 [▼
+          "tank_id" => array:1 [▼
+            "Id" => array:32 [▼
+              0 => 2
+              1 => 237
+              2 => 43
+              3 => 57
+              4 => 28
+              5 => 39
+              6 => 85
+              7 => 106
+              8 => 76
+              9 => 108
+              10 => 189
+              11 => 241
+              12 => 198
+              13 => 103
+              14 => 34
+              15 => 131
+              16 => 245
+              17 => 116
+              18 => 175
+              19 => 192
+              20 => 108
+              21 => 155
+              22 => 70
+              23 => 93
+              24 => 205
+              25 => 37
+              26 => 28
+              27 => 79
+              28 => 22
+              29 => 58
+              30 => 166
+              31 => 36
+            ]
+          ]
+        ]
+      ]
+    ]
+    "extrinsic_hash" => "892d4ee5e965a728ea4a7b7c553d6ecb3d43af7a1ab730093ec64f0f23d15a6c"
+  ]
 */

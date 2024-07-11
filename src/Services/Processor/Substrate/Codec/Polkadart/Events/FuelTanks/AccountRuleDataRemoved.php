@@ -49,20 +49,86 @@ class AccountRuleDataRemoved extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    {
-        "phase": {
-            "ApplyExtrinsic": 2
-        },
-        "event": {
-            "FuelTanks": {
-                "AccountRuleDataRemoved": {
-                    "tank_id": "6b4df13dc3d4b7c5de2b334ec76e6fe4eee513f4668661cdf9e0ffc6dcc2927f",
-                    "user_id": "1231e16a5f2793e7d48452ecccd17f1a83e1f0776ea5679443a0759f0b43dd40",
-                    "rule_set_id": 1,
-                    "rule_kind": "UserFuelBudget"
-                }
-            }
-        },
-        "topics": []
-    },
+[▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "FuelTanks" => array:1 [▼
+        "AccountRuleDataRemoved" => array:4 [▼
+          0 => array:32 [▼
+            0 => 123
+            1 => 78
+            2 => 1
+            3 => 154
+            4 => 122
+            5 => 43
+            6 => 8
+            7 => 66
+            8 => 142
+            9 => 208
+            10 => 141
+            11 => 164
+            12 => 0
+            13 => 53
+            14 => 1
+            15 => 180
+            16 => 114
+            17 => 189
+            18 => 231
+            19 => 237
+            20 => 254
+            21 => 243
+            22 => 194
+            23 => 222
+            24 => 207
+            25 => 97
+            26 => 139
+            27 => 77
+            28 => 181
+            29 => 180
+            30 => 22
+            31 => 179
+          ]
+          1 => array:32 [▼
+            0 => 212
+            1 => 53
+            2 => 147
+            3 => 199
+            4 => 21
+            5 => 253
+            6 => 211
+            7 => 28
+            8 => 97
+            9 => 20
+            10 => 26
+            11 => 189
+            12 => 4
+            13 => 169
+            14 => 159
+            15 => 214
+            16 => 130
+            17 => 44
+            18 => 133
+            19 => 88
+            20 => 133
+            21 => 76
+            22 => 205
+            23 => 227
+            24 => 154
+            25 => 86
+            26 => 132
+            27 => 231
+            28 => 165
+            29 => 109
+            30 => 162
+            31 => 125
+          ]
+          2 => 0
+          3 => "UserFuelBudget"
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

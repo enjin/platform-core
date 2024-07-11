@@ -8,41 +8,77 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class Transfer extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-array:5 [▼
-  "extrinsic_length" => 145
+[▼
+  "hash" => "d51323b1f5a1c5dbc04df5034bacc81365c3f8fef67b76fee0aba5f2ad5bec39"
+  "extrinsic_length" => 147
   "version" => 4
   "signature" => array:3 [▼
     "address" => array:1 [▼
-      "Id" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
+      "Id" => array:32 [▶]
     ]
     "signature" => array:1 [▼
-      "Sr25519" => "1c5e1da29eb5e8cff9eb3c37e65deb5b83328c85e014c9bcb2d8f6a3f0dc38441307e0573466fa703b737e4c24ac49a674e1d6cecb32f3021cd84bc6bff1f383"
+      "Sr25519" => array:64 [▶]
     ]
-    "signedExtensions" => array:3 [▼
-      "CheckMortality" => array:1 [▼
-        "Mortal244" => 0
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 23
       ]
-      "CheckNonce" => 174
-      "ChargeTransactionPayment" => "0"
+      "nonce" => 5
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
     ]
   ]
-  "call" => array:1 [▼
+  "calls" => array:1 [▼
     "MultiTokens" => array:1 [▼
       "transfer" => array:3 [▼
         "recipient" => array:1 [▼
-          "Id" => "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48"
+          "Id" => array:32 [▼
+            0 => 212
+            1 => 53
+            2 => 147
+            3 => 199
+            4 => 21
+            5 => 253
+            6 => 211
+            7 => 28
+            8 => 97
+            9 => 20
+            10 => 26
+            11 => 189
+            12 => 4
+            13 => 169
+            14 => 159
+            15 => 214
+            16 => 130
+            17 => 44
+            18 => 133
+            19 => 88
+            20 => 133
+            21 => 76
+            22 => 205
+            23 => 227
+            24 => 154
+            25 => 86
+            26 => 132
+            27 => 231
+            28 => 165
+            29 => 109
+            30 => 162
+            31 => 125
+          ]
         ]
-        "collection_id" => "13158"
+        "collection_id" => "77161"
         "params" => array:1 [▼
           "Simple" => array:3 [▼
             "token_id" => "1"
             "amount" => "1"
-            "keep_alive" => false
+            "depositor" => null
           ]
         ]
       ]
     ]
   ]
-  "extrinsic_hash" => "0x6b35502360dcbcbc70ec52275deec29961274b6c23c77d54f1e6f7f53c442e36"
+  "extrinsic_hash" => "d51323b1f5a1c5dbc04df5034bacc81365c3f8fef67b76fee0aba5f2ad5bec39"
 ]
 */

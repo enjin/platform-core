@@ -25,8 +25,8 @@ class BidPlaced extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
-        $self->bidder = Account::parseAccount($self->getValue($data, ['bid.bidder', 'BidOf<T>.bidder']));
-        $self->price = $self->getValue($data, ['bid.price', 'BidOf<T>.price']);
+        $self->bidder = Account::parseAccount($self->getValue($data, ['bid.bidder', 'BidOf<T>.bidder', 'Bid<T>.bidder']));
+        $self->price = $self->getValue($data, ['bid.price', 'BidOf<T>.price', 'Bid<T>.price']);
 
         return $self;
     }
@@ -47,21 +47,87 @@ class BidPlaced extends Event implements PolkadartEvent
 }
 
 /* Example 1
-   {
-        "phase": {
-            "ApplyExtrinsic": 4
-        },
-        "event": {
-            "Marketplace": {
-                "BidPlaced": {
-                    "listing_id": "5abb7f8eb36bfa505e43564d5b9d8657d75537d7509e4683442e41209ba9a326",
-                    "bid": {
-                        "bidder": "1e7462f65c593827ea042101d5d2befdb877883ce72b363b33d46a2a054d4a52",
-                        "price": "1000000000000000000"
-                    }
-                }
-            }
-        },
-        "topics": []
-    },
+[▼
+  "phase" => array:1 [▼
+    "ApplyExtrinsic" => 2
+  ]
+  "event" => array:1 [▼
+    "Marketplace" => array:1 [▼
+      "BidPlaced" => array:2 [▼
+        "ListingIdOf<T>" => array:32 [▼
+          0 => 57
+          1 => 116
+          2 => 137
+          3 => 159
+          4 => 32
+          5 => 135
+          6 => 226
+          7 => 53
+          8 => 97
+          9 => 171
+          10 => 138
+          11 => 227
+          12 => 157
+          13 => 252
+          14 => 214
+          15 => 65
+          16 => 207
+          17 => 67
+          18 => 210
+          19 => 101
+          20 => 100
+          21 => 134
+          22 => 230
+          23 => 149
+          24 => 153
+          25 => 36
+          26 => 208
+          27 => 235
+          28 => 193
+          29 => 151
+          30 => 173
+          31 => 133
+        ]
+        "Bid<T>" => array:2 [▼
+          "bidder" => array:32 [▼
+            0 => 142
+            1 => 175
+            2 => 4
+            3 => 21
+            4 => 22
+            5 => 135
+            6 => 115
+            7 => 99
+            8 => 38
+            9 => 201
+            10 => 254
+            11 => 161
+            12 => 126
+            13 => 37
+            14 => 252
+            15 => 82
+            16 => 135
+            17 => 97
+            18 => 54
+            19 => 147
+            20 => 201
+            21 => 18
+            22 => 144
+            23 => 156
+            24 => 178
+            25 => 38
+            26 => 170
+            27 => 71
+            28 => 148
+            29 => 242
+            30 => 106
+            31 => 72
+          ]
+          "price" => "1000000"
+        ]
+      ]
+    ]
+  ]
+  "topics" => []
+]
 */

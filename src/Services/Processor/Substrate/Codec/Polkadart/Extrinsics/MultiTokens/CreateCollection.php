@@ -8,47 +8,79 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class CreateCollection extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-array:5 [▼
-  "extrinsic_length" => 184
+[▼
+  "hash" => "f59154f87941fc47cc56ff9b1d122b524d296ac992821d0cd80db75a88dcfc67"
+  "extrinsic_length" => 186
   "version" => 4
   "signature" => array:3 [▼
     "address" => array:1 [▼
-      "Id" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
+      "Id" => array:32 [▶]
     ]
     "signature" => array:1 [▼
-      "Sr25519" => "fc8f2dedc041a86c937c9b46adfd58d967beb2fe50f994ac2286eaf277a5720f9796510b992c5124fc0b11bcd76e084622e98989a1f674212f2ce2d352fa1a88"
+      "Sr25519" => array:64 [▶]
     ]
-    "signedExtensions" => array:3 [▼
-      "CheckMortality" => array:1 [▼
-        "Mortal196" => 1
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 29
       ]
-      "CheckNonce" => 166
-      "ChargeTransactionPayment" => "0"
+      "nonce" => 92
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
     ]
   ]
-  "call" => array:1 [▼
+  "calls" => array:1 [▼
     "MultiTokens" => array:1 [▼
       "create_collection" => array:1 [▼
-        "descriptor" => array:3 [▼
-          "policy" => array:2 [▼
+        "descriptor" => array:4 [▼
+          "policy" => array:5 [▼
             "mint" => array:3 [▼
-              "max_token_count" => array:1 [▼
-                "Some" => "100000"
-              ]
-              "max_token_supply" => array:1 [▼
-                "Some" => "5555555555"
-              ]
-              "force_single_mint" => false
+              "max_token_count" => "1000000"
+              "max_token_supply" => "50000"
+              "force_collapsing_supply" => true
             ]
-            "market" => array:1 [▼
-              "royalty" => array:1 [▼
-                "Some" => array:2 [▼
-                  "beneficiary" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
-                  "percentage" => 10000000
-                ]
+            "burn" => null
+            "transfer" => null
+            "attribute" => null
+            "market" => array:2 [▼
+              "beneficiary" => array:32 [▼
+                0 => 28
+                1 => 189
+                2 => 45
+                3 => 67
+                4 => 83
+                5 => 10
+                6 => 68
+                7 => 112
+                8 => 90
+                9 => 208
+                10 => 136
+                11 => 175
+                12 => 49
+                13 => 62
+                14 => 24
+                15 => 248
+                16 => 11
+                17 => 83
+                18 => 239
+                19 => 22
+                20 => 179
+                21 => 97
+                22 => 119
+                23 => 205
+                24 => 75
+                25 => 119
+                26 => 184
+                27 => 70
+                28 => 242
+                29 => 165
+                30 => 240
+                31 => 124
               ]
+              "percentage" => 10000000
             ]
           ]
+          "depositor" => null
           "explicit_royalty_currencies" => array:1 [▼
             0 => array:2 [▼
               "collection_id" => "0"
@@ -64,10 +96,10 @@ array:5 [▼
                 3 => 101
               ]
               "value" => array:4 [▼
-                0 => 68
+                0 => 84
                 1 => 101
-                2 => 109
-                3 => 111
+                2 => 115
+                3 => 116
               ]
             ]
           ]
@@ -75,6 +107,6 @@ array:5 [▼
       ]
     ]
   ]
-  "extrinsic_hash" => "0xeed170dbb4b7704c42242ae01da5712e569e2a7c4965ce3424725ef4b67b290e"
+  "extrinsic_hash" => "f59154f87941fc47cc56ff9b1d122b524d296ac992821d0cd80db75a88dcfc67"
 ]
 */

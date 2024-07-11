@@ -49,30 +49,31 @@ class AttributeSet extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-        ],
-        "event" => [
-            "MultiTokens" => [
-                "AttributeSet" => [
-                    "collection_id" => "9248",
-                    "token_id" => [
-                        "None" => null,
-                    ],
-                    "key" => [
-                         0 => 110,
-                         1 => 97,
-                         ...,
-                    ],
-                    "value" => [
-                         0 => 84,
-                         1 => 101,
-                         ...,
-                    ],
-                ],
-            ],
-        ],
-        "topics" => [],
+    array:3 [▼
+      "phase" => array:1 [▼
+        "ApplyExtrinsic" => 2
+      ]
+      "event" => array:1 [▼
+        "MultiTokens" => array:1 [▼
+          "AttributeSet" => array:4 [▼
+            "T::CollectionId" => "77159"
+            "Option<T::TokenId>" => null
+            "T::AttributeKey" => array:4 [▼
+              0 => 110
+              1 => 97
+              2 => 109
+              3 => 101
+            ]
+            "T::AttributeValue" => array:5 [▼
+              0 => 84
+              1 => 101
+              2 => 115
+              3 => 116
+              4 => 50
+            ]
+          ]
+        ]
+      ]
+      "topics" => []
     ]
  */

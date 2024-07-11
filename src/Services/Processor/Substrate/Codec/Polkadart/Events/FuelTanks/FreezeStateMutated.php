@@ -46,19 +46,52 @@ class FreezeStateMutated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    {
-        "phase": "Finalization",
-        "event": {
-            "FuelTanks": {
-                "FreezeStateMutated": {
-                    "tank_id": "5b1c2bf7e279af55f31ff1c4a95330745efd3916bc2973e0ae377efd06aa3e68",
-                    "rule_set_id": {
-                        "None": null
-                    },
-                    "is_frozen": true
-                }
-            }
-        },
-        "topics": []
-    }
+[▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "FuelTanks" => array:1 [▼
+        "FreezeStateMutated" => array:3 [▼
+          "T::AccountId" => array:32 [▼
+            0 => 140
+            1 => 184
+            2 => 230
+            3 => 192
+            4 => 80
+            5 => 13
+            6 => 8
+            7 => 132
+            8 => 49
+            9 => 34
+            10 => 135
+            11 => 124
+            12 => 42
+            13 => 192
+            14 => 250
+            15 => 84
+            16 => 54
+            17 => 112
+            18 => 201
+            19 => 96
+            20 => 152
+            21 => 168
+            22 => 6
+            23 => 104
+            24 => 223
+            25 => 99
+            26 => 109
+            27 => 254
+            28 => 59
+            29 => 148
+            30 => 159
+            31 => 19
+          ]
+          "Option<T::RuleSetId>" => 0
+          "bool" => true
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
  */

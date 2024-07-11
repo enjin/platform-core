@@ -17,3 +17,5 @@ env:
 
 providers:
   - Enjin\Platform\CoreServiceProvider
+
+
