@@ -49,7 +49,7 @@ class TokenMutated extends Event implements PolkadartEvent
             ['type' => 'collection_id', 'value' => $this->collectionId],
             ['type' => 'token_id', 'value' => $this->tokenId],
             ['type' => 'listing_forbidden', 'value' => $this->listingForbidden],
-            ['type' => 'behavior_mutation', 'value' => $this->behavior],
+            ['type' => 'behavior', 'value' => $this->behavior],
             ['type' => 'is_currency', 'value' => $this->isCurrency],
             ['type' => 'beneficiary', 'value' => $this->beneficiary],
             ['type' => 'percentage', 'value' => $this->percentage],
