@@ -52,11 +52,16 @@ class TransactionChecker extends Command
         $this->codec = $codec;
         $this->client = $client;
 
-        $blockNumber = Block::where('synced', true)->max('number');
-        $maxBlockToCheck = $blockNumber - 100;
+        $syncedBlocks = Block::where('synced', true)
+            ->orderBy('number')
+            ->take(100)
+            ->get();
+
+        $maxBlockToCheck = $syncedBlocks->last()->number;
 
         $transactions = collect(Transaction::where([
             'state' => TransactionState::BROADCAST,
+            'network' => currentMatrix()->name,
         ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
             ->where('signed_at_block', '<', $maxBlockToCheck)->get());
 
