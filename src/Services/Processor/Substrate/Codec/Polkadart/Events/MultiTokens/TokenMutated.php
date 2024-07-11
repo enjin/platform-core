@@ -38,7 +38,7 @@ class TokenMutated extends Event implements PolkadartEvent
         $self->beneficiary = Account::parseAccount($self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary']));
         $self->percentage = $self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.percentage', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage']);
         $self->anyoneCanInfuse = $self->getValue($data, ['T::TokenMutation.anyone_can_infuse.SomeMutation']);
-        $self->tokenName = is_string($s = $self->getValue($data, ['T::TokenMutation.name.SomeMutation'])) ? $s : HexConverter::bytesToHex($s);
+        $self->tokenName = is_array($s = $self->getValue($data, ['T::TokenMutation.name.SomeMutation'])) ? HexConverter::bytesToHex($s) : $s;
 
         return $self;
     }
