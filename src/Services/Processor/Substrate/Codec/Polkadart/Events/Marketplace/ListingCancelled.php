@@ -35,17 +35,50 @@ class ListingCancelled extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    {
-        "phase": {
-            "ApplyExtrinsic": 25
-        },
-        "event": {
-            "Marketplace": {
-                "ListingCancelled": {
-                    "listing_id": "23f6172d569c15f67ad4a9ba7207e237f48cc0f01ce1ddd12121a66eb30d2444"
-                }
-            }
-        },
-        "topics": []
-    },
+[▼
+  "phase" => array:1 [▼
+    "ApplyExtrinsic" => 2
+  ]
+  "event" => array:1 [▼
+    "Marketplace" => array:1 [▼
+      "ListingCancelled" => array:1 [▼
+        "ListingIdOf<T>" => array:32 [▼
+          0 => 149
+          1 => 73
+          2 => 178
+          3 => 222
+          4 => 67
+          5 => 104
+          6 => 222
+          7 => 175
+          8 => 149
+          9 => 83
+          10 => 84
+          11 => 31
+          12 => 134
+          13 => 78
+          14 => 114
+          15 => 8
+          16 => 129
+          17 => 106
+          18 => 15
+          19 => 118
+          20 => 41
+          21 => 217
+          22 => 140
+          23 => 9
+          24 => 96
+          25 => 137
+          26 => 32
+          27 => 181
+          28 => 230
+          29 => 57
+          30 => 191
+          31 => 199
+        ]
+      ]
+    ]
+  ]
+  "topics" => []
+]
 */

@@ -60,52 +60,116 @@ class ListingCreated extends Event implements PolkadartEvent
 }
 
 /* Example 1
- {
-        "phase": {
-            "ApplyExtrinsic": 31
-        },
-        "event": {
-            "Marketplace": {
-                "ListingCreated": {
-                    "listing_id": "3a9d2f540a276f59104c6c2057903dff1c1d1a481ff87315d4b0017b9d7bed42",
-                    "listing": {
-                        "seller": "b882d3135b23eefc56ff0fd9e7d3f87c732040b49282cbd836f142c2435c0d11",
-                        "make_asset_id": {
-                            "collection_id": "89793",
-                            "token_id": "0"
-                        },
-                        "take_asset_id": {
-                            "collection_id": "0",
-                            "token_id": "0"
-                        },
-                        "amount": "1",
-                        "price": "1",
-                        "min_take_value": "0",
-                        "fee_side": "Take",
-                        "creation_block": 642082,
-                        "deposit": "2025700000000000000",
-                        "salt": [
-                            115,
-                            97,
-                            108,
-                            116,
-                            49,
-                            50,
-                            51
-                        ],
-                        "data": "FixedPrice",
-                        "state": {
-                            "FixedPrice": {
-                                "amount_filled": "0"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "topics": []
-    },
- */
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "Marketplace" => array:1 [▼
+        "ListingCreated" => array:2 [▼
+          "ListingIdOf<T>" => array:32 [▼
+            0 => 158
+            1 => 1
+            2 => 223
+            3 => 47
+            4 => 249
+            5 => 64
+            6 => 205
+            7 => 7
+            8 => 53
+            9 => 194
+            10 => 206
+            11 => 230
+            12 => 174
+            13 => 160
+            14 => 252
+            15 => 162
+            16 => 219
+            17 => 98
+            18 => 223
+            19 => 209
+            20 => 195
+            21 => 180
+            22 => 213
+            23 => 252
+            24 => 76
+            25 => 143
+            26 => 84
+            27 => 250
+            28 => 169
+            29 => 19
+            30 => 65
+            31 => 148
+          ]
+          "Listing<T>" => array:12 [▼
+            "creator" => array:32 [▼
+              0 => 144
+              1 => 181
+              2 => 171
+              3 => 32
+              4 => 92
+              5 => 105
+              6 => 116
+              7 => 201
+              8 => 234
+              9 => 132
+              10 => 27
+              11 => 230
+              12 => 136
+              13 => 134
+              14 => 70
+              15 => 51
+              16 => 220
+              17 => 156
+              18 => 168
+              19 => 163
+              20 => 87
+              21 => 132
+              22 => 62
+              23 => 234
+              24 => 207
+              25 => 35
+              26 => 20
+              27 => 100
+              28 => 153
+              29 => 101
+              30 => 254
+              31 => 34
+            ]
+            "make_asset_id" => array:2 [▼
+              "collection_id" => "77160"
+              "token_id" => "1"
+            ]
+            "take_asset_id" => array:2 [▼
+              "collection_id" => "0"
+              "token_id" => "0"
+            ]
+            "amount" => "10"
+            "price" => "1000"
+            "min_received" => "9650"
+            "fee_side" => "Take"
+            "creation_block" => 26065
+            "deposit" => array:2 [▼
+              "depositor" => array:32 [▶]
+              "amount" => "507225000000000000"
+            ]
+            "salt" => array:2 [▼
+              0 => 18
+              1 => 52
+            ]
+            "data" => array:1 [▼
+              "FixedPrice" => null
+            ]
+            "state" => array:1 [▼
+              "FixedPrice" => "0"
+            ]
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
+*/
 
 /* Example 2
    {

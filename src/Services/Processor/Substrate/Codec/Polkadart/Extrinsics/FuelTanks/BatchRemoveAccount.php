@@ -8,43 +8,102 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class BatchRemoveAccount extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-[
-    {
-        "extrinsic_length": 206,
-        "version": 4,
-        "signature": {
-            "address": {
-                "Id": "3274a0b6662b3cab47da58afd6549b17f0cbf5b7a977bb7fed481ce76ea8af74"
-            },
-            "signature": {
-                "Sr25519": "72d800d429b02167668a7b82fbf6eb6054a86b57d442018eb9eb1ac5fc965d0b9dbce2feaebe4a6338bfb705bd42affde0d3ceae24ece5838e6d9d531bcc1080"
-            },
-            "signedExtensions": {
-                "CheckMortality": {
-                    "Mortal20": 1
-                },
-                "CheckNonce": 12018,
-                "ChargeTransactionPayment": "0"
-            }
-        },
-        "call": {
-            "FuelTanks": {
-                "batch_remove_account": {
-                    "tank_id": {
-                        "Id": "f8d962353abb6d609d0a7c566d6f4a94271f7ddd68d8f1a1b9c2baf7ae173da8"
-                    },
-                    "user_ids": [
-                        {
-                            "Id": "d262026b9f63cff14e06d54e85485e2c4d6458de2cf4858b4ce365a519fa3e51"
-                        },
-                        {
-                            "Id": "4e0ff7b256ec986362ef446f67cf28d851496ac8d74d3777ed75be8548621952"
-                        }
-                    ]
-                }
-            }
-        },
-        "extrinsic_hash": "0xbc9a7b281d046db1dc42494bae0bf8c16ba98eb616e9b5ca14efe603df6509d0"
-    }
+[▼
+  "hash" => "29468969793b283f196f532acb39e629731b58fe8a4d8d7dc294cb2b378e927b"
+  "extrinsic_length" => 174
+  "version" => 4
+  "signature" => array:3 [▼
+    "address" => array:1 [▼
+      "Id" => array:32 [▶]
+    ]
+    "signature" => array:1 [▶]
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▶]
+      "nonce" => 153
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
+    ]
+  ]
+  "calls" => array:1 [▼
+    "FuelTanks" => array:1 [▼
+      "batch_remove_account" => array:2 [▼
+        "tank_id" => array:1 [▼
+          "Id" => array:32 [▼
+            0 => 89
+            1 => 184
+            2 => 117
+            3 => 198
+            4 => 158
+            5 => 220
+            6 => 161
+            7 => 224
+            8 => 130
+            9 => 188
+            10 => 156
+            11 => 88
+            12 => 51
+            13 => 69
+            14 => 25
+            15 => 88
+            16 => 225
+            17 => 190
+            18 => 240
+            19 => 218
+            20 => 217
+            21 => 220
+            22 => 14
+            23 => 215
+            24 => 197
+            25 => 225
+            26 => 53
+            27 => 227
+            28 => 59
+            29 => 159
+            30 => 183
+            31 => 137
+          ]
+        ]
+        "user_ids" => array:1 [▼
+          0 => array:1 [▼
+            "Id" => array:32 [▼
+              0 => 230
+              1 => 89
+              2 => 167
+              3 => 161
+              4 => 98
+              5 => 140
+              6 => 221
+              7 => 147
+              8 => 254
+              9 => 188
+              10 => 4
+              11 => 164
+              12 => 224
+              13 => 100
+              14 => 110
+              15 => 162
+              16 => 14
+              17 => 159
+              18 => 95
+              19 => 12
+              20 => 224
+              21 => 151
+              22 => 217
+              23 => 160
+              24 => 82
+              25 => 144
+              26 => 212
+              27 => 169
+              28 => 224
+              29 => 84
+              30 => 223
+              31 => 78
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+  "extrinsic_hash" => "29468969793b283f196f532acb39e629731b58fe8a4d8d7dc294cb2b378e927b"
 ]
 */

@@ -52,23 +52,63 @@ class Unreserved extends Event implements PolkadartEvent
 }
 
 /* Example 1
-[
-    'phase' => [
-        'ApplyExtrinsic' => 2,
-    ],
-    'event' => [
-        'MultiTokens' => [
-            'Unreserved' => [
-                'collection_id' => '2100',
-                'token_id' => '1',
-                'account_id' => '768565957dc61edae9876989e45b78f54f6118c9852adbdea5d53dcda2a7621c',
-                'amount' => '707',
-                'reserve_id' => [
-                    'Some' => '6d61726b74706c63',
-                ],
-            ],
-        ],
-    ],
-    'topics' => [],,
-]
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "MultiTokens" => array:1 [▼
+        "Unreserved" => array:5 [▼
+          "T::CollectionId" => "77160"
+          "T::TokenId" => "1"
+          "T::AccountId" => array:32 [▼
+            0 => 144
+            1 => 181
+            2 => 171
+            3 => 32
+            4 => 92
+            5 => 105
+            6 => 116
+            7 => 201
+            8 => 234
+            9 => 132
+            10 => 27
+            11 => 230
+            12 => 136
+            13 => 134
+            14 => 70
+            15 => 51
+            16 => 220
+            17 => 156
+            18 => 168
+            19 => 163
+            20 => 87
+            21 => 132
+            22 => 62
+            23 => 234
+            24 => 207
+            25 => 35
+            26 => 20
+            27 => 100
+            28 => 153
+            29 => 101
+            30 => 254
+            31 => 34
+          ]
+          "T::TokenBalance" => "1"
+          "Option<T::ReserveIdentifierType>" => array:8 [▼
+            0 => 109
+            1 => 97
+            2 => 114
+            3 => 107
+            4 => 116
+            5 => 112
+            6 => 108
+            7 => 99
+          ]
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
 */

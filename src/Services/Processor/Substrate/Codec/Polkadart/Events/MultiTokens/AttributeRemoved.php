@@ -41,25 +41,24 @@ class AttributeRemoved extends Event implements PolkadartEvent
 }
 
 /* Example 1
-    [
-        "phase" => [
-            "ApplyExtrinsic" => 2,
-        ],
-        "event" => [
-            "MultiTokens" => [
-                "AttributeRemoved" => [
-                    "collection_id" => "9248",
-                    "token_id" => [
-                        "None" => null,
-                    ],
-                    "key" => [
-                         0 => 110,
-                         1 => 97,
-                         ...,
-                    ],
-                ],
-            ],
-        ],
-        "topics" => [],
+    array:3 [▼
+      "phase" => array:1 [▼
+        "ApplyExtrinsic" => 2
+      ]
+      "event" => array:1 [▼
+        "MultiTokens" => array:1 [▼
+          "AttributeRemoved" => array:3 [▼
+            "T::CollectionId" => "77159"
+            "Option<T::TokenId>" => null
+            "T::AttributeKey" => array:4 [▼
+              0 => 110
+              1 => 97
+              2 => 109
+              3 => 101
+            ]
+          ]
+        ]
+      ]
+      "topics" => []
     ]
  */

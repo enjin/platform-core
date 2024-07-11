@@ -20,7 +20,7 @@ class Processor
         try {
             return $this->decoder->decode($type, $bytes);
         } catch (Throwable $e) {
-            Log::error('Failed to process ' . $type . ' on block #' . $blockNumber . ': ' . $bytes);
+            Log::error('Failed to process ' . $type . ' on block #' . $blockNumber . ': ' . is_array($bytes) ? json_encode($bytes) : $bytes);
             Log::error("The reason was: {$e->getMessage()}");
         }
 

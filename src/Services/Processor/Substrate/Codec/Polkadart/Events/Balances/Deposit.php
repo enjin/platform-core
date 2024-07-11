@@ -36,3 +36,20 @@ class Deposit extends Event implements PolkadartEvent
         ];
     }
 }
+
+/*
+  [▼
+    "phase" => array:1 [▼
+      "ApplyExtrinsic" => 2
+    ]
+    "event" => array:1 [▼
+      "Balances" => array:1 [▼
+        "Deposit" => array:2 [▼
+          "T::AccountId" => array:32 [▶]
+          "T::Balance" => "4114591190625145"
+        ]
+      ]
+    ]
+    "topics" => []
+  ]
+ */

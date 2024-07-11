@@ -8,38 +8,70 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class ApproveToken extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-array:5 [▼
-  "extrinsic_length" => 148
+[▼
+  "hash" => "8a4cfa426c18753cf2b9d3275a04119f70df26f9cefea12cf187e0a533c10806"
+  "extrinsic_length" => 150
   "version" => 4
   "signature" => array:3 [▼
-    "address" => array:1 [▼
-      "Id" => "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
-    ]
+    "address" => array:1 [▶]
     "signature" => array:1 [▼
-      "Sr25519" => "c842c3b1eca0b0376933d6cc390caae5d3992a6cb7ab7fc032728b66da7e912752d8188bd8df594b63469fe69653e531fcdf37f0e676b083b101c09fef23ea8e"
+      "Sr25519" => array:64 [▶]
     ]
-    "signedExtensions" => array:3 [▼
-      "CheckMortality" => array:1 [▼
-        "Mortal212" => 0
+    "signedExtensions" => array:4 [▼
+      "era" => array:2 [▼
+        "period" => 32
+        "phase" => 7
       ]
-      "CheckNonce" => 173
-      "ChargeTransactionPayment" => "0"
+      "nonce" => 0
+      "tip" => "0"
+      "metadata_hash" => "Disabled"
     ]
   ]
-  "call" => array:1 [▼
+  "calls" => array:1 [▼
     "MultiTokens" => array:1 [▼
       "approve_token" => array:6 [▼
-        "collection_id" => "13158"
+        "collection_id" => "77161"
         "token_id" => "1"
-        "operator" => "90b5ab205c6974c9ea841be688864633dc9ca8a357843eeacf2314649965fe22"
-        "amount" => "1"
-        "expiration" => array:1 [▼
-          "Some" => 500000
+        "operator" => array:32 [▼
+          0 => 212
+          1 => 53
+          2 => 147
+          3 => 199
+          4 => 21
+          5 => 253
+          6 => 211
+          7 => 28
+          8 => 97
+          9 => 20
+          10 => 26
+          11 => 189
+          12 => 4
+          13 => 169
+          14 => 159
+          15 => 214
+          16 => 130
+          17 => 44
+          18 => 133
+          19 => 88
+          20 => 133
+          21 => 76
+          22 => 205
+          23 => 227
+          24 => 154
+          25 => 86
+          26 => 132
+          27 => 231
+          28 => 165
+          29 => 109
+          30 => 162
+          31 => 125
         ]
+        "amount" => "1"
+        "expiration" => 100000
         "current_amount" => "0"
       ]
     ]
   ]
-  "extrinsic_hash" => "0xfbdf788d8c120486e09794af4c6fe6c475b908269cda15f288cb04e09b49dea9"
+  "extrinsic_hash" => "8a4cfa426c18753cf2b9d3275a04119f70df26f9cefea12cf187e0a533c10806"
 ]
 */

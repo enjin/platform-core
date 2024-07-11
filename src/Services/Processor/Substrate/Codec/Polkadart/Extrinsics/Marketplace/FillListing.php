@@ -8,32 +8,69 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrins
 class FillListing extends Extrinsic implements PolkadartExtrinsic {}
 
 /*
-{
-    "extrinsic_length": 139,
-    "version": 4,
-    "signature": {
-        "address": {
-            "Id": "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48"
-        },
-        "signature": {
-            "Sr25519": "7e9a8cf663f5b4f6514b82f1139e3a37ae9f2a7d15c1bd600990036b26986c5947f896a9f069bd56034350289662c552734045b7fd1186ac125e64eed5802188"
-        },
-        "signedExtensions": {
-            "CheckMortality": {
-                "Mortal36": 0
-            },
-            "CheckNonce": 265,
-            "ChargeTransactionPayment": "0"
-        }
-    },
-    "call": {
-        "Marketplace": {
-            "fill_listing": {
-                "listing_id": "4d4ee03a2d2ccc76d69f7e10d84744c750ef89e1bc1f3b92ffe3ff0035f20962",
-                "amount": "1"
-            }
-        }
-    },
-    "extrinsic_hash": "0xbf37aadc9b0e56df0d0c3986e7a51af03f56d7526ca2f92216d0fe51fec3bd88"
-}
+[▼
+    "hash" => "3fbcf42fea7619c367468ddec8ceb34603d6d640799fb2332687cb62b4a8d46e"
+    "extrinsic_length" => 139
+    "version" => 4
+    "signature" => array:3 [▼
+      "address" => array:1 [▼
+        "Id" => array:32 [▶]
+      ]
+      "signature" => array:1 [▼
+        "Sr25519" => array:64 [▶]
+      ]
+      "signedExtensions" => array:4 [▼
+        "era" => array:2 [▼
+          "period" => 32
+          "phase" => 4
+        ]
+        "nonce" => 10
+        "tip" => "0"
+        "metadata_hash" => "Disabled"
+      ]
+    ]
+    "calls" => array:1 [▼
+      "Marketplace" => array:1 [▼
+        "fill_listing" => array:2 [▼
+          "listing_id" => array:32 [▼
+            0 => 22
+            1 => 179
+            2 => 176
+            3 => 36
+            4 => 199
+            5 => 139
+            6 => 161
+            7 => 47
+            8 => 160
+            9 => 94
+            10 => 211
+            11 => 61
+            12 => 175
+            13 => 33
+            14 => 23
+            15 => 77
+            16 => 241
+            17 => 246
+            18 => 115
+            19 => 166
+            20 => 255
+            21 => 151
+            22 => 51
+            23 => 18
+            24 => 81
+            25 => 20
+            26 => 80
+            27 => 76
+            28 => 77
+            29 => 6
+            30 => 22
+            31 => 212
+          ]
+          "amount" => "1"
+        ]
+      ]
+    ]
+    "extrinsic_hash" => "3fbcf42fea7619c367468ddec8ceb34603d6d640799fb2332687cb62b4a8d46e"
+  ]
+]
 */
