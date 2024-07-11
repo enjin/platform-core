@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Support\Account;
@@ -14,9 +15,11 @@ class TokenMutated extends Event implements PolkadartEvent
     public readonly string $name;
     public readonly string $collectionId;
     public readonly string $tokenId;
-    public readonly ?bool $listingForbidden;
-    public readonly string $behaviorMutation;
+    public readonly string $behavior;
     public readonly bool $isCurrency;
+    public readonly ?bool $listingForbidden;
+    public readonly ?bool $anyoneCanInfuse;
+    public readonly ?string $tokenName;
     public readonly ?string $beneficiary;
     public readonly ?string $percentage;
 
@@ -30,14 +33,12 @@ class TokenMutated extends Event implements PolkadartEvent
         $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
         $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
         $self->listingForbidden = $self->getValue($data, ['mutation.listing_forbidden.SomeMutation', 'T::TokenMutation.listing_forbidden.SomeMutation']);
-        $self->behaviorMutation = is_string($behavior = $self->getValue($data, ['mutation.behavior', 'T::TokenMutation.behavior'])) ? $behavior : array_key_first($behavior);
+        $self->behavior = is_string($behavior = $self->getValue($data, ['mutation.behavior', 'T::TokenMutation.behavior'])) ? $behavior : array_key_first($behavior);
         $self->isCurrency = $self->getValue($data, ['mutation.behavior.SomeMutation.Some', 'T::TokenMutation.behavior.SomeMutation.Some']) === 'IsCurrency';
         $self->beneficiary = Account::parseAccount($self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary']));
         $self->percentage = $self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.percentage', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage']);
-
-        if ($self->getValue($data, ['T::TokenMutation.metadata.SomeMutation']) != null) {
-            throw new \Exception('Metadata is not null');
-        }
+        $self->anyoneCanInfuse = $self->getValue($data, ['T::TokenMutation.anyone_can_infuse.SomeMutation']);
+        $self->tokenName = is_string($s = $self->getValue($data, ['T::TokenMutation.name.SomeMutation'])) ? $s : HexConverter::bytesToHex($s);
 
         return $self;
     }
@@ -48,10 +49,12 @@ class TokenMutated extends Event implements PolkadartEvent
             ['type' => 'collection_id', 'value' => $this->collectionId],
             ['type' => 'token_id', 'value' => $this->tokenId],
             ['type' => 'listing_forbidden', 'value' => $this->listingForbidden],
-            ['type' => 'behavior_mutation', 'value' => $this->behaviorMutation],
+            ['type' => 'behavior', 'value' => $this->behavior],
             ['type' => 'is_currency', 'value' => $this->isCurrency],
             ['type' => 'beneficiary', 'value' => $this->beneficiary],
             ['type' => 'percentage', 'value' => $this->percentage],
+            ['type' => 'anyone_can_infuse', 'value' => $this->anyoneCanInfuse],
+            ['type' => 'token_name', 'value' => $this->tokenName],
         ];
     }
 }
