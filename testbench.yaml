@@ -7,10 +7,11 @@ env:
   - DB_DATABASE="platform"
   - DB_USERNAME="root"
   - DB_PASSWORD="password"
+  - MAIL_MAILER="log"
   - CACHE_STORE="redis"
   - QUEUE_CONNECTION="redis"
-  - CHAIN="substrate"
   - NETWORK="canary-matrixchain"
+  - ENJIN_PLATFORM_API_THROTTLE="false"
   - SYNC_ALL="true"
   - DAEMON_ACCOUNT="0x68b427dda4f3894613e113b570d5878f3eee981196133e308c0a82584cf2e160"
 
