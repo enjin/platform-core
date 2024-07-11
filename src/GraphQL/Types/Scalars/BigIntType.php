@@ -24,7 +24,7 @@ class BigIntType extends ScalarType implements PlatformGraphQlType, TypeConverti
     /**
      * Create new big int type instance.
      */
-    public function __construct(array $config = [])
+    public function __construct()
     {
         parent::__construct(['description' => __('enjin-platform::type.big_int.description')]);
     }

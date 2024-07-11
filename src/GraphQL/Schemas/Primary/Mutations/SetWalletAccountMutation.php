@@ -52,7 +52,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                 'rules' => [
                     'required_without:externalId',
                     'prohibits:externalId',
-                    function (string $attribute, mixed $value, Closure $fail) {
+                    function (string $attribute, mixed $value, Closure $fail): void {
                         if (!Wallet::where('id', $value)->exists()) {
                             $fail('validation.exists')->translate();
                         }
@@ -65,7 +65,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                 'rules' => [
                     'required_without:id',
                     'prohibits:id',
-                    function (string $attribute, mixed $value, Closure $fail) {
+                    function (string $attribute, mixed $value, Closure $fail): void {
                         if (!Wallet::where('external_id', $value)->exists()) {
                             $fail('validation.exists')->translate();
                         }

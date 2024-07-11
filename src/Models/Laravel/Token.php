@@ -124,7 +124,7 @@ class Token extends BaseModel
     {
         return new Attribute(
             get: fn () => $this->attributes['fetch_metadata'] ?? false,
-            set: function ($value) {
+            set: function ($value): void {
                 if ($value === true) {
                     $this->attributes['metadata'] = MetadataService::fetch($this->getRelation('attributes')->first());
                 }

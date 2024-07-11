@@ -21,7 +21,7 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     /**
      * Create new json type instance.
      */
-    public function __construct(array $config = [])
+    public function __construct()
     {
         parent::__construct(['description' => __('enjin-platform::type.json.description')]);
     }
@@ -59,11 +59,9 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     /**
      * Validate json data.
      *
-     * @param  mixed  $data
-     *
      * @throws Exception
      */
-    public function decodeJson($data): array
+    public function decodeJson(mixed $data): array
     {
         $decoded = JSON::decode($data, true);
         if (json_last_error() === JSON_ERROR_NONE) {

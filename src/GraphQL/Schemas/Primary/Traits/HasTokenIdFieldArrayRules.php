@@ -66,14 +66,12 @@ trait HasTokenIdFieldArrayRules
      */
     public function getEncodableTokenIdRules(array $args = [], array $extraRules = []): NestedRules
     {
-        return Rule::forEach(function ($value, $attribute) use ($args, $extraRules) {
-            return [
-                'bail',
-                'filled',
-                new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
-                ...$extraRules,
-            ];
-        });
+        return Rule::forEach(fn ($value, $attribute) => [
+            'bail',
+            'filled',
+            new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
+            ...$extraRules,
+        ]);
     }
 
     /**
@@ -81,17 +79,13 @@ trait HasTokenIdFieldArrayRules
      */
     public function getEncodableTokenIdRulesExist(array $args = [], array $extraRules = []): NestedRules
     {
-        return Rule::forEach(function ($value, $attribute) use ($args, $extraRules) {
-            $rules = [
-                'bail',
-                'filled',
-                new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
-                new TokenEncodeExistInCollection(),
-                ...$extraRules,
-            ];
-
-            return $rules;
-        });
+        return Rule::forEach(fn ($value, $attribute) => [
+            'bail',
+            'filled',
+            new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
+            new TokenEncodeExistInCollection(),
+            ...$extraRules,
+        ]);
     }
 
     /**
@@ -99,15 +93,13 @@ trait HasTokenIdFieldArrayRules
      */
     public function getEncodableTokenIdRulesDoesntExist(array $args = [], array $extraRules = []): NestedRules
     {
-        return Rule::forEach(function ($value, $attribute) use ($args, $extraRules) {
-            return [
-                'bail',
-                'filled',
-                new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
-                new TokenEncodeDoesNotExistInCollection(),
-                ...$extraRules,
-            ];
-        });
+        return Rule::forEach(fn ($value, $attribute) => [
+            'bail',
+            'filled',
+            new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
+            new TokenEncodeDoesNotExistInCollection(),
+            ...$extraRules,
+        ]);
     }
 
     /**

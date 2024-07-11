@@ -13,15 +13,10 @@ class AccountWaitingCollectionTransfer implements DataAwareRule, ValidationRule
 {
     use HasDataAwareRule;
 
-    protected string $account;
-
     /**
      * Create a new rule instance.
      */
-    public function __construct(string $account)
-    {
-        $this->account = $account;
-    }
+    public function __construct(protected string $account) {}
 
     /**
      * Determine if the validation rule passes.

@@ -336,7 +336,7 @@ class BlockProcessor
                 if ($counter * static::SYNC_WAIT_DELAY >= config('enjin-platform.sync_max_wait_timeout')) {
                     $this->warn('Sync has taken too long, forcing to restart ingest...');
 
-                    $result = Process::pipe(function (Pipe $pipe) {
+                    $result = Process::pipe(function (Pipe $pipe): void {
                         $pipe->command('ps aux');
                         $pipe->command('grep platform:sync');
                     });

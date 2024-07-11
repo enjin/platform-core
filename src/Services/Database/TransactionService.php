@@ -42,7 +42,7 @@ class TransactionService
         }
 
         $data['wallet_public_key'] = $signingWallet?->public_key;
-        $data['method'] = $data['method'] ?? '';
+        $data['method'] ??= '';
         $data['network'] = network()->name;
 
         if (Arr::get($data, 'simulate', false)) {

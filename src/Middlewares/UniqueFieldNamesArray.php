@@ -47,7 +47,7 @@ class UniqueFieldNamesArray extends AbstractExecutionMiddleware
             $duplicates->each(fn ($duplicate) => $this->errors[$duplicate] = new Error(__('enjin-platform::error.there_can_only_one_input_name', ['name' => $duplicate])));
         }
 
-        $nodes->each(function ($node) {
+        $nodes->each(function ($node): void {
             switch ($node->value->kind) {
                 case NodeKind::OBJECT:
                     $this->validateUniqueFieldNames(collect($node->value->fields));

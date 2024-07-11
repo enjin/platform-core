@@ -75,7 +75,7 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, CollectionService $collectionService): mixed
     {
-        collect($args['chainIds'])->each(function ($id) use ($args, $collectionService) {
+        collect($args['chainIds'])->each(function ($id) use ($args, $collectionService): void {
             Syncable::query()->updateOrInsert(
                 ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
                 ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],

@@ -64,7 +64,7 @@ class DecoderService
         $eventId = is_string($eventId = Arr::get($event, 'event.' . $module)) ? $eventId : array_key_first($eventId);
 
         $class = Package::getClassesThatImplementInterface(PolkadartEvent::class)
-            ->where(fn ($class) => str_ends_with($class, sprintf('%s\\%s', $module, $eventId)))
+            ->where(fn ($class) => str_ends_with((string) $class, sprintf('%s\\%s', $module, $eventId)))
             ->first();
 
         return $class ? $class::fromChain($event) : Event::fromChain($event);

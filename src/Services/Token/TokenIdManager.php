@@ -107,7 +107,7 @@ class TokenIdManager
 
         try {
             return new $driverClass($config);
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             throw new InvalidArgumentException(__('enjin-platform::error.token_id_encoder.encoder_not_supported', ['driverClass' => $driverClass]));
         }
     }

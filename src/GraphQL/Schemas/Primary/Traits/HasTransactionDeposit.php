@@ -119,7 +119,7 @@ trait HasTransactionDeposit
         $totalDeposit = gmp_init(0);
 
         collect($args['recipients'])->each(
-            function ($rcpt) use ($args, &$totalDeposit) {
+            function ($rcpt) use ($args, &$totalDeposit): void {
                 if (isset($rcpt['createParams'])) {
                     $tokenDeposit = $this->calculateDepositForToken($rcpt['createParams']);
                     $attributesDeposit = $this->calculateDepositForAttributes($rcpt['createParams']['attributes']);

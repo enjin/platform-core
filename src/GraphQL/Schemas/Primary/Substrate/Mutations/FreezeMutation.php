@@ -146,7 +146,7 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
             'collectionId' => [new IsCollectionOwner()],
             ...(
                 in_array($freezeType, [FreezeType::TOKEN, FreezeType::TOKEN_ACCOUNT], true)
-                    ? $this->getTokenFieldRulesExist(null, [], false)
+                    ? $this->getTokenFieldRulesExist(null, [])
                     : ['tokenId' => ['prohibited']]
             ),
             'freezeState' => $freezeType !== FreezeType::TOKEN ? ['prohibited'] : ['nullable'],

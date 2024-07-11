@@ -63,7 +63,7 @@ class TestCaseGraphQL extends BaseTestCase
 
         $previous = Arr::first($result->errors)?->getPrevious();
 
-        if (!is_null($previous) && get_class($previous) === ValidationException::class) {
+        if (!is_null($previous) && $previous::class === ValidationException::class) {
             $data['errors'] = $previous->validator->errors()->getMessages();
             $data['error'] = $previous->getMessage();
         } elseif (Arr::get($data, 'errors.0.message') === 'validation') {

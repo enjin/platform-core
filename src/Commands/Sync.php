@@ -80,7 +80,7 @@ class Sync extends Command
 
         $backoff->setStrategy(new PolynomialStrategy(250, 2))
             ->setWaitCap(600000)
-            ->setErrorHandler(function (?Throwable $e) {
+            ->setErrorHandler(function (?Throwable $e): void {
                 $this->error(__('enjin-platform::error.exception_in_sync'));
                 $this->error($e->getMessage());
                 $this->error($message = __('enjin-platform::error.line_and_file', ['line' => $e->getLine(), 'file' => $e->getFile()]));
@@ -273,7 +273,7 @@ class Sync extends Command
                 fn ($table) => DB::table($table)->truncate(),
                 $this->tablesToTruncate()
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             Schema::enableForeignKeyConstraints();
 
             return false;

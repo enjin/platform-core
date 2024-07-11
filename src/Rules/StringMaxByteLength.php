@@ -22,7 +22,7 @@ class StringMaxByteLength implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (filled($value) && (strlen($value) > $this->max)) {
+        if (filled($value) && (strlen((string) $value) > $this->max)) {
             $fail('enjin-platform::validation.string_too_large')->translate(['attribute' => $attribute]);
         }
     }

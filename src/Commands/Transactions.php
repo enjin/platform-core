@@ -112,7 +112,7 @@ class Transactions extends Command
 
         $codec = new Codec();
         $totalExtrinsics = 0;
-        collect($extrinsics)->each(function ($chunk) use ($codec, &$totalExtrinsics) {
+        collect($extrinsics)->each(function ($chunk) use ($codec, &$totalExtrinsics): void {
             foreach ($chunk as $blockNumber => $extrinsics) {
                 $block = new Block();
                 $block->number = $blockNumber;

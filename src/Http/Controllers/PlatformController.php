@@ -55,7 +55,7 @@ class PlatformController extends Controller
     {
         $platformData = [
             'root' => 'enjin/platform-core',
-            'url' => trim(config('app.url'), '/'),
+            'url' => trim((string) config('app.url'), '/'),
             'chain' => chain()->value,
             'network' => network() === NetworkType::ENJIN_MATRIX ? 'enjin' : 'canary',
             'packages' => static::getPlatformPackages(),
@@ -89,7 +89,7 @@ class PlatformController extends Controller
                         $compare = $useInstalledRevision ? "{$masterSha}...{$releaseSha}" : "{$releaseSha}...{$masterSha}";
                         $response = $githubHttp->get("repos/{$package}/compare/{$compare}");
                         if ($response->ok()) {
-                            $commits = collect(json_decode($response->getBody()->getContents(), true)['commits']);
+                            $commits = collect(json_decode((string) $response->getBody()->getContents(), true)['commits']);
 
                             return [$package => $commits->map(fn ($commit) => $commit['commit']['message'])->reverse()->flatten()->all()];
                         }

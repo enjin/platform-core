@@ -132,22 +132,18 @@ class CoreServiceProvider extends PackageServiceProvider
             ];
         });
 
-        Collection::macro('recursive', function () {
-            return $this->whenNotEmpty($recursive = function ($item) use (&$recursive) {
-                if (is_array($item)) {
-                    return $recursive(new static($item));
-                } elseif ($item instanceof Collection) {
-                    $item->transform(static function ($collection, $key) use ($recursive, $item) {
-                        return $item->{$key} = $recursive($collection);
-                    });
-                } elseif (is_object($item)) {
-                    foreach ($item as $key => &$val) {
-                        $item->{$key} = $recursive($val);
-                    }
+        Collection::macro('recursive', fn () => $this->whenNotEmpty($recursive = function ($item) use (&$recursive) {
+            if (is_array($item)) {
+                return $recursive(new static($item));
+            } elseif ($item instanceof Collection) {
+                $item->transform(static fn ($collection, $key) => $item->{$key} = $recursive($collection));
+            } elseif (is_object($item)) {
+                foreach ($item as $key => &$val) {
+                    $item->{$key} = $recursive($val);
                 }
+            }
 
-                return $item;
-            });
-        });
+            return $item;
+        }));
     }
 }

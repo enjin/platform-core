@@ -52,7 +52,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
                 'type' => GraphQL::type('Int'),
                 'rules' => [
                     'nullable',
-                    function (string $attribute, mixed $value, Closure $fail) {
+                    function (string $attribute, mixed $value, Closure $fail): void {
                         if (!Transaction::find($value)) {
                             $fail('validation.exists')->translate();
                         }

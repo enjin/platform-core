@@ -168,7 +168,7 @@ class TokenService
     public function getTokensFromCollection($collectionId, ?array $tokenIds = null, $paginationLimit = null): array
     {
         return $this->inCollection($collectionId)
-            ->when($tokenIds ?? false, function (Builder $query) use ($tokenIds) {
+            ->when($tokenIds ?? false, function (Builder $query) use ($tokenIds): void {
                 $query->whereIn('token_chain_id', $tokenIds);
             })->cursorPaginateWithTotalDesc('id', $paginationLimit ?? config('enjin-platform.pagination.limit'));
     }

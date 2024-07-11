@@ -17,7 +17,6 @@ use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
-use Illuminate\Support\Arr;
 
 class Parser
 {
@@ -26,8 +25,6 @@ class Parser
     protected static $collectionAccountCache = [];
     protected static $tokenCache = [];
     protected static $tokenAccountCache = [];
-
-    protected Substrate $serializationService;
 
     protected CollectionService $collectionService;
 
@@ -38,9 +35,8 @@ class Parser
     /**
      * Create instance.
      */
-    public function __construct(?Substrate $serializationService = null)
+    public function __construct(protected Substrate $serializationService = new Substrate())
     {
-        $this->serializationService = $serializationService ?? new Substrate();
         $this->walletService = new WalletService();
         $this->collectionService = new CollectionService($this->walletService);
         $this->tokenService = new TokenService($this->walletService);
@@ -49,7 +45,7 @@ class Parser
     /**
      * Store collections.
      */
-    public function collectionsStorages(array $data, bool $hotSync = false): void
+    public function collectionsStorages(array $data): void
     {
         $insertData = [];
         $insertRoyaltyCurrencies = [];
@@ -93,12 +89,7 @@ class Parser
             ];
         }
 
-        if ($hotSync) {
-            Collection::upsert($insertData, uniqueBy: ['collection_chain_id']);
-        } else {
-            $this->collectionService->insert($insertData);
-        }
-
+        Collection::upsert($insertData, uniqueBy: ['collection_chain_id']);
         $this->collectionsRoyaltyCurrencies($insertRoyaltyCurrencies);
     }
 
@@ -152,7 +143,7 @@ class Parser
     /**
      * Store tokens.
      */
-    public function tokensStorages(array $data, bool $hotSync = false): void
+    public function tokensStorages(array $data): void
     {
         $insertData = [];
 
@@ -190,11 +181,7 @@ class Parser
             ];
         }
 
-        if ($hotSync) {
-            Token::upsert($insertData, uniqueBy: ['token_chain_id', 'collection_id']);
-        } else {
-            $this->tokenService->insert($insertData);
-        }
+        Token::upsert($insertData, uniqueBy: ['token_chain_id', 'collection_id']);
     }
 
     /**
@@ -237,7 +224,7 @@ class Parser
     /**
      * Store collection accounts.
      */
-    public function collectionsAccountsStorages(array $data, bool $hotSync = false): void
+    public function collectionsAccountsStorages(array $data): void
     {
         $insertData = [];
         $insertApprovals = [];
@@ -273,12 +260,7 @@ class Parser
             ];
         }
 
-        if ($hotSync) {
-            CollectionAccount::upsert($insertData, uniqueBy: ['collection_id', 'wallet_id']);
-        } else {
-            CollectionAccount::insert($insertData, $insertData);
-        }
-
+        CollectionAccount::upsert($insertData, uniqueBy: ['collection_id', 'wallet_id']);
         $this->collectionsAccountsApprovals($insertApprovals);
     }
 
@@ -318,7 +300,7 @@ class Parser
     /**
      * Store token accounts.
      */
-    public function tokensAccountsStorages(array $data, bool $hotSync = false): void
+    public function tokensAccountsStorages(array $data): void
     {
         $insertData = [];
         $insertApprovals = [];
@@ -361,12 +343,7 @@ class Parser
             ];
         }
 
-        if ($hotSync) {
-            TokenAccount::upsert($insertData, uniqueBy: ['wallet_id', 'collection_id', 'token_id']);
-        } else {
-            TokenAccount::insert($insertData, $insertData);
-        }
-
+        TokenAccount::upsert($insertData, uniqueBy: ['wallet_id', 'collection_id', 'token_id']);
         $this->tokensAccountsApprovals($insertApprovals);
     }
 
@@ -412,7 +389,7 @@ class Parser
     /**
      * Store attributes.
      */
-    public function attributesStorages(array $data, bool $hotSync = false): void
+    public function attributesStorages(array $data): void
     {
         $insertData = [];
 
@@ -442,16 +419,7 @@ class Parser
             ];
         }
 
-        if ($hotSync) {
-            foreach ($insertData as $data) {
-                Attribute::updateOrInsert(
-                    Arr::except($data, 'value'),
-                    $data
-                );
-            }
-        } else {
-            Attribute::insert($insertData);
-        }
+        Attribute::upsert($insertData, uniqueBy: ['collection_id', 'token_id', 'key']);
     }
 
     /**
@@ -542,7 +510,7 @@ class Parser
     /**
      * Store collections royalty currencies.
      */
-    protected function collectionsRoyaltyCurrencies(array $data, bool $hotSync = false): void
+    protected function collectionsRoyaltyCurrencies(array $data): void
     {
         if (empty($data)) {
             return;
@@ -592,7 +560,7 @@ class Parser
     /**
      * Store token accounts approvals.
      */
-    protected function tokensAccountsApprovals(array $data, bool $hotSync = false): void
+    protected function tokensAccountsApprovals(array $data): void
     {
         if (empty($data)) {
             return;
@@ -621,11 +589,7 @@ class Parser
             }
         }
 
-        if ($hotSync) {
-            TokenAccountApproval::upsert($insertData, uniqueBy: ['token_account_id', 'wallet_id']);
-        } else {
-            TokenAccountApproval::insert($insertData);
-        }
+        TokenAccountApproval::upsert($insertData, uniqueBy: ['token_account_id', 'wallet_id']);
     }
 
     /**
@@ -654,7 +618,7 @@ class Parser
     /**
      * Store collection accounts approvals.
      */
-    protected function collectionsAccountsApprovals(array $data, bool $hotSync = false): void
+    protected function collectionsAccountsApprovals(array $data): void
     {
         if (empty($data)) {
             return;
@@ -684,11 +648,7 @@ class Parser
             }
         }
 
-        if ($hotSync) {
-            CollectionAccountApproval::upsert($insertData, uniqueBy: ['collection_account_id', 'wallet_id']);
-        } else {
-            CollectionAccountApproval::insert($insertData);
-        }
+        CollectionAccountApproval::upsert($insertData, uniqueBy: ['collection_account_id', 'wallet_id']);
     }
 
     /**

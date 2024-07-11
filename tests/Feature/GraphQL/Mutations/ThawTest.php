@@ -128,7 +128,7 @@ class ThawTest extends TestCaseGraphQL
     {
         $signingWallet = Wallet::factory()->create();
         $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
-        $token = Token::factory([
+        Token::factory([
             'collection_id' => $collection,
         ])->create();
 

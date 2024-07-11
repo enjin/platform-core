@@ -10,14 +10,7 @@ use Throwable;
 
 class EventProcessor
 {
-    protected Block $block;
-    protected Codec $codec;
-
-    public function __construct(Block $block, Codec $codec)
-    {
-        $this->block = $block;
-        $this->codec = $codec;
-    }
+    public function __construct(protected Block $block, protected Codec $codec) {}
 
     public function run(): array
     {
@@ -29,7 +22,7 @@ class EventProcessor
             try {
                 $this->processEvent($event);
             } catch (Throwable $exception) {
-                $errors[] = sprintf('%s: %s (Line %s in %s)', get_class($exception), $exception->getMessage(), $exception->getLine(), $exception->getFile());
+                $errors[] = sprintf('%s: %s (Line %s in %s)', $exception::class, $exception->getMessage(), $exception->getLine(), $exception->getFile());
             }
         }
 

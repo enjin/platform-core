@@ -28,7 +28,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
      */
     public function parseValue($value): string
     {
-        if (!strtotime($value)) {
+        if (!strtotime((string) $value)) {
             throw new Error(__('enjin-platform-beam::error.cannot_represent_datetime', ['value' => Utils::printSafeJson($value)]));
         }
 
