@@ -208,11 +208,15 @@ class RelayWatcher extends Command
 
             if ($explode[1]) {
                 $tx->result = SystemEventType::EXTRINSIC_SUCCESS->name;
+
                 Teleport::safeBroadcast(
-                    $wallet = Wallet::firstWhere('public_key', $tx->wallet_public_key),
-                    $wallet,
-                    $tx->amount,
-                    currentMatrix()->value,
+                    [
+                        'from' => $tx->wallet_public_key,
+                        'to' => $tx->wallet_public_key,
+                        'amount' => $tx->amount,
+                        'destination' => currentMatrix()->value,
+                    ],
+                    $tx
                 );
             }
 
