@@ -4,12 +4,15 @@ namespace Enjin\Platform\Models\Laravel;
 
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\Syncable as IndexMethods;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Syncable extends BaseModel
 {
     use HasFactory;
     use IndexMethods;
+    use SoftDeletes;
 
     /**
      * The attributes that aren't mass assignable.
@@ -34,4 +37,11 @@ class Syncable extends BaseModel
      * @var array
      */
     protected $attributes = [];
+
+    protected function pivotIdentifier(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->toJson(),
+        );
+    }
 }

@@ -8,6 +8,7 @@ use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 class RemoveFromTrackedTest extends TestCaseGraphQL
 {
@@ -23,8 +24,9 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
         parent::setUp();
 
         Syncable::query()->insert([
-            ['syncable_id' => static::$syncableIds[0], 'syncable_type' => ModelType::COLLECTION->value],
-            ['syncable_id' => static::$syncableIds[1], 'syncable_type' => ModelType::COLLECTION->value],
+            ['syncable_id' => static::$syncableIds[0], 'syncable_type' => ModelType::COLLECTION->value, 'deleted_at' => null],
+            ['syncable_id' => static::$syncableIds[1], 'syncable_type' => ModelType::COLLECTION->value, 'deleted_at' => null],
+            ['syncable_id' => static::$syncableIds[2], 'syncable_type' => ModelType::COLLECTION->value, 'deleted_at' => Carbon::now()],
         ]);
     }
 
@@ -43,6 +45,7 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
         static::$syncableIds = [
             fake()->unique()->numberBetween(2000),
             fake()->unique()->numberBetween(2000),
+            fake()->unique()->numberBetween(2000),
         ];
 
         return [
@@ -51,15 +54,15 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
                     static::$syncableIds[0],
                 ]),
                 collect([
-                    ['assertDatabaseMissing', ['syncables', ['syncable_id' => static::$syncableIds[0]]]],
-                    ['assertDatabaseHas', ['syncables', ['syncable_id' => static::$syncableIds[1]]]],
+                    ['assertSoftDeleted', ['syncables', ['syncable_id' => (string) static::$syncableIds[0]]]],
+                    ['assertDatabaseHas', ['syncables', ['syncable_id' => (string) static::$syncableIds[1]]]],
                 ]),
             ],
             'remove multiple collections' => [
                 static::getInputData(),
                 collect([
-                    ['assertDatabaseMissing', ['syncables', ['syncable_id' => static::$syncableIds[0]]]],
-                    ['assertDatabaseMissing', ['syncables', ['syncable_id' => static::$syncableIds[1]]]],
+                    ['assertSoftDeleted', ['syncables', ['syncable_id' => (string) static::$syncableIds[0]]]],
+                    ['assertSoftDeleted', ['syncables', ['syncable_id' => (string) static::$syncableIds[1]]]],
                 ]),
             ],
         ];
@@ -109,7 +112,7 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
     /**
      * @dataProvider validDataProvider
      */
-    public function test_it_can_add_to_tracked_data($data, $assertions): void
+    public function test_it_can_remove_tracked_data($data, $assertions): void
     {
         $response = $this->graphql($this->method, $data);
 
@@ -122,7 +125,7 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
     /**
      * @dataProvider invalidDataProvider
      */
-    public function test_it_fails_to_add_to_remove_tracked_data($data, $errorKey, $errorValue): void
+    public function test_it_fails_to_remove_tracked_data($data, $errorKey, $errorValue): void
     {
         $response = $this->graphql($this->method, $data, true);
 

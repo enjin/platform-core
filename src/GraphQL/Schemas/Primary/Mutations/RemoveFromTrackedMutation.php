@@ -75,7 +75,7 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
         )->where(
             'syncable_type',
             ModelType::getEnumCase($args['type'])->value
-        )->delete();
+        )->get()->each(fn ($syncable) => $syncable->delete());
 
         return true;
     }
