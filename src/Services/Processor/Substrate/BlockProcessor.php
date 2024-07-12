@@ -97,7 +97,7 @@ class BlockProcessor
         $this->warn('Starting subscription to new heads');
 
         try {
-            $sub->callMethod('chain_subscribeNewHeads');
+            $sub->callMethod('chain_subscribeFinalizedHeads');
             while (true) {
                 if ($response = $sub->getClient()->receive()) {
                     $syncTime = now();
