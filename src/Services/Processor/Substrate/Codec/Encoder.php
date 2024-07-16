@@ -60,8 +60,30 @@ class Encoder
     ];
 
     protected static array $overrideCallIndex = [
-        'MultiTokens.accept_collection_transfer' => [40, 41],
+        'MatrixUtility.batch' => [57, 0],
+        'Balances.transfer' => [10, 0],
+        'Balances.transfer_keep_alive' => [10, 3],
+        'Balances.transfer_all' => [10, 4],
+        'MultiTokens.approve_collection' => [40, 15],
+        'MultiTokens.unapprove_collection' => [40, 16],
+        'MultiTokens.approve_token' => [40, 17],
+        'MultiTokens.unapprove_token' => [40, 18],
+        'MultiTokens.batch_set_attribute' => [40, 14],
+        'MultiTokens.batch_transfer' => [40, 12],
+        'MultiTokens.transfer' => [40, 6],
+        'MultiTokens.create_collection' => [40, 0],
+        'MultiTokens.destroy_collection' => [40, 1],
+        'MultiTokens.mutate_collection' => [40, 2],
+        'MultiTokens.mutate_token' => [40, 3],
+        'MultiTokens.mint' => [40, 4],
+        'MultiTokens.batch_mint' => [40, 13],
+        'MultiTokens.burn' => [40, 5],
+        'MultiTokens.freeze' => [40, 7],
+        'MultiTokens.thaw' => [40, 8],
         'MultiTokens.set_attribute' => [40, 9],
+        'MultiTokens.remove_attribute' => [40, 10],
+        'MultiTokens.remove_all_attributes' => [40, 11],
+        'MultiTokens.accept_collection_transfer' => [40, 41],
     ];
 
     public function __construct(public ScaleInstance $scaleInstance)
