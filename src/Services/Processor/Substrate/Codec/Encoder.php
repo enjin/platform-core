@@ -61,6 +61,7 @@ class Encoder
 
     protected static array $overrideCallIndex = [
         'MultiTokens.accept_collection_transfer' => [40, 41],
+        'MultiTokens.set_attribute' => [40, 9],
     ];
 
     public function __construct(public ScaleInstance $scaleInstance)
