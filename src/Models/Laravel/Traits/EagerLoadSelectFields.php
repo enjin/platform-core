@@ -155,11 +155,11 @@ trait EagerLoadSelectFields
 
         $relations = array_filter([
             isset($fields['nonFungible']) ? 'collection' : null,
-            isset($fields['metadata']) ? 'attributes' : null,
+            ...(isset($fields['metadata']) ? ['attributes','collection'] : []),
             $hasBeneficiary ? 'royaltyBeneficiary' : null,
             ...TokenType::getRelationFields($fieldKeys),
         ]);
-        foreach ($relations as $relation) {
+        foreach (array_unique($relations) as $relation) {
             if ($relation == 'accounts') {
                 $withCount[] = $relation;
             }

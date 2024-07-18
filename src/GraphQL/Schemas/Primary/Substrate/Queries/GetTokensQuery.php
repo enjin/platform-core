@@ -13,6 +13,7 @@ use Enjin\Platform\Models\Token;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokensQuery extends Query implements PlatformGraphQlQuery
@@ -72,11 +73,12 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
         }
 
         return Token::loadSelectFields($resolveInfo, $this->name)
+            ->addSelect(DB::raw('CONCAT(collection_id,token_chain_id) AS identifier'))
             ->when($collectionId = Arr::get($args, 'collectionId'), fn ($query) => $query->whereHas(
                 'collection',
                 fn ($query) => $query->where('collection_chain_id', $collectionId)
             ))
             ->when(Arr::get($args, 'tokenIds'), fn ($query) => $query->whereIn('token_chain_id', $args['tokenIds']))
-            ->cursorPaginateWithTotalDesc('collection_id', $args['first']);
+            ->cursorPaginateWithTotalDesc('identifier', $args['first']);
     }
 }

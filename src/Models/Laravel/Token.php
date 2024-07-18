@@ -189,7 +189,11 @@ class Token extends BaseModel
 
     private function fetchUriAttribute($model)
     {
-        return $model->load('attributes')->getRelation('attributes')
+        if (!$model->relationLoaded('attributes')) {
+            $model->load('attributes');
+        }
+
+        return $model->getRelation('attributes')
             ->filter(fn ($attribute) => $attribute->key == 'uri')
             ->first();
     }
