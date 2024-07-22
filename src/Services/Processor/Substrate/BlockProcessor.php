@@ -297,7 +297,7 @@ class BlockProcessor
         $try = 0;
 
         while (empty($block->events)) {
-            $this->waitIfEmpty($try, $block->number, 'events');
+            //$this->waitIfEmpty($try, $block->number, 'events');
             $block = $this->setBlockEvent($this->persistedClient, $block);
             $try++;
         }
