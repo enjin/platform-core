@@ -296,11 +296,11 @@ class BlockProcessor
         $syncTime = now();
         $try = 0;
 
-        while (empty($block->events)) {
-            //$this->waitIfEmpty($try, $block->number, 'events');
-            $block = $this->setBlockEvent($this->persistedClient, $block);
-            $try++;
-        }
+        //while (empty($block->events)) {
+        //    $this->waitIfEmpty($try, $block->number, 'events');
+        //    $block = $this->setBlockEvent($this->persistedClient, $block);
+        //    $try++;
+        //}
 
         $this->info(sprintf('Ingested events for block #%s in %s seconds', $block->number, now()->diffInMilliseconds($syncTime) / 1000));
 
