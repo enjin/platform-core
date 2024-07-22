@@ -16,6 +16,7 @@ use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
 
 class GetTokensTest extends TestCaseGraphQL
@@ -139,6 +140,22 @@ class GetTokensTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['totalCount'] >= 1);
+    }
+
+    public function test_it_can_fetch_tokens_next_page_from_a_collection(): void
+    {
+        $after = '';
+        $total = $this->tokens->count();
+        for ($i = 1; $i <= $total; $i++) {
+            $response = $this->graphql($this->method, [
+                'collectionId' => $this->collection->collection_chain_id,
+                'first' => 1,
+                'after' => $after,
+            ]);
+            $this->assertEquals(Arr::get($response, 'pageInfo.hasNextPage'), $i != $total);
+            $after = Arr::get($response, 'pageInfo.endCursor');
+        }
+
     }
 
     public function test_it_can_fetch_tokens_using_a_empty_list_for_token_ids(): void
