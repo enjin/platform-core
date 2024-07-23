@@ -264,45 +264,40 @@ class BlockProcessor
         $this->warn('Finished fetching past block heads');
     }
 
-    protected function setBlockEvent(Substrate $blockchain, Block $block): Block
+    protected function runOrWaitIfEmpty($f, $action, $blockNumber): mixed
     {
-        if ($events = $blockchain->callMethod('state_getStorage', [StorageKey::events()->value, $block->hash])) {
-            $block->events = State::eventsForBlock(['number' => $block->number, 'events' => $events]) ?? [];
-        }
+        $try = 0;
 
-        return $block;
-    }
-
-    protected function setBlockExtrinsic(Substrate $blockchain, Block $block): Block
-    {
-        $data = $blockchain->callMethod('chain_getBlock', [$block->hash]);
-        if ($extrinsics = Arr::get($data, 'block.extrinsics')) {
-            $block->extrinsics = State::extrinsicsForBlock(['number' => $block->number, 'extrinsics' => json_encode($extrinsics)]) ?? [];
-        }
-
-        return $block;
-    }
-
-    protected function waitIfEmpty(int $try, int $blockNumber, string $action): void
-    {
-        if ($try > 0) {
-            usleep($sleep = 250000 * $try ** 2);
+        while (empty($result = call_user_func($f)) && $try < 3) {
+            usleep($sleep = 1000000 * $try ** 2);
             $this->warn(sprintf('Retrying to fetch %s for block #%s in %s seconds', $action, $blockNumber, $sleep / 1000000));
+            $try++;
         }
+
+        return $result;
     }
 
     protected function fetchEvents(Block $block): Block
     {
         $syncTime = now();
-        $try = 0;
 
-        while (empty($block->events)) {
-            $this->waitIfEmpty($try, $block->number, 'events');
-            $block = $this->setBlockEvent($this->persistedClient, $block);
-            $try++;
+        $data = $this->runOrWaitIfEmpty(
+            fn () => $this->persistedClient->callMethod('state_getStorage', [StorageKey::events()->value, $block->hash]),
+            'events',
+            $block->number
+        );
+
+        if (empty($data)) {
+            return $block;
         }
 
-        $this->info(sprintf('Ingested events for block #%s in %s seconds', $block->number, now()->diffInMilliseconds($syncTime) / 1000));
+        $block->events = $this->runOrWaitIfEmpty(
+            fn () => State::eventsForBlock(['number' => $block->number, 'events' => $data]),
+            'events',
+            $block->number
+        );
+
+        $this->info(sprintf('Ingested events for block #%s in %s seconds', $block->number, $syncTime->diffInMilliseconds(now()) / 1000));
 
         return $block;
     }
@@ -310,15 +305,24 @@ class BlockProcessor
     protected function fetchExtrinsics(Block $block): Block
     {
         $syncTime = now();
-        $try = 0;
 
-        while (empty($block->extrinsics)) {
-            $this->waitIfEmpty($try, $block->number, 'extrinsics');
-            $block = $this->setBlockExtrinsic($this->persistedClient, $block);
-            $try++;
+        $data = $this->runOrWaitIfEmpty(
+            fn () => $this->persistedClient->callMethod('chain_getBlock', [$block->hash]),
+            'extrinsics',
+            $block->number
+        );
+
+        if (empty($extrinsics = Arr::get($data, 'block.extrinsics'))) {
+            return $block;
         }
 
-        $this->info(sprintf('Ingested extrinsics for block #%s in %s seconds', $block->number, now()->diffInMilliseconds($syncTime) / 1000));
+        $block->extrinsics = $this->runOrWaitIfEmpty(
+            fn () => State::extrinsicsForBlock(['number' => $block->number, 'extrinsics' => json_encode($extrinsics)]),
+            'blocks',
+            $block->number
+        );
+
+        $this->info(sprintf('Ingested extrinsics for block #%s in %s seconds', $block->number, $syncTime->diffInMilliseconds(now()) / 1000));
 
         return $block;
     }
