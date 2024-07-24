@@ -24,7 +24,7 @@ class Encoder
 
     protected static array $callIndexKeys = [
         'Batch' => 'MatrixUtility.batch',
-        'TransferBalance' => 'Balances.transfer',
+        'TransferBalance' => 'Balances.transfer_keep_alive',
         'TransferBalanceKeepAlive' => 'Balances.transfer_keep_alive',
         'TransferAllBalance' => 'Balances.transfer_all',
         'ApproveCollection' => 'MultiTokens.approve_collection',
