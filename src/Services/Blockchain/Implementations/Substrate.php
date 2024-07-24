@@ -103,7 +103,8 @@ class Substrate implements BlockchainServiceInterface
         string $call,
         ?string $nonce = '00',
         ?string $era = '00',
-        ?string $tip = '00'
+        ?string $tip = '00',
+        ?string $mode = '00',
     ): string {
         return $this->codec->encoder()->addSignature(
             signer: $signer,
@@ -111,7 +112,8 @@ class Substrate implements BlockchainServiceInterface
             call: $call,
             nonce: $nonce,
             era: $era,
-            tip: $tip
+            tip: $tip,
+            mode: $mode
         );
     }
 
