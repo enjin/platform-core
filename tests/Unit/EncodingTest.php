@@ -94,7 +94,7 @@ class EncodingTest extends TestCase
             value: '3256489678678963378387378312'
         ));
 
-        $callIndex = $this->codec->encoder()->getCallIndex('Balances.transfer', true);
+        $callIndex = $this->codec->encoder()->getCallIndex('Balances.transfer_keep_alive', true);
         $this->assertEquals(
             "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e238860bfb2b3660b3783b4850a",
             $data
@@ -135,7 +135,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
-            "0x{$callIndex}080a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e040a070052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0801",
+            "0x{$callIndex}080a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e040a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0801",
             $data
         );
     }
