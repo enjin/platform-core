@@ -35,18 +35,18 @@ class ListingCreated extends Event implements PolkadartEvent
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
-        $self->seller = Account::parseAccount($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller']));
-        $self->makeAssetId = $self->getValue($data, ['listing.make_asset_id', 'ListingOf<T>.make_asset_id']);
-        $self->takeAssetId = $self->getValue($data, ['listing.take_asset_id', 'ListingOf<T>.take_asset_id']);
-        $self->amount = $self->getValue($data, ['listing.amount', 'ListingOf<T>.amount']);
-        $self->price = $self->getValue($data, ['listing.price', 'ListingOf<T>.price']);
-        $self->minTakeValue = $self->getValue($data, ['listing.min_take_value', 'ListingOf<T>.min_take_value']);
-        $self->feeSide = $self->getValue($data, ['listing.fee_side', 'ListingOf<T>.fee_side']);
-        $self->creationBlock = $self->getValue($data, ['listing.creation_block', 'ListingOf<T>.creation_block']);
-        $self->deposit = $self->getValue($data, ['listing.deposit', 'ListingOf<T>.deposit']);
-        $self->salt = HexConverter::bytesToHexPrefixed($self->getValue($data, ['listing.salt', 'ListingOf<T>.salt']));
-        $self->data = $self->getValue($data, ['listing.data', 'ListingOf<T>.data']);
-        $self->state = $self->getValue($data, ['listing.state', 'ListingOf<T>.state']);
+        $self->seller = Account::parseAccount($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller', 'Listing<T>.creator']));
+        $self->makeAssetId = $self->getValue($data, ['listing.make_asset_id', 'ListingOf<T>.make_asset_id', 'Listing<T>.make_asset_id']);
+        $self->takeAssetId = $self->getValue($data, ['listing.take_asset_id', 'ListingOf<T>.take_asset_id', 'Listing<T>.take_asset_id']);
+        $self->amount = $self->getValue($data, ['listing.amount', 'ListingOf<T>.amount', 'Listing<T>.amount']);
+        $self->price = $self->getValue($data, ['listing.price', 'ListingOf<T>.price', 'Listing<T>.price']);
+        $self->minTakeValue = $self->getValue($data, ['listing.min_take_value', 'ListingOf<T>.min_take_value', 'Listing<T>.min_received']);
+        $self->feeSide = $self->getValue($data, ['listing.fee_side', 'ListingOf<T>.fee_side', 'Listing<T>.fee_side']);
+        $self->creationBlock = $self->getValue($data, ['listing.creation_block', 'ListingOf<T>.creation_block', 'Listing<T>.creation_block']);
+        $self->deposit = $self->getValue($data, ['listing.deposit', 'ListingOf<T>.deposit', 'Listing<T>.deposit.amount']);
+        $self->salt = HexConverter::bytesToHexPrefixed($self->getValue($data, ['listing.salt', 'ListingOf<T>.salt', 'Listing<T>.salt']));
+        $self->data = $self->getValue($data, ['listing.data', 'ListingOf<T>.data', 'Listing<T>.data']);
+        $self->state = $self->getValue($data, ['listing.state', 'ListingOf<T>.state', 'Listing<T>.state']);
 
         return $self;
     }
@@ -60,168 +60,153 @@ class ListingCreated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-  [▼
-    "phase" => array:1 [▼
-      "ApplyExtrinsic" => 2
-    ]
-    "event" => array:1 [▼
-      "Marketplace" => array:1 [▼
-        "ListingCreated" => array:2 [▼
-          "ListingIdOf<T>" => array:32 [▼
-            0 => 158
-            1 => 1
-            2 => 223
-            3 => 47
-            4 => 249
-            5 => 64
-            6 => 205
-            7 => 7
-            8 => 53
-            9 => 194
-            10 => 206
-            11 => 230
-            12 => 174
-            13 => 160
-            14 => 252
+[▼
+  "phase" => array:1 [▼
+    "ApplyExtrinsic" => 2
+  ]
+  "event" => array:1 [▼
+    "Marketplace" => array:1 [▼
+      "ListingCreated" => array:2 [▼
+        "ListingIdOf<T>" => array:32 [▼
+          0 => 3
+          1 => 114
+          2 => 129
+          3 => 96
+          4 => 248
+          5 => 165
+          6 => 24
+          7 => 89
+          8 => 80
+          9 => 248
+          10 => 46
+          11 => 189
+          12 => 32
+          13 => 58
+          14 => 164
+          15 => 152
+          16 => 45
+          17 => 197
+          18 => 144
+          19 => 120
+          20 => 8
+          21 => 67
+          22 => 126
+          23 => 112
+          24 => 175
+          25 => 192
+          26 => 91
+          27 => 211
+          28 => 192
+          29 => 39
+          30 => 213
+          31 => 130
+        ]
+        "Listing<T>" => array:12 [▼
+          "creator" => array:32 [▼
+            0 => 46
+            1 => 217
+            2 => 157
+            3 => 48
+            4 => 210
+            5 => 2
+            6 => 199
+            7 => 175
+            8 => 68
+            9 => 203
+            10 => 74
+            11 => 94
+            12 => 57
+            13 => 108
+            14 => 241
             15 => 162
-            16 => 219
-            17 => 98
-            18 => 223
-            19 => 209
-            20 => 195
-            21 => 180
-            22 => 213
-            23 => 252
-            24 => 76
-            25 => 143
-            26 => 84
-            27 => 250
-            28 => 169
-            29 => 19
-            30 => 65
-            31 => 148
+            16 => 3
+            17 => 26
+            18 => 201
+            19 => 107
+            20 => 1
+            21 => 43
+            22 => 227
+            23 => 51
+            24 => 197
+            25 => 94
+            26 => 71
+            27 => 42
+            28 => 238
+            29 => 114
+            30 => 131
+            31 => 117
           ]
-          "Listing<T>" => array:12 [▼
-            "creator" => array:32 [▼
-              0 => 144
-              1 => 181
-              2 => 171
-              3 => 32
-              4 => 92
-              5 => 105
-              6 => 116
-              7 => 201
-              8 => 234
-              9 => 132
-              10 => 27
-              11 => 230
-              12 => 136
-              13 => 134
-              14 => 70
-              15 => 51
-              16 => 220
-              17 => 156
-              18 => 168
-              19 => 163
-              20 => 87
-              21 => 132
-              22 => 62
-              23 => 234
-              24 => 207
-              25 => 35
-              26 => 20
-              27 => 100
-              28 => 153
-              29 => 101
-              30 => 254
-              31 => 34
+          "make_asset_id" => array:2 [▼
+            "collection_id" => "80103"
+            "token_id" => "3"
+          ]
+          "take_asset_id" => array:2 [▼
+            "collection_id" => "0"
+            "token_id" => "0"
+          ]
+          "amount" => "1"
+          "price" => "10000000000000000000"
+          "min_received" => "9750000000000000000"
+          "fee_side" => "Take"
+          "creation_block" => 3162820
+          "deposit" => array:2 [▼
+            "depositor" => array:32 [▼
+              0 => 46
+              1 => 217
+              2 => 157
+              3 => 48
+              4 => 210
+              5 => 2
+              6 => 199
+              7 => 175
+              8 => 68
+              9 => 203
+              10 => 74
+              11 => 94
+              12 => 57
+              13 => 108
+              14 => 241
+              15 => 162
+              16 => 3
+              17 => 26
+              18 => 201
+              19 => 107
+              20 => 1
+              21 => 43
+              22 => 227
+              23 => 51
+              24 => 197
+              25 => 94
+              26 => 71
+              27 => 42
+              28 => 238
+              29 => 114
+              30 => 131
+              31 => 117
             ]
-            "make_asset_id" => array:2 [▼
-              "collection_id" => "77160"
-              "token_id" => "1"
-            ]
-            "take_asset_id" => array:2 [▼
-              "collection_id" => "0"
-              "token_id" => "0"
-            ]
-            "amount" => "10"
-            "price" => "1000"
-            "min_received" => "9650"
-            "fee_side" => "Take"
-            "creation_block" => 26065
-            "deposit" => array:2 [▼
-              "depositor" => array:32 [▶]
-              "amount" => "507225000000000000"
-            ]
-            "salt" => array:2 [▼
-              0 => 18
-              1 => 52
-            ]
-            "data" => array:1 [▼
-              "FixedPrice" => null
-            ]
-            "state" => array:1 [▼
-              "FixedPrice" => "0"
-            ]
+            "amount" => "507225000000000000"
+          ]
+          "salt" => array:9 [▼
+            0 => 53
+            1 => 55
+            2 => 54
+            3 => 54
+            4 => 51
+            5 => 48
+            6 => 55
+            7 => 51
+            8 => 51
+          ]
+          "data" => array:1 [▼
+            "Auction" => array:2 [▶]
+          ]
+          "state" => array:1 [▼
+            "Auction" => null
           ]
         ]
       ]
     ]
-    "topics" => []
   ]
-*/
-
-/* Example 2
-   {
-        "phase": {
-            "ApplyExtrinsic": 34
-        },
-        "event": {
-            "Marketplace": {
-                "ListingCreated": {
-                    "listing_id": "5abb7f8eb36bfa505e43564d5b9d8657d75537d7509e4683442e41209ba9a326",
-                    "listing": {
-                        "seller": "e4569fb538b1cb511472919417e748d96aaab546f15d89f3d387122ab72eef79",
-                        "make_asset_id": {
-                            "collection_id": "89800",
-                            "token_id": "0"
-                        },
-                        "take_asset_id": {
-                            "collection_id": "0",
-                            "token_id": "0"
-                        },
-                        "amount": "1",
-                        "price": "1000000000000000000",
-                        "min_take_value": "975000000000000000",
-                        "fee_side": "Take",
-                        "creation_block": 642082,
-                        "deposit": "2025700000000000000",
-                        "salt": [
-                            115,
-                            97,
-                            108,
-                            116,
-                            49,
-                            50,
-                            51
-                        ],
-                        "data": {
-                            "Auction": {
-                                "start_block": 642088,
-                                "end_block": 642092
-                            }
-                        },
-                        "state": {
-                            "Auction": {
-                                "high_bid": {
-                                    "None": null
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "topics": []
-    },
+  "topics" => []
+]
 */
