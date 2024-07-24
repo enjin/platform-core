@@ -141,6 +141,8 @@ class Encoder
         int $txVersion,
         ?string $era = '00',
         ?string $tip = '00',
+        ?string $mode = '00',
+        ?string $metadataHash = '00',
     ): string {
         $call = HexConverter::unPrefix($call);
         $nonce = HexConverter::unPrefix($this->compact(gmp_strval($nonce)));
@@ -150,8 +152,10 @@ class Encoder
         $txVersion = HexConverter::unPrefix($this->uint32(gmp_strval($txVersion)));
         $era = HexConverter::unPrefix($era);
         $tip = $tip == '0' ? '00' : HexConverter::unPrefix($this->compact(gmp_strval($tip)));
+        $mode = networkConfig('spec-version') >= 1010 ? HexConverter::unPrefix($mode) : '';
+        $metadataHash = networkConfig('spec-version') >= 1010 ? HexConverter::unPrefix($metadataHash) : '';
 
-        return HexConverter::prefix($call . $era . $nonce . $tip . $specVersion . $txVersion . $genesisHash . $blockHash);
+        return HexConverter::prefix($call . $era . $nonce . $tip . $mode . $specVersion . $txVersion . $genesisHash . $blockHash . $metadataHash);
     }
 
     public function signingPayloadJSON(
@@ -164,30 +168,40 @@ class Encoder
         int $txVersion,
         ?string $era = '00',
         ?string $tip = '00',
+        ?string $mode = '00',
+        ?string $metadataHash = '00',
     ): array {
-        return [
-            'address' => SS58Address::encode($address),
-            'blockHash' => $blockHash,
-            'blockNumber' => '0x00000000',
-            'era' => HexConverter::prefix($era),
-            'genesisHash' => $genesisHash,
-            'method' => $call,
-            'nonce' => HexConverter::intToHexPrefixed($nonce),
-            'signedExtensions' => [
-                'CheckNonZeroSender',
-                'CheckSpecVersion',
-                'CheckTxVersion',
-                'CheckGenesis',
-                'CheckMortality',
-                'CheckNonce',
-                'CheckWeight',
-                'ChargeTransactionPayment',
+        return array_merge(
+            [
+                'address' => SS58Address::encode($address),
+                'blockHash' => $blockHash,
+                'blockNumber' => '0x00000000',
+                'era' => HexConverter::prefix($era),
+                'genesisHash' => $genesisHash,
+                'method' => $call,
+                'nonce' => HexConverter::intToHexPrefixed($nonce),
+                'signedExtensions' => array_merge([
+                    'CheckSpecVersion',
+                    'CheckTxVersion',
+                    'CheckGenesis',
+                    'CheckMortality',
+                    'CheckNonce',
+                    'CheckWeight',
+                    'ChargeTransactionPayment',
+                    'CheckFuelTank',
+                ], networkConfig('spec-version') >= 1010 ? ['CheckMetadataHash'] : []),
+                'specVersion' => gmp_strval($specVersion),
+                'tip' => $this->compact(gmp_strval($tip)),
+                'transactionVersion' => gmp_strval($txVersion),
+                'version' => 4,
             ],
-            'specVersion' => gmp_strval($specVersion),
-            'tip' => $this->compact(gmp_strval($tip)),
-            'transactionVersion' => gmp_strval($txVersion),
-            'version' => 4,
-        ];
+            networkConfig('spec-version') >= 1010
+            ? [
+                'mode' => $mode,
+                'metadataHash' => $metadataHash,
+            ]
+            : []
+        );
     }
 
     public function addSignature(
@@ -196,14 +210,23 @@ class Encoder
         string $call,
         ?string $nonce = '00',
         ?string $era = '00',
-        ?string $tip = '00'
+        ?string $tip = '00',
+        ?string $mode = '00'
     ): string {
-        $nonce = HexConverter::unPrefix($this->compact(HexConverter::hexToInt($nonce)));
-        $extrinsic = '84'; // Extra byte
+        $nonce = $this->compact(HexConverter::hexToInt($nonce));
+
+        $extrinsic = '84'; // Extra byte - Meaning it is a signed transaction
         $extrinsic .= '00' . HexConverter::unPrefix(SS58Address::getPublicKey($signer)); // MultiAddress
         $extrinsic .= HexConverter::unPrefix($signature);
-        $extrinsic .= HexConverter::unPrefix($era) . $nonce;
-        $extrinsic .= HexConverter::unPrefix($tip) . HexConverter::unPrefix($call);
+        $extrinsic .= HexConverter::unPrefix($era);
+        $extrinsic .= HexConverter::unPrefix($nonce);
+        $extrinsic .= HexConverter::unPrefix($tip);
+
+        if (networkConfig('spec-version') >= 1010) {
+            $extrinsic .= HexConverter::unPrefix($mode);
+        }
+
+        $extrinsic .= HexConverter::unPrefix($call);
 
         return $this->sequenceLength($extrinsic) . $extrinsic;
     }
@@ -217,7 +240,13 @@ class Encoder
         $nonce = '00';
         $tip = '00';
 
-        $extrinsic = $extraByte . $signer . $signature . $era . $nonce . $tip . HexConverter::unPrefix($call);
+        $extrinsic = $extraByte . $signer . $signature . $era . $nonce . $tip;
+
+        if (networkConfig('spec-version') >= 1010) {
+            $extrinsic .= HexConverter::unPrefix('00');
+        }
+
+        $extrinsic .= HexConverter::unPrefix($call);
 
         return $this->sequenceLength($extrinsic) . $extrinsic;
     }
