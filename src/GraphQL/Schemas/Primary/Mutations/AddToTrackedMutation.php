@@ -59,7 +59,7 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.model_type'),
             ],
             'chainIds' => [
-                'type' => GraphQL::type('[String!]!'),
+                'type' => GraphQL::type('[BigInt!]!'),
                 'description' => __('enjin-platform::mutation.add_to_tracked.args.chain_ids'),
             ],
             'hotSync' => [
@@ -76,10 +76,19 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, CollectionService $collectionService): mixed
     {
         collect($args['chainIds'])->each(function ($id) use ($args, $collectionService): void {
-            Syncable::query()->updateOrInsert(
-                ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
-                ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
-            );
+            $syncable = Syncable::withTrashed()->where([
+                'syncable_id' => $id,
+                'syncable_type' => ModelType::getEnumCase($args['type'])->value,
+            ])->first();
+
+            if ($syncable && $syncable->trashed()) {
+                $syncable->restore();
+            } else {
+                Syncable::query()->updateOrInsert(
+                    ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
+                    ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
+                );
+            }
 
             if ($args['hotSync']) {
                 match (ModelType::getEnumCase($args['type'])) {

@@ -5,6 +5,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Jobs\HotSync;
+use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
@@ -81,7 +82,7 @@ class AddToTrackedTest extends TestCaseGraphQL
             'no chain ids supplied' => [
                 ['type' => ModelType::COLLECTION->name],
                 'chainsIds',
-                'Variable "$chainIds" of required type "[String!]!" was not provided.',
+                'Variable "$chainIds" of required type "[BigInt!]!" was not provided.',
             ],
             'too many chain ids supplied with hot sync' => [
                 [
@@ -130,6 +131,23 @@ class AddToTrackedTest extends TestCaseGraphQL
 
         $this->assertTrue($response);
         $queueAssertion();
+    }
+
+    public function test_it_can_restore_tracked_data()
+    {
+        Queue::fake();
+        $response = $this->graphql($this->method, $data = self::getInputData());
+        $this->assertTrue($response);
+
+        $deletedSyncable = Syncable::where('syncable_id', $data['chainIds'][0])->first();
+        $deletedSyncable->delete();
+        $this->assertTrue($deletedSyncable->trashed());
+
+        $response = $this->graphql($this->method, $data);
+        $restoredSyncable = Syncable::withTrashed()->where('syncable_id', $data['chainIds'][0])->first();
+        $this->assertTrue($response);
+        $this->assertFalse($restoredSyncable->trashed());
+        $this->assertEquals($deletedSyncable->id, $restoredSyncable->id);
     }
 
     // Exception Path
