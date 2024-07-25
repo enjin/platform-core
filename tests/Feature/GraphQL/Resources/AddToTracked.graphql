@@ -1,6 +1,6 @@
 mutation AddToTracked(
     $type: ModelType!
-    $chainIds: [String!]!
+    $chainIds: [BigInt!]!
     $hotSync: Boolean
 ) {
     AddToTracked(
