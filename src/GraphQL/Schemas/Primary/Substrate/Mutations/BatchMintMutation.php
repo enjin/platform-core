@@ -18,6 +18,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
 use Enjin\Platform\Rules\IsCollectionOwner;
@@ -162,6 +163,10 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                         ],
                         'params' => $recipient['params']->toEncodable(),
                     ]);
+
+                    if ($recipient['params'] instanceof MintParams) {
+                        return $data;
+                    }
 
                     return isRunningLatest() ? $data . '00000000' : $data;
                 }
