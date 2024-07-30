@@ -49,6 +49,7 @@ class MintParams
                 'tokenId' => gmp_init($this->tokenId),
                 'amount' => gmp_init($this->amount),
                 'unitPrice' => $this->unitPrice !== null ? gmp_init($this->unitPrice) : null,
+                'depositor' => null,
             ],
         ];
     }
