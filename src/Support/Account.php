@@ -5,6 +5,7 @@ namespace Enjin\Platform\Support;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Services\Database\WalletService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
 class Account
@@ -20,7 +21,7 @@ class Account
     {
         $accounts = [
             static::$publicKey,
-            ...static::$walletAccounts,
+            ...Arr::wrap(static::$walletAccounts),
             $others,
         ];
         foreach (array_filter($accounts) as $account) {
