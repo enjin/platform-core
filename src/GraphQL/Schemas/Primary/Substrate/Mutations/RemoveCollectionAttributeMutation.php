@@ -61,7 +61,7 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
         return [
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.collectionId'),
+                'description' => __('enjin-platform::mutation.remove_all_attributes.args.collectionId'),
             ],
             'key' => [
                 'type' => GraphQL::type('String!'),

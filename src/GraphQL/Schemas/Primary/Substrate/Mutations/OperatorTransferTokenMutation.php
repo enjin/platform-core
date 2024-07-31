@@ -71,7 +71,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
         return [
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.collectionId'),
+                'description' => __('enjin-platform::mutation.common.args.collectionId'),
             ],
             'recipient' => [
                 'type' => GraphQL::type('String!'),
@@ -79,6 +79,8 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
             ],
             'params' => [
                 'type' => GraphQL::type('OperatorTransferParams!'),
+                'description' => __('enjin-platform::mutation.operator_transfer_token.args.params'),
+
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),

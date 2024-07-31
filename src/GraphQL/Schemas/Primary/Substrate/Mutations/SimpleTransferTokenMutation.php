@@ -71,7 +71,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
         return [
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.collectionId'),
+                'description' => __('enjin-platform::mutation.simple_transfer_token.args.collectionId'),
             ],
             'recipient' => [
                 'type' => GraphQL::type('String!'),
@@ -79,6 +79,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
             ],
             'params' => [
                 'type' => GraphQL::type('SimpleTransferParams!'),
+                'description' => __('enjin-platform::mutation.simple_transfer_token.args.params'),
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),

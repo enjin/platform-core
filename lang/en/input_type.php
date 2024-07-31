@@ -24,6 +24,8 @@ return [
     'mint_policy.field.forceSingleMint' => 'Set whether the tokens in this collection will be minted as SingleMint types. This would indicate the tokens in this collection are NFTs.',
     'mint_recipient.description' => 'The recipient account for a mint.',
     'mint_recipient.field.account' => 'The recipient account of the token.',
+    'mint_recipient.field.createParams' => 'The params for creating a new token.',
+    'mint_recipient.field.mintTokenParams' => 'The params for minting a token.',
     'multi_token_id.description' => 'The unique identifier for a token. Composed using a collection ID and a token ID.',
     'multi_token_id.field.collectionId' => 'The collection id of a multi token.',
     'multi_token_id.field.tokenId' => 'The token ID of a multi token.',
@@ -49,6 +51,9 @@ return [
     'token_mutation.field.behavior' => 'Set if the token has royalty or is a currency. If null, the behavior will not be changed.',
     'token_mutation.field.listingForbidden' => 'Set if the token can be listed on the marketplace. If null, the listingForbidden property will not be changed.',
     'transfer_recipient.description' => 'The recipient account for a transfer.',
+    'transfer_recipient.field.simpleTransferParams' => 'The params for a simple transfer.',
+    'transfer_recipient.field.operatorTransferParams' => 'The params for an operator transfer.',
+    'transfer_recipient.field.transferBalanceParams' => 'The params for a balance transfer.',
     'erc1155_encoder.description' => 'ERC1155 Style Token ID.',
     'token_freeze_state.description' => 'The freeze state of the token.',
 ];
