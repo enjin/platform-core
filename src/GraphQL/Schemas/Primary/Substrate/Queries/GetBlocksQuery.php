@@ -29,7 +29,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
         SingleFilterOnly::class,
     ];
 
-    public function getAttributes(): array
+    public function attributes(): array
     {
         return [
             'name' => 'GetBlocks',
