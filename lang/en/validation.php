@@ -19,7 +19,7 @@ return [
     'max_big_int' => 'The :attribute is too large, the maximum value it can be is :max.',
     'max_token_balance' => 'The :attribute is invalid, the amount provided is bigger than the token account balance.',
     'min_big_int' => 'The :attribute is too small, the minimum value it can be is :min.',
-    'min_token_deposit' => 'The :attribute is too small, the min token deposit is 0.01 EFI thus initialSupply * unitPrice must be greater than 10^16.',
+    'min_token_deposit' => 'The :attribute is too small, the min token deposit is 0.01 ENJ thus initialSupply * unitPrice must be greater than 10^16.',
     'mutation.behavior.isCurrency.accepted' => "The isCurrency parameter only accepts true. If you don't want it to be a currency, don't pass it.",
     'no_tokens_in_collection' => 'The :attribute must not have any existing tokens.',
     'token_doesnt_exist_in_collection' => 'The :attribute already exists in the specified collection.',
