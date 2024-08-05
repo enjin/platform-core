@@ -15,6 +15,7 @@ class ListingFilled extends Event implements PolkadartEvent
     public readonly string $name;
     public readonly string $listingId;
     public readonly string $buyer;
+    public readonly ?string $price; // TODO: Should not be null after mainnet upgrade
     public readonly string $amountFilled;
     public readonly string $amountRemaining;
     public readonly string $protocolFee;
@@ -29,10 +30,11 @@ class ListingFilled extends Event implements PolkadartEvent
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', '0'])) ? $value : HexConverter::bytesToHex($value));
         $self->buyer = Account::parseAccount($self->getValue($data, ['buyer', '1']));
-        $self->amountFilled = $self->getValue($data, ['amount_filled', '2']);
-        $self->amountRemaining = $self->getValue($data, ['amount_remaining', '3']);
-        $self->protocolFee = $self->getValue($data, ['protocol_fee', '4']);
-        $self->royalty = $self->getValue($data, ['royalty', '5']);
+        $self->price = $self->getValue($data, ['price', '2']);
+        $self->amountFilled = $self->getValue($data, ['amount_filled', '3']);
+        $self->amountRemaining = $self->getValue($data, ['amount_remaining', '4']);
+        $self->protocolFee = $self->getValue($data, ['protocol_fee', '5']);
+        $self->royalty = $self->getValue($data, ['royalty', '6']);
 
         return $self;
     }
@@ -56,88 +58,89 @@ class ListingFilled extends Event implements PolkadartEvent
 }
 
 /* Example 1
-  [▼
-    "phase" => array:1 [▼
-      "ApplyExtrinsic" => 2
-    ]
-    "event" => array:1 [▼
-      "Marketplace" => array:1 [▼
-        "ListingFilled" => array:6 [▼
-          0 => array:32 [▼
-            0 => 158
-            1 => 1
-            2 => 223
-            3 => 47
-            4 => 249
-            5 => 64
-            6 => 205
-            7 => 7
-            8 => 53
-            9 => 194
-            10 => 206
-            11 => 230
-            12 => 174
-            13 => 160
-            14 => 252
-            15 => 162
-            16 => 219
-            17 => 98
-            18 => 223
-            19 => 209
-            20 => 195
-            21 => 180
-            22 => 213
-            23 => 252
-            24 => 76
-            25 => 143
-            26 => 84
-            27 => 250
-            28 => 169
-            29 => 19
-            30 => 65
-            31 => 148
-          ]
-          1 => array:32 [▼
-            0 => 212
-            1 => 53
-            2 => 147
-            3 => 199
-            4 => 21
-            5 => 253
-            6 => 211
-            7 => 28
-            8 => 97
-            9 => 20
-            10 => 26
-            11 => 189
-            12 => 4
-            13 => 169
-            14 => 159
-            15 => 214
-            16 => 130
-            17 => 44
-            18 => 133
-            19 => 88
-            20 => 133
-            21 => 76
-            22 => 205
-            23 => 227
-            24 => 154
-            25 => 86
-            26 => 132
-            27 => 231
-            28 => 165
-            29 => 109
-            30 => 162
-            31 => 125
-          ]
-          2 => "1"
-          3 => "9"
-          4 => "25"
-          5 => "10"
+ [▼
+  "phase" => array:1 [▼
+    "ApplyExtrinsic" => 2
+  ]
+  "event" => array:1 [▼
+    "Marketplace" => array:1 [▼
+      "ListingFilled" => array:7 [▼
+        0 => array:32 [▼
+          0 => 57
+          1 => 116
+          2 => 137
+          3 => 159
+          4 => 32
+          5 => 135
+          6 => 226
+          7 => 53
+          8 => 97
+          9 => 171
+          10 => 138
+          11 => 227
+          12 => 157
+          13 => 252
+          14 => 214
+          15 => 65
+          16 => 207
+          17 => 67
+          18 => 210
+          19 => 101
+          20 => 100
+          21 => 134
+          22 => 230
+          23 => 149
+          24 => 153
+          25 => 36
+          26 => 208
+          27 => 235
+          28 => 193
+          29 => 151
+          30 => 173
+          31 => 133
         ]
+        1 => array:32 [▼
+          0 => 142
+          1 => 175
+          2 => 4
+          3 => 21
+          4 => 22
+          5 => 135
+          6 => 115
+          7 => 99
+          8 => 38
+          9 => 201
+          10 => 254
+          11 => 161
+          12 => 126
+          13 => 37
+          14 => 252
+          15 => 82
+          16 => 135
+          17 => 97
+          18 => 54
+          19 => 147
+          20 => 201
+          21 => 18
+          22 => 144
+          23 => 156
+          24 => 178
+          25 => 38
+          26 => 170
+          27 => 71
+          28 => 148
+          29 => 242
+          30 => 106
+          31 => 72
+        ]
+        2 => "500000000"
+        3 => "1"
+        4 => "3"
+        5 => "5000000"
+        6 => "0"
       ]
     ]
-    "topics" => []
   ]
+  "topics" => []
+]
 */
