@@ -1047,7 +1047,7 @@ class CreateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['params.unitPrice' => ['The params.unit price is too small, the min token deposit is 0.01 EFI thus initialSupply * unitPrice must be greater than 10^16.']],
+            ['params.unitPrice' => ['The params.unit price is too small, the min token deposit is 0.01 ENJ thus initialSupply * unitPrice must be greater than 10^16.']],
             $response['error']
         );
 

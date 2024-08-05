@@ -76,9 +76,11 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
             ],
             'recipients' => [
                 'type' => GraphQL::type('[TransferRecipient!]!'),
+                'description' => __('enjin-platform::mutation.common.args.recipients'),
             ],
             'continueOnFailure' => [
                 'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::mutation.common.args.continueOnFailure'),
                 'defaultValue' => false,
             ],
             ...$this->getSigningAccountField(),

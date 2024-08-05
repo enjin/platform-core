@@ -71,7 +71,7 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
         return [
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.collectionId'),
+                'description' => __('enjin-platform::mutation.remove_all_attributes.args.collectionId'),
             ],
             ...$this->getTokenFields(__('enjin-platform::args.common.tokenId')),
             'key' => [

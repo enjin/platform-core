@@ -50,6 +50,7 @@ class VerifyAccountMutation extends Mutation implements PlatformGraphQlMutation,
         return [
             'verificationId' => [
                 'type' => GraphQL::type('String!'),
+                'description' => __('enjin-platform::query.verify_message.args.verificationId'),
                 'rules' => [
                     'bail',
                     'filled',
@@ -59,10 +60,12 @@ class VerifyAccountMutation extends Mutation implements PlatformGraphQlMutation,
             ],
             'signature' => [
                 'type' => GraphQL::type('String!'),
+                'description' => __('enjin-platform::query.verify_message.args.signature'),
                 'rules' => ['bail', 'filled', new ValidHex()],
             ],
             'account' => [
                 'type' => GraphQL::type('String!'),
+                'description' => __('enjin-platform::query.verify_message.args.account'),
                 'rules' => ['bail', 'filled', new ValidSubstrateAccount()],
             ],
             'cryptoSignatureType' => [

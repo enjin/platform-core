@@ -31,9 +31,11 @@ class RoyaltyType extends Type implements PlatformGraphQlType
             // Properties
             'beneficiary' => [
                 'type' => GraphQL::type('Wallet!'),
+                'description' => __('enjin-platform::type.mutation_royalty.field.beneficiary'),
             ],
             'percentage' => [
                 'type' => GraphQL::type('Float!'),
+                'description' => __('enjin-platform::type.mutation_royalty.field.percentage'),
             ],
         ];
     }

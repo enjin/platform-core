@@ -56,7 +56,7 @@ php artisan vendor:publish --tag="platform-core-config"
 
 ## Usage
 
-First, you should sync your platform with a snapshot of Efinity state:
+First, you should sync your platform with a snapshot of Enjin state:
 ```bash
 php artisan platform:sync
 ```

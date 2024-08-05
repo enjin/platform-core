@@ -62,6 +62,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
             ],
             'markAsProcessing' => [
                 'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::mutation.mark_and_list_pending_transactions.args.mark_as_processing'),
                 'defaultValue' => true,
             ],
         ]);

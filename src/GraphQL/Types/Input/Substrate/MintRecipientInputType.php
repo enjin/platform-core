@@ -36,9 +36,11 @@ class MintRecipientInputType extends InputType implements PlatformGraphQlType
             ],
             'createParams' => [
                 'type' => GraphQL::type('CreateTokenParams'),
+                'description' => __('enjin-platform::input_type.mint_recipient.field.createParams'),
             ],
             'mintParams' => [
                 'type' => GraphQL::type('MintTokenParams'),
+                'description' => __('enjin-platform::input_type.mint_recipient.field.mintTokenParams'),
             ],
         ];
     }

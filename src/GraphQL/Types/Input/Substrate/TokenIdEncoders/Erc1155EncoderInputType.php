@@ -22,7 +22,7 @@ class Erc1155EncoderInputType extends InputType implements PlatformGraphQlType
     {
         return [
             'name' => 'Erc1155EncoderInput',
-            'description' => __('erc1155_encoder.description'),
+            'description' => __('enjin-platform::input_type.erc1155_encoder.description'),
         ];
     }
 
