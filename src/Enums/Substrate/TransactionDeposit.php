@@ -16,7 +16,6 @@ enum TransactionDeposit: string
     case LISTING = '507225000000000000';
     case FUEL_TANK = '2500000000000000000';
 
-
     public function toGMP(): GMP
     {
         return TransactionDeposit::getGMP($this);

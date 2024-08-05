@@ -4,13 +4,6 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Traits;
 
 use Codec\Utils;
 use Enjin\Platform\Enums\Substrate\TransactionDeposit;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchMintMutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchSetAttributeMutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateTokenMutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MintTokenMutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetCollectionAttributeMutation;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetTokenAttributeMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
@@ -24,12 +17,12 @@ trait HasTransactionDeposit
     protected function getDeposit($args): ?string
     {
         return match ((new \ReflectionClass($this))->getShortName()) {
-            CreateCollectionMutation::class => $this->getCreateCollectionDeposit($args),
-            CreateTokenMutation::class => $this->getCreateTokenDeposit($args),
-            MintTokenMutation::class => $this->getMintTokenDeposit($args),
-            SetCollectionAttributeMutation::class, SetTokenAttributeMutation::class => $this->getSetAttributeDeposit($args),
-            BatchSetAttributeMutation::class => $this->getBatchSetAttributeDeposit($args),
-            BatchMintMutation::class => $this->getBatchMintDeposit($args),
+            'CreateCollectionMutation' => $this->getCreateCollectionDeposit($args),
+            'CreateTokenMutation' => $this->getCreateTokenDeposit($args),
+            'MintTokenMutation' => $this->getMintTokenDeposit($args),
+            'SetCollectionAttributeMutation', 'SetTokenAttributeMutation' => $this->getSetAttributeDeposit($args),
+            'BatchSetAttributeMutation' => $this->getBatchSetAttributeDeposit($args),
+            'BatchMintMutation' => $this->getBatchMintDeposit($args),
             'CreateListingMutation' => TransactionDeposit::LISTING->value,
             'CreateFuelTankMutation' => TransactionDeposit::FUEL_TANK->value,
             'AddAccountMutation' => TransactionDeposit::TOKEN_ACCOUNT->value,
