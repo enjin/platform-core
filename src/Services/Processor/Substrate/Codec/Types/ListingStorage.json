@@ -75,14 +75,10 @@
     "_enum": {
       "FixedPrice": "FixedPriceState",
       "Auction": "AuctionState",
-      "Offer": "OfferStateV1010"
+      "Offer": "OfferStateV1011"
     }
   },
-  "OfferStateV1010": {
-    "counter": "Option<CounterOfferV1010>"
-  },
-  "CounterOfferV1010": {
-    "accountId": "AccountId",
-    "price": "u128"
+  "OfferStateV1011": {
+    "counterOfferCount": "u32"
   }
 }
