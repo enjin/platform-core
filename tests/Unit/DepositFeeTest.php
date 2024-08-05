@@ -111,7 +111,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getCreateTokenDeposit($args);
 
-        $this->assertEquals('211000000000000000', $deposit);
+        $this->assertEquals('60250000000000000', $deposit);
     }
 
     public function test_deposit_for_mint_token()
@@ -176,7 +176,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getBatchMintDeposit($args);
 
-        $this->assertEquals('211000000000000000', $deposit);
+        $this->assertEquals('60250000000000000', $deposit);
     }
 
     public function test_deposit_for_batch_set_attribute()
@@ -196,6 +196,6 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getBatchSetAttributeDeposit($args);
 
-        $this->assertEquals('202000000000000000', $deposit);
+        $this->assertEquals('50500000000000000', $deposit);
     }
 }

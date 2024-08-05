@@ -23,8 +23,20 @@ trait HasTransactionDeposit
             'SetCollectionAttributeMutation', 'SetTokenAttributeMutation' => $this->getSetAttributeDeposit($args),
             'BatchSetAttributeMutation' => $this->getBatchSetAttributeDeposit($args),
             'BatchMintMutation' => $this->getBatchMintDeposit($args),
+            'CreateListingMutation' => TransactionDeposit::LISTING->value,
+            'CreateFuelTankMutation' => TransactionDeposit::FUEL_TANK->value,
+            'AddAccountMutation' => TransactionDeposit::TOKEN_ACCOUNT->value,
+            'BatchAddAccountMutation' => $this->getBatchAddFuelTankAccountDeposit($args),
             default => null,
         };
+    }
+
+    protected function getBatchAddFuelTankAccountDeposit(array $args): string
+    {
+        $accountsCount = count($args['userIds'] ?? []);
+        $totalDeposit = gmp_mul(TransactionDeposit::TOKEN_ACCOUNT->toGMP(), $accountsCount);
+
+        return gmp_strval($totalDeposit);
     }
 
     protected function calculateDepositForAttributes(array $attributes): GMP
