@@ -75,6 +75,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             ],
             'continueOnFailure' => [
                 'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::mutation.common.args.continueOnFailure'),
                 'defaultValue' => false,
             ],
             ...$this->getSigningAccountField(),

@@ -68,7 +68,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         return [
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.burn.args.collectionId'),
+                'description' => __('enjin-platform::mutation.common.args.collectionId'),
             ],
             'params' => [
                 'type' => GraphQL::type('BurnParamsInput!'),

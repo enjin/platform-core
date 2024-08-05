@@ -36,12 +36,15 @@ class TransferRecipientInputType extends InputType implements PlatformGraphQlTyp
             ],
             'simpleParams' => [
                 'type' => GraphQL::type('SimpleTransferParams'),
+                'description' => __('enjin-platform::input_type.transfer_recipient.field.simpleTransferParams'),
             ],
             'operatorParams' => [
                 'type' => GraphQL::type('OperatorTransferParams'),
+                'description' => __('enjin-platform::input_type.transfer_recipient.field.operatorTransferParams'),
             ],
             'transferBalanceParams' => [
                 'type' => GraphQL::type('TransferBalanceParams'),
+                'description' => __('enjin-platform::input_type.transfer_recipient.field.transferBalanceParams'),
             ],
         ];
     }

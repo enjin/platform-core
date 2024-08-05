@@ -24,14 +24,18 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
 {
     use InPrimarySubstrateSchema;
 
-    protected $attributes = [
-        'name' => 'GetBlocks',
-    ];
-
     protected $middleware = [
         ResolvePage::class,
         SingleFilterOnly::class,
     ];
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'GetBlocks',
+            'description' => __('enjin-platform::query.get_blocks.description'),
+        ];
+    }
 
     /**
      * Get the query's return type.

@@ -64,7 +64,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
         return [
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.burn.args.collectionId'),
+                'description' => __('enjin-platform::mutation.common.args.collectionId'),
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),

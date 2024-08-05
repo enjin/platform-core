@@ -1600,7 +1600,7 @@ type Token {
   """The token chain ID which is a 128bit unsigned integer number."""
   tokenId: BigInt!
 
-  """The price of each token in EFI."""
+  """The price of each token in ENJ."""
   unitPrice: BigInt!
 }
 
@@ -1892,7 +1892,7 @@ type Wallet {
   account: Account
 
   """
-  The EFI balance of the account. The balances will be null if the wallet doesn't exist on the blockchain.
+  The ENJ balance of the account. The balances will be null if the wallet doesn't exist on the blockchain.
   """
   balances: Balances
 

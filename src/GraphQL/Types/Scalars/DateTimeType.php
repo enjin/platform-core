@@ -29,7 +29,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
     public function parseValue($value): string
     {
         if (!strtotime((string) $value)) {
-            throw new Error(__('enjin-platform-beam::error.cannot_represent_datetime', ['value' => Utils::printSafeJson($value)]));
+            throw new Error(__('enjin-platform::error.cannot_represent_datetime', ['value' => Utils::printSafeJson($value)]));
         }
 
         return $value;
@@ -41,7 +41,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
     public function parseLiteral($valueNode, ?array $variables = null)
     {
         if (!strtotime($valueNode->value)) {
-            throw new Error(__('enjin-platform-beam::error.invalid_datetime'), [$valueNode]);
+            throw new Error(__('enjin-platform::error.invalid_datetime'), [$valueNode]);
         }
 
         return $valueNode->value;

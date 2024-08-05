@@ -31,19 +31,19 @@ class BalancesType extends Type implements PlatformGraphQlType
             // Properties
             'free' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => '',
+                'description' => __('enjin-platform::type.balances.free'),
             ],
             'reserved' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => '',
+                'description' => __('enjin-platform::type.balances.reserved'),
             ],
             'miscFrozen' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => '',
+                'description' => __('enjin-platform::type.balances.miscFrozen'),
             ],
             'feeFrozen' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => '',
+                'description' => __('enjin-platform::type.balances.feeFrozen'),
             ],
         ];
     }

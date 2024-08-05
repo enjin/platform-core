@@ -17,7 +17,7 @@ return [
     'max_big_int' => ':attributeが大きすぎます。可能な最大値は:maxです。',
     'max_token_balance' => ':attributeは無効です。トークンアカウント残高より大きい金額が指定されています。',
     'min_big_int' => ':attributeが小さすぎます。可能な最低値は:minです。',
-    'min_token_deposit' => ':attributeが小さすぎます。最低トークンデポジットは0.01 EFIであるため、「initialSupply × unitPrice」は10^16より大きくなる必要があります。',
+    'min_token_deposit' => ':attributeが小さすぎます。最低トークンデポジットは0.01 ENJであるため、「initialSupply × unitPrice」は10^16より大きくなる必要があります。',
     'mutation.behavior.isCurrency.accepted' => 'isCurrencyパラメーターはtrueのみを受け入れます。通貨にしない場合は省略できます。',
     'no_tokens_in_collection' => ':attributeには既存のトークンがあってはいけません。',
     'token_doesnt_exist_in_collection' => ':attributeは指定されたコレクションに既に存在します。',
