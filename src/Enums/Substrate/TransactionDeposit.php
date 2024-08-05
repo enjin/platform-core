@@ -9,10 +9,10 @@ enum TransactionDeposit: string
 {
     use EnumExtensions;
 
-    case COLLECTION = '25000000000000000000';
+    case COLLECTION = '6250000000000000000';
     case TOKEN_ACCOUNT = '10000000000000000';
-    case ATTRIBUTE_BASE = '200000000000000000';
-    case ATTRIBUTE_PER_BYTE = '100000000000000';
+    case ATTRIBUTE_BASE = '50000000000000000';
+    case ATTRIBUTE_PER_BYTE = '25000000000000';
 
     public function toGMP(): GMP
     {
