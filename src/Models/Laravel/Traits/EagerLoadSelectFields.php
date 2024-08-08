@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Models\Laravel\Traits;
 
-use Enjin\Platform\Beam\Rules\Traits\IntegerRange;
 use Enjin\Platform\GraphQL\Types\Global\PendingEventType;
 use Enjin\Platform\GraphQL\Types\Substrate\BlockType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountApprovalType;
@@ -27,8 +26,6 @@ use Illuminate\Support\Facades\DB;
 
 trait EagerLoadSelectFields
 {
-    use IntegerRange;
-
     /**
      * The query name.
      */
@@ -370,7 +367,7 @@ trait EagerLoadSelectFields
                 case 'ownedCollections':
                     $withCount[$relation] = fn ($query) => $query->when(
                         Arr::get($args, 'collectionIds'),
-                        fn ($q) => $q->whereIn('collection_id', $args['collectionIds'])
+                        fn ($q) => $q->whereIn('collection_chain_id', $args['collectionIds'])
                     );
 
                     break;

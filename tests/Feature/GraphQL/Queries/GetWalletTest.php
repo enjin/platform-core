@@ -21,6 +21,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksWebsocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class GetWalletTest extends TestCaseGraphQL
 {
@@ -405,6 +406,17 @@ class GetWalletTest extends TestCaseGraphQL
             'reservedBalance' => $this->tokenAccount->reserved_balance,
             'isFrozen' => $this->tokenAccount->is_frozen,
         ], $response['tokenAccounts']['edges'][0]['node']);
+
+        $response = $this->graphql($this->method, [
+            'id' => $id = $this->wallet->id,
+            'bulkFilter' => [
+                [
+                    'collectionId' => $this->collection->collection_chain_id,
+                    'tokenIds' => [$this->token->token_chain_id],
+                ],
+            ],
+        ]);
+        $this->assertNotEmpty(Arr::get($response, 'tokenAccounts.edges'));
     }
 
     public function test_it_can_get_a_wallet_and_filter_owned_collections(): void
