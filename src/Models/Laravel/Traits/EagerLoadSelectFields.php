@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Models\Laravel\Traits;
 
+use Enjin\Platform\Beam\Rules\Traits\IntegerRange;
 use Enjin\Platform\GraphQL\Types\Global\PendingEventType;
 use Enjin\Platform\GraphQL\Types\Substrate\BlockType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountApprovalType;
@@ -14,6 +15,8 @@ use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenType;
 use Enjin\Platform\GraphQL\Types\Substrate\TransactionType;
 use Enjin\Platform\GraphQL\Types\Substrate\WalletType;
+use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Token;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -24,6 +27,8 @@ use Illuminate\Support\Facades\DB;
 
 trait EagerLoadSelectFields
 {
+    use IntegerRange;
+
     /**
      * The query name.
      */
@@ -286,6 +291,7 @@ trait EagerLoadSelectFields
         foreach (WalletType::getRelationFields($fieldKeys) as $relation) {
             switch ($relation) {
                 case 'collectionAccounts':
+                    dd(Arr::get($args, 'collectionIds'));
                     $withCount[$relation] = fn ($query) => $query->when(
                         Arr::get($args, 'collectionIds'),
                         fn ($q) => $q->whereIn(
@@ -296,18 +302,62 @@ trait EagerLoadSelectFields
 
                     break;
                 case 'tokenAccounts':
+                    $args = $args ?: Arr::get($selections, 'tokenAccounts.args');
+                    $filters = Arr::get($args, 'bulkFilter');
                     $withCount[$relation] = fn ($query) => $query->when(
-                        Arr::get($args, 'collectionIds'),
+                        empty($filters) && Arr::get($args, 'collectionIds'),
                         fn ($q) => $q->whereIn(
                             'collection_id',
                             DB::table('collections')->select('id')->whereIn('collection_chain_id', $args['collectionIds'])
                         )
                     )->when(
-                        Arr::get($args, 'tokenIds'),
+                        empty($filters) && Arr::get($args, 'tokenIds'),
                         fn ($q) => $q->whereIn(
                             'token_id',
                             DB::table('tokens')->select('id')->whereIn('token_chain_id', $args['tokenIds'])
                         )
+                    )->when(
+                        $filters,
+                        function ($query) use ($filters): void {
+                            $collections = Collection::whereIn('collection_chain_id', collect($filters)->pluck('collectionId'))
+                                ->pluck('id', 'collection_chain_id')
+                                ->all();
+
+                            $rangeRegx = '/-?[0-9]+(\.\.)-?[0-9]+/';
+                            $tokenIds = collect($filters)
+                                ->pluck('tokenIds')
+                                ->flatten()
+                                ->flatMap(function ($token) use ($rangeRegx) {
+                                    if (!preg_match($rangeRegx, $token)) {
+                                        return [$token];
+                                    }
+
+                                    $range = explode('..', $token);
+
+                                    return [$range[0], $range[1]];
+                                });
+
+                            $tokens = Token::whereIn('token_chain_id', $tokenIds)
+                                ->pluck('id', 'token_chain_id')
+                                ->all();
+
+                            foreach ($filters as $filter) {
+                                $query->where(function ($subQuery) use ($collections, $tokens, $filter, $rangeRegx): void {
+                                    $subQuery->where('collection_id', $collections[$filter['collectionId']]);
+                                    $subQuery->where(fn ($sub) => collect($filter['tokenIds'])->each(function ($tokenId) use ($sub, $tokens, $rangeRegx): void {
+                                        if (!preg_match($rangeRegx, $tokenId)) {
+                                            $sub->orWhere('token_id', $tokens[$tokenId]);
+                                        } else {
+                                            $range = explode('..', $tokenId);
+                                            if (isset($tokens[$range[0]], $tokens[$range[1]])) {
+                                                $sub->orWhereBetween('token_id', [(int) $range[0], (int) $range[1]]);
+                                            }
+                                        }
+                                    }));
+                                });
+                            }
+
+                        },
                     );
 
                     break;

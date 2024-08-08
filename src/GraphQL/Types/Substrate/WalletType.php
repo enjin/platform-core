@@ -121,6 +121,10 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                         'type' => GraphQL::type('[BigInt]'),
                         'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
                     ],
+                    'bulkFilter' => [
+                        'type' => GraphQL::type('[TokenFilterInput!]'),
+                        'description' => __('enjin-platform::input_type.multi_token_id.description'),
+                    ],
                 ]),
                 'resolve' => fn ($wallet, $args) => [
                     'items' => new CursorPaginator(
