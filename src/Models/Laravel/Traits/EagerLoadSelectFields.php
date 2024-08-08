@@ -291,7 +291,6 @@ trait EagerLoadSelectFields
         foreach (WalletType::getRelationFields($fieldKeys) as $relation) {
             switch ($relation) {
                 case 'collectionAccounts':
-                    dd(Arr::get($args, 'collectionIds'));
                     $withCount[$relation] = fn ($query) => $query->when(
                         Arr::get($args, 'collectionIds'),
                         fn ($q) => $q->whereIn(
