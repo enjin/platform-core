@@ -423,7 +423,7 @@ class GetWalletTest extends TestCaseGraphQL
             'bulkFilter' => [
                 [
                     'collectionId' => $this->collection->collection_chain_id,
-                    'tokenIds' => ['1..'. $this->token->token_chain_id + 1],
+                    'tokenIds' => ['1..' . $this->token->token_chain_id + 1],
                 ],
             ],
         ]);
