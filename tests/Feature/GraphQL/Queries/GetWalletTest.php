@@ -417,6 +417,17 @@ class GetWalletTest extends TestCaseGraphQL
             ],
         ]);
         $this->assertNotEmpty(Arr::get($response, 'tokenAccounts.edges'));
+
+        $response = $this->graphql($this->method, [
+            'id' => $id = $this->wallet->id,
+            'bulkFilter' => [
+                [
+                    'collectionId' => $this->collection->collection_chain_id,
+                    'tokenIds' => ['1..'. $this->token->token_chain_id + 1],
+                ],
+            ],
+        ]);
+        $this->assertNotEmpty(Arr::get($response, 'tokenAccounts.edges'));
     }
 
     public function test_it_can_get_a_wallet_and_filter_owned_collections(): void
