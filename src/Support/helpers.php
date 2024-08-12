@@ -33,7 +33,7 @@ if (!function_exists('isRunningLatest')) {
      */
     function isRunningLatest(): bool
     {
-        return networkConfig('spec-version') == 1010;
+        return networkConfig('spec-version') >= 1010;
     }
 }
 
