@@ -13,7 +13,6 @@ use Enjin\Platform\Models\Token;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokensQuery extends Query implements PlatformGraphQlQuery
