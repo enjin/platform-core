@@ -73,12 +73,11 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
         }
 
         return Token::loadSelectFields($resolveInfo, $this->name)
-            ->addSelect(DB::raw('CONCAT(collection_id,id) AS identifier'))
             ->when($collectionId = Arr::get($args, 'collectionId'), fn ($query) => $query->whereHas(
                 'collection',
                 fn ($query) => $query->where('collection_chain_id', $collectionId)
             ))
             ->when(Arr::get($args, 'tokenIds'), fn ($query) => $query->whereIn('token_chain_id', $args['tokenIds']))
-            ->cursorPaginateWithTotalDesc('identifier', $args['first']);
+            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 }

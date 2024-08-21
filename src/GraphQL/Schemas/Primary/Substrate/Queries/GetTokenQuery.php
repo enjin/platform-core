@@ -70,7 +70,7 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
     }
 
     /**
-     * Get the validatio rules.
+     * Get the validator rules.
      */
     protected function rules(array $args = []): array
     {
