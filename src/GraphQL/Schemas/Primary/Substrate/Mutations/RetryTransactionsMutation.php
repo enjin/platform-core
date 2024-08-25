@@ -10,9 +10,11 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Support\Account;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutation
@@ -65,11 +67,19 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
         ResolveInfo $resolveInfo,
         Closure $getSelectFields
     ): mixed {
-        $prepare = ($ids = Arr::get($args, 'ids'))
-                ? Transaction::whereIn('id', $ids)
-                : Transaction::whereIn('idempotency_key', Arr::get($args, 'idempotencyKeys'));
+        return DB::transaction(function () use ($args) {
+            $txs = ($ids = Arr::get($args, 'ids'))
+                ? Transaction::whereIn('id', $ids)->get()
+                : Transaction::whereIn('idempotency_key', Arr::get($args, 'idempotencyKeys'))->get();
 
-        return (bool) $prepare->update(['state' => TransactionState::PENDING->name, 'transaction_chain_hash' => null]);
+            $txs->each(function (Transaction $tx) {
+                $tx->update([
+                    'state' => TransactionState::PENDING->name,
+                    'transaction_chain_hash' => null,
+                    'wallet_public_key' => $tx->wallet_public_key === Account::daemonPublicKey() ? null : $tx->wallet_public_key,
+                ]);
+            });
+        }, 2);
     }
 
     /**
