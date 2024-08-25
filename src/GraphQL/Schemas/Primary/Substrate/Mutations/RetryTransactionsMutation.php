@@ -7,7 +7,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Support\Account;
@@ -79,7 +79,9 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                     'wallet_public_key' => $tx->wallet_public_key === Account::daemonPublicKey() ? null : $tx->wallet_public_key,
                 ]);
             });
-        }, 2);
+
+            return true;
+        });
     }
 
     /**
