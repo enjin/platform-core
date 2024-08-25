@@ -72,7 +72,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 ? Transaction::whereIn('id', $ids)->get()
                 : Transaction::whereIn('idempotency_key', Arr::get($args, 'idempotencyKeys'))->get();
 
-            $txs->each(function (Transaction $tx) {
+            $txs->each(function (Transaction $tx): void {
                 $tx->update([
                     'state' => TransactionState::PENDING->name,
                     'transaction_chain_hash' => null,
