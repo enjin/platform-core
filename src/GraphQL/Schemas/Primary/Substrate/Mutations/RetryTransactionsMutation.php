@@ -7,7 +7,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Laravel\Transaction;
+use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Support\Account;
@@ -72,7 +72,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 ? Transaction::whereIn('id', $ids)->get()
                 : Transaction::whereIn('idempotency_key', Arr::get($args, 'idempotencyKeys'))->get();
 
-            $txs->each(function (Transaction $tx): void {
+            $txs->each(function ($tx): void {
                 $tx->update([
                     'state' => TransactionState::PENDING->name,
                     'transaction_chain_hash' => null,
