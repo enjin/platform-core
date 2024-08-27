@@ -13,6 +13,7 @@ return [
     'get_collections.description' => 'Get an array of collections optionally filtered by collection IDs.',
     'get_pending_events.args.acknowledgeEvents' => 'Automatically acknowledge all returned events (defaults to false).',
     'get_pending_events.args.channelFilter' => 'Filter the events by channel.',
+    'get_pending_events.args.names' => 'Filter by event names.',
     'get_pending_events.description' => 'Get a list of events that were broadcast but not yet acknowledged.',
     'get_pending_wallets.description' => 'Get an array of wallet accounts which have yet to be verified.',
     'get_token.args.collectionId' => 'The token collection ID.',

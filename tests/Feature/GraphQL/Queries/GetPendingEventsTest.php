@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\FilterType;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated;
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\PendingEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionCreated as CollectionCreatedPolkadart;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
@@ -59,6 +60,13 @@ class GetPendingEventsTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method);
         $this->assertNotEmpty($response['edges']);
+    }
+
+    public function test_it_can_fetch_filter_event_with_names(): void
+    {
+        $eventNames = PendingEvent::take(100)->get('name')->toArray();
+        $response = $this->graphql($this->method, ['names' => $eventNames]);
+        $this->assertEquals(count($eventNames), count($response['edges']));
     }
 
     public function test_it_can_acknowledge_pending_event(): void
