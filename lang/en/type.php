@@ -75,6 +75,7 @@ return [
     'pending_event.field.name' => 'The name of the event.',
     'pending_event.field.sent' => 'The timestamp when the event was sent.',
     'pending_event.field.uuid' => 'The UUID of the event.',
+    'pending_event.field.network' => 'The blockchain network.',
     'royalty.description' => 'Royalty settings.',
     'string_filter_input.description' => 'A string filter.',
     'string_filter_input.filter.description' => 'The term to filter to.',

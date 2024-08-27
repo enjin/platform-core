@@ -123,6 +123,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
             'sent' => now()->toIso8601String(),
             'channels' => collect($this->broadcastChannels)->pluck('name')->toJson(),
             'data' => json_encode($this->broadcastData),
+            'network' => network(),
         ]);
 
         PlatformEventCached::dispatch($pendingEvent);
