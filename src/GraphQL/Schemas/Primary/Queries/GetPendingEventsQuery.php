@@ -11,6 +11,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\PendingEvent;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -47,6 +48,11 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
     public function args(): array
     {
         return ConnectionInput::args([
+            'names' => [
+                'type' => GraphQL::type('[String!]'),
+                'description' => __('enjin-platform::query.get_pending_events.args.names'),
+                'rules' => ['array', 'max:100'],
+            ],
             'channelFilters' => [
                 'type' => GraphQL::type('[StringFilter!]'),
                 'description' => __('enjin-platform::query.get_pending_events.args.channelFilter'),
@@ -65,7 +71,8 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        $events = PendingEvent::loadSelectFields($resolveInfo, $this->name);
+        $events = PendingEvent::loadSelectFields($resolveInfo, $this->name)
+            ->when($names = Arr::get($args, 'names'), fn ($query) => $query->whereIn('name', $names));
         $filteredEvents = $events->when($args['channelFilters'] ?? false, function ($query) use ($args): void {
             $query->where(function ($query) use ($args): void {
                 $orFilters = collect($args['channelFilters'])->where('type', FilterType::OR->value)->all();
