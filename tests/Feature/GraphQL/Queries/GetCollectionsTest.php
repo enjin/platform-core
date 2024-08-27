@@ -13,6 +13,7 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
 
 class GetCollectionsTest extends TestCaseGraphQL
@@ -43,6 +44,29 @@ class GetCollectionsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method);
 
         $this->assertTrue(count($response['edges']) > 0);
+    }
+
+    public function test_it_can_get_total_count_correctly(): void
+    {
+        $this->artisan('migrate:fresh');
+
+        $collections = Collection::factory(2)->create();
+        $collection1 = $collections->shift();
+        Token::factory(10)->create(['collection_id' => $collection1->id]);
+        CollectionAccount::factory(10)->create(['collection_id' => $collection1->id]);
+        $collection2 = $collections->shift();
+        Token::factory(10)->create(['collection_id' => $collection2->id]);
+        CollectionAccount::factory(10)->create(['collection_id' => $collection2->id]);
+
+        $response = $this->graphql($this->method, ['tokensLimit' => 1, 'accountsLimit' => 1]);
+
+        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertCount(1, Arr::get($response, 'edges.0.node.tokens.edges'));
+        $this->assertCount(1, Arr::get($response, 'edges.0.node.accounts.edges'));
+        $this->assertEquals(10, Arr::get($response, 'edges.0.node.tokens.totalCount'));
+        $this->assertEquals(10, Arr::get($response, 'edges.0.node.accounts.totalCount'));
+        $this->assertEquals(10, Arr::get($response, 'edges.1.node.tokens.totalCount'));
+        $this->assertEquals(10, Arr::get($response, 'edges.1.node.accounts.totalCount'));
     }
 
     public function test_it_can_fetch_with_empty_args(): void
