@@ -112,6 +112,11 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
         return broadcast($event);
     }
 
+    public function getUuid()
+    {
+        return $this->uuid;
+    }
+
     /**
      * Store the event in the database.
      */
