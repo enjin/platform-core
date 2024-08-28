@@ -2,12 +2,14 @@
 
 namespace Enjin\Platform\Models\Laravel;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Database\Factories\TokenFactory;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\Token as TokenMethods;
+use Enjin\Platform\Support\Hex;
 use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -141,11 +143,16 @@ class Token extends BaseModel
         return new Attribute(
             get: function () {
                 $tokenUriAttribute = $this->fetchUriAttribute($this);
+                if ($tokenUriAttribute) {
+                    $tokenUriAttribute->value = Hex::safeConvertToString($tokenUriAttribute->value);
+                }
                 $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::fetch($tokenUriAttribute);
 
                 if (!$fetchedMetadata) {
                     $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
-                    if ($collectionUriAttribute && Str::contains($collectionUriAttribute->value, '{id}')) {
+
+                    if ($collectionUriAttribute?->value && Str::contains($collectionUriAttribute->value, '{id}')) {
+                        $collectionUriAttribute->value = Hex::safeConvertToString($collectionUriAttribute->value);
                         $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
                     }
 
@@ -194,7 +201,7 @@ class Token extends BaseModel
         }
 
         return $model->getRelation('attributes')
-            ->filter(fn ($attribute) => $attribute->key == 'uri')
+            ->filter(fn ($attribute) => $attribute->key == 'uri' || $attribute->key == HexConverter::stringToHexPrefixed('uri'))
             ->first();
     }
 }

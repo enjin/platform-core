@@ -15,6 +15,30 @@ class Hex
     public const MAX_UINT256 = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
     /**
+     * Checks if a given string is encoded as hexadecimal.
+     *
+     * This function removes the '0x' prefix if it exists and then checks if the remaining string
+     * consists only of valid hexadecimal characters (0-9, a-f, A-F).
+     *
+     * @param  string|null  $input  The input string to check.
+     * @return bool Returns true if the input string is a valid hexadecimal, false otherwise.
+     */
+    public static function isHexEncoded(?string $input = null): bool
+    {
+        if (!$input) {
+            return false;
+        }
+
+        // Remove the '0x' prefix if it exists
+        if (str_starts_with($input, '0x')) {
+            $input = substr($input, 2);
+        }
+
+        // Check if the remaining string is a valid hexadecimal
+        return ctype_xdigit($input);
+    }
+
+    /**
      * Reverses the endian of a hex string.
      */
     public static function reverseEndian(string $hex): string
