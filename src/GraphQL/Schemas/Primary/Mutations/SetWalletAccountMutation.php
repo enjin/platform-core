@@ -116,7 +116,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                 new ValidSubstrateAccount(),
                 function (string $attribute, mixed $value, Closure $fail): void {
                     if (Wallet::where('public_key', SS58Address::getPublicKey($value))
-                        ->withoutGlobalScope('tenant')->exists()
+                        ->withoutGlobalScopes()->exists()
                     ) {
                         $fail('validation.unique')->translate();
                     }
