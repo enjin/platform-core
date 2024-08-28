@@ -75,7 +75,6 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
             'account' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::query.get_wallet.args.account'),
-                'rules' => ['filled', new ValidSubstrateAccount()],
             ],
         ];
     }
@@ -103,5 +102,26 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
         }
 
         return $walletService->update($wallet, ['public_key' => SS58Address::getPublicKey($args['account'])]);
+    }
+
+    /**
+     * Get the validation rules.
+     */
+    protected function rules(array $args = []): array
+    {
+        return [
+            'account' => [
+                'bail',
+                'filled',
+                new ValidSubstrateAccount(),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (Wallet::where('public_key', SS58Address::getPublicKey($value))
+                        ->withoutGlobalScope('tenant')->exists()
+                    ) {
+                        $fail('validation.unique')->translate();
+                    }
+                },
+            ],
+        ];
     }
 }
