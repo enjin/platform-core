@@ -150,9 +150,11 @@ class Token extends BaseModel
 
                 if (!$fetchedMetadata) {
                     $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
+                    if ($collectionUriAttribute) {
+                        $collectionUriAttribute->value = Hex::safeConvertToString($collectionUriAttribute->value);
+                    }
 
                     if ($collectionUriAttribute?->value && Str::contains($collectionUriAttribute->value, '{id}')) {
-                        $collectionUriAttribute->value = Hex::safeConvertToString($collectionUriAttribute->value);
                         $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
                     }
 
