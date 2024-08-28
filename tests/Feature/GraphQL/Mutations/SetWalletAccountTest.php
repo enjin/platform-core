@@ -162,8 +162,8 @@ class SetWalletAccountTest extends TestCaseGraphQL
             'account' => SS58Address::encode($publicKey),
         ], true);
 
-        $this->assertStringContainsString(
-            'The account has already been taken.',
+        $this->assertArraySubset(
+            ['account' => ['The account has already been taken.']],
             $response['error']
         );
     }
