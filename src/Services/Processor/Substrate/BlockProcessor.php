@@ -268,7 +268,7 @@ class BlockProcessor
     {
         $try = 0;
 
-        while (empty($result = call_user_func($f)) && $try < 3) {
+        while (empty($result = call_user_func($f)) && $try < 5) {
             usleep($sleep = 1000000 * $try ** 2);
             $this->warn(sprintf('Retrying to fetch %s for block #%s in %s seconds', $action, $blockNumber, $sleep / 1000000));
             $try++;
@@ -288,6 +288,8 @@ class BlockProcessor
         );
 
         if (empty($data)) {
+            $this->warn('No events found for block #' . $block->number);
+
             return $block;
         }
 

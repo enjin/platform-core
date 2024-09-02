@@ -30,11 +30,19 @@ class ListingFilled extends Event implements PolkadartEvent
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
         $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', '0'])) ? $value : HexConverter::bytesToHex($value));
         $self->buyer = Account::parseAccount($self->getValue($data, ['buyer', '1']));
-        $self->price = $self->getValue($data, ['price', '2']);
-        $self->amountFilled = $self->getValue($data, ['amount_filled', '3']);
-        $self->amountRemaining = $self->getValue($data, ['amount_remaining', '4']);
-        $self->protocolFee = $self->getValue($data, ['protocol_fee', '5']);
-        $self->royalty = $self->getValue($data, ['royalty', '6']);
+
+        if (networkConfig('spec-version') >= 1010) {
+            $self->price = $self->getValue($data, ['price', '2']);
+            $self->amountFilled = $self->getValue($data, ['amount_filled', '3']);
+            $self->amountRemaining = $self->getValue($data, ['amount_remaining', '4']);
+            $self->protocolFee = $self->getValue($data, ['protocol_fee', '5']);
+            $self->royalty = $self->getValue($data, ['royalty', '6']);
+        } else {
+            $self->amountFilled = $self->getValue($data, ['amount_filled', '2']);
+            $self->amountRemaining = $self->getValue($data, ['amount_remaining', '3']);
+            $self->protocolFee = $self->getValue($data, ['protocol_fee', '4']);
+            $self->royalty = $self->getValue($data, ['royalty', '5']);
+        }
 
         return $self;
     }

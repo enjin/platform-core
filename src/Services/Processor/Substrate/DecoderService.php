@@ -28,34 +28,48 @@ class DecoderService
 
     public function decode(string $type, string|array $bytes): ?array
     {
-        try {
-            $result = $this->client->getClient()->post($this->host, [
-                $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
-                'network' => $this->network,
-            ]);
+        $result = $this->client->getClient()->post($this->host, [
+            $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
+            'network' => $this->network,
+        ]);
 
-            $data = $this->client->getResponse($result);
+        $data = $this->client->getResponse($result);
 
-            if (!$data) {
-                Log::critical('Container returned empty response');
+        if (!$data) {
+            Log::critical('Container returned empty response');
 
-                return null;
-            }
-
-            return $this->polkadartSerialize($type, $data);
-        } catch (Throwable) {
+            return null;
         }
 
-        return null;
+        return $this->polkadartSerialize($type, $data);
+    }
+
+    protected function safeSerialize($function): mixed
+    {
+        try {
+            return $function();
+        } catch (Throwable $e) {
+            Log::error("Failed to serialize: {$e->getMessage()}");
+        }
     }
 
     protected function polkadartSerialize($type, $data): array
     {
         if ($type === 'Extrinsics') {
-            return array_map(fn ($extrinsic) =>  $this->polkadartExtrinsic($extrinsic), $data);
+            return array_map(
+                fn ($extrinsic) => $this->safeSerialize(
+                    fn () => $this->polkadartExtrinsic($extrinsic)
+                ),
+                $data
+            );
         }
 
-        return array_map(fn ($event) => $this->polkadartEvent($event), $data);
+        return array_map(
+            fn ($event) => $this->safeSerialize(
+                fn () => $this->polkadartEvent($event)
+            ),
+            $data
+        );
     }
 
     protected function polkadartEvent($event): PolkadartEvent
