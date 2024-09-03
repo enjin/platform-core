@@ -51,6 +51,8 @@ class DecoderService
         } catch (Throwable $e) {
             Log::error("Failed to serialize: {$e->getMessage()}");
         }
+
+        return null;
     }
 
     protected function polkadartSerialize($type, $data): array
