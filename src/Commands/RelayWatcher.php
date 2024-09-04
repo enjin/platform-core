@@ -144,8 +144,9 @@ class RelayWatcher extends Command
         $blockNumber = $this->getBlockNumber($blockHash);
         $events = Arr::get($result, 'changes.0.1');
         $decodedEvents = $this->decoder->decode('events', $events, $blockNumber);
+
         if (!empty($decodedEvents)) {
-            $this->findEndowedAccounts($decodedEvents, $block);
+            $this->findEndowedAccounts($decodedEvents, $blockNumber);
         }
     }
 
