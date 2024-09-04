@@ -42,7 +42,7 @@ class CoreServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('enjin-platform')
-            ->hasConfigFile(['enjin-platform', 'graphql'])
+            ->hasConfigFile(['enjin-platform', 'enjin-runtime', 'graphql'])
             ->hasMigration('create_wallets_table')
             ->hasMigration('create_collections_table')
             ->hasMigration('create_collection_accounts_table')
