@@ -113,7 +113,7 @@ class RelayWatcher extends Command
 
         if ($extrinsics = Arr::get($data, 'block.extrinsics')) {
             for ($i = 0; $i < count($extrinsics); $i++) {
-                $decodedExtrinsic = Arr::first($this->decoder->decode('Extrinsics', [$extrinsics[$i]]));
+                $decodedExtrinsic = Arr::first($this->decoder->decode('Extrinsics', [$extrinsics[$i]], $blockNumber));
                 $module = $decodedExtrinsic?->module;
                 $call = $decodedExtrinsic?->call;
 
@@ -140,16 +140,18 @@ class RelayWatcher extends Command
     protected function getEvents($data): void
     {
         $result = Arr::get($data, 'params.result');
-        $block = Arr::get($result, 'block');
+        $blockHash = Arr::get($result, 'block');
+        $blockNumber = $this->getBlockNumber($blockHash);
         $events = Arr::get($result, 'changes.0.1');
-        $decodedEvents = $this->decoder->decode('events', $events);
-        $this->findEndowedAccounts($decodedEvents, $block);
+        $decodedEvents = $this->decoder->decode('events', $events, $blockNumber);
+
+        if (!empty($decodedEvents)) {
+            $this->findEndowedAccounts($decodedEvents, $blockNumber);
+        }
     }
 
-    protected function findEndowedAccounts(array $events, string $blockHash): void
+    protected function findEndowedAccounts(array $events, int $blockNumber): void
     {
-        $blockNumber = $this->getBlockNumber($blockHash);
-
         array_filter(
             $events,
             function ($event) use ($blockNumber): void {

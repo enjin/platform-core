@@ -86,6 +86,41 @@ if (!function_exists('currentMatrixUrl')) {
 
 }
 
+if (!function_exists('specForBlock')) {
+    /**
+     * Get the spec version for a matrixchain block.
+     */
+    function specForBlock(?int $block = null, ?string $network = null): int
+    {
+        if ($block === null && $network === null) {
+            return networkConfig('spec-version');
+        }
+
+        if ($block === null) {
+            return networkConfig('spec-version', NetworkType::tryFrom($network) ?? network());
+        }
+
+        $network = NetworkType::tryFrom($network) ?? network();
+
+        $runtime = collect(config(sprintf('enjin-runtime.%s', $network->value)))
+            ->sortByDesc('blockNumber')
+            ->filter(fn ($runtime) => $block >= $runtime['blockNumber'])
+            ->first();
+
+        return $runtime['specVersion'] ?? networkConfig('spec-version', $network);
+    }
+}
+
+if (!function_exists('currentMatrixRuntime')) {
+    /**
+     * Get current runtime being used at matrixchain.
+     */
+    function currentMatrixRuntime(): array
+    {
+        return config(sprintf('enjin-runtime.%s.%d', network()->value, networkConfig('spec-version'))) ?? [];
+    }
+}
+
 if (!function_exists('currentRelay')) {
     /**
      * Get the equivalent relaychain for the current used network.
