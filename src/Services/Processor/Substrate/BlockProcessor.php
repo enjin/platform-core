@@ -268,7 +268,7 @@ class BlockProcessor
     {
         $try = 0;
 
-        while (empty($result = call_user_func($f)) && $try < 5) {
+        while (empty($result = call_user_func($f)) && $try < 3) {
             usleep($sleep = 1000000 * $try ** 2);
             $this->warn(sprintf('Retrying to fetch %s for block #%s in %s seconds', $action, $blockNumber, $sleep / 1000000));
             $try++;
