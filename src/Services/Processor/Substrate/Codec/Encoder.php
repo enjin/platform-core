@@ -264,7 +264,7 @@ class Encoder
         ]);
 
         $hex = HexConverter::prefix($encoded);
-        if (preg_match('/^0x[a-fA-F0-9]+$/', $hex) >= 1) {
+        if (Hex::isHexEncoded($hex)) {
             return $hex;
         }
 
