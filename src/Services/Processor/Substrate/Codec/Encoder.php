@@ -9,6 +9,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageType;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\Hex;
@@ -262,7 +263,12 @@ class Encoder
             ...$params,
         ]);
 
-        return HexConverter::prefix($encoded);
+        $hex = HexConverter::prefix($encoded);
+        if (Hex::isHexEncoded($hex)) {
+            return $hex;
+        }
+
+        throw new PlatformException('Invalid encoded data: ' . $hex);
     }
 
     public function systemAccountStorageKey(string $publicKey): string
