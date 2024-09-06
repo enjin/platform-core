@@ -268,7 +268,7 @@ class Encoder
             return $hex;
         }
 
-        throw new PlatformException('Invalid encoded data: '.$hex);
+        throw new PlatformException('Invalid encoded data: ' . $hex);
     }
 
     public function systemAccountStorageKey(string $publicKey): string
