@@ -58,8 +58,8 @@
     "creationBlock": "Compact<u32>",
     "deposit": "CreationDeposit",
     "salt": "Bytes",
-    "data": "ListingData",
-    "state": "ListingState"
+    "data": "ListingDataV1010",
+    "state": "ListingStateV1010"
   },
   "ListingDataV1010": {
     "_enum": {
