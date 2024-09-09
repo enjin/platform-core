@@ -383,7 +383,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'id' => $transaction->id,
-            'transactionId' => $transaction->transaction_chain_id,
+            'transactionId' => fake()->numerify('######-#'),
         ], true);
 
         $this->assertArraySubset([
@@ -399,7 +399,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'id' => $transaction->id,
-            'transactionHash' => $transaction->transaction_chain_hash,
+            'transactionHash' => HexConverter::prefix(fake()->sha256()),
         ], true);
 
         $this->assertArraySubset([

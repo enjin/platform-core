@@ -22,8 +22,10 @@ class ImmutableTransaction implements DataAwareRule, ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (($id = $this->data['id']) && ($transaction = Transaction::find($id))) {
-            if (filled($value) && $transaction->{$this->column}) {
-                $fail('enjin-platform::mutation.update_transaction.error.hash_and_id_are_immutable')->translate();
+            if (filled($value) && $v = $transaction->{$this->column}) {
+                if ($value !== $v) {
+                    $fail('enjin-platform::mutation.update_transaction.error.hash_and_id_are_immutable')->translate();
+                }
             }
         }
     }
