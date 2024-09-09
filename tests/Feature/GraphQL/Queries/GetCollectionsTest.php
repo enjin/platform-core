@@ -52,21 +52,21 @@ class GetCollectionsTest extends TestCaseGraphQL
 
         $collections = Collection::factory(2)->create();
         $collection1 = $collections->shift();
-        Token::factory(10)->create(['collection_id' => $collection1->id]);
-        CollectionAccount::factory(10)->create(['collection_id' => $collection1->id]);
+        Token::factory($tokenCount1 = random_int(1, 100))->create(['collection_id' => $collection1->id]);
+        CollectionAccount::factory($accountCount1 = random_int(1, 100))->create(['collection_id' => $collection1->id]);
         $collection2 = $collections->shift();
-        Token::factory(10)->create(['collection_id' => $collection2->id]);
-        CollectionAccount::factory(10)->create(['collection_id' => $collection2->id]);
+        Token::factory($tokenCount2 = random_int(1, 100))->create(['collection_id' => $collection2->id]);
+        CollectionAccount::factory($accountCount2 = random_int(1, 100))->create(['collection_id' => $collection2->id]);
 
         $response = $this->graphql($this->method, ['tokensLimit' => 1, 'accountsLimit' => 1]);
 
         $this->assertTrue(count($response['edges']) > 0);
         $this->assertCount(1, Arr::get($response, 'edges.0.node.tokens.edges'));
         $this->assertCount(1, Arr::get($response, 'edges.0.node.accounts.edges'));
-        $this->assertEquals(10, Arr::get($response, 'edges.0.node.tokens.totalCount'));
-        $this->assertEquals(10, Arr::get($response, 'edges.0.node.accounts.totalCount'));
-        $this->assertEquals(10, Arr::get($response, 'edges.1.node.tokens.totalCount'));
-        $this->assertEquals(10, Arr::get($response, 'edges.1.node.accounts.totalCount'));
+        $this->assertEquals($tokenCount1, Arr::get($response, 'edges.0.node.tokens.totalCount'));
+        $this->assertEquals($accountCount1, Arr::get($response, 'edges.0.node.accounts.totalCount'));
+        $this->assertEquals($tokenCount2, Arr::get($response, 'edges.1.node.tokens.totalCount'));
+        $this->assertEquals($accountCount2, Arr::get($response, 'edges.1.node.accounts.totalCount'));
     }
 
     public function test_it_can_fetch_with_empty_args(): void
