@@ -147,4 +147,5 @@ return [
     'wallet.field.tokenAccounts' => 'The token accounts this wallet owns. Token accounts store the balances of tokens.',
     'wallet.field.transactions' => 'The transactions performed by this wallet.',
     'wallet_link.field.code' => 'The code a user can input into the wallet app to link their account on the platform.',
+    'integer_range.description' => "A string value that can be used to represent a range of integer numbers.  Use a double full stop to supply a range between 2 integers. \n\nExample \[\"1\",\"2\",\"3..8\"\]",
 ];
