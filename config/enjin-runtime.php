@@ -15,6 +15,7 @@ return [
         ['specVersion' => 1024, 'blockNumber' => 3232725, 'blockHash' => '0x8699393c07cee37eef6950f097b29b79da8d0c0ca8dfaea8ec8394879a998826'],
         ['specVersion' => 1025, 'blockNumber' => 3384038, 'blockHash' => '0x4b41e9fb20bf7e22ead24e10b4024c335c2d336be9be9bf6b2852df7deba454d'],
         ['specVersion' => 1026, 'blockNumber' => 3858176, 'blockHash' => '0xb2a6c804f699b777e7f6b2e7adbf78636c2143fa79426aaf1525f4e3c9c7f08c'],
+        ['specVersion' => 1032, 'blockNumber' => 6679470, 'blockHash' => '0x4a45e738c960959ec3d16f2d7dbda76d5d2410bd44b85734d5f6968c768c8a02'],
     ],
     NetworkType::CANARY_RELAY->value => [
         ['specVersion' => 100, 'blockNumber' => 0, 'blockHash' => '0x735d8773c63e74ff8490fee5751ac07e15bfe2b3b5263be4d683c48dbdfbcd15'],
@@ -47,6 +48,7 @@ return [
         ['specVersion' => 1004, 'blockNumber' => 1218749, 'blockHash' => '0x35ba9118db958657bf2c92c1f433111e66703812fd4fdce169027852bf9bfcd2'],
         ['specVersion' => 1005, 'blockNumber' => 1261794, 'blockHash' => '0xbba1eb93d850c142851ddce6161aecd6a6fe026392a8d478f1f04690b0e97d0f'],
         ['specVersion' => 1006, 'blockNumber' => 1728545, 'blockHash' => '0x24ec59a2831c65aefc8437270299e5e6764c68b4e76cdbc9dc4d2c0d8086b32d'],
+        ['specVersion' => 1012, 'blockNumber' => 2609693, 'blockHash' => '0x211403edc5f274431b89e56ee9bb7d22694cfc436673906e9b20121c07490c53'],
     ],
     NetworkType::CANARY_MATRIX->value => [
         ['specVersion' => 500, 'blockNumber' => 0, 'blockHash' => '0xa37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f'],
