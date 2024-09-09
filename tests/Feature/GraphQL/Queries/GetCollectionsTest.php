@@ -57,11 +57,11 @@ class GetCollectionsTest extends TestCaseGraphQL
 
         $collections = Collection::factory(2)->create();
         $collection1 = $collections->shift();
-        Token::factory($tokenCount1 = random_int(1, 16))->create(['collection_id' => $collection1->id]);
-        CollectionAccount::factory($accountCount1 = random_int(1, 16))->create(['collection_id' => $collection1->id]);
+        Token::factory($tokenCount1 = random_int(16, 100))->create(['collection_id' => $collection1->id]);
+        CollectionAccount::factory($accountCount1 = random_int(16, 100))->create(['collection_id' => $collection1->id]);
         $collection2 = $collections->shift();
-        Token::factory($tokenCount2 = random_int(1, 16))->create(['collection_id' => $collection2->id]);
-        CollectionAccount::factory($accountCount2 = random_int(1, 16))->create(['collection_id' => $collection2->id]);
+        Token::factory($tokenCount2 = random_int(16, 100))->create(['collection_id' => $collection2->id]);
+        CollectionAccount::factory($accountCount2 = random_int(16, 100))->create(['collection_id' => $collection2->id]);
 
         $response = $this->graphql($this->method, ['tokensLimit' => 1, 'accountsLimit' => 1]);
         $this->assertTrue(count($response['edges']) > 0);
