@@ -102,8 +102,8 @@ return [
                     'node' => env('SUBSTRATE_ENJIN_RPC', 'wss://rpc.matrix.blockchain.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_ENJIN_SS58_PREFIX', 1110),
                     'genesis-hash' => env('SUBSTRATE_ENJIN_GENESIS_HASH', '0x3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615'),
-                    'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1006),
-                    'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 7),
+                    'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1012),
+                    'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 10),
                 ],
                 'enjin' => $enjin,
                 NetworkType::CANARY_MATRIX->value => $canary = [
@@ -138,8 +138,8 @@ return [
                     'node' => env('SUBSTRATE_ENJIN_RELAY_RPC', 'wss://rpc.relay.blockchain.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_ENJIN_RELAY_SS58_PREFIX', 2135),
                     'genesis-hash' => env('SUBSTRATE_ENJIN_RELAY_GENESIS_HASH', '0xd8761d3c88f26dc12875c00d3165f7d67243d56fc85b4cf19937601a7916e5a9'),
-                    'spec-version' => env('SUBSTRATE_ENJIN_RELAY_SPEC_VERSION', 1026),
-                    'transaction-version' => env('SUBSTRATE_ENJIN_RELAY_TRANSACTION_VERSION', 7),
+                    'spec-version' => env('SUBSTRATE_ENJIN_RELAY_SPEC_VERSION', 1032),
+                    'transaction-version' => env('SUBSTRATE_ENJIN_RELAY_TRANSACTION_VERSION', 10),
                 ],
                 NetworkType::CANARY_RELAY->value => [
                     'chain-id' => 1,
