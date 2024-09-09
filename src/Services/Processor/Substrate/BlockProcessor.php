@@ -288,6 +288,8 @@ class BlockProcessor
         );
 
         if (empty($data)) {
+            $this->warn('No events found for block #' . $block->number);
+
             return $block;
         }
 

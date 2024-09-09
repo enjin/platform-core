@@ -47,6 +47,11 @@ class PendingEventType extends GraphQLType implements PlatformGraphQlType
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.pending_event.field.sent'),
             ],
+            'network' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::type.pending_event.field.network'),
+                'resolve' => fn ($event) => $event->network ?? network()->value,
+            ],
             'channels' => [
                 'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform::type.pending_event.field.channels'),

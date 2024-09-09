@@ -40,6 +40,7 @@ class PendingEvent extends BaseModel
         'sent',
         'channels',
         'data',
+        'network',
     ];
 
     /**

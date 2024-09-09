@@ -71,9 +71,27 @@ class GetTokenTest extends TestCaseGraphQL
         ])->create();
     }
 
-    public function test_it_can_replace_id_metadata(): void
+    public function test_it_can_replace_id_metadata_from_string(): void
     {
         $this->tokenAttribute->forceFill(['key' => 'uri', 'value' => 'https://example.com/{id}'])->save();
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+        ]);
+
+        $this->assertArraySubset([
+            'attributes' => [[
+                'key' => 'uri',
+                'value' => "https://example.com/{$this->collection->collection_chain_id}-{$this->token->token_chain_id}",
+            ],
+            ],
+        ], $response);
+    }
+
+    public function test_it_can_replace_id_metadata_from_hex(): void
+    {
+        $this->tokenAttribute->forceFill(['key' => '0x757269', 'value' => '0x68747470733a2f2f6578616d706c652e636f6d2f7b69647d'])->save();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
@@ -169,7 +187,7 @@ class GetTokenTest extends TestCaseGraphQL
         ], $response);
     }
 
-    public function test_it_can_fetch_token_metadata(): void
+    public function test_it_can_fetch_token_metadata_from_string(): void
     {
         $collection = Collection::factory()->create();
         $token = Token::factory([
@@ -181,6 +199,42 @@ class GetTokenTest extends TestCaseGraphQL
             'token_id' => $token->id,
             'key' => 'uri',
             'value' => 'https://enjin.io/mock/metadata/token.json',
+        ])->create();
+
+        Http::fake(fn () => Http::response([
+            'name' => 'Mock Token',
+            'description' => 'Mock token description',
+            'image' => 'https://enjin.io/mock/metadata/token.png',
+        ]));
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'metadata' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'tokenId' => $this->tokenIdEncoder->encode($token->token_chain_id),
+            'metadata' => (object) [
+                'name' => 'Mock Token',
+                'description' => 'Mock token description',
+                'image' => 'https://enjin.io/mock/metadata/token.png',
+            ],
+        ], $response);
+    }
+
+    public function test_it_can_fetch_token_metadata_from_hex(): void
+    {
+        $collection = Collection::factory()->create();
+        $token = Token::factory([
+            'collection_id' => $collection,
+        ])->create();
+
+        Attribute::factory([
+            'collection_id' => $collection,
+            'token_id' => $token->id,
+            'key' => '0x757269',
+            'value' => '0x68747470733a2f2f656e6a696e2e696f2f6d6f636b2f6d657461646174612f746f6b656e2e6a736f6e',
         ])->create();
 
         Http::fake(fn () => Http::response([

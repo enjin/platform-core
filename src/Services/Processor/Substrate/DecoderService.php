@@ -26,24 +26,39 @@ class DecoderService
         $this->network = $network ?? network()->value;
     }
 
-    public function decode(string $type, string|array $bytes): ?array
+    public function decode(string $type, string|array $bytes, ?int $blockNumber = null): ?array
+    {
+        $result = $this->client->getClient()->post($this->host, [
+            $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
+            'network' => $this->network,
+            'spec_version' => specForBlock($blockNumber, $this->network),
+        ]);
+
+        $data = $this->client->getResponse($result);
+
+        if (!$data) {
+            Log::critical('Container returned empty response');
+
+            return null;
+        }
+
+        if (Arr::get($data, 'error')) {
+            $data = is_string($bytes) ? $bytes : json_encode($bytes);
+            Log::critical("Decoder failed to decode {$type} at block {$blockNumber} from network {$this->network}: {$data}");
+
+            return null;
+        }
+
+        return $this->polkadartSerialize($type, $data);
+    }
+
+    protected function safeSerialize($function, $data): mixed
     {
         try {
-            $result = $this->client->getClient()->post($this->host, [
-                $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
-                'network' => $this->network,
-            ]);
-
-            $data = $this->client->getResponse($result);
-
-            if (!$data) {
-                Log::critical('Container returned empty response');
-
-                return null;
-            }
-
-            return $this->polkadartSerialize($type, $data);
-        } catch (Throwable) {
+            return $function();
+        } catch (Throwable $e) {
+            Log::error(json_encode($data));
+            Log::error("Failed to serialize: {$e->getMessage()}");
         }
 
         return null;
@@ -52,10 +67,22 @@ class DecoderService
     protected function polkadartSerialize($type, $data): array
     {
         if ($type === 'Extrinsics') {
-            return array_map(fn ($extrinsic) =>  $this->polkadartExtrinsic($extrinsic), $data);
+            return array_map(
+                fn ($extrinsic) => $this->safeSerialize(
+                    fn () => $this->polkadartExtrinsic($extrinsic),
+                    $extrinsic
+                ),
+                $data
+            );
         }
 
-        return array_map(fn ($event) => $this->polkadartEvent($event), $data);
+        return array_map(
+            fn ($event) => $this->safeSerialize(
+                fn () => $this->polkadartEvent($event),
+                $event
+            ),
+            $data
+        );
     }
 
     protected function polkadartEvent($event): PolkadartEvent

@@ -112,18 +112,26 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
         return broadcast($event);
     }
 
+    public function getUuid()
+    {
+        return $this->uuid;
+    }
+
     /**
      * Store the event in the database.
      */
     protected function cacheEvent(): void
     {
-        $pendingEvent = PendingEvent::create([
-            'uuid' => $this->uuid,
-            'name' => $this->broadcastAs(),
-            'sent' => now()->toIso8601String(),
-            'channels' => collect($this->broadcastChannels)->pluck('name')->toJson(),
-            'data' => json_encode($this->broadcastData),
-        ]);
+        $pendingEvent = PendingEvent::updateOrCreate(
+            ['uuid' => $this->uuid],
+            [
+                'name' => $this->broadcastAs(),
+                'sent' => now()->toIso8601String(),
+                'channels' => collect($this->broadcastChannels)->pluck('name')->toJson(),
+                'data' => json_encode($this->broadcastData),
+                'network' => network(),
+            ]
+        );
 
         PlatformEventCached::dispatch($pendingEvent);
     }
