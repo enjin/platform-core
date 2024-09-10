@@ -13,6 +13,7 @@ use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Illuminate\Support\Arr;
+use PHPUnit\Exception;
 
 class Decoder
 {
@@ -192,7 +193,11 @@ class Decoder
 
     public function collectionStorageData(string $data): array
     {
-        $decoded = $this->codec->process(isRunningLatest() ? 'CollectionStorageDataV1010' : 'CollectionStorageData', new ScaleBytes($data));
+        try {
+            $decoded = $this->codec->process('CollectionStorageDataV1010', new ScaleBytes($data));
+        } catch (\Exception $e) {
+            $decoded = $this->codec->process('CollectionStorageData', new ScaleBytes($data));
+        }
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
@@ -223,7 +228,11 @@ class Decoder
 
     public function tokenStorageData(string $data): array
     {
-        $decoded = $this->codec->process(isRunningLatest() ? 'TokenStorageDataV1010' : 'TokenStorageData', new ScaleBytes($data));
+        try {
+            $decoded = $this->codec->process('TokenStorageDataV1010', new ScaleBytes($data));
+        } catch (Exception $e) {
+            $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
+        }
 
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first()) ?? TokenMintCapType::INFINITE;
         $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
