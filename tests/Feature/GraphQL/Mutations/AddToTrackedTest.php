@@ -122,10 +122,10 @@ class AddToTrackedTest extends TestCaseGraphQL
 
     // Happy Path
 
+    #[RequiresOperatingSystem('Linux')]
     /**
      * @dataProvider validDataProvider
      */
-    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_add_to_tracked_data($data, $queueAssertion): void
     {
         Queue::fake();
@@ -135,6 +135,7 @@ class AddToTrackedTest extends TestCaseGraphQL
         $queueAssertion();
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_restore_tracked_data()
     {
         Queue::fake();
