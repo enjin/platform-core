@@ -10,6 +10,7 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Queue;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class AddToTrackedTest extends TestCaseGraphQL
 {
@@ -124,6 +125,7 @@ class AddToTrackedTest extends TestCaseGraphQL
     /**
      * @dataProvider validDataProvider
      */
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_add_to_tracked_data($data, $queueAssertion): void
     {
         Queue::fake();

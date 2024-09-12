@@ -6,7 +6,6 @@ use Codec\Base;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
-use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\Twox;
@@ -105,28 +104,23 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_collection_storage_data()
     {
-        $content = $this->codec->decoder()->collectionStorageData('0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d00000000018eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48025a62020c0017000010a59e86fdde43040000');
+        $content = $this->codec->decoder()->collectionStorageData('0x0adc45aeb8f90dbda5e7ef1997d3071e4759482ec6c0dbab8ec267af7366f07400000000019ee74b7fb517fc26778db942d381ca00a44a2d0a90c2838839a900c23330a31b02d01213a50e100adc45aeb8f90dbda5e7ef1997d3071e4759482ec6c0dbab8ec267af7366f07413000031d6e275bc561700809e9e39791e27040000');
 
         $this->assertEquals(
             [
-                'owner' => '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
+                'owner' => '0x0adc45aeb8f90dbda5e7ef1997d3071e4759482ec6c0dbab8ec267af7366f074',
                 'maxTokenCount' => null,
                 'maxTokenSupply' => null,
                 'forceSingleMint' => false,
                 'burn' => null,
                 'isFrozen' => false,
                 'attribute' => null,
-                'royaltyBeneficiary' => '0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48',
-                'royaltyPercentage' => 1,
-                'tokenCount' => '3',
-                'attributeCount' => '0',
-                'totalDeposit' => '1252000000000000000000',
-                'explicitRoyaltyCurrencies' => [
-                    [
-                        'collectionId' => '0',
-                        'tokenId' => '0',
-                    ],
-                ],
+                'royaltyBeneficiary' => '0x9ee74b7fb517fc26778db942d381ca00a44a2d0a90c2838839a900c23330a31b',
+                'royaltyPercentage' => 8,
+                'tokenCount' => '937',
+                'attributeCount' => '4',
+                'totalDeposit' => '76605800000000000000',
+                'explicitRoyaltyCurrencies' =>  [],
             ],
             $content
         );
@@ -139,50 +133,6 @@ final class StorageTest extends TestCase
             [
                 'collectionId' => '1',
                 'tokenId' => '255',
-            ],
-            $content
-        );
-    }
-
-    public function test_it_can_decode_token_storage_data_with_single_mint()
-    {
-        $content = $this->codec->decoder()->tokenStorageData('0x0401000004010f0000c16ff286230f0000c16ff2862304000000');
-        $this->assertEquals(
-            [
-                'supply' => '1',
-                'cap' => TokenMintCapType::SINGLE_MINT,
-                'capSupply' => null,
-                'isFrozen' => false,
-                'minimumBalance' => '1',
-                'unitPrice' => '10000000000000000',
-                'mintDeposit' => '10000000000000000',
-                'attributeCount' => '1',
-                'royaltyBeneficiary' => null,
-                'royaltyPercentage' => null,
-                'isCurrency' => false,
-                'listingForbidden' => false,
-            ],
-            $content
-        );
-    }
-
-    public function test_it_can_decode_token_storage_data_with_supply()
-    {
-        $content = $this->codec->decoder()->tokenStorageData('0x214e0101419c0004010f0000c16ff2862317000088b116afe3b50204000000');
-        $this->assertEquals(
-            [
-                'supply' => '5000',
-                'cap' => TokenMintCapType::SUPPLY,
-                'capSupply' => '10000',
-                'isFrozen' => false,
-                'minimumBalance' => '1',
-                'unitPrice' => '10000000000000000',
-                'mintDeposit' => '50000000000000000000',
-                'attributeCount' => '1',
-                'royaltyBeneficiary' => null,
-                'royaltyPercentage' => null,
-                'isCurrency' => false,
-                'listingForbidden' => false,
             ],
             $content
         );
