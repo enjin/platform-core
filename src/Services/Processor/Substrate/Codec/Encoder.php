@@ -406,7 +406,7 @@ class Encoder
     {
         $metadata = Cache::remember(PlatformCache::METADATA->key(), 3600, function () {
             if (app()->runningUnitTests()) {
-                return Metadata::v1006();
+                return Metadata::v1012();
             }
 
             $blockchain = new SubstrateWebsocket();

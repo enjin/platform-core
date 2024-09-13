@@ -3,9 +3,11 @@
 namespace Enjin\Platform\Tests\Feature\Controllers;
 
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class QrControllerTest extends TestCaseGraphQL
 {
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_get_a_qr_image(): void
     {
         $response = $this->get('/qr?s=128&f=png&d=test_data');
