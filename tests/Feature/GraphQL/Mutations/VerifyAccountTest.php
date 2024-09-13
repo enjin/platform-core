@@ -12,6 +12,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class VerifyAccountTest extends TestCaseGraphQL
 {
@@ -29,6 +30,7 @@ class VerifyAccountTest extends TestCaseGraphQL
 
     // Happy Path
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_verify_without_auth(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
@@ -56,6 +58,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         ]);
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_verify_labelled_mutation_without_auth(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
@@ -83,6 +86,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         ]);
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_verify(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
@@ -106,6 +110,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         ]);
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_verify_with_sr25519(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
@@ -171,6 +176,7 @@ class VerifyAccountTest extends TestCaseGraphQL
 
     // Exception Path
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_with_verification_id_that_doesnt_exists(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
@@ -187,6 +193,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         );
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_using_wrong_address_for_sr25519(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
@@ -220,6 +227,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         );
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_with_wrong_sr25519_signature(): void
     {
         $data = app(Generator::class)->sr25519_signature(fake()->word(), isCode: true);
@@ -253,6 +261,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         );
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_with_used_verification_id(): void
     {
         Wallet::factory()->create(['verification_id' => $this->verification->verification_id]);
@@ -270,6 +279,7 @@ class VerifyAccountTest extends TestCaseGraphQL
         );
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_with_empty_verification_id(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);

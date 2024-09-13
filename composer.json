@@ -25,6 +25,7 @@
     "ext-json": "*",
     "ext-redis": "*",
     "ext-sodium": "*",
+    "ext-imagick": "*",
     "amphp/amp": "^3.0",
     "amphp/http": "^2.0",
     "amphp/http-client": "^5.0",

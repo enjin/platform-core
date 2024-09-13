@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Faker\Generator;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class VerifyMessageTest extends TestCaseGraphQL
 {
@@ -20,6 +21,7 @@ class VerifyMessageTest extends TestCaseGraphQL
         $this->message = HexConverter::stringToHexPrefixed(fake()->realText());
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_verify_a_message(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->message);
@@ -33,6 +35,7 @@ class VerifyMessageTest extends TestCaseGraphQL
         $this->assertTrue($response);
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_verify_a_message_with_signature_type_sr25519(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->message);
@@ -61,6 +64,7 @@ class VerifyMessageTest extends TestCaseGraphQL
         $this->assertTrue($response);
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_return_false_with_invalid_sr25519_signature(): void
     {
         $otherMessage = HexConverter::stringToHexPrefixed(fake()->text());
@@ -259,6 +263,7 @@ class VerifyMessageTest extends TestCaseGraphQL
         );
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_with_invalid_public_key_for_sr25519(): void
     {
         $data = app(Generator::class)->sr25519_signature($this->message);
