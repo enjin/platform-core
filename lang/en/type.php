@@ -61,7 +61,6 @@ return [
     'event_param.description' => 'An event param.',
     'event_param.field.type' => 'The value type of the param.',
     'event_param.field.value' => 'The value of the param.',
-    'integer_range.description' => "A string value that can be used to represent a range of integer numbers.  Use a double full stop to supply a range between 2 integers.  For example an integer range that looks like this: \n\n\"3..8\"\n\nWill be automatically expanded to:\n\n[3, 4, 5, 6, 7, 8]",
     'integer_ranges_array.description' => "An array that can be used to represent ranges of integer numbers.  Use a double full stop to supply a range between 2 integers in the array.  For example an integer ranges array that looks like this: \n\n[\"1\", \"3..8\", \"11\", \"15..18\"]\n\nWill be automatically expanded to:\n\n[1, 3, 4, 5, 6, 7, 8, 11, 15, 16, 17, 18]",
     'json.description' => 'A type that represents json data.',
     'page_info.field.endCursor' => 'The next cursor.',
@@ -147,4 +146,5 @@ return [
     'wallet.field.tokenAccounts' => 'The token accounts this wallet owns. Token accounts store the balances of tokens.',
     'wallet.field.transactions' => 'The transactions performed by this wallet.',
     'wallet_link.field.code' => 'The code a user can input into the wallet app to link their account on the platform.',
+    'integer_range.description' => "A string value that can be used to represent a range of integer numbers.  Use a double full stop to supply a range between 2 integers. \n\nExample \[\"1\",\"2\",\"3..8\"\]",
 ];

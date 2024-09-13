@@ -10,6 +10,7 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Queue;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class AddToTrackedTest extends TestCaseGraphQL
 {
@@ -121,6 +122,7 @@ class AddToTrackedTest extends TestCaseGraphQL
 
     // Happy Path
 
+    #[RequiresOperatingSystem('Linux')]
     /**
      * @dataProvider validDataProvider
      */
@@ -133,6 +135,7 @@ class AddToTrackedTest extends TestCaseGraphQL
         $queueAssertion();
     }
 
+    #[RequiresOperatingSystem('Linux')]
     public function test_it_can_restore_tracked_data()
     {
         Queue::fake();

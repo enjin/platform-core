@@ -51,15 +51,15 @@
     "creator": "AccountId",
     "makeAssetId": "MultiTokensAssetId",
     "takeAssetId": "MultiTokensAssetId",
-    "amount": "Compact<u128>",
-    "price": "Compact<u128>",
-    "minReceived": "Compact<u128>",
+    "amount": "Compact",
+    "price": "Compact",
+    "minReceived": "Compact",
     "feeSide": "ListingFeeSide",
-    "creationBlock": "Compact<u32>",
+    "creationBlock": "Compact",
     "deposit": "CreationDeposit",
     "salt": "Bytes",
-    "data": "ListingData",
-    "state": "ListingState"
+    "data": "ListingDataV1010",
+    "state": "ListingStateV1010"
   },
   "ListingDataV1010": {
     "_enum": {
