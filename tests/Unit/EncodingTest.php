@@ -68,7 +68,7 @@ class EncodingTest extends TestCase
 
     public function test_it_can_add_a_fake_signature_to_a_call()
     {
-        $call = TransactionSerializer::encode('TransferBalance', TransferBalanceMutation::getEncodableParams(
+        $call = TransactionSerializer::encode('TransferKeepAlive', TransferBalanceMutation::getEncodableParams(
             recipientAccount: '0x3a158a287b46acd830ee9a83d304a63569f8669968a20ea80720e338a565dd09',
             value: '1000000000000000000'
         ));
@@ -89,7 +89,7 @@ class EncodingTest extends TestCase
 
     public function test_it_can_encode_transfer_balance()
     {
-        $data = TransactionSerializer::encode('TransferBalance', TransferBalanceMutation::getEncodableParams(
+        $data = TransactionSerializer::encode('TransferKeepAlive', TransferBalanceMutation::getEncodableParams(
             recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
             value: '3256489678678963378387378312'
         ));
@@ -103,7 +103,7 @@ class EncodingTest extends TestCase
 
     public function test_it_can_encode_transfer_balance_keep_alive()
     {
-        $data = TransactionSerializer::encode('TransferBalanceKeepAlive', TransferBalanceMutation::getEncodableParams(
+        $data = TransactionSerializer::encode('TransferKeepAlive', TransferBalanceMutation::getEncodableParams(
             recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
             value: '3256489678678963378387378312'
         ));
