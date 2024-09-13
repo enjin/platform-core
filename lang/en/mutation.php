@@ -95,7 +95,7 @@ return [
     'thaw.description' => 'Thaw a previously frozen collection or token.',
     'transfer_all_balance.description' => 'Transfers all balances of an account to another. You can pass a keepAlive argument if you want to keep at least the existential deposit.',
     'transfer_balance.description' => '(DEPRECATED) Transfers a balance from one account to another.',
-    'transfer_keep_alive.description' => 'Transfers a balance from one account to another and checks if the account will be left with at least the existential deposit.',
+    'transfer_keep_alive.description' => 'Transfers a balance from one account to another with a keep alive check. This mutation is slower than TransferAllowDeath as it checks the account\'s balance at the blockchain.',
     'transfer_allow_death.description' => 'Transfers a balance from one account to another without checking if the account will be left with at least the existential deposit.',
     'unapprove_collection.args.collectionId' => 'The collection that approval will be removed from.',
     'unapprove_collection.args.operator' => 'The account that collection approval will be removed from.',

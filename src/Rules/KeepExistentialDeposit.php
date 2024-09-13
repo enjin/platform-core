@@ -47,7 +47,7 @@ class KeepExistentialDeposit implements DataAwareRule, ValidationRule
         if (gmp_cmp($diff, $existentialDeposit) < 0) {
             $fail('enjin-platform::validation.keep_existential_deposit')
                 ->translate([
-                    'existential_deposit' => gmp_strval($existentialDeposit),
+                    'existentialDeposit' => gmp_strval($existentialDeposit),
                 ]);
         }
     }

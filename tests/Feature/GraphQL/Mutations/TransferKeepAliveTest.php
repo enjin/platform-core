@@ -38,7 +38,9 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
         ], expectError: true);
 
         $this->assertArraySubset([
-            'amount' => ['enjin-platform::validation.keep_existential_deposit'],
+            'amount' => [
+                'The amount is not enough to keep the existential deposit of 100000000000000000.',
+            ],
         ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
