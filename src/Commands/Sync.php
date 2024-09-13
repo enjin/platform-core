@@ -10,6 +10,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Commands\contexts\Truncate;
 use Enjin\Platform\Enums\Global\ModelType;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
@@ -20,6 +21,7 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use STS\Backoff\Backoff;
@@ -86,7 +88,10 @@ class Sync extends Command
                 $this->error($message = __('enjin-platform::error.line_and_file', ['line' => $e->getLine(), 'file' => $e->getFile()]));
                 PlatformSyncError::dispatch($message);
             })
-            ->run(fn () => $this->startSync($rpc));
+            ->run(function () use ($rpc): void {
+                Cache::forget(PlatformCache::CUSTOM_TYPES->key());
+                $this->startSync($rpc);
+            });
 
         PlatformSynced::dispatch();
 

@@ -38,4 +38,5 @@ return [
     'unused_verification_id' => 'The verification ID is already in use.',
     'account_waiting_collection_transfer' => 'There is no pending collection transfer for the account :account at collection :collectionId.',
     'string_too_large' => 'The :attribute field is too large.',
+    'not_daemon_wallet' => 'The :attribute is a daemon wallet and should not be used at signingAccount.',
 ];

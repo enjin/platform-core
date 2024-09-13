@@ -36,7 +36,7 @@ class Codec
 
     private function loadCustomTypes()
     {
-        return Cache::remember(PlatformCache::CUSTOM_TYPES->key(), 86400, function () {
+        return Cache::remember(PlatformCache::CUSTOM_TYPES->key(), now()->addWeek(), function () {
             $moduleFiles = array_filter(Utils::getDirContents(__DIR__ . '/Types/'), function ($var) {
                 $slice = explode('.', $var);
 

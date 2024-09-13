@@ -1357,6 +1357,25 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_will_fail_passing_daemon_as_signing_account(): void
+    {
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => fake()->boolean(),
+            ],
+            'signingAccount' => Account::daemonPublicKey(),
+        ], true);
+
+        $this->assertArraySubset(
+            [
+                'signingAccount' => ['The signing account is a daemon wallet and should not be used at signingAccount.'],
+            ],
+            $response['error']
+        );
+
+        Event::assertNotDispatched(TransactionCreated::class);
+    }
+
     protected function generateCurrencies(?int $total = 5): array
     {
         return array_map(
