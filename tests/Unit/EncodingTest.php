@@ -135,7 +135,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
-            "0x{$callIndex}080a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e040a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0801",
+            "0x{$callIndex}080a030052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e040a000052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0801",
             $data
         );
     }
