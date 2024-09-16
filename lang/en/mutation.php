@@ -111,4 +111,5 @@ return [
     'update_transaction.error.hash_and_id_are_immutable' => 'The transaction id and hash are immutable once set.',
     'update_wallet_external_id.cannot_update_id_on_managed_wallet' => 'Cannot update the external id on a managed wallet.',
     'verify_account.description' => 'The wallet calls this mutation to prove the ownership of the user account.',
+    'operator_transfer_token.args.keepAlive' => '(DEPRECATED) If true, the transaction will fail if the balance drops below the minimum requirement. Defaults to False.',
 ];

@@ -153,7 +153,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'collectionId' => [new IsCollectionOwner()],
-            'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
+            'params.amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
     }
@@ -164,7 +164,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            'params.amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params')];
     }
 }
