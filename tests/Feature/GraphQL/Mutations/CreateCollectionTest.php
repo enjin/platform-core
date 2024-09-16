@@ -1368,7 +1368,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             [
-                'signingAccount' => ['The signing account is a daemon wallet and should not be used at signingAccount.'],
+                'signingAccount' => ['The signing account is a daemon wallet and should not be used as a signingAccount.'],
             ],
             $response['error']
         );
