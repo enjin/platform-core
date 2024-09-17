@@ -39,4 +39,5 @@ return [
     'account_waiting_collection_transfer' => 'There is no pending collection transfer for the account :account at collection :collectionId.',
     'string_too_large' => 'The :attribute field is too large.',
     'not_daemon_wallet' => 'The :attribute is a daemon wallet and should not be used as a signingAccount.',
+    'keep_existential_deposit' => 'The :attribute is not enough to keep the existential deposit of :existentialDeposit.',
 ];

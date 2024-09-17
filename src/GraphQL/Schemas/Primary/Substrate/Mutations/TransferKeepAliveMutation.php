@@ -15,6 +15,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\KeepExistentialDeposit;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
@@ -29,7 +30,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class TransferBalanceMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
+class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
     use HasIdempotencyField;
     use HasSigningAccountField;
@@ -45,9 +46,8 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     public function attributes(): array
     {
         return [
-            'name' => 'TransferBalance',
-            'description' => __('enjin-platform::mutation.transfer_balance.description'),
-            'deprecationReason' => __('enjin-platform::deprecated.transfer_balance.description'),
+            'name' => 'TransferKeepAlive',
+            'description' => __('enjin-platform::mutation.transfer_keep_alive.description'),
         ];
     }
 
@@ -73,11 +73,6 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
             ],
-            'keepAlive' => [
-                'type' => GraphQL::type('Boolean'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
-                'defaultValue' => false,
-            ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -100,8 +95,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $method = $this->getMutationName() . ($args['keepAlive'] ? 'KeepAlive' : '');
-        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             recipientAccount: $targetWallet->public_key,
             value: $args['amount']
         ));
@@ -122,6 +116,20 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         ];
     }
 
+    protected function rulesWithValidation(array $args): array
+    {
+        return [
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new KeepExistentialDeposit()],
+        ];
+    }
+
+    protected function rulesWithoutValidation(array $args): array
+    {
+        return [
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+        ];
+    }
+
     /**
      * Get the common rules.
      */
@@ -129,7 +137,6 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     {
         return [
             'recipient' => ['filled', new ValidSubstrateAccount()],
-            'amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }

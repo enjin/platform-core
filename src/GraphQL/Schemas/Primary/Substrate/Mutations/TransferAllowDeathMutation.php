@@ -29,7 +29,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class TransferBalanceMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
+class TransferAllowDeathMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
     use HasIdempotencyField;
     use HasSigningAccountField;
@@ -45,9 +45,8 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     public function attributes(): array
     {
         return [
-            'name' => 'TransferBalance',
-            'description' => __('enjin-platform::mutation.transfer_balance.description'),
-            'deprecationReason' => __('enjin-platform::deprecated.transfer_balance.description'),
+            'name' => 'TransferAllowDeath',
+            'description' => __('enjin-platform::mutation.transfer_allow_death.description'),
         ];
     }
 
@@ -73,11 +72,6 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
             ],
-            'keepAlive' => [
-                'type' => GraphQL::type('Boolean'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
-                'defaultValue' => false,
-            ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -100,8 +94,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $method = $this->getMutationName() . ($args['keepAlive'] ? 'KeepAlive' : '');
-        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             recipientAccount: $targetWallet->public_key,
             value: $args['amount']
         ));
@@ -129,7 +122,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     {
         return [
             'recipient' => ['filled', new ValidSubstrateAccount()],
-            'amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }
