@@ -127,7 +127,7 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
         $recipients = Arr::get($params, 'recipients', []);
 
         $encodedData = collect($recipients)->map(
-            fn ($recipient) => $serializationService->encode($recipient['keepAlive'] ? 'TransferBalanceKeepAlive' : 'TransferBalance', [
+            fn ($recipient) => $serializationService->encode($recipient['keepAlive'] ? 'TransferKeepAlive' : 'TransferAllowDeath', [
                 'dest' => [
                     'Id' => HexConverter::unPrefix($recipient['accountId']),
                 ],

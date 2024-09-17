@@ -25,8 +25,8 @@ class Encoder
 
     protected static array $callIndexKeys = [
         'Batch' => 'MatrixUtility.batch',
-        'TransferBalance' => 'Balances.transfer_keep_alive',
-        'TransferBalanceKeepAlive' => 'Balances.transfer_keep_alive',
+        'TransferKeepAlive' => 'Balances.transfer_keep_alive',
+        'TransferAllowDeath' => 'Balances.transfer_allow_death',
         'TransferAllBalance' => 'Balances.transfer_all',
         'ApproveCollection' => 'MultiTokens.approve_collection',
         'UnapproveCollection' => 'MultiTokens.unapprove_collection',
@@ -62,7 +62,7 @@ class Encoder
 
     protected static array $overrideCallIndex = [
         'MatrixUtility.batch' => [57, 0],
-        'Balances.transfer' => [10, 0],
+        'Balances.transfer_allow_death' => [10, 0],
         'Balances.transfer_keep_alive' => [10, 3],
         'Balances.transfer_all' => [10, 4],
         'MultiTokens.approve_collection' => [40, 15],
