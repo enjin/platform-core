@@ -152,10 +152,7 @@ class AddToTrackedTest extends TestCaseGraphQL
     }
 
     // Exception Path
-
-    /**
-     * @dataProvider invalidDataProvider
-     */
+    #[DataProvider('invalidDataProvider')]
     public function test_it_fails_to_add_to_tracked_data($data, $errorKey, $errorValue): void
     {
         Queue::fake();

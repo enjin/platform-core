@@ -10,6 +10,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
 use Enjin\Platform\Commands\contexts\Truncate;
 use Enjin\Platform\Enums\Global\ModelType;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
@@ -20,6 +21,7 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use STS\Backoff\Backoff;
@@ -100,6 +102,8 @@ class Sync extends Command
      */
     protected function startSync(SubstrateWebsocket $rpc): void
     {
+        Cache::forget(PlatformCache::CUSTOM_TYPES->key());
+
         $this->info(__('enjin-platform::commands.sync.header'));
         if (!$this->truncateTables()) {
             throw new PlatformException(__('enjin-platform::error.failed_to_truncate'));
