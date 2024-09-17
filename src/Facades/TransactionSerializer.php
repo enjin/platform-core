@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Facades;
 
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -14,6 +15,6 @@ class TransactionSerializer extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return \Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface::class;
+        return SerializationServiceInterface::class;
     }
 }
