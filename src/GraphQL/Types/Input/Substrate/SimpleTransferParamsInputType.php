@@ -37,7 +37,8 @@ class SimpleTransferParamsInputType extends InputType implements PlatformGraphQl
             ],
             'keepAlive' => [
                 'type' => GraphQL::type('Boolean'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
+                'description' => __('enjin-platform::mutation.simple_transfer_token.args.params.keepAlive'),
+                // TODO: 'deprecationReason' => __('enjin-platform::deprecated.simple_transfer_token.args.params.keepAlive'),
                 'defaultValue' => false,
             ],
         ];

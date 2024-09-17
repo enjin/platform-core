@@ -43,7 +43,7 @@ class OperatorTransferParamsInputType extends InputType implements PlatformGraph
             'keepAlive' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::mutation.operator_transfer_token.args.params.keepAlive'),
-                'deprecatedReason' => __('enjin-platform::deprecated.operator_transfer_token.args.params.keepAlive'),
+                // TODO: 'deprecationReason' => __('enjin-platform::deprecated.operator_transfer_token.args.params.keepAlive'),
                 'defaultValue' => false,
             ],
         ];
