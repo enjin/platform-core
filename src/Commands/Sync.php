@@ -103,7 +103,7 @@ class Sync extends Command
     protected function startSync(SubstrateWebsocket $rpc): void
     {
         Cache::forget(PlatformCache::CUSTOM_TYPES->key());
-        
+
         $this->info(__('enjin-platform::commands.sync.header'));
         if (!$this->truncateTables()) {
             throw new PlatformException(__('enjin-platform::error.failed_to_truncate'));
