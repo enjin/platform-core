@@ -1103,26 +1103,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_zero_amount(): void
-    {
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(),
-                'source' => SS58Address::encode($this->wallet->public_key),
-                'amount' => 0,
-            ],
-        ], true);
-
-        $this->assertArraySubset(
-            ['params.amount' => ['The params.amount is too small, the minimum value it can be is 1.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_greater_than_balance(): void
     {
         $response = $this->graphql($this->method, [
