@@ -71,6 +71,8 @@ return [
     'mutate_collection.description' => 'Changes collection default values.',
     'mutate_token.description' => 'Changes token default values.',
     'operator_transfer_token.args.params' => 'The operator transfer params.',
+    'operator_transfer_token.args.params.keepAlive' => '(DEPRECATED) If true, the transaction will fail if the balance drops below the minimum requirement. Defaults to False.',
+    'simple_transfer_token.args.params.keepAlive' => '(DEPRECATED) If true, the transaction will fail if the balance drops below the minimum requirement. Defaults to False.',
     'operator_transfer_token.description' => "Transfer tokens as the operator of someone else's wallet. Operator transfers are transfers that you make using tokens from somebody else's wallet as the source. To make this type of transfer the source wallet owner must approve you for transferring their tokens.",
     'remove_all_attributes.args.attributeCount' => 'This is an advanced feature and is used to calculate the weight of the on-chain extrinsic. Putting a value in that isn\'t equal to the on-chain attribute count will lead to the transaction failing. When empty, the attribute count will be auto calculated from data stored in the local database.',
     'remove_all_attributes.args.collectionId' => 'The collection ID to remove attributes from.',
