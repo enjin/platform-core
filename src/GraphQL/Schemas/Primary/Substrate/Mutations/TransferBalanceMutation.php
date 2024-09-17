@@ -47,7 +47,6 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         return [
             'name' => 'TransferBalance',
             'description' => __('enjin-platform::mutation.transfer_balance.description'),
-            'deprecationReason' => __('enjin-platform::deprecated.transfer_balance.description'),
         ];
     }
 
