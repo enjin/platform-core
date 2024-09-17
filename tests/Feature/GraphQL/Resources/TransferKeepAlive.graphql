@@ -1,17 +1,15 @@
-mutation TransferBalance(
+mutation TransferKeepAlive(
   $recipient: String!
   $amount: BigInt!
-  $keepAlive: Boolean
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
   $nonce: Int
   $tip: BigInt
 ) {
-  TransferBalance(
+  TransferKeepAlive(
     recipient: $recipient
     amount: $amount
-    keepAlive: $keepAlive
     skipValidation: $skipValidation
     simulate: $simulate
     signingAccount: $signingAccount
