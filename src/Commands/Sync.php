@@ -88,10 +88,7 @@ class Sync extends Command
                 $this->error($message = __('enjin-platform::error.line_and_file', ['line' => $e->getLine(), 'file' => $e->getFile()]));
                 PlatformSyncError::dispatch($message);
             })
-            ->run(function () use ($rpc): void {
-                Cache::forget(PlatformCache::CUSTOM_TYPES->key());
-                $this->startSync($rpc);
-            });
+            ->run(fn () => $this->startSync($rpc));
 
         PlatformSynced::dispatch();
 
@@ -105,6 +102,8 @@ class Sync extends Command
      */
     protected function startSync(SubstrateWebsocket $rpc): void
     {
+        Cache::forget(PlatformCache::CUSTOM_TYPES->key());
+        
         $this->info(__('enjin-platform::commands.sync.header'));
         if (!$this->truncateTables()) {
             throw new PlatformException(__('enjin-platform::error.failed_to_truncate'));
