@@ -140,6 +140,8 @@ class BlockProcessor
 
     public function ingest(): void
     {
+        Cache::forget(PlatformCache::CUSTOM_TYPES->key());
+
         $currentHeight = $this->latestBlock();
         $lastBlockSynced = $this->latestSyncedBlock();
 
