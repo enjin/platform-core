@@ -8,18 +8,15 @@ use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
-use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\KeepExistentialDeposit;
 use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -33,13 +30,12 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class OperatorTransferTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
+class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
     use HasIdempotencyField;
     use HasSigningAccountField;
     use HasSimulateField;
     use HasSkippableRules;
-    use HasTokenIdFieldRules;
     use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
@@ -50,8 +46,8 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     public function attributes(): array
     {
         return [
-            'name' => 'OperatorTransferToken',
-            'description' => __('enjin-platform::mutation.operator_transfer_token.description'),
+            'name' => 'TransferKeepAlive',
+            'description' => __('enjin-platform::mutation.transfer_keep_alive.description'),
         ];
     }
 
@@ -69,18 +65,13 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     public function args(): array
     {
         return [
-            'collectionId' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.common.args.collectionId'),
-            ],
             'recipient' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.recipient'),
             ],
-            'params' => [
-                'type' => GraphQL::type('OperatorTransferParams!'),
-                'description' => __('enjin-platform::mutation.operator_transfer_token.args.params'),
-
+            'amount' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
@@ -104,10 +95,9 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             recipientAccount: $targetWallet->public_key,
-            collectionId: $args['collectionId'],
-            operatorTransferParams: $blockchainService->getOperatorTransferParams($args['params'])
+            value: $args['amount']
         ));
 
         return Transaction::lazyLoadSelectFields(
@@ -116,22 +106,27 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
         );
     }
 
-    /**
-     * Get the serialization service method name.
-     */
-    public function getMethodName(): string
-    {
-        return isRunningLatest() ? 'TransferV1010' : 'Transfer';
-    }
-
     public static function getEncodableParams(...$params): array
     {
         return [
-            'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+            'dest' => [
+                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
-            'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0))->toEncodable(),
+            'value' => gmp_init(Arr::get($params, 'value', 0)),
+        ];
+    }
+
+    protected function rulesWithValidation(array $args): array
+    {
+        return [
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new KeepExistentialDeposit()],
+        ];
+    }
+
+    protected function rulesWithoutValidation(array $args): array
+    {
+        return [
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 
@@ -142,29 +137,6 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'recipient' => ['filled', new ValidSubstrateAccount()],
-            'params.source' => ['filled', new ValidSubstrateAccount()],
         ];
-    }
-
-    /**
-     * Get the mutation's validation rules.
-     */
-    protected function rulesWithValidation(array $args): array
-    {
-        return [
-            'collectionId' => [new IsCollectionOwner()],
-            'params.amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
-            ...$this->getTokenFieldRulesExist('params'),
-        ];
-    }
-
-    /**
-     * Get the mutation's validation rules withoud DB rules.
-     */
-    protected function rulesWithoutValidation(array $args): array
-    {
-        return [
-            'params.amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
-            ...$this->getTokenFieldRules('params')];
     }
 }

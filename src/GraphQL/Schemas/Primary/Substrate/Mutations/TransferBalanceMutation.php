@@ -47,6 +47,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         return [
             'name' => 'TransferBalance',
             'description' => __('enjin-platform::mutation.transfer_balance.description'),
+            'deprecationReason' => __('enjin-platform::deprecated.transfer_balance.description'),
         ];
     }
 
@@ -99,8 +100,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $method = $this->getMutationName() . ($args['keepAlive'] ? 'KeepAlive' : '');
-        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
             recipientAccount: $targetWallet->public_key,
             value: $args['amount']
         ));
@@ -109,6 +109,11 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
             $this->storeTransaction($args, $encodedData),
             $resolveInfo
         );
+    }
+
+    public function getMethodName(): string
+    {
+        return 'TransferAllowDeath';
     }
 
     public static function getEncodableParams(...$params): array

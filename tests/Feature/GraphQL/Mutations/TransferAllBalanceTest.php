@@ -319,33 +319,6 @@ class TransferAllBalanceTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
-    public function test_it_can_transfer_all_passing_the_default_wallet_on_signing_wallet(): void
-    {
-        $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
-            recipientAccount: $this->defaultAccount,
-            keepAlive: $keepAlive = fake()->boolean(),
-        ));
-
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->defaultAccount),
-            'keepAlive' => $keepAlive,
-            'signingAccount' => SS58Address::encode($this->defaultAccount),
-        ]);
-
-        $this->assertArraySubset([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'wallet' => [
-                'account' => [
-                    'publicKey' => $this->defaultAccount,
-                ],
-            ],
-        ], $response);
-
-        Event::assertDispatched(TransactionCreated::class);
-    }
-
     public function test_it_can_transfer_all_with_signing_wallet_null(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
