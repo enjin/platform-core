@@ -94,7 +94,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
             'unitPrice' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::input_type.create_token_params.field.unitPrice'),
-                'deprecationReason' => '',
+                'deprecationReason' => __('enjin-platform::deprecated.create_token_params.field.unitPrice'),
                 'defaultValue' => null,
             ],
         ];
