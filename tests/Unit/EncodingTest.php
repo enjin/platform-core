@@ -349,7 +349,7 @@ class EncodingTest extends TestCase
     public function test_it_can_encode_create_collection_with_args()
     {
         $mintPolicy = new MintPolicyParams(
-            forceSingleMint: true,
+            forceCollapsingSupply: true,
             maxTokenCount: '255',
             maxTokenSupply: '57005',
         );
@@ -386,7 +386,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.create_collection', true);
         $this->assertEquals(
-            "0x{$callIndex}01ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f04000008106e616d653c44656d6f20436f6c6c656374696f6e2c6465736372697074696f6e484d792064656d6f20636f6c6c656374696f6e",
+            "0x{$callIndex}01ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f0004000008106e616d653c44656d6f20436f6c6c656374696f6e2c6465736372697074696f6e484d792064656d6f20636f6c6c656374696f6e",
             $data
         );
     }
@@ -394,12 +394,12 @@ class EncodingTest extends TestCase
     public function test_it_can_encode_create_collection_with_only_required_args()
     {
         $data = TransactionSerializer::encode('CreateCollection', CreateCollectionMutation::getEncodableParams(
-            mintPolicy: new MintPolicyParams(forceSingleMint: true)
+            mintPolicy: new MintPolicyParams(forceCollapsingSupply: true)
         ));
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.create_collection', true);
         $this->assertEquals(
-            "0x{$callIndex}000001000000",
+            "0x{$callIndex}00000100000000",
             $data
         );
     }
@@ -541,10 +541,6 @@ class EncodingTest extends TestCase
             'params' => new CreateTokenParams(
                 tokenId: '255',
                 initialSupply: '57005',
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: '10000000000000',
-                behavior: null,
-                listingForbidden: null,
             ),
         ];
 
@@ -555,7 +551,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.batch_mint', true);
         $this->assertEquals(
-            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e00fd03b67a0300000100a0724e180900000000000000000000000000000000",
+            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e00fd03b67a0300000000000000000000000000",
             $data
         );
     }
@@ -567,7 +563,6 @@ class EncodingTest extends TestCase
             'params' => new MintParams(
                 tokenId: '1',
                 amount: '1',
-                unitPrice: '100000000000000000'
             ),
         ];
 
@@ -578,19 +573,16 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.batch_mint', true);
         $this->assertEquals(
-            "0x{$callIndex}411f04d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0104040100008a5d784563010000000000000000",
+            "0x{$callIndex}411f04d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01040400",
             $data
         );
     }
 
-    public function test_it_can_encode_create_token_no_cap()
+    public function test_it_can_encode_create_token_with_id_and_supply()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::INFINITE,
-            unitPrice: '10000000000000',
-            behavior: null,
         );
 
         $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
@@ -601,19 +593,18 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e180900000000000000000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000000000000000000000",
             $data
         );
     }
 
-    public function test_it_can_encode_create_token_cap_supply()
+    public function test_it_can_encode_create_token_with_supply_cap()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
             cap: TokenMintCapType::SUPPLY,
-            unitPrice: '10000000000000',
-            supply: '57005',
+            capSupply: '57005',
         );
 
         $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
@@ -624,28 +615,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e1809000000000000000000000101b67a03000000000000",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_create_token_no_unit_price()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '57005',
-            cap: TokenMintCapType::INFINITE,
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100b67a030000000000000000000000",
             $data
         );
     }
@@ -655,7 +625,6 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::INFINITE,
             freezeState: FreezeStateType::PERMANENT
         );
 
@@ -667,20 +636,18 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000000001000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000010000000000000000",
             $data
         );
     }
 
-    public function test_it_can_encode_mint_with_other_args_as_null()
+    public function test_it_can_encode_create_token_with_collapsing_supply()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::INFINITE,
-            unitPrice: '10000000000000',
-            behavior: null,
-            listingForbidden: null
+            cap: TokenMintCapType::COLLAPSING_SUPPLY,
+            capSupply: '57005',
         );
 
         $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
@@ -691,68 +658,16 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e180900000000000000000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000101b67a030000000000000000000000",
             $data
         );
     }
 
-    public function test_it_can_encode_mint_with_supply_and_behavior_null()
+    public function test_it_can_encode_mint_with_listing_forbidden_false()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::SUPPLY,
-            unitPrice: '10000000000000',
-            supply: '57005',
-            behavior: null,
-            listingForbidden: null,
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e1809000000000000000000000101b67a03000000000000",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_mint_with_no_listing_forbidden()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '57005',
-            cap: TokenMintCapType::SINGLE_MINT,
-            unitPrice: '10000000000000',
-            behavior: null,
-            listingForbidden: null,
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000001000000000000",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_mint_with_no_behavior()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '57005',
-            cap: TokenMintCapType::SINGLE_MINT,
-            unitPrice: '10000000000000',
-            behavior: null,
             listingForbidden: false,
         );
 
@@ -764,19 +679,16 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000001000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000000000000000000000",
             $data
         );
     }
 
-    public function test_it_can_encode_mint_with_listing_forbidden()
+    public function test_it_can_encode_mint_with_listing_forbidden_true()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::SINGLE_MINT,
-            unitPrice: '10000000000000',
-            behavior: null,
             listingForbidden: true,
         );
 
@@ -788,25 +700,22 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000001000001000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000010000000000000000",
             $data
         );
     }
 
-    public function test_it_can_encode_mint_with_no_cap()
+    public function test_it_can_encode_mint_with_behavior_has_royalty()
     {
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::INFINITE,
-            unitPrice: '10000000000000',
             behavior: new TokenMarketBehaviorParams(
                 hasRoyalty: new RoyaltyPolicyParams(
                     beneficiary: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
                     percentage: 20,
                 ),
             ),
-            listingForbidden: null,
         );
 
         $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
@@ -817,37 +726,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000010052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f00000000",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_mint_with_supply()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '57005',
-            cap: TokenMintCapType::SUPPLY,
-            unitPrice: '10000000000000',
-            supply: '57005',
-            behavior: new TokenMarketBehaviorParams(
-                hasRoyalty: new RoyaltyPolicyParams(
-                    beneficiary: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-                    percentage: '20',
-                ),
-            ),
-            listingForbidden: null,
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e1809000000000000000000000101b67a0300010052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f00000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000010052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f000000000000000000",
             $data
         );
     }
@@ -857,9 +736,6 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '1010',
             initialSupply: '1',
-            cap: TokenMintCapType::INFINITE,
-            unitPrice: '10000000000000',
-            listingForbidden: true,
             attributes: [
                 [
                     'key' => 'name',
@@ -876,36 +752,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f00c90f04000100a0724e1809000000000000000000000000010004106e616d652844656d6f20546f6b656e00",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_mint_with_single_mint()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '57005',
-            cap: TokenMintCapType::SINGLE_MINT,
-            unitPrice: '10000000000000',
-            behavior: new TokenMarketBehaviorParams(
-                hasRoyalty: new RoyaltyPolicyParams(
-                    beneficiary: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-                    percentage: '20',
-                ),
-            ),
-            listingForbidden: null,
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e1809000000000000000000000100010052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f00000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f00c90f04000000000004106e616d652844656d6f20546f6b656e000000000000",
             $data
         );
     }
@@ -915,12 +762,9 @@ class EncodingTest extends TestCase
         $params = new CreateTokenParams(
             tokenId: '255',
             initialSupply: '57005',
-            cap: TokenMintCapType::SINGLE_MINT,
-            unitPrice: '10000000000000',
             behavior: new TokenMarketBehaviorParams(
                 isCurrency: true,
             ),
-            listingForbidden: null,
         );
 
         $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
@@ -931,50 +775,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e1809000000000000000000000100010100000000",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_mint_no_args()
-    {
-        $params = new MintParams(
-            tokenId: '255',
-            amount: '57005',
-            unitPrice: '10000000000000'
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}00d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0401fd03b67a03000100a0724e180900000000000000000000",
-            $data
-        );
-    }
-
-    public function test_it_can_encode_create_token_cap_single_mint()
-    {
-        $params = new CreateTokenParams(
-            tokenId: '255',
-            initialSupply: '57005',
-            cap: TokenMintCapType::SINGLE_MINT,
-            unitPrice: '10000000000000',
-        );
-
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
-            collectionId: '1',
-            createTokenParams: $params
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000001000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000101000000000000000000",
             $data
         );
     }
@@ -1248,8 +1049,7 @@ class EncodingTest extends TestCase
             createTokenParams: new CreateTokenParams(
                 tokenId: '255',
                 initialSupply: '57005',
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: '10000000000000',
+                cap: null,
                 behavior: null,
                 listingForbidden: null
             )
@@ -1262,7 +1062,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
-            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000000",
+            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000000000000000000000",
             $data
         );
     }
@@ -1275,8 +1075,7 @@ class EncodingTest extends TestCase
             createTokenParams: new CreateTokenParams(
                 tokenId: '255',
                 initialSupply: '57005',
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: '10000000000000',
+                cap: null,
                 behavior: null,
                 listingForbidden: null
             )
@@ -1289,7 +1088,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
-            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100a0724e18090000000000000000000000000000000001",
+            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000000000000000000001",
             $data
         );
     }

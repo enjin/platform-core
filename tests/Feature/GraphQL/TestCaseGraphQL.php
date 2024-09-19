@@ -2,19 +2,15 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL;
 
-use Enjin\Platform\CoreServiceProvider;
 use Enjin\Platform\Facades\Package;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasConvertableObject;
-use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
+use Enjin\Platform\Tests\TestCase;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
-use Orchestra\Testbench\TestCase as BaseTestCase;
 use PHPUnit\Framework\ExpectationFailedException;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class TestCaseGraphQL extends BaseTestCase
+class TestCaseGraphQL extends TestCase
 {
     use HasConvertableObject;
 
@@ -27,8 +23,6 @@ class TestCaseGraphQL extends BaseTestCase
         parent::setUp();
 
         if (!self::$initialized) {
-            Cache::flush();
-
             $this->artisan('migrate:fresh');
             $this->loadQueries();
 
@@ -73,6 +67,16 @@ class TestCaseGraphQL extends BaseTestCase
         }
 
         return $expectError ? $data : Arr::get($data['data'], $query);
+    }
+
+    /**
+     * Get the package aliases.
+     */
+    protected function getPackageAliases($app): array
+    {
+        return [
+            'Package' => Package::class,
+        ];
     }
 
     /**
@@ -135,53 +139,6 @@ class TestCaseGraphQL extends BaseTestCase
             ->each(
                 fn ($file) => self::$queries[str_replace(['.gql', '.graphql'], '', $file)] = file_get_contents(__DIR__ . '/Resources/' . $file)
             );
-    }
-
-    /**
-     * Get the package providers.
-     */
-    protected function getPackageProviders($app): array
-    {
-        return [
-            CoreServiceProvider::class,
-        ];
-    }
-
-    /**
-     * Get the package aliases.
-     */
-    protected function getPackageAliases($app): array
-    {
-        return [
-            'Package' => Package::class,
-        ];
-    }
-
-    /**
-     * Define environment setup.
-     */
-    protected function defineEnvironment($app): void
-    {
-        $app->useEnvironmentPath(__DIR__ . '/..');
-        $app->useDatabasePath(__DIR__ . '/../../../database');
-        $app->bootstrapWith([LoadEnvironmentVariables::class]);
-
-        $app['config']->set('database.default', env('DB_DRIVER', 'mysql'));
-        $app['config']->set('database.connections.mysql', [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', 'password'),
-            'database' => env('DB_DATABASE', 'platform'),
-            'port' => env('DB_PORT', '3306'),
-            'prefix' => '',
-        ]);
-
-        $app['config']->set('app.debug', true);
-
-        if ($this->fakeEvents) {
-            Event::fake();
-        }
     }
 
     /**

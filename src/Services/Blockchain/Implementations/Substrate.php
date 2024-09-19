@@ -211,9 +211,6 @@ class Substrate implements BlockchainServiceInterface
             $this->encodeTokenId($args),
             $args['amount'],
         ];
-        if (isset($args['unitPrice'])) {
-            $data['unitPrice'] = $args['unitPrice'];
-        }
 
         return new MintParams(...$data);
     }
@@ -228,9 +225,16 @@ class Substrate implements BlockchainServiceInterface
             $args['initialSupply'],
         ];
 
-        if ($args['cap'] !== null) {
-            $data['cap'] = TokenMintCapType::getEnumCase($args['cap']['type']);
-            $data['supply'] = $args['cap']['amount'];
+        $cap = Arr::get($args, 'cap.type');
+
+        if ($cap === 'SINGLE_MINT' || $cap === 'COLLAPSING_SUPPLY') {
+            $data['cap'] = TokenMintCapType::COLLAPSING_SUPPLY;
+            $data['capSupply'] = $args['initialSupply'];
+        } elseif ($cap === 'INFINITE') {
+            $data['cap'] = null;
+        } elseif ($cap !== null) {
+            $data['cap'] = TokenMintCapType::getEnumCase($cap);
+            $data['capSupply'] = $args['cap']['amount'];
         }
 
         if (($beneficiary = Arr::get($args, 'behavior.hasRoyalty.beneficiary')) !== null) {
@@ -246,7 +250,6 @@ class Substrate implements BlockchainServiceInterface
         }
 
         $data['listingForbidden'] = $args['listingForbidden'];
-        $data['unitPrice'] = Arr::get($args, 'unitPrice');
         $data['attributes'] = Arr::get($args, 'attributes', []);
 
         return new CreateTokenParams(...$data);

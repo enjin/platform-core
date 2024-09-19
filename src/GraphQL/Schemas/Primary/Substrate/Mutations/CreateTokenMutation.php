@@ -4,7 +4,6 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -107,7 +106,6 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
             collectionId: $args['collectionId'],
             createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
         ));
-        $encodedData .= isRunningLatest() ? '00000000' : '';
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -120,7 +118,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
      */
     public function getMethodName(): string
     {
-        return isRunningLatest() ? 'MintV1010' : 'Mint';
+        return 'Mint';
     }
 
     public static function getEncodableParams(...$params): array
@@ -130,7 +128,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
                 'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0, TokenMintCapType::INFINITE))->toEncodable(),
+            'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0))->toEncodable(),
         ];
     }
 

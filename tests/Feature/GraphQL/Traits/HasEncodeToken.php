@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Traits;
 
-use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Services\Token\TokenIdManager;
 
@@ -64,7 +63,7 @@ trait HasEncodeToken
             'collection_id' => $this->collection->id,
             'token_chain_id' => $this->getEncodedToken(),
             'supply' => (string) $supply = fake()->numberBetween(1),
-            'cap' => TokenMintCapType::INFINITE->name,
+            'cap' => null,
             'cap_supply' => null,
             'is_frozen' => false,
             'unit_price' => (string) $unitPrice = fake()->numberBetween(1 / $supply * 10 ** 17),

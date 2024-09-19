@@ -41,6 +41,7 @@ class MintTokenParamsInputType extends InputType implements PlatformGraphQlType
             'unitPrice' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::input_type.mint_token_params.field.unitPrice'),
+                'deprecationReason' => __('enjin-platform::deprecated.mint_token_params.field.unitPrice'),
                 'rules' => ['nullable', new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
             ],
         ];

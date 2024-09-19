@@ -44,9 +44,18 @@ class Token extends BaseModel
         'royalty_percentage',
         'is_currency',
         'listing_forbidden',
-        'minimum_balance',
-        'unit_price',
+        'requires_deposit',
+        'creation_depositor',
+        'creation_deposit_amount',
+        'owner_deposit',
+        'total_token_account_deposit',
         'attribute_count',
+        'account_count',
+        'infusion',
+        'anyone_can_infuse',
+        'decimal_count',
+        'name',
+        'symbol',
         'created_at',
         'updated_at',
     ];
@@ -61,17 +70,16 @@ class Token extends BaseModel
         'is_frozen' => false,
         'is_currency' => false,
         'listing_forbidden' => false,
-        'minimum_balance' => '1',
-        'unit_price' => '0',
+        'requires_deposit' => true,
+        'creation_deposit_amount' => '0',
+        'owner_deposit' => '0',
+        'total_token_account_deposit' => '0',
         'attribute_count' => 0,
+        'account_count' => 0,
+        'infusion' => '0',
+        'anyone_can_infuse' => false,
+        'decimal_count' => 0,
     ];
-
-    public function mintDeposit(): Attribute
-    {
-        return new Attribute(
-            get: fn () => gmp_strval(gmp_mul(gmp_init($this->unit_price), gmp_init($this->supply)))
-        );
-    }
 
     /**
      * The non-fungible attribute accessor.
@@ -109,10 +117,10 @@ class Token extends BaseModel
             return $this->cap_supply === '1';
         }
 
-        if ($this->cap === TokenMintCapType::SINGLE_MINT->name) {
+        if ($this->cap === TokenMintCapType::COLLAPSING_SUPPLY->name) {
             // If the token is set as SingleMint and only one was minted it is non-fungible
             // If more than one was minted it is fungible.
-            return $this->supply === '1';
+            return $this->cap_supply === '1';
         }
 
         // All other cases we will consider the token is fungible.

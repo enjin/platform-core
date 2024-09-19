@@ -82,16 +82,6 @@ class TokenType extends Type implements PlatformGraphQlType
                 'selectable' => false,
                 'always' => ['royalty_wallet_id', 'royalty_percentage'],
             ],
-            'minimumBalance' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.token.field.minimumBalance'),
-                'alias' => 'minimum_balance',
-            ],
-            'unitPrice' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.token.field.unitPrice'),
-                'alias' => 'unit_price',
-            ],
             'attributeCount' => [
                 'type' => GraphQL::type('Int!'),
                 'description' => __('enjin-platform::type.token.field.attributeCount'),
@@ -126,12 +116,6 @@ class TokenType extends Type implements PlatformGraphQlType
             ],
 
             // Computed
-            'mintDeposit' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.token.field.mintDeposit'),
-                'alias' => 'mint_deposit',
-                'selectable' => false,
-            ],
             'metadata' => [
                 'type' => GraphQL::type('Object'),
                 'selectable' => false,
@@ -140,6 +124,26 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.token.field.nonFungible'),
                 'alias' => 'non_fungible',
+                'selectable' => false,
+            ],
+
+            // Deprecated
+            'minimumBalance' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.token.field.minimumBalance'),
+                'deprecationReason' => __('enjin-platform::deprecated.token.field.minimumBalance'),
+                'selectable' => false,
+            ],
+            'unitPrice' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.token.field.unitPrice'),
+                'deprecationReason' => __('enjin-platform::deprecated.token.field.unitPrice'),
+                'selectable' => false,
+            ],
+            'mintDeposit' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.token.field.mintDeposit'),
+                'deprecationReason' => __('enjin-platform::deprecated.token.field.mintDeposit'),
                 'selectable' => false,
             ],
         ];

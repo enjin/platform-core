@@ -2,8 +2,10 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
+use Cache;
 use Codec\Utils;
-use Enjin\Platform\Enums\Substrate\TransactionDeposit;
+use Enjin\Platform\BlockchainConstant;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
@@ -30,6 +32,8 @@ class DepositFeeTest extends TestCase
     public function test_it_can_get_extrinsic_fee()
     {
         $extrinsic = '0x490284003a158a287b46acd830ee9a83d304a63569f8669968a20ea80720e338a565dd0901a2369c177101204aede6d1992240c436a05084f1b56321a0851ed346cb2783704fd10cbfd10a423f1f7ab321761de08c3927c082236ed433a979b19ee09ed7890064000a07003a158a287b46acd830ee9a83d304a63569f8669968a20ea80720e338a565dd0913000064a7b3b6e00d';
+        Cache::forget(PlatformCache::FEE->key($extrinsic));
+
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $fee = Substrate::getFee($extrinsic);
         $totalFee = gmp_add(gmp_add(gmp_init($feeDetails['baseFee']), gmp_init($feeDetails['lenFee'])), gmp_init($feeDetails['adjustedWeightFee']));
@@ -45,7 +49,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getCreateCollectionDeposit($args);
 
-        $this->assertEquals(TransactionDeposit::COLLECTION->value, $deposit);
+        $this->assertEquals(BlockchainConstant::DEPOSIT_PER_COLLECTION, $deposit);
     }
 
     public function test_deposit_for_create_collection_with_attributes()
@@ -61,9 +65,9 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getCreateCollectionDeposit($args);
         $totalBytes = count(Utils::string2ByteArray($key . $value));
-        $totalDeposit = gmp_add(TransactionDeposit::ATTRIBUTE_BASE->toGMP(), gmp_mul(TransactionDeposit::ATTRIBUTE_PER_BYTE->toGMP(), $totalBytes));
+        $totalDeposit = gmp_add(BlockchainConstant::DEPOSIT_PER_ATTRIBUTE_BASE, gmp_mul(BlockchainConstant::DEPOSIT_PER_ATTRIBUTE_PER_BYTE, $totalBytes));
 
-        $this->assertEquals(gmp_strval(gmp_add(TransactionDeposit::COLLECTION->toGMP(), $totalDeposit)), $deposit);
+        $this->assertEquals(gmp_strval(gmp_add(BlockchainConstant::DEPOSIT_PER_COLLECTION, $totalDeposit)), $deposit);
     }
 
     public function test_deposit_for_set_attribute()
@@ -75,7 +79,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getSetAttributeDeposit($args);
         $totalBytes = count(Utils::string2ByteArray($key . $value));
-        $totalDeposit = gmp_add(TransactionDeposit::ATTRIBUTE_BASE->toGMP(), gmp_mul(TransactionDeposit::ATTRIBUTE_PER_BYTE->toGMP(), $totalBytes));
+        $totalDeposit = gmp_add(BlockchainConstant::DEPOSIT_PER_ATTRIBUTE_BASE, gmp_mul(BlockchainConstant::DEPOSIT_PER_ATTRIBUTE_PER_BYTE, $totalBytes));
 
         $this->assertEquals(gmp_strval($totalDeposit), $deposit);
     }
@@ -92,7 +96,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getCreateTokenDeposit($args);
 
-        $this->assertEquals(TransactionDeposit::TOKEN_ACCOUNT->value, $deposit);
+        $this->assertEquals(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT, $deposit);
     }
 
     public function test_deposit_for_create_token_with_attributes()
@@ -118,7 +122,6 @@ class DepositFeeTest extends TestCase
     {
         $token = Token::factory()->create([
             'supply' => '1',
-            'unit_price' => TransactionDeposit::TOKEN_ACCOUNT->value,
         ]);
         $collection = Collection::find($token->collection_id);
 
@@ -129,13 +132,12 @@ class DepositFeeTest extends TestCase
                     'integer' => $token->token_chain_id,
                 ],
                 'amount' => 1,
-                'unitPrice' => null,
             ],
         ];
 
         $deposit = $this->getMintTokenDeposit($args);
 
-        $this->assertEquals(TransactionDeposit::TOKEN_ACCOUNT->value, $deposit);
+        $this->assertEquals(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT, $deposit);
     }
 
     public function test_deposit_for_batch_create_token_with_empty_attributes()
@@ -153,7 +155,7 @@ class DepositFeeTest extends TestCase
 
         $deposit = $this->getBatchMintDeposit($args);
 
-        $this->assertEquals(TransactionDeposit::TOKEN_ACCOUNT->value, $deposit);
+        $this->assertEquals(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT, $deposit);
     }
 
     public function test_deposit_for_batch_create_token_with_attributes()
