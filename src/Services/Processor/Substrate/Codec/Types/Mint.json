@@ -37,8 +37,8 @@
     }
   },
   "CreateTokenMetadata": {
-    "name": "Option<Bytes>",
-    "symbol": "Option<Bytes>",
+    "name": "Bytes",
+    "symbol": "Bytes",
     "decimalCount": "u8"
   },
   "PrivilegedCreateTokenParams": {

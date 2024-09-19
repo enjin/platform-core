@@ -24,7 +24,7 @@ class CreateTokenParams
         public ?array $attributes = [],
         public ?string $infusion = '0',
         public ?bool $anyoneCanInfuse = false,
-        public ?array $metadata = [],
+        public ?MetadataParams $metadata = new MetadataParams(),
     ) {}
 
     /**
@@ -44,7 +44,7 @@ class CreateTokenParams
             attributes: Arr::get($params, 'attributes'),
             infusion: gmp_strval(Arr::get($params, 'infusion')),
             anyoneCanInfuse: Arr::get($params, 'anyoneCanInfuse') ?? false,
-            metadata: [],
+            metadata: MetadataParams::fromEncodable(Arr::get($params, 'metadata')),
         );
     }
 
@@ -56,12 +56,16 @@ class CreateTokenParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             initialSupply: Arr::get($params, 'initialSupply'),
+            accountDepositCount: Arr::get($params, 'accountDepositCount'),
             cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()),
             capSupply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? $supply : null,
             behavior: Arr::get($params, 'behavior'),
             listingForbidden: Arr::get($params, 'listingForbidden'),
             freezeState: FreezeStateType::tryFrom(Arr::get($params, 'freezeState')),
             attributes: Arr::get($params, 'attributes'),
+            infusion: Arr::get($params, 'infusion'),
+            anyoneCanInfuse: Arr::get($params, 'anyoneCanInfuse'),
+            metadata: MetadataParams::fromArray(Arr::get($params, 'metadata')),
         );
     }
 
@@ -78,8 +82,7 @@ class CreateTokenParams
             'CreateToken' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'initialSupply' => gmp_init($this->initialSupply),
-                // TODO: Add account deposit count support for v2.0.0
-                'accountDepositCount' => 0,
+                'accountDepositCount' => $this->accountDepositCount,
                 'cap' => $this->cap ? [
                     $this->cap->value => gmp_init($this->capSupply),
                 ] : null,
@@ -93,14 +96,9 @@ class CreateTokenParams
                     ],
                     $this->attributes
                 ),
-                // TODO: Add this fields support for v2.0.0
-                'infusion' => gmp_init('0'),
-                'anyoneCanInfuse' => false,
-                'metadata' => [
-                    'name' => null,
-                    'symbol' => null,
-                    'decimalCount' => 0,
-                ],
+                'infusion' => gmp_init($this->infusion),
+                'anyoneCanInfuse' => $this->anyoneCanInfuse,
+                'metadata' => $this->metadata->toEncodable(),
                 'privilegedParams' => null,
             ],
         ];
@@ -111,10 +109,15 @@ class CreateTokenParams
      */
     public function toArray(): array
     {
+        if ($this->cap === TokenMintCapType::COLLAPSING_SUPPLY && $this->capSupply === null) {
+            $this->capSupply = $this->initialSupply;
+        }
+
         return [
             'CreateToken' => [
                 'tokenId' => $this->tokenId,
                 'initialSupply' => $this->initialSupply,
+                'accountDepositCount' => $this->accountDepositCount,
                 'cap' => $this->cap ? [
                     'type' => $this->cap->name,
                     'amount' => $this->capSupply,
@@ -129,6 +132,9 @@ class CreateTokenParams
                     ],
                     $this->attributes
                 ),
+                'infusion' => $this->infusion,
+                'anyoneCanInfuse' => $this->anyoneCanInfuse,
+                'metadata' => $this->metadata->toArray(),
             ],
         ];
     }

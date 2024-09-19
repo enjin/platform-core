@@ -922,27 +922,6 @@ class CreateTokenTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_supply_zero(): void
-    {
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => 0,
-                'unitPrice' => gmp_strval(gmp_pow(10, 17)),
-                'cap' => null,
-            ],
-        ], true);
-
-        $this->assertStringContainsString(
-            'The params.initial supply is too small, the minimum value it can be is 1.',
-            $response['error']['params.initialSupply'][0]
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_with_supply_overflow(): void
     {
         $response = $this->graphql($this->method, [

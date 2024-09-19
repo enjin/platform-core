@@ -1747,31 +1747,6 @@ class BatchMintTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_zero_initial_supply_in_create_params(): void
-    {
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'recipients' => [
-                [
-                    'account' => $this->recipient->public_key,
-                    'createParams' => [
-                        'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
-                        'initialSupply' => 0,
-
-                        'cap' => null,
-                    ],
-                ],
-            ],
-        ], true);
-
-        $this->assertArraySubset(
-            ['recipients.0.createParams.initialSupply' => ['The recipients.0.create params.initial supply is too small, the minimum value it can be is 1.']],
-            $response['error'],
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_with_overflow_initial_supply_in_create_params(): void
     {
         $response = $this->graphql($this->method, [

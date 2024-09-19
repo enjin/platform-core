@@ -7,7 +7,6 @@ use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Rules\DistinctAttributes;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Rules\MinTokenDeposit;
 use Enjin\Platform\Support\Hex;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
