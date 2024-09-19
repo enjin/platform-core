@@ -32,18 +32,18 @@ class MetadataInputType extends InputType implements PlatformGraphQlType
             'name' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::input_type.metadata.field.name'),
-                'rules' => ['bail', 'nullable', new StringMaxByteLength(256)],
+                'rules' => ['bail', 'nullable', new StringMaxByteLength(32)],
             ],
             'symbol' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::input_type.metadata.field.symbol'),
-                'rules' => ['bail', 'nullable', new StringMaxByteLength(1024)],
+                'rules' => ['bail', 'nullable', new StringMaxByteLength(8)],
             ],
             'decimalCount' => [
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::input_type.metadata.field.decimalCount'),
                 'defaultValue' => 0,
-                'rules' => ['bail', 'nullable', 'integer', 'min:0', 'max:255'],
+                'rules' => ['bail', 'nullable', 'integer', 'min:0', 'max:18'],
             ],
         ];
     }
