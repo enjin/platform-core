@@ -24,7 +24,7 @@ class CreateTokenParams
         public ?array $attributes = [],
         public ?string $infusion = '0',
         public ?bool $anyoneCanInfuse = false,
-        public ?array $tokenMetadata = [],
+        public ?array $metadata = [],
     ) {}
 
     /**
@@ -44,7 +44,7 @@ class CreateTokenParams
             attributes: Arr::get($params, 'attributes'),
             infusion: gmp_strval(Arr::get($params, 'infusion')),
             anyoneCanInfuse: Arr::get($params, 'anyoneCanInfuse') ?? false,
-            tokenMetadata: [],
+            metadata: [],
         );
     }
 

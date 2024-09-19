@@ -216,14 +216,23 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Create a new create token params object.
+     * Create a CreateTokenParams object.
      */
     public function getCreateTokenParams(array $args): CreateTokenParams
     {
+        ray($args);
+
         $data = [
-            $this->encodeTokenId($args),
-            $args['initialSupply'],
+            'tokenId' => $this->encodeTokenId($args),
+            'accountDepositCount' => $args['accountDepositCount'],
+            'initialSupply' => $args['initialSupply'],
+            'listingForbidden' => $args['listingForbidden'],
+            'attributes' => Arr::get($args, 'attributes', []),
+            'infusion' => $args['infusion'],
+            'anyoneCanInfuse' => $args['anyoneCanInfuse'],
+            'metadata' => $args['metadata'],
         ];
+
 
         $cap = Arr::get($args, 'cap.type');
 
@@ -249,8 +258,7 @@ class Substrate implements BlockchainServiceInterface
             $data['freezeState'] = FreezeStateType::getEnumCase($args['freezeState']);
         }
 
-        $data['listingForbidden'] = $args['listingForbidden'];
-        $data['attributes'] = Arr::get($args, 'attributes', []);
+        ray($data);
 
         return new CreateTokenParams(...$data);
     }
