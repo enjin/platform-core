@@ -5,7 +5,6 @@ namespace Enjin\Platform\Tests;
 use Enjin\Platform\CoreServiceProvider;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasConvertableObject;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -13,19 +12,17 @@ abstract class TestCase extends BaseTestCase
 {
     use HasConvertableObject;
 
-    protected $fakeEvents = true;
+    protected bool $fakeEvents = true;
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             CoreServiceProvider::class,
         ];
     }
 
-    protected function defineEnvironment($app)
+    protected function defineEnvironment($app): void
     {
-        Cache::flush();
-
         // Make sure, our .env file is loaded for local tests
         $app->useEnvironmentPath(__DIR__ . '/..');
         $app->useDatabasePath(__DIR__ . '/../database');
@@ -49,22 +46,22 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    protected function usesNullDaemonAccount($app)
+    protected function usesNullDaemonAccount($app): void
     {
         $app->config->set('enjin-platform.chains.daemon-account', '0x0000000000000000000000000000000000000000000000000000000000000000');
     }
 
-    protected function usesEnjinNetwork($app)
+    protected function usesEnjinNetwork($app): void
     {
         $app->config->set('enjin-platform.chains.network', 'enjin');
     }
 
-    protected function usesCanaryNetwork($app)
+    protected function usesCanaryNetwork($app): void
     {
         $app->config->set('enjin-platform.chains.network', 'canary');
     }
 
-    protected function usesLocalNetwork($app)
+    protected function usesLocalNetwork($app): void
     {
         $app->config->set('enjin-platform.chains.network', 'local');
     }

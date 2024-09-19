@@ -3,12 +3,11 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Traits;
 
 use Codec\Utils;
-use Enjin\Platform\Enums\Substrate\TransactionDeposit;
+use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use GMP;
-use Illuminate\Support\Arr;
 
 trait HasTransactionDeposit
 {
@@ -23,9 +22,9 @@ trait HasTransactionDeposit
             'SetCollectionAttributeMutation', 'SetTokenAttributeMutation' => $this->getSetAttributeDeposit($args),
             'BatchSetAttributeMutation' => $this->getBatchSetAttributeDeposit($args),
             'BatchMintMutation' => $this->getBatchMintDeposit($args),
-            'CreateListingMutation' => TransactionDeposit::LISTING->value,
-            'CreateFuelTankMutation' => TransactionDeposit::FUEL_TANK->value,
-            'AddAccountMutation' => TransactionDeposit::TOKEN_ACCOUNT->value,
+            'CreateListingMutation' => BlockchainConstant::DEPOSIT_PER_LISTING,
+            'CreateFuelTankMutation' => BlockchainConstant::DEPOSIT_PER_FUEL_TANK,
+            'AddAccountMutation' => BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT,
             'BatchAddAccountMutation' => $this->getBatchAddFuelTankAccountDeposit($args),
             default => null,
         };
@@ -34,7 +33,7 @@ trait HasTransactionDeposit
     protected function getBatchAddFuelTankAccountDeposit(array $args): string
     {
         $accountsCount = count($args['userIds'] ?? []);
-        $totalDeposit = gmp_mul(TransactionDeposit::TOKEN_ACCOUNT->toGMP(), $accountsCount);
+        $totalDeposit = gmp_mul(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT, $accountsCount);
 
         return gmp_strval($totalDeposit);
     }
@@ -49,15 +48,15 @@ trait HasTransactionDeposit
             fn ($attribute) => count(Utils::string2ByteArray($attribute['key'] . $attribute['value']))
         );
 
-        $depositPerByte = gmp_mul(TransactionDeposit::ATTRIBUTE_PER_BYTE->toGMP(), $totalBytes);
+        $depositPerByte = gmp_mul(BlockchainConstant::DEPOSIT_PER_ATTRIBUTE_PER_BYTE, $totalBytes);
 
-        return gmp_add(TransactionDeposit::ATTRIBUTE_BASE->toGMP(), $depositPerByte);
+        return gmp_add(BlockchainConstant::DEPOSIT_PER_ATTRIBUTE_BASE, $depositPerByte);
     }
 
     protected function getCreateCollectionDeposit(array $args): string
     {
         $attributesDeposit = $this->calculateDepositForAttributes($args['attributes']);
-        $totalDeposit = gmp_add(TransactionDeposit::COLLECTION->toGMP(), $attributesDeposit);
+        $totalDeposit = gmp_add(BlockchainConstant::DEPOSIT_PER_COLLECTION, $attributesDeposit);
 
         return gmp_strval($totalDeposit);
     }
@@ -65,7 +64,7 @@ trait HasTransactionDeposit
     protected function calculateDepositForToken(array $args): GMP
     {
         $initialSupply = gmp_init($args['initialSupply']);
-        $unitPrice = gmp_init($args['unitPrice'] ?? TransactionDeposit::TOKEN_ACCOUNT->value);
+        $unitPrice = gmp_init($args['unitPrice'] ?? BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT);
 
         return gmp_mul($initialSupply, $unitPrice);
     }
@@ -88,16 +87,9 @@ trait HasTransactionDeposit
             ]);
         }
 
-        $unitPrice = $token?->unit_price ?? TransactionDeposit::TOKEN_ACCOUNT->value;
-        $extraUnitPrice = Arr::get($params, 'unitPrice', $unitPrice);
-        $extra = 0;
+        $depositPerTokenAccount = gmp_init(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT);
 
-        if (Arr::get($params, 'unitPrice')) {
-            $extra = gmp_mul(gmp_sub($extraUnitPrice, $unitPrice), $token?->supply ?? 1);
-            $unitPrice = Arr::get($params, 'unitPrice');
-        }
-
-        return gmp_add(gmp_mul($unitPrice, $params['amount']), $extra);
+        return gmp_mul($depositPerTokenAccount, $params['amount']);
     }
 
     protected function getMintTokenDeposit(array $args): string

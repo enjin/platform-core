@@ -19,12 +19,15 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -71,12 +74,10 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
             'recipient' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.mint_token.args.recipient'),
-                'rules' => ['filled', new ValidSubstrateAccount()],
             ],
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.mint_token.args.collectionId'),
-                'rules' => [new IsCollectionOwner()],
             ],
             'params' => [
                 'type' => GraphQL::type('MintTokenParams!'),
@@ -135,19 +136,31 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
         ];
     }
 
+    protected function rulesCommon(array $args): array
+    {
+        return [
+            'recipient' => ['filled', new ValidSubstrateAccount()],
+        ];
+    }
+
     /**
      * Get the mutation's validation rules.
      */
     protected function rulesWithValidation(array $args): array
     {
-        return $this->getTokenFieldRulesExist('params');
+        return [
+            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128), new IsCollectionOwner()],
+            ...$this->getTokenFieldRulesExist('params')];
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {
-        return $this->getTokenFieldRules('params');
+        return [
+            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getTokenFieldRules('params'),
+        ];
     }
 }

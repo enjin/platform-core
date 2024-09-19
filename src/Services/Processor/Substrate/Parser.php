@@ -164,7 +164,7 @@ class Parser
                 'token_chain_id' => $tokenKey['tokenId'],
                 'collection_id' => $collection->id,
                 'supply' => $tokenData['supply'],
-                'cap' => $tokenData['cap']->name,
+                'cap' => $tokenData['cap']?->name,
                 'cap_supply' => $tokenData['capSupply'],
                 'is_frozen' => $tokenData['isFrozen'],
                 'royalty_wallet_id' => $royaltyWallet?->id,

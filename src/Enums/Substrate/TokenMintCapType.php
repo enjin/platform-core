@@ -8,8 +8,6 @@ enum TokenMintCapType: string
 {
     use EnumExtensions;
 
-    case SINGLE_MINT = 'SingleMint';
     case SUPPLY = 'Supply';
     case COLLAPSING_SUPPLY = 'CollapsingSupply';
-    case INFINITE = 'Infinite';
 }

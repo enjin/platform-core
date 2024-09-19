@@ -15,8 +15,9 @@ class TokenMintCapTypeEnum extends EnumType implements PlatformGraphQlEnum
     {
         return [
             'name' => 'TokenMintCapType',
-            'values' => TokenMintCapType::caseNamesAsArray(),
+            'values' => [...TokenMintCapType::caseNamesAsArray(), 'SINGLE_MINT', 'INFINITE'],
             'description' => __('enjin-platform::enum.token_mint_cap_type.description'),
+            'deprecationReason' => __('enjin-platform::deprecated.token_mint_cap_type.description'),
         ];
     }
 }

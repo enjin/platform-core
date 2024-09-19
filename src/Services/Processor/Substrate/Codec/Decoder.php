@@ -225,7 +225,7 @@ class Decoder
     {
         $decoded = $this->codec->process('TokenStorageDataV1010', new ScaleBytes($data));
 
-        $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first()) ?? TokenMintCapType::INFINITE;
+        $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first());
         $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
         $isCurrency = Arr::exists(Arr::get($decoded, 'marketBehavior') ?: [], 'IsCurrency');
         $isFrozen = in_array(Arr::get($decoded, 'freezeState'), ['Permanent', 'Temporary']);

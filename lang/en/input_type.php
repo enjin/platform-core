@@ -26,7 +26,7 @@ return [
     'mint_recipient.field.createParams' => 'The params for creating a new token.',
     'mint_recipient.field.mintTokenParams' => 'The params for minting a token.',
     'mint_token_params.description' => 'The params to mint a token.',
-    'mint_token_params.field.unitPrice' => 'Leave as null if you want to keep the same unitPrice. You can also put a value if you want to change the unitPrice. Please note you can only increase it and a deposit to the difference of every token previously minted will also be needed.',
+    'mint_token_params.field.unitPrice' => '(DEPRECATED) Leave as null if you want to keep the same unitPrice. You can also put a value if you want to change the unitPrice. Please note you can only increase it and a deposit to the difference of every token previously minted will also be needed.',
     'multi_token_id.description' => 'The unique identifier for a token. Composed using a collection ID and a token ID.',
     'multi_token_id.field.collectionId' => 'The collection id of a multi token.',
     'multi_token_id.field.tokenId' => 'The token ID of a multi token.',
