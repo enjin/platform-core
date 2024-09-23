@@ -2,7 +2,9 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
+use Cache;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -183,6 +185,8 @@ class CreateCollectionTest extends TestCaseGraphQL
                 forceCollapsingSupply: fake()->boolean(),
             )
         ));
+
+        Cache::forget(PlatformCache::FEE->key($encodedData));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [

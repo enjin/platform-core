@@ -15,6 +15,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
+use Enjin\Platform\Models\Substrate\MetadataParams;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
@@ -216,21 +217,29 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Create a new create token params object.
+     * Create a CreateTokenParams object.
      */
     public function getCreateTokenParams(array $args): CreateTokenParams
     {
         $data = [
-            $this->encodeTokenId($args),
-            $args['initialSupply'],
+            'tokenId' => $this->encodeTokenId($args),
+            'accountDepositCount' => $args['accountDepositCount'],
+            'initialSupply' => $args['initialSupply'],
+            'listingForbidden' => $args['listingForbidden'],
+            'attributes' => Arr::get($args, 'attributes', []),
+            'infusion' => $args['infusion'],
+            'anyoneCanInfuse' => $args['anyoneCanInfuse'],
         ];
 
         $cap = Arr::get($args, 'cap.type');
 
+        // TODO: SingleMint can be removed on v2.1.0
         if ($cap === 'SINGLE_MINT' || $cap === 'COLLAPSING_SUPPLY') {
             $data['cap'] = TokenMintCapType::COLLAPSING_SUPPLY;
             $data['capSupply'] = $args['initialSupply'];
-        } elseif ($cap === 'INFINITE') {
+        }
+        // TODO: Infinite can be removed on v2.1.0
+        elseif ($cap === 'INFINITE') {
             $data['cap'] = null;
         } elseif ($cap !== null) {
             $data['cap'] = TokenMintCapType::getEnumCase($cap);
@@ -249,8 +258,9 @@ class Substrate implements BlockchainServiceInterface
             $data['freezeState'] = FreezeStateType::getEnumCase($args['freezeState']);
         }
 
-        $data['listingForbidden'] = $args['listingForbidden'];
-        $data['attributes'] = Arr::get($args, 'attributes', []);
+        if (isset($args['metadata'])) {
+            $data['metadata'] = new MetadataParams(...$args['metadata']);
+        }
 
         return new CreateTokenParams(...$data);
     }
