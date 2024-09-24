@@ -14,6 +14,13 @@ class StorageMock
         return self::jsonRpcIt('0x000000000000000001000000000000000000c84e676dc11b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000');
     }
 
+    public static function fee(array $mockedFee)
+    {
+        return self::jsonRpcIt([
+            'inclusionFee' => $mockedFee,
+        ]);
+    }
+
     protected static function jsonRpcIt(array|string|null $result)
     {
         return json_encode([

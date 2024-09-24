@@ -4,7 +4,7 @@ namespace Enjin\Platform\Commands;
 
 use Cache;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageType;
@@ -41,13 +41,13 @@ class RelayWatcher extends Command
 
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->codec = new Codec();
-        $this->rpc = new Substrate(new SubstrateWebsocket(currentRelayUrl()));
+        $this->rpc = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
         $this->decoder = new DecoderService(network: currentRelay()->value);
     }
 
     public function handle(): int
     {
-        $sub = new Substrate(new SubstrateWebsocket(currentRelayUrl()));
+        $sub = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
 
         try {
             $this->warn('Subscribing to new heads');

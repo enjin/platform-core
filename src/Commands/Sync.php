@@ -7,7 +7,7 @@ use Amp\Serialization\SerializationException;
 use Amp\Sync\ChannelException;
 use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Commands\contexts\Truncate;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Enums\Global\PlatformCache;
@@ -76,7 +76,7 @@ class Sync extends Command
      *
      * @throws Exception
      */
-    public function handle(Backoff $backoff, SubstrateWebsocket $rpc): int
+    public function handle(Backoff $backoff, SubstrateSocketClient $rpc): int
     {
         PlatformSyncing::dispatch();
 
@@ -100,7 +100,7 @@ class Sync extends Command
      *
      * @throws PlatformException
      */
-    protected function startSync(SubstrateWebsocket $rpc): void
+    protected function startSync(SubstrateSocketClient $rpc): void
     {
         Cache::forget(PlatformCache::CUSTOM_TYPES->key());
 
@@ -135,7 +135,7 @@ class Sync extends Command
     /**
      * Get the current block.
      */
-    protected function getCurrentBlock(SubstrateWebsocket $rpc): Block
+    protected function getCurrentBlock(SubstrateSocketClient $rpc): Block
     {
         $blockHash = $rpc->send('chain_getBlockHash');
         $blockNumber = Arr::get($rpc->send('chain_getBlock', [$blockHash]), 'block.header.number');

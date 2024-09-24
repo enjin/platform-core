@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate;
 
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
@@ -54,7 +54,7 @@ class ExtrinsicProcessor
         if ($transaction) {
             if ($this->block->events === null) {
                 Log::info('Fetching events for block #' . $this->block->number);
-                $rpc = new SubstrateWebsocket();
+                $rpc = new SubstrateSocketClient();
                 $blockHash = $this->block->hash;
 
                 if ($blockHash === null) {

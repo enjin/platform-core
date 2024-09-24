@@ -1,7 +1,7 @@
 <?php
 
 use Amp\Sync\Channel;
-use Enjin\Platform\Clients\Implementations\AsyncWebsocket;
+use Enjin\Platform\Clients\Implementations\AsyncSocketClient;
 use Illuminate\Support\Arr;
 
 return function (Channel $channel): array {
@@ -11,7 +11,7 @@ return function (Channel $channel): array {
     $current = $receivedMessage[2];
     $to = $receivedMessage[3];
 
-    $rpc = new AsyncWebsocket($nodeUrl);
+    $rpc = new AsyncSocketClient($nodeUrl);
     $data = [];
 
     while (true) {

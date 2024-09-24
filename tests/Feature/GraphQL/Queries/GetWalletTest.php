@@ -18,7 +18,8 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -26,7 +27,8 @@ use Illuminate\Support\Arr;
 class GetWalletTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksHttpClient;
+    use MocksSocketClient;
 
     protected string $method = 'GetWallet';
 
@@ -145,7 +147,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_wallet_with_all_data_by_id(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'id' => $this->wallet->id,
@@ -374,7 +376,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_a_wallet_and_filter_collection_accounts(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'id' => $id = $this->wallet->id,
@@ -391,7 +393,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_a_wallet_and_filter_token_accounts(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'id' => $id = $this->wallet->id,
@@ -432,7 +434,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_a_wallet_and_filter_owned_collections(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'id' => $id = $this->wallet->id,
@@ -481,7 +483,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_wallet_by_external_id(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'externalId' => $externalId = $this->wallet->external_id,
@@ -495,7 +497,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_wallet_by_address(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'account' => SS58Address::encode($this->wallet->public_key),
@@ -513,7 +515,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_can_get_wallet_by_verification_id(): void
     {
-        $this->mockNonceAndBalancesFor($this->wallet->public_key);
+        $this->mockNonceAndBalance();
 
         $response = $this->graphql($this->method, [
             'verificationId' => $this->wallet->verification_id,
@@ -747,13 +749,9 @@ class GetWalletTest extends TestCaseGraphQL
         );
     }
 
-    protected function mockNonceAndBalancesFor(string $address): void
+    protected function mockNonceAndBalance(): void
     {
-        $this->mockWebsocketClient(
-            'state_getStorage',
-            [
-                $this->codec->encoder()->systemAccountStorageKey($address),
-            ],
+        $this->mockHttpClient(
             json_encode(
                 [
                     'jsonrpc' => '2.0',
