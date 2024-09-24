@@ -2,11 +2,16 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
+use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Support\Mocks\StorageMock;
 use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
+use Http;
 use Illuminate\Support\Facades\Event;
 
 class TransferKeepAliveTest extends TransferAllowDeathTest
@@ -14,14 +19,56 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     use MocksSocketClient;
 
     protected string $method = 'TransferKeepAlive';
+    protected array $fee;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->mockWebsocketClientSequence([
+        $this->mockHttpClientSequence([
             StorageMock::account_with_balance(),
+            StorageMock::fee($this->fee = app(Generator::class)->fee_details()),
         ]);
+    }
+
+    public function test_it_can_skip_validation(): void
+    {
+        Wallet::factory([
+            'public_key' => $publicKey = app(Generator::class)->public_key(),
+            'managed' => false,
+        ])->create();
+
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $this->defaultAccount,
+            value: $amount = fake()->numberBetween(),
+        ));
+
+        self::clearExistingFakes();
+
+        $this->mockFee($this->fee = app(Generator::class)->fee_details());
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($this->defaultAccount),
+            'amount' => $amount,
+            'signingAccount' => SS58Address::encode($publicKey),
+            'skipValidation' => true,
+            'simulate' => true,
+        ]);
+
+        $this->assertArraySubset([
+            'id' => null,
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'deposit' => null,
+            'fee' => $this->fee['fakeSum'],
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $publicKey,
+                ],
+            ],
+        ], $response);
+
+        Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_will_fail_with_not_enough_amount(): void
@@ -44,5 +91,13 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
         ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    private static function clearExistingFakes(): void
+    {
+        $reflection = new \ReflectionObject(Http::getFacadeRoot());
+        $property = $reflection->getProperty('stubCallbacks');
+        $property->setAccessible(true);
+        $property->setValue(Http::getFacadeRoot(), collect());
     }
 }
