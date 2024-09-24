@@ -12,7 +12,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Event;
 class BatchTransferBalanceTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksSocketClient;
 
     protected string $method = 'BatchTransferBalance';
 

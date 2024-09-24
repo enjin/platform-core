@@ -17,7 +17,7 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as SupportCollection;
@@ -26,7 +26,7 @@ use Illuminate\Support\Str;
 class GetWalletsTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksSocketClient;
 
     protected string $method = 'GetWallets';
 

@@ -5,13 +5,13 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Tests\Support\Mocks\StorageMock;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
 class TransferKeepAliveTest extends TransferAllowDeathTest
 {
-    use MocksWebsocketClient;
+    use MocksSocketClient;
 
     protected string $method = 'TransferKeepAlive';
 

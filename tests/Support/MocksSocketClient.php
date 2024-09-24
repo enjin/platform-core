@@ -7,7 +7,7 @@ use Enjin\Platform\Support\Util;
 use Mockery;
 use WebSocket\Client;
 
-trait MocksWebsocketClient
+trait MocksSocketClient
 {
     protected function mockFee(array $mockedFee): void
     {
@@ -59,7 +59,7 @@ trait MocksWebsocketClient
                 $mock->shouldReceive('send')
                     ->once()
                     ->with(Mockery::on(function ($rpcRequest) use ($expectedRpcRequest) {
-                        $this->assertRpcResponseEquals($expectedRpcRequest, $rpcRequest);
+                        $this->assertRequestEquals($expectedRpcRequest, $rpcRequest);
 
                         return true;
                     }));

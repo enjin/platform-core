@@ -18,7 +18,8 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -26,7 +27,8 @@ use Illuminate\Support\Arr;
 class GetWalletTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksHttpClient;
+    use MocksSocketClient;
 
     protected string $method = 'GetWallet';
 
@@ -749,7 +751,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     protected function mockNonceAndBalancesFor(string $address): void
     {
-        $this->mockWebsocketClient(
+        $this->mockHttpClient(
             'state_getStorage',
             [
                 $this->codec->encoder()->systemAccountStorageKey($address),

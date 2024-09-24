@@ -8,7 +8,7 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Support\Mocks\StorageMock;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Enjin\Platform\Tests\TestCase;
 use Faker\Generator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 final class WalletTest extends TestCase
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksSocketClient;
     use RefreshDatabase;
 
     protected Substrate $blockchainService;
