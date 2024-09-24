@@ -6,7 +6,7 @@ use Codec\Base;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Exceptions\PlatformException;
@@ -409,7 +409,7 @@ class Encoder
                 return Metadata::v1012();
             }
 
-            $blockchain = new SubstrateWebsocket();
+            $blockchain = new SubstrateSocketClient();
             $response = $blockchain->send('state_getMetadata');
             $blockchain->close();
 

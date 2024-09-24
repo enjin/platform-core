@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Providers\Deferred;
 
 use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,7 +15,7 @@ class WebsocketClientProvider extends ServiceProvider implements DeferrableProvi
     public function register()
     {
         $map = [
-            chain()->value => SubstrateWebsocket::class,
+            chain()->value => SubstrateSocketClient::class,
         ];
 
         $driverKey = chain()->value;

@@ -4,7 +4,7 @@ namespace Enjin\Platform\Clients\Implementations;
 
 use Enjin\Platform\Clients\Abstracts\CachedHttpAbstract;
 
-class MetadataClient extends CachedHttpAbstract
+class MetadataHttpClient extends CachedHttpAbstract
 {
     /**
      * Get the data from the given url.

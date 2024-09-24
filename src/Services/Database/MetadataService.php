@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services\Database;
 
-use Enjin\Platform\Clients\Implementations\MetadataClient;
+use Enjin\Platform\Clients\Implementations\MetadataHttpClient;
 use Enjin\Platform\Models\Laravel\Attribute;
 
 class MetadataService
@@ -10,7 +10,7 @@ class MetadataService
     /**
      * Create a new instance.
      */
-    public function __construct(protected MetadataClient $client) {}
+    public function __construct(protected MetadataHttpClient $client) {}
 
     /**
      * Fetch the metadata from the attribute URL.

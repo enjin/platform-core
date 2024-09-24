@@ -14,7 +14,7 @@ use JsonException;
 
 use function Amp\Websocket\Client\connect;
 
-class AsyncWebsocket
+class AsyncSocketClient
 {
     /**
      * The host name.

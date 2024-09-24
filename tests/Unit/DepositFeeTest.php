@@ -7,7 +7,7 @@ use Enjin\Platform\Enums\Substrate\TransactionDeposit;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Enjin\Platform\Tests\TestCase;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
@@ -15,7 +15,7 @@ use Faker\Generator;
 class DepositFeeTest extends TestCase
 {
     use HasTransactionDeposit;
-    use MocksWebsocketClient;
+    use MocksHttpClient;
     protected static bool $initialized = false;
 
     protected function setUp(): void

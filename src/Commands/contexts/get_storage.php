@@ -2,7 +2,7 @@
 
 use Amp\Future;
 use Amp\Sync\Channel;
-use Enjin\Platform\Clients\Implementations\AsyncWebsocket;
+use Enjin\Platform\Clients\Implementations\AsyncSocketClient;
 use Illuminate\Support\Arr;
 
 use function Amp\async;
@@ -13,8 +13,8 @@ return function (Channel $channel): array {
     $blockHash = $receivedMessage[1];
     $nodeUrl = $receivedMessage[2];
 
-    $rpcKey = new AsyncWebsocket($nodeUrl);
-    $rpcStorage = new AsyncWebsocket($nodeUrl);
+    $rpcKey = new AsyncSocketClient($nodeUrl);
+    $rpcStorage = new AsyncSocketClient($nodeUrl);
 
     $total = 0;
     $storageValues = [];
