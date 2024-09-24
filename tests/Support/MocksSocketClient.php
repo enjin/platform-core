@@ -9,10 +9,7 @@ use WebSocket\Client;
 
 trait MocksSocketClient
 {
-    /**
-     * @throws \JsonException
-     */
-    protected function assertRpcResponseEquals(string $expected, string $actual)
+    protected function assertRpcResponseEquals(string $expected, string $actual): void
     {
         $expected = JSON::decode($expected, true, 512, JSON_THROW_ON_ERROR);
         unset($expected['id']);
@@ -40,7 +37,7 @@ trait MocksSocketClient
                 $mock->shouldReceive('send')
                     ->once()
                     ->with(Mockery::on(function ($rpcRequest) use ($expectedRpcRequest) {
-                        $this->assertRequestEquals($expectedRpcRequest, $rpcRequest);
+                        $this->assertRpcResponseEquals($expectedRpcRequest, $rpcRequest);
 
                         return true;
                     }));
@@ -54,9 +51,6 @@ trait MocksSocketClient
         });
     }
 
-    /**
-     * @throws \JsonException
-     */
     protected function mockWebsocketClientSequence(array $responseSequence): void
     {
         app()->bind(Client::class, function () use ($responseSequence) {
