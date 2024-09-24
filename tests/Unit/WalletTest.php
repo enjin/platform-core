@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Tests\Unit;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Support\SS58Address;
@@ -25,7 +25,7 @@ final class WalletTest extends TestCase
     {
         parent::setUp();
 
-        $ws = new SubstrateWebsocket('ws://localhost');
+        $ws = new SubstrateSocketClient('ws://localhost');
         $this->blockchainService = new Substrate($ws);
     }
 

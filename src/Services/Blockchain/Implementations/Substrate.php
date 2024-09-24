@@ -5,6 +5,7 @@ namespace Enjin\Platform\Services\Blockchain\Implementations;
 use Crypto\sr25519;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
@@ -27,6 +28,7 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
+use Exception;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -384,11 +386,12 @@ class Substrate implements BlockchainServiceInterface
             $wallet = WalletService::firstOrStore(['public_key' => SS58Address::getPublicKey($wallet)]);
         }
 
-        $accountInfo = Cache::remember(
-            PlatformCache::BALANCE->key($wallet->public_key),
-            now()->addSeconds(12),
-            fn () => $this->codec->decoder()->systemAccount($this->fetchSystemAccount($wallet->public_key))
-        );
+        try {
+            $storage = $this->fetchSystemAccount($wallet->public_key);
+            $accountInfo = $this->codec->decoder()->systemAccount($storage);
+        } catch (Exception) {
+            return $wallet;
+        }
 
         $wallet->nonce = Arr::get($accountInfo, 'nonce');
         $wallet->balances = Arr::get($accountInfo, 'balances');
@@ -417,7 +420,7 @@ class Substrate implements BlockchainServiceInterface
                 sodium_hex2bin(HexConverter::unPrefix($message)),
                 sodium_hex2bin(HexConverter::unPrefix($publicKey)),
             );
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -430,9 +433,10 @@ class Substrate implements BlockchainServiceInterface
         return Cache::remember(
             PlatformCache::SYSTEM_ACCOUNT->key($publicKey),
             now()->addSeconds(12),
-            fn () => $this->callMethod('state_getStorage', [
-                $this->codec->encoder()->systemAccountStorageKey($publicKey),
-            ])
+            fn () => (new SubstrateHttpClient())
+                ->jsonRpc('state_getStorage', [
+                    $this->codec->encoder()->systemAccountStorageKey($publicKey),
+                ])
         );
     }
 }

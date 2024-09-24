@@ -6,7 +6,7 @@ use Amp\Future;
 use Amp\Parallel\Context\ProcessContextFactory;
 use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -42,7 +42,7 @@ class Transactions extends Command
         $this->start = now();
     }
 
-    public function handle(SubstrateWebsocket $rpc): int
+    public function handle(SubstrateSocketClient $rpc): int
     {
         $fromBlock = $this->option('from');
         if (!$fromBlock) {

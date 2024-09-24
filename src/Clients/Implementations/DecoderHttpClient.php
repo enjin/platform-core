@@ -7,7 +7,7 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 
-class DecoderClient extends JsonHttpAbstract
+class DecoderHttpClient extends JsonHttpAbstract
 {
     /**
      * Get the http client instance.
