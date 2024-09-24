@@ -8,7 +8,7 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Support\Mocks\StorageMock;
-use Enjin\Platform\Tests\Support\MocksSocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Enjin\Platform\Tests\TestCase;
 use Faker\Generator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 final class WalletTest extends TestCase
 {
     use ArraySubsetAsserts;
-    use MocksSocketClient;
+    use MocksHttpClient;
     use RefreshDatabase;
 
     protected Substrate $blockchainService;
@@ -38,7 +38,7 @@ final class WalletTest extends TestCase
 
     public function test_it_returns_a_zero_balance_if_no_saved_wallet_and_no_storage_for_the_address()
     {
-        $this->mockWebsocketClientSequence([
+        $this->mockHttpClientSequence([
             StorageMock::null_account_storage(),
         ]);
 
@@ -62,7 +62,7 @@ final class WalletTest extends TestCase
 
     public function test_it_returns_zero_balance_when_there_is_a_saved_wallet_and_no_storage()
     {
-        $this->mockWebsocketClientSequence([
+        $this->mockHttpClientSequence([
             StorageMock::null_account_storage(),
         ]);
 
@@ -95,7 +95,7 @@ final class WalletTest extends TestCase
 
     public function test_it_returns_a_balance_when_no_saved_wallet_and_has_storage()
     {
-        $this->mockWebsocketClientSequence([
+        $this->mockHttpClientSequence([
             StorageMock::account_with_balance(),
         ]);
 
@@ -119,7 +119,7 @@ final class WalletTest extends TestCase
 
     public function test_it_returns_a_balance_when_there_is_saved_wallet_and_has_storage()
     {
-        $this->mockWebsocketClientSequence([
+        $this->mockHttpClientSequence([
             StorageMock::account_with_balance(),
         ]);
 

@@ -13,14 +13,14 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksSocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
 class TransferAllowDeathTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksSocketClient;
+    use MocksHttpClient;
 
     protected string $method = 'TransferAllowDeath';
     protected Codec $codec;

@@ -21,7 +21,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksSocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Event;
 class SimpleTransferTokenTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksSocketClient;
+    use MocksHttpClient;
 
     protected string $method = 'SimpleTransferToken';
     protected Codec $codec;

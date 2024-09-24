@@ -151,9 +151,10 @@ class Substrate implements BlockchainServiceInterface
     {
         return Cache::remember(PlatformCache::FEE->key($call), now()->addWeek(), function () use ($call) {
             $extrinsic = $this->codec->encoder()->addFakeSignature($call);
-            $result = $this->callMethod('payment_queryFeeDetails', [
-                $extrinsic,
-            ]);
+            $result = (new SubstrateHttpClient())
+                ->jsonRpc('payment_queryFeeDetails', [
+                    $extrinsic,
+                ]);
 
             $baseFee = gmp_init(Arr::get($result, 'inclusionFee.baseFee'));
             $lenFee = gmp_init(Arr::get($result, 'inclusionFee.lenFee'));

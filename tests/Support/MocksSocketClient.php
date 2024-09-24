@@ -9,25 +9,6 @@ use WebSocket\Client;
 
 trait MocksSocketClient
 {
-    protected function mockFee(array $mockedFee): void
-    {
-        $this->mockWebsocketClient(
-            'payment_queryFeeDetails',
-            [],
-            json_encode(
-                [
-                    'jsonrpc' => '2.0',
-                    'result' => [
-                        'inclusionFee' => $mockedFee,
-                    ],
-                    'id' => 1,
-                ],
-                JSON_THROW_ON_ERROR
-            ),
-            true,
-        );
-    }
-
     /**
      * @throws \JsonException
      */
@@ -45,7 +26,7 @@ trait MocksSocketClient
     /**
      * @throws \JsonException
      */
-    private function mockWebsocketClient(string $method, array $params, string $responseJson, bool $anyParam = false): void
+    protected function mockWebsocketClient(string $method, array $params, string $responseJson, bool $anyParam = false): void
     {
         $expectedRpcRequest = Util::createJsonRpc($method, $params);
 
@@ -76,7 +57,7 @@ trait MocksSocketClient
     /**
      * @throws \JsonException
      */
-    private function mockWebsocketClientSequence(array $responseSequence): void
+    protected function mockWebsocketClientSequence(array $responseSequence): void
     {
         app()->bind(Client::class, function () use ($responseSequence) {
             $mock = Mockery::mock(Client::class);
