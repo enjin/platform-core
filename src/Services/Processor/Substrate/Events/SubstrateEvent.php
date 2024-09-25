@@ -26,7 +26,12 @@ abstract class SubstrateEvent
 {
     protected array $extra = [];
 
-    public function __construct(protected Event $event, protected Block $block, protected Codec $codec, protected SyncableService $syncableService) {}
+    protected $syncableService;
+
+    public function __construct(protected Event $event, protected Block $block, protected Codec $codec)
+    {
+        $this->syncableService = app()->make(SyncableService::class);
+    }
 
     public function __destruct()
     {
