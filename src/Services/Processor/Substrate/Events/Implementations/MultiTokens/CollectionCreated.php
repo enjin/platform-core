@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Cache;
 use Carbon\Carbon;
+use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated as CollectionCreatedEvent;
 use Enjin\Platform\Models\Laravel\Collection;
@@ -103,6 +104,8 @@ class CollectionCreated extends SubstrateEvent
             'total_deposit' => '25000000000000000000',
             'network' => network()->name,
         ]);
+
+        $this->syncableService->updateOrInsert($this->collectionCreated->collection_chain_id, ModelType::COLLECTION);
 
         $this->collectionRoyaltyCurrencies($this->collectionCreated->id, Arr::get($params, 'descriptor.explicit_royalty_currencies'));
     }

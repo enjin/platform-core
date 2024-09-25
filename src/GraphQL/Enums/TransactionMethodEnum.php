@@ -24,7 +24,7 @@ class TransactionMethodEnum extends EnumType implements PlatformGraphQlEnum
 
         return [
             'name' => 'TransactionMethod',
-            'values' => $mutationNames->toArray(),
+            'values' => $mutationNames->sort()->toArray(),
             'description' => __('enjin-platform::enum.transaction_method.description'),
         ];
     }
