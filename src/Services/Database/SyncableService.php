@@ -63,7 +63,7 @@ class SyncableService
     }
 
     /**
-     * Delete a syncable.
+     * Delete syncables.
      */
     public function delete(array $ids, ModelType $modelType): void
     {
