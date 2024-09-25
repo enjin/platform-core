@@ -63,6 +63,20 @@ class SyncableService
     }
 
     /**
+     * Delete a syncable.
+     */
+    public function delete(array $ids, ModelType $modelType): void
+    {
+        Syncable::query()->whereIn(
+            'syncable_id',
+            $ids
+        )->where(
+            'syncable_type',
+            $modelType->value
+        )->get()->each(fn ($syncable) => $syncable->delete());
+    }
+
+    /**
      * Sync a model right away.
      */
     public function hotSync(int|string $modelId, ModelType $modelType): void
