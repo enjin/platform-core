@@ -8,12 +8,7 @@ use Throwable;
 
 class Processor
 {
-    protected DecoderService $decoder;
-
-    public function __construct()
-    {
-        $this->decoder = new DecoderService();
-    }
+    public function __construct(protected DecoderService $decoder) {}
 
     public function withMetadata(string $type, string|array $bytes, int $blockNumber): null|array|PolkadartExtrinsic
     {

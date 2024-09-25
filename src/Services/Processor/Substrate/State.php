@@ -19,7 +19,7 @@ class State
 {
     protected SubstrateSocketClient $client;
 
-    public function __construct()
+    public function __construct(protected Processor $processor)
     {
         $this->client = new SubstrateSocketClient();
     }
@@ -39,7 +39,7 @@ class State
             return $extrinsics;
         }
 
-        $extrinsics = (new Processor())->withMetadata(
+        $extrinsics = $this->processor->withMetadata(
             'Extrinsics',
             JSON::decode($block['extrinsics']),
             $block['number'],
@@ -66,7 +66,7 @@ class State
             return $events;
         }
 
-        $events = (new Processor())->withMetadata(
+        $events = $this->processor->withMetadata(
             'Vec<EventRecord>',
             $block['events'],
             $block['number'],
