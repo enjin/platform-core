@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Database;
 
 use Enjin\Platform\Enums\Global\ModelType;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Jobs\HotSync;
 use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -68,7 +69,7 @@ class SyncableService
     {
         match ($modelType) {
             ModelType::COLLECTION => $storageKeys = Substrate::getStorageKeysForCollectionId($modelId),
-            default => throw new \InvalidArgumentException('Invalid model type.'),
+            default => throw new PlatformException(__('errors.syncable_model_not_supported', ['modelType' => $modelType->name])),
         };
 
         HotSync::dispatch($storageKeys);
