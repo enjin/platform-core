@@ -33,16 +33,15 @@ class RelayWatcher extends Command
     protected Codec $codec;
 
     protected Substrate $rpc;
-    protected DecoderService $decoder;
 
-    public function __construct()
+    public function __construct(protected DecoderService $decoder)
     {
         parent::__construct();
 
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->codec = new Codec();
         $this->rpc = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
-        $this->decoder = new DecoderService(network: currentRelay()->value);
+        $this->decoder->setNetwork(currentRelay()->value);
     }
 
     public function handle(): int
