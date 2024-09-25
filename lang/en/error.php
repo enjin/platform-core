@@ -41,6 +41,7 @@ return [
     'skip_validation_field_not_found' => 'When using HasSkippableRules trait, you must provide a skipValidation field.',
     'supply_cap_must_be_greater_than_initial' => 'Supply CAP amount must be greater than or equal to initial supply.',
     'supply_cap_must_be_set' => 'Supply CAP amount must be set when using Supply CAP.',
+    'syncable_model_not_supported' => 'The :modelType model type is not supported for syncing.',
     'there_can_only_one_input_name' => 'There can be only one input field named ":name".',
     'token_id_encoder.encoder_config_not_defined' => 'The encoder config is not defined.',
     'token_id_encoder.encoder_not_supported' => 'Encoder [:driverClass] is not supported.',

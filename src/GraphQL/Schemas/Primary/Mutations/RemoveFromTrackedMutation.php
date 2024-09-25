@@ -7,9 +7,9 @@ use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasContextSensitiveRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Services\Database\SyncableService;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -67,15 +67,9 @@ class RemoveFromTrackedMutation extends Mutation implements PlatformGraphQlMutat
     /**
      * Resolve the mutation's request.
      */
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, SyncableService $syncableService): mixed
     {
-        Syncable::query()->whereIn(
-            'syncable_id',
-            $args['chainIds']
-        )->where(
-            'syncable_type',
-            ModelType::getEnumCase($args['type'])->value
-        )->get()->each(fn ($syncable) => $syncable->delete());
+        $syncableService->delete($args['chainIds'], ModelType::getEnumCase($args['type']));
 
         return true;
     }

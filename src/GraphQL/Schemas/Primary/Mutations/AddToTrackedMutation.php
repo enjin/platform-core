@@ -7,10 +7,10 @@ use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasContextSensitiveRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Database\CollectionService;
+use Enjin\Platform\Services\Database\SyncableService;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -73,28 +73,19 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
     /**
      * Resolve the mutation's request.
      */
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, CollectionService $collectionService): mixed
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, CollectionService $collectionService, SyncableService $syncableService): mixed
     {
-        collect($args['chainIds'])->each(function ($id) use ($args, $collectionService): void {
-            $syncable = Syncable::withTrashed()->where([
-                'syncable_id' => $id,
-                'syncable_type' => ModelType::getEnumCase($args['type'])->value,
-            ])->first();
+        collect($args['chainIds'])->each(function ($id) use ($args, $syncableService): void {
+            $syncable = $syncableService->getWithTrashed($id, ModelType::getEnumCase($args['type']));
 
             if ($syncable && $syncable->trashed()) {
                 $syncable->restore();
             } else {
-                Syncable::query()->updateOrInsert(
-                    ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
-                    ['syncable_id' => $id, 'syncable_type' => ModelType::getEnumCase($args['type'])->value],
-                );
+                $syncableService->updateOrInsert($id, ModelType::getEnumCase($args['type']));
             }
 
             if ($args['hotSync']) {
-                match (ModelType::getEnumCase($args['type'])) {
-                    ModelType::COLLECTION => $collectionService->hotSync($id),
-                    default => null,
-                };
+                $syncableService->hotSync($id, ModelType::getEnumCase($args['type']));
             }
         });
 
