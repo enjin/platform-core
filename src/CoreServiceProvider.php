@@ -108,9 +108,9 @@ class CoreServiceProvider extends PackageServiceProvider
         Builder::macro('cursorPaginateWithTotal', function ($order, $limit, $cache = true) {
             if ($cache) {
                 $totalCount = (int) Cache::remember(
-                    $this->toSql(),
+                    $this->toRawSql(),
                     6,
-                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toSql()))->get(fn () => $this->count())
+                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toRawSql()))->get(fn () => $this->count())
                 );
             }
 
@@ -123,9 +123,9 @@ class CoreServiceProvider extends PackageServiceProvider
         Builder::macro('cursorPaginateWithTotalDesc', function ($order, $limit, $cache = true) {
             if ($cache) {
                 $totalCount = (int) Cache::remember(
-                    $this->toSql(),
+                    $this->toRawSql(),
                     6,
-                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toSql()))->get(fn () => $this->count())
+                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toRawSql()))->get(fn () => $this->count())
                 );
             }
 
