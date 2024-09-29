@@ -80,7 +80,8 @@ class EncodingTest extends TestCase
         $era = '00';
         $nonce = '00';
         $tip = '00';
-        $length = $this->codec->encoder()->sequenceLength(($fakeInfo = '0x' . $extraByte . $signed . $signature . $era . $nonce . $tip) . HexConverter::unPrefix($call));
+        $mode = '00';
+        $length = $this->codec->encoder()->sequenceLength(($fakeInfo = '0x' . $extraByte . $signed . $signature . $era . $nonce . $tip . $mode) . HexConverter::unPrefix($call));
 
         $this->assertEquals($length, substr($data, 0, 6));
         $this->assertEquals(HexConverter::unPrefix($call), substr($data, strlen('0x' . HexConverter::unPrefix($length) . HexConverter::unPrefix($fakeInfo))));
