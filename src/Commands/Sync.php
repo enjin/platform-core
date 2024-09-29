@@ -128,7 +128,7 @@ class Sync extends Command
                 $storage[2]
             ));
         }
-        $this->info(__('enjin-platform::commands.sync.total_time', ['sec' => now()->diffInMilliseconds($this->start) / 1000]));
+        $this->info(__('enjin-platform::commands.sync.total_time', ['sec' => $this->start->diffInMilliseconds(now()) / 1000]));
         $this->info('=======================================================');
     }
 
