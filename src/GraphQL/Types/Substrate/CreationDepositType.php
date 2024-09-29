@@ -30,7 +30,7 @@ class CreationDepositType extends Type implements PlatformGraphQlType
         return [
             // Properties
             'depositor' => [
-                'type' => GraphQL::type('Wallet!'),
+                'type' => GraphQL::type('Wallet'),
                 'description' => __('enjin-platform::type.creation_deposit.description'),
             ],
             'amount' => [

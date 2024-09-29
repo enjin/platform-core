@@ -87,6 +87,52 @@ class TokenType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.token.field.attributeCount'),
                 'alias' => 'attribute_count',
             ],
+            'requiresDeposit' => [
+                'type' => GraphQL::type('Boolean!'),
+                'description' => __('enjin-platform::type.token.field.requiresDeposit'),
+                'alias' => 'requires_deposit',
+            ],
+            'creationDeposit' => [
+                'type' => GraphQL::type('CreationDeposit!'),
+                'description' => __('enjin-platform::type.collection_type.field.creationDeposit'),
+                'resolve' => fn ($token) => [
+                    'depositor' => $token->creationDepositor,
+                    'amount' => $token->creation_deposit_amount,
+                ],
+                'is_relation' => false,
+                'selectable' => false,
+            ],
+            'ownerDeposit' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.token.field.ownerDeposit'),
+                'alias' => 'owner_deposit',
+            ],
+            'totalTokenAccountDeposit' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.token.field.totalTokenAccountDeposit'),
+                'alias' => 'total_token_account_deposit',
+            ],
+            'infusion' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.token.field.infusion'),
+                'alias' => 'infusion',
+            ],
+            'anyoneCanInfuse' => [
+                'type' => GraphQL::type('Boolean!'),
+                'description' => __('enjin-platform::type.token.field.anyoneCanInfuse'),
+                'alias' => 'anyone_can_infuse',
+            ],
+            'tokenMetadata' => [
+                'type' => GraphQL::type('TokenMetadata!'),
+                'description' => __('enjin-platform::type.collection_type.field.tokenMetadata'),
+                'resolve' => fn ($token) => [
+                    'name' => $token->name,
+                    'symbol' => $token->symbol,
+                    'decimalCount' => $token->decimal_count,
+                ],
+                'is_relation' => false,
+                'selectable' => false,
+            ],
 
             // Related
             'collection' => [

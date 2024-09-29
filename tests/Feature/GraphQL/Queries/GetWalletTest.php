@@ -340,8 +340,6 @@ class GetWalletTest extends TestCaseGraphQL
                                             'cap' => $this->token->cap,
                                             'capSupply' => $this->token->cap_supply,
                                             'isFrozen' => $this->token->is_frozen,
-                                            'minimumBalance' => $this->token->minimum_balance,
-                                            'unitPrice' => $this->token->unit_price,
                                             'attributeCount' => $this->token->attribute_count,
                                             'collection' => [
                                                 'collectionId' => $this->collection->collection_chain_id,
