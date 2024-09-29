@@ -43,7 +43,14 @@ class MintPolicyInputType extends InputType implements PlatformGraphQlType
             ],
             'forceCollapsingSupply' => [
                 'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::input_type.mint_policy.field.forceCollapsingSupply'),
+                'defaultValue' => false,
+            ],
+            // Deprecated
+            'forceSingleMint' => [
+                'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::input_type.mint_policy.field.forceSingleMint'),
+                'deprecationReason' => __('enjin-platform::deprecated.mint_policy.field.forceSingleMint'),
                 'defaultValue' => false,
             ],
         ];

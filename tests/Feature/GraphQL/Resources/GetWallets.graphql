@@ -265,7 +265,7 @@ query GetWallets(
               collectionId
               maxTokenCount
               maxTokenSupply
-              forceSingleMint
+              forceCollapsingSupply
               network
               owner {
                 account {

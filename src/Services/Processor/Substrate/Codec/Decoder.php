@@ -192,13 +192,13 @@ class Decoder
 
     public function collectionStorageData(string $data): array
     {
-        $decoded = $this->codec->process('CollectionStorageDataV1010', new ScaleBytes($data));
+        $decoded = $this->codec->process('CollectionStorageData', new ScaleBytes($data));
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
             'maxTokenCount' => ($value = Arr::get($decoded, 'policy.mint.maxTokenCount')) !== null ? gmp_strval($value) : null,
             'maxTokenSupply' => ($value = Arr::get($decoded, 'policy.mint.maxTokenSupply')) !== null ? gmp_strval($value) : null,
-            'forceSingleMint' => $this->getValue($decoded, ['forceSingleMint', 'forceCollapsingSupply'], 'policy.mint'),
+            'forceCollapsingSupply' => Arr::get($decoded, 'policy.mint.forceCollapsingSupply'),
             'burn' => Arr::get($decoded, 'policy.burn'),
             'isFrozen' => Arr::get($decoded, 'policy.transfer.isFrozen'),
             'royaltyBeneficiary' => ($beneficiary = Arr::get($decoded, 'policy.market.royalty.beneficiary')) !== null ? HexConverter::prefix($beneficiary) : null,
@@ -206,7 +206,10 @@ class Decoder
             'attribute' => Arr::get($decoded, 'policy.attribute'),
             'tokenCount' => gmp_strval(Arr::get($decoded, 'tokenCount')),
             'attributeCount' => gmp_strval(Arr::get($decoded, 'attributeCount')),
+            'creationDepositor' => HexConverter::prefix(Arr::get($decoded, 'creationDeposit.depositor')),
+            'creationDepositAmount' => gmp_strval(Arr::get($decoded, 'creationDeposit.amount')),
             'totalDeposit' => gmp_strval(Arr::get($decoded, 'totalDeposit')),
+            'totalInfusion' => gmp_strval(Arr::get($decoded, 'totalInfusion')),
             'explicitRoyaltyCurrencies' => Arr::get($decoded, 'explicitRoyaltyCurrencies'),
         ];
     }
