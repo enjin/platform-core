@@ -52,10 +52,10 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.collection_type.field.maxTokenSupply'),
                 'alias' => 'max_token_supply',
             ],
-            'forceSingleMint' => [
-                'type' => GraphQL::type('Boolean'),
-                'description' => __('enjin-platform::type.collection_type.field.forceSingleMint'),
-                'alias' => 'force_single_mint',
+            'forceCollapsingSupply' => [
+                'type' => GraphQL::type('Boolean!'),
+                'description' => __('enjin-platform::type.collection_type.field.forceCollapsingSupply'),
+                'alias' => 'force_collapsing_supply',
             ],
             'frozen' => [
                 'type' => GraphQL::type('Boolean'),
@@ -78,6 +78,26 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'is_relation' => false,
                 'selectable' => false,
                 'always' => ['royalty_wallet_id', 'royalty_percentage'],
+            ],
+            'totalDeposit' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.collection_type.field.totalDeposit'),
+                'alias' => 'total_deposit',
+            ],
+            'totalInfusion' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.collection_type.field.totalInfusion'),
+                'alias' => 'total_infusion',
+            ],
+            'creationDeposit' => [
+                'type' => GraphQL::type('CreationDeposit!'),
+                'description' => __('enjin-platform::type.collection_type.field.creationDeposit'),
+                'resolve' => fn ($collection) => [
+                    'depositor' => $collection->creationDepositor,
+                    'amount' => $collection->creation_deposit_amount,
+                ],
+                'is_relation' => false,
+                'selectable' => false,
             ],
             'network' => [
                 'type' => GraphQL::type('String!'),
@@ -124,6 +144,15 @@ class CollectionType extends Type implements PlatformGraphQlType
                     'total' => (int) $collection?->tokens_count,
                 ],
                 'is_relation' => true,
+            ],
+
+            // Deprecated
+            'forceSingleMint' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::type.collection_type.field.forceSingleMint'),
+                'deprecationReason' => __('enjin-platform::deprecated.collection_type.field.forceSingleMint'),
+                'alias' => 'force_collapsing_supply',
+                'selectable' => false,
             ],
         ];
     }

@@ -57,7 +57,7 @@ class BatchMintTest extends TestCaseGraphQL
             'owner_wallet_id' => $this->wallet = Account::daemon(),
             'max_token_supply' => null,
             'max_token_count' => 100,
-            'force_single_mint' => false,
+            'force_collapsing_supply' => false,
         ])->create();
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $this->collection,

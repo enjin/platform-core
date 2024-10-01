@@ -290,7 +290,7 @@ class GetWalletTest extends TestCaseGraphQL
                             'collectionId' => $this->collection->collection_chain_id,
                             'maxTokenCount' => $this->collection->max_token_count,
                             'maxTokenSupply' => $this->collection->max_token_supply,
-                            'forceSingleMint' => $this->collection->force_single_mint,
+                            'forceCollapsingSupply' => $this->collection->force_collapsing_supply,
                             'network' => $this->collection->network,
                             'owner' => [
                                 'account' => [
@@ -447,7 +447,7 @@ class GetWalletTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'maxTokenCount' => $this->collection->max_token_count,
             'maxTokenSupply' => $this->collection->max_token_supply,
-            'forceSingleMint' => $this->collection->force_single_mint,
+            'forceCollapsingSupply' => $this->collection->force_collapsing_supply,
             'network' => $this->collection->network,
         ], $response['ownedCollections']['edges'][0]['node']);
     }
