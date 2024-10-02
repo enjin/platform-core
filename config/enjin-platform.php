@@ -291,4 +291,16 @@ return [
         'attempts' => env('RATE_LIMIT_ATTEMPTS', 500),
         'time' => env('RATE_LIMIT_TIME', 1), // minutes
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Attribute metadata syncing
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure how the attribute metadata is synced
+    |
+    */
+    'sync_metadata' => [
+        'data_chunk_size' => env('SYNC_METADATA_CHUNK_SIZE', 10000),
+    ],
 ];

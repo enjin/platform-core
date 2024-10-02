@@ -136,7 +136,7 @@ class Token extends BaseModel
             get: fn () => $this->attributes['fetch_metadata'] ?? false,
             set: function ($value): void {
                 if ($value === true) {
-                    $this->attributes['metadata'] = MetadataService::fetch($this->getRelation('attributes')->first());
+                    $this->attributes['metadata'] = MetadataService::getCache($this->getRelation('attributes')->first());
                 }
                 $this->attributes['fetch_metadata'] = $value;
             }
@@ -154,7 +154,7 @@ class Token extends BaseModel
                 if ($tokenUriAttribute) {
                     $tokenUriAttribute->value = Hex::safeConvertToString($tokenUriAttribute->value);
                 }
-                $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::fetch($tokenUriAttribute);
+                $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::getCache($tokenUriAttribute);
 
                 if (!$fetchedMetadata) {
                     $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
@@ -166,7 +166,7 @@ class Token extends BaseModel
                         $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
                     }
 
-                    $fetchedMetadata = MetadataService::fetch($collectionUriAttribute);
+                    $fetchedMetadata = MetadataService::getCache($collectionUriAttribute);
                 }
 
                 return $fetchedMetadata;

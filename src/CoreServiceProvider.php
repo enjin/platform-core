@@ -6,6 +6,7 @@ use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\RelayWatcher;
 use Enjin\Platform\Commands\Sync;
+use Enjin\Platform\Commands\SyncAttributeMetadata;
 use Enjin\Platform\Commands\TransactionChecker;
 use Enjin\Platform\Commands\Transactions;
 use Enjin\Platform\Enums\Global\PlatformCache;
@@ -78,6 +79,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasCommand(ClearCache::class)
             ->hasCommand(TransactionChecker::class)
             ->hasCommand(RelayWatcher::class)
+            ->hasCommand(SyncAttributeMetadata::class)
             ->hasTranslations();
     }
 
