@@ -124,7 +124,7 @@ class TokenType extends Type implements PlatformGraphQlType
             ],
             'tokenMetadata' => [
                 'type' => GraphQL::type('TokenMetadata!'),
-                'description' => __('enjin-platform::type.collection_type.field.tokenMetadata'),
+                'description' => __('enjin-platform::type.token.field.tokenMetadata'),
                 'resolve' => fn ($token) => [
                     'name' => $token->name,
                     'symbol' => $token->symbol,
