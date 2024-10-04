@@ -41,6 +41,7 @@ class SyncAttributeMetadata extends Command
             config('enjin-platform.sync_metadata.data_chunk_size'),
             function ($attributes) use ($progress, $service): void {
                 $attributes->each(function (Attribute $attribute) use ($progress, $service): void {
+                    $attribute->value = HexConverter::hexToString($attribute->value);
                     $service->fetchAndCache($attribute);
                     $progress->advance(1);
                 });

@@ -29,10 +29,14 @@ class MetadataService
         return $response ?: null;
     }
 
-    public function fetchAndCache(?Attribute $attribute): mixed
+    public function fetchAndCache(?Attribute $attribute, bool $forget = true): mixed
     {
         if (!filter_var($attribute?->value, FILTER_VALIDATE_URL)) {
             return null;
+        }
+
+        if ($forget) {
+            Cache::forget($this->cacheKey($attribute->value));
         }
 
         return Cache::rememberForever(
@@ -47,7 +51,7 @@ class MetadataService
             return null;
         }
 
-        return Cache::get($this->cacheKey($attribute->value), $this->fetchAndCache($attribute));
+        return Cache::get($this->cacheKey($attribute->value), $this->fetchAndCache($attribute, false));
     }
 
     protected function cacheKey(string $suffix): string
