@@ -20,6 +20,14 @@ trait Token
     }
 
     /**
+     * The creation depositor relationship.
+     */
+    public function creationDepositor(): BelongsTo
+    {
+        return $this->belongsTo(Wallet::class, 'creation_depositor');
+    }
+
+    /**
      * The royalty benificiary relationship.
      */
     public function royaltyBeneficiary(): BelongsTo

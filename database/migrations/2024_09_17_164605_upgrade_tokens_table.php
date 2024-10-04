@@ -11,21 +11,28 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('tokens', function (Blueprint $table) {
+            // New fields
             $table->boolean('requires_deposit')->default(true)->after('is_frozen');
-            // Creation deposit
-            $table->string('creation_depositor')->nullable()->after('requires_deposit');
+            $table->foreignId('creation_depositor')
+                ->nullable()
+                ->index()
+                ->after('requires_deposit')
+                ->constrained('wallets')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->string('creation_deposit_amount')->default('0')->after('creation_depositor');
-            // Others
             $table->string('owner_deposit')->default('0')->after('creation_deposit_amount');
             $table->string('total_token_account_deposit')->default('0')->after('owner_deposit');
-            $table->integer('attribute_count')->default(0)->after('total_token_account_deposit')->change();
             $table->integer('account_count')->default(0)->after('attribute_count');
             $table->string('infusion')->default('0')->after('account_count');
             $table->boolean('anyone_can_infuse')->default(false)->after('infusion');
-            // Metadata
             $table->integer('decimal_count')->default(0)->after('anyone_can_infuse');
             $table->string('name')->nullable()->after('decimal_count');
             $table->string('symbol')->nullable()->after('name');
+
+            // Changes
+            $table->integer('attribute_count')->default(0)->after('total_token_account_deposit')->change();
+
             // Not used anymore
             $table->dropColumn('unit_price');
             $table->dropColumn('minimum_balance');

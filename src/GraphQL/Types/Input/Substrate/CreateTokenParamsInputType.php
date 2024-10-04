@@ -84,7 +84,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
                 'defaultValue' => false,
             ],
             'metadata' => [
-                'type' => GraphQL::type('MetadataInput'),
+                'type' => GraphQL::type('TokenMetadataInput'),
                 'description' => __('enjin-platform::input_type.create_token_params.field.metadata'),
                 'defaultValue' => null,
             ],

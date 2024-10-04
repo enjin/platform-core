@@ -226,13 +226,12 @@ class Decoder
 
     public function tokenStorageData(string $data): array
     {
-        $decoded = $this->codec->process('TokenStorageDataV1010', new ScaleBytes($data));
+        $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
 
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first());
         $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
         $isCurrency = Arr::exists(Arr::get($decoded, 'marketBehavior') ?: [], 'IsCurrency');
         $isFrozen = in_array(Arr::get($decoded, 'freezeState'), ['Permanent', 'Temporary']);
-        $unitPrice = Arr::get($decoded, 'sufficiency.Insufficient');
 
         return [
             'supply' => gmp_strval(Arr::get($decoded, 'supply')),
@@ -243,18 +242,18 @@ class Decoder
             'royaltyPercentage' => ($percentage = Arr::get($decoded, 'marketBehavior.HasRoyalty.percentage')) !== null ? $percentage / 10 ** 7 : null,
             'isCurrency' => $isCurrency,
             'listingForbidden' => Arr::get($decoded, 'listingForbidden'),
-            'minimumBalance' => gmp_strval(Arr::get($decoded, 'minimumBalance')),
-            // TODO: unitPrice and mintDeposit don't exists anymore on v1010
-            'unitPrice' => gmp_strval($unitPrice),
-            'mintDeposit' => gmp_strval(Arr::get($decoded, 'mintDeposit')),
             'attributeCount' => gmp_strval(Arr::get($decoded, 'attributeCount')),
-            // TODO: Implement new v1010 fields
-            //            'requiresDeposit' => Arr::get($decoded, 'requiresDeposit'),
-            //            'creationDepositDepositor' => Arr::get($decoded, 'creationDeposit.depositor'),
-            //            'creationDepositAmount' => gmp_strval(Arr::get($decoded, 'creationDeposit.amount')),
-            //            'ownerDeposit' => gmp_strval(Arr::get($decoded, 'ownerDeposit')),
-            //            'infusion' => gmp_strval(Arr::get($decoded, 'infusion')),
-            //            'anyoneCanInfuse' => Arr::get($decoded, 'anyoneCanInfuse'),
+            'accountCount' => gmp_strval(Arr::get($decoded, 'accountCount')),
+            'requiresDeposit' => Arr::get($decoded, 'requiresDeposit'),
+            'creationDepositor' => ($depositor = Arr::get($decoded, 'creationDeposit.depositor')) !== null ? HexConverter::prefix($depositor) : null,
+            'creationDepositAmount' => gmp_strval(Arr::get($decoded, 'creationDeposit.amount')),
+            'ownerDeposit' => gmp_strval(Arr::get($decoded, 'ownerDeposit')),
+            'totalTokenAccountDeposit' => gmp_strval(Arr::get($decoded, 'totalTokenAccountDeposit')),
+            'infusion' => gmp_strval(Arr::get($decoded, 'infusion')),
+            'anyoneCanInfuse' => Arr::get($decoded, 'anyoneCanInfuse'),
+            'decimalCount' => gmp_strval(Arr::get($decoded, 'metadata.decimalCount')),
+            'name' => Arr::get($decoded, 'metadata.name'),
+            'symbol' => Arr::get($decoded, 'metadata.symbol'),
         ];
 
     }

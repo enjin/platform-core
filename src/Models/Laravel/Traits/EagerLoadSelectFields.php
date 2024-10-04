@@ -130,12 +130,18 @@ trait EagerLoadSelectFields
     ): array {
         $fields = Arr::get($selections, $attribute, $selections);
         $hasBeneficiary = (bool) Arr::get($fields, 'royalty.fields.beneficiary');
+        $hasDepositor = (bool) Arr::get($fields, 'creationDeposit.fields.depositor');
         $select = array_filter([
             'id',
             'collection_id',
             ...(isset($fields['nonFungible']) ? ['is_currency', 'supply', 'cap', 'cap_supply'] : []),
             $hasBeneficiary ? 'royalty_wallet_id' : null,
+            $hasDepositor ? 'creation_depositor' : null,
             Arr::get($fields, 'royalty.fields.percentage') ? 'royalty_percentage' : null,
+            Arr::get($fields, 'creationDeposit.fields.amount') ? 'creation_deposit_amount' : null,
+            Arr::get($fields, 'tokenMetadata.fields.name') ? 'name' : null,
+            Arr::get($fields, 'tokenMetadata.fields.symbol') ? 'symbol' : null,
+            Arr::get($fields, 'tokenMetadata.fields.decimalCount') ? 'decimal_count' : null,
             ...TokenType::getSelectFields($fieldKeys = array_keys($fields)),
         ]);
 

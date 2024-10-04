@@ -7,22 +7,46 @@
     "hashTokenId": "u128",
     "tokenId": "u128"
   },
+  "FreezeState": {
+    "_enum": [
+      "Permanent",
+      "Temporary",
+      "Never"
+    ]
+  },
+  "ForeignTokenMetadata": {
+    "decimalCount": "Compact<u32>",
+    "name": "Bytes",
+    "symbol": "Bytes",
+    "location": "Option<XcmV1MultiLocation>"
+   },
   "TokenStorageData": {
     "supply": "Compact<u128>",
     "cap": "Option<TokenCap>",
     "freezeState": "Option<FreezeState>",
-    "minimumBalance": "Compact",
-    "sufficiency": "Sufficiency",
-    "mintDeposit": "Compact",
-    "attributeCount": "Compact",
+    "requiresDeposit": "bool",
+    "creationDeposit": "TokenCreationDeposit",
+    "ownerDeposit": "Compact<u128>",
+    "totalTokenAccountDeposit": "Compact<u128>",
+    "attributeCount": "Compact<u32>",
+    "accountCount": "Compact<u32>",
     "marketBehavior": "Option<TokenMarketBehavior>",
     "listingForbidden": "bool",
-    "metadata": "TokenMetadata"
+    "metadata": "TokenMetadata",
+    "infusion": "u128",
+    "anyoneCanInfuse": "bool",
+    "groups": "Vec<u128>"
   },
-  "Sufficiency": {
+  "TokenMetadata": {
+    "decimalCount": "u8",
+    "name": "Bytes",
+    "symbol": "Bytes",
+    "foreign": "Option<XcmV1MultiLocation>"
+  },
+  "TokenCap": {
     "_enum": {
-      "Sufficient": "Null",
-      "Insufficient": "Compact<u128>"
+      "Supply": "Compact<u128>",
+      "CollapsingSupply": "Compact<u128>"
     }
   },
   "TokenMarketBehavior": {
@@ -31,61 +55,7 @@
       "IsCurrency": "Null"
     }
   },
-  "FreezeState": {
-    "_enum": [
-      "Permanent",
-      "Temporary",
-      "Never"
-    ]
-  },
-  "TokenMetadata": {
-    "_enum": {
-      "Native": "Null",
-      "Foreign": "ForeignTokenMetadata"
-    }
-  },
-  "ForeignTokenMetadata": {
-    "decimalCount": "Compact<u32>",
-    "name": "Bytes",
-    "symbol": "Bytes",
-    "location": "Option<XcmV1MultiLocation>"
-   },
-  "TokenStorageDataV1010": {
-    "supply": "Compact<u128>",
-    "cap": "Option<TokenCapV1010>",
-    "freezeState": "Option<FreezeState>",
-    "requiresDeposit": "bool",
-    "creationDeposit": "TokenCreationDeposit",
-    "ownerDeposit": "Compact<u128>",
-    "totalTokenAccountDeposit": "Compact<u128>",
-    "attributeCount": "Compact<u32>",
-    "accountCount": "Compact<u32>",
-    "marketBehavior": "Option<TokenMarketBehaviorV1010>",
-    "listingForbidden": "bool",
-    "metadata": "TokenMetadataV1010",
-    "infusion": "u128",
-    "anyoneCanInfuse": "bool",
-    "groups": "Vec<u128>"
-  },
-  "TokenMetadataV1010": {
-    "decimalCount": "u8",
-    "name": "Bytes",
-    "symbol": "Bytes",
-    "foreign": "Option<XcmV1MultiLocation>"
-  },
-  "TokenCapV1010": {
-    "_enum": {
-      "Supply": "Compact<u128>",
-      "CollapsingSupply": "Compact<u128>"
-    }
-  },
-  "TokenMarketBehaviorV1010": {
-    "_enum": {
-      "HasRoyalty": "RoyaltyPolicyDescriptorV1010",
-      "IsCurrency": "Null"
-    }
-  },
-  "RoyaltyPolicyDescriptorV1010": {
+  "RoyaltyPolicyDescriptor": {
     "beneficiary": "AccountId",
     "percentage": "Compact<Perbill>"
   },
