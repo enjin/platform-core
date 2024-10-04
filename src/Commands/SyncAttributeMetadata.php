@@ -40,8 +40,11 @@ class SyncAttributeMetadata extends Command
         $query->chunk(
             config('enjin-platform.sync_metadata.data_chunk_size'),
             function ($attributes) use ($progress, $service): void {
-                $attributes->each(fn (Attribute $attribute) => $service->fetchAndCache($attribute));
-                $progress->advance($attributes->count());
+                $attributes->each(function (Attribute $attribute) use ($progress, $service): void {
+                    $service->fetchAndCache($attribute);
+                    $progress->advance(1);
+                });
+
             }
         );
         $progress->finish();

@@ -41,8 +41,12 @@ class MetadataService
         );
     }
 
-    public function getCache(Attribute $attribute): mixed
+    public function getCache(?Attribute $attribute): mixed
     {
+        if (!filter_var($attribute?->value, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
         return Cache::get($this->cacheKey($attribute->value), $this->fetchAndCache($attribute));
     }
 
