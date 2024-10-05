@@ -13,13 +13,11 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
+use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Substrate\BurnParams;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
@@ -29,7 +27,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class BurnMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
+class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
     use HasEncodableTokenId;
     use HasIdempotencyField;
@@ -37,6 +35,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     use HasSimulateField;
     use HasSkippableRules;
     use HasTokenIdFieldRules;
+    use HasTokenIdFields;
     use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
@@ -47,8 +46,8 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     public function attributes(): array
     {
         return [
-            'name' => 'Burn',
-            'description' => __('enjin-platform::mutation.burn.description'),
+            'name' => 'Infuse',
+            'description' => __('enjin-platform::mutation.infuse.description'),
         ];
     }
 
@@ -70,9 +69,10 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.common.args.collectionId'),
             ],
-            'params' => [
-                'type' => GraphQL::type('BurnParamsInput!'),
-                'description' => __('enjin-platform::mutation.burn.args.params'),
+            ...$this->getTokenFields(__('enjin-platform::mutation.infuse.args.tokenId')),
+            'amount' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::mutation.infuse.args.amount'),
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
@@ -93,13 +93,10 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService,
     ): mixed {
-        $args['params']['tokenId'] = $this->encodeTokenId($args['params']);
-        unset($args['params']['encodeTokenId']);
-
-        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
-        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
-            burnParams: new BurnParams(...$args['params'])
+            tokenId: $this->encodeTokenId($args),
+            amount: $args['amount']
         ));
 
         return Transaction::lazyLoadSelectFields(
@@ -112,7 +109,8 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     {
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'params' => Arr::get($params, 'burnParams', new BurnParams(0, 0))->toEncodable(),
+            'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
+            'amount' => gmp_init(Arr::get($params, 'amount', 0)),
         ];
     }
 
@@ -121,13 +119,12 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
      */
     protected function rulesWithValidation(array $args): array
     {
-        $removeTokenStorage = Arr::get($args, 'params.removeTokenStorage', false);
-        $min = $removeTokenStorage ? 0 : 1;
-
         return [
-            'collectionId' => ['bail', $removeTokenStorage ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
-            'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
-            ...$this->getTokenFieldRulesExist('params'),
+            // TODO: Check anyoneCanInfuse
+            'collectionId' => ['exists:collections,collection_chain_id'],
+            // TODO: Ideally we will check if we have enough ENJ balance to make this infusion
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getTokenFieldRulesExist(),
         ];
     }
 
@@ -136,12 +133,10 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
      */
     protected function rulesWithoutValidation(array $args): array
     {
-        $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
-
         return [
             'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
-            'params.amount' => [new MinBigInt($min), new MaxBigInt(Hex::MAX_UINT128)],
-            ...$this->getTokenFieldRules('params'),
+            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getTokenFieldRules(),
         ];
     }
 }

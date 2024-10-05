@@ -1,0 +1,35 @@
+mutation Infuse(
+  $collectionId: BigInt!
+  $tokenId: EncodableTokenIdInput!
+  $amount: BigInt!
+  $skipValidation: Boolean
+  $simulate: Boolean
+  $signingAccount: String
+  $nonce: Int
+  $tip: BigInt
+) {
+  Infuse(
+    collectionId: $collectionId
+    tokenId: $tokenId
+    amount: $amount
+    skipValidation: $skipValidation
+    simulate: $simulate
+    signingAccount: $signingAccount
+  ) {
+    id
+    transactionId
+    transactionHash
+    method
+    state
+    encodedData
+    signingPayload(nonce: $nonce, tip: $tip)
+    fee
+    deposit
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+  }
+}
