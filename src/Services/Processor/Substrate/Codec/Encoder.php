@@ -47,6 +47,7 @@ class Encoder
         'BatchMint' => 'MultiTokens.batch_mint',
         'Burn' => 'MultiTokens.burn',
         'BurnV1010' => 'MultiTokens.burn',
+        'Infuse' => 'MultiTokens.infuse',
         'Freeze' => 'MultiTokens.freeze',
         'Thaw' => 'MultiTokens.thaw',
         'SetRoyalty' => 'MultiTokens.set_royalty',
@@ -82,6 +83,7 @@ class Encoder
         'MultiTokens.remove_attribute' => [40, 10],
         'MultiTokens.remove_all_attributes' => [40, 11],
         'MultiTokens.accept_collection_transfer' => [40, 41],
+        'MultiTokens.infuse' => [40, 44],
     ];
 
     public function __construct(public ScaleInstance $scaleInstance)
