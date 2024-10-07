@@ -77,7 +77,7 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
             ->select('key', 'value', 'token_id', 'collection_id')
             ->with([
                 'token:id,collection_id,token_chain_id',
-                'token.collection:id,collection_chain_id',
+                'collection:id,collection_chain_id',
             ])->whereHas(
                 'collection',
                 fn ($query) => $query->where('collection_chain_id', Arr::get($args, 'collectionId'))
