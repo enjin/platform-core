@@ -43,7 +43,7 @@ class SyncMetadata extends Command
         Log::info('Syncing metadata for ' . $total . ' attributes.');
 
         $withs = [
-            'token:id,collection_id,token_chain_id',
+            'token:id,token_chain_id',
             'collection:id,collection_chain_id',
         ];
         foreach ($query->with($withs)->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
