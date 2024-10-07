@@ -26,12 +26,12 @@ class Reserved extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
-        $self->accountId = Account::parseAccount($self->getValue($data, ['account_id', 'T::AccountId']));
-        $self->amount = $self->getValue($data, ['amount', 'T::TokenBalance']);
+        $self->collectionId = $self->getValue($data, 'T::CollectionId');
+        $self->tokenId = $self->getValue($data, 'T::TokenId');
+        $self->accountId = Account::parseAccount($self->getValue($data, 'T::AccountId'));
+        $self->amount = $self->getValue($data, 'T::TokenBalance');
         $self->reserveId = HexConverter::hexToString(
-            is_string($value = $self->getValue($data, ['reserve_id.Some', 'Option<T::ReserveIdentifierType>']))
+            is_string($value = $self->getValue($data, 'Option<T::ReserveIdentifierType>'))
                 ? $value
                 : HexConverter::bytesToHex($value)
         );

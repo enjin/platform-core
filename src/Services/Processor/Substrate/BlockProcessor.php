@@ -124,7 +124,7 @@ class BlockProcessor
 
                     PlatformBlockIngesting::dispatch($block);
 
-                    $this->info(sprintf('Ingested header for block #%s in %s seconds', $blockNumber, now()->diffInMilliseconds($syncTime) / 1000));
+                    $this->info(sprintf('Ingested header for block #%s in %s seconds', $blockNumber, $syncTime->diffInMilliseconds(now()) / 1000));
 
                     $this->fetchEvents($block);
                     $this->fetchExtrinsics($block);
@@ -193,7 +193,7 @@ class BlockProcessor
             }
 
             $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
-            $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", now()->diffInMilliseconds($syncTime) / 1000));
+            $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", $syncTime->diffInMilliseconds(now()) / 1000));
         } catch (Throwable $exception) {
             $this->error("Failed processing block #{$blockNumber}");
             $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
