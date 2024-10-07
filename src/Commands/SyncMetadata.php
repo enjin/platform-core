@@ -44,13 +44,11 @@ class SyncMetadata extends Command
 
         $withs = [
             'token:id,collection_id,token_chain_id',
-            'token.collection:id,collection_chain_id',
+            'collection:id,collection_chain_id',
         ];
         foreach ($query->with($withs)->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
             SyncMetadataJob::dispatch($attribute->value_string);
             $progress->advance();
-
-            break;
         }
 
         $progress->finish();
