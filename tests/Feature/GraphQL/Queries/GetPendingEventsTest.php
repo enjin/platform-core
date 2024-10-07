@@ -32,8 +32,8 @@ class GetPendingEventsTest extends TestCaseGraphQL
             'event' => [
                 'MultiTokens' => [
                     'CollectionCreated' => [
-                        'collection_id' => $this->collections[0]->id,
-                        'owner' => $this->collections[0]->owner->address,
+                        'T::CollectionId' => $this->collections[0]->id,
+                        'T::AccountId' => $this->collections[0]->owner->address,
                     ],
                 ],
             ],
@@ -47,8 +47,8 @@ class GetPendingEventsTest extends TestCaseGraphQL
             'event' => [
                 'MultiTokens' => [
                     'CollectionCreated' => [
-                        'collection_id' => $this->collections[1]->id,
-                        'owner' => $this->collections[1]->owner->address,
+                        'T::CollectionId' => $this->collections[1]->id,
+                        'T::AccountId' => $this->collections[1]->owner->address,
                     ],
                 ],
             ],

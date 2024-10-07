@@ -129,8 +129,8 @@ class AcknowledgeEventsTest extends TestCaseGraphQL
                 'event' => [
                     'MultiTokens' => [
                         'CollectionCreated' => [
-                            'collection_id' => $collection->id,
-                            'owner' => $collection->owner->address,
+                            'T::CollectionId' => $collection->id,
+                            'T::AccountId' => $collection->owner->address,
                         ],
                     ],
                 ],
