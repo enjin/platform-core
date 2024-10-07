@@ -2,8 +2,10 @@
 
 namespace Enjin\Platform\Services\Database;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\MetadataHttpClient;
 use Enjin\Platform\Models\Laravel\Attribute;
+use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Facades\Cache;
 
 class MetadataService
@@ -29,29 +31,49 @@ class MetadataService
         return $response ?: null;
     }
 
-    public function fetchAndCache(?Attribute $attribute, bool $forget = true): mixed
+    public function fetchUrl(string $url): mixed
     {
-        if (!filter_var($attribute?->value, FILTER_VALIDATE_URL)) {
+        $url = $this->convertHexToString($url);
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        return $this->client->fetch($url) ?: null;
+    }
+
+    public function fetchAndCache(string $url, bool $forget = true): mixed
+    {
+        $url = $this->convertHexToString($url);
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return null;
         }
 
         if ($forget) {
-            Cache::forget($this->cacheKey($attribute->value));
+            Cache::forget($this->cacheKey($url));
         }
 
         return Cache::rememberForever(
-            $this->cacheKey($attribute->value),
-            fn () => $this->fetch($attribute)
+            $this->cacheKey($url),
+            fn () => $this->fetchUrl($url)
         );
     }
 
-    public function getCache(?Attribute $attribute): mixed
+    public function getCache(string $url): mixed
     {
-        if (!filter_var($attribute?->value, FILTER_VALIDATE_URL)) {
+        $url = $this->convertHexToString($url);
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return null;
         }
 
-        return Cache::get($this->cacheKey($attribute->value), $this->fetchAndCache($attribute, false));
+        return Cache::get($this->cacheKey($url), $this->fetchAndCache($url, false));
+    }
+
+    protected function convertHexToString(string $url): string
+    {
+        return Hex::isHexEncoded($url) ? HexConverter::hexToString($url) : $url;
     }
 
     protected function cacheKey(string $suffix): string
