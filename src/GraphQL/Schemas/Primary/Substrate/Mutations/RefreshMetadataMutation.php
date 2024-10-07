@@ -23,10 +23,10 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutation
 {
+    use HasEncodableTokenId;
     use HasTokenIdFieldRules;
     use HasTokenIdFields;
     use InPrimarySubstrateSchema;
-    use HasEncodableTokenId;
 
     /**
      * Get the mutation's attributes.
@@ -74,7 +74,11 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
         MetadataService $metadataService,
     ): mixed {
         Attribute::query()
-            ->whereHas(
+            ->select('key', 'value', 'token_id', 'collection_id')
+            ->with([
+                'token:id,collection_id,token_chain_id',
+                'token.collection:id,collection_chain_id',
+            ])->whereHas(
                 'collection',
                 fn ($query) => $query->where('collection_chain_id', Arr::get($args, 'collectionId'))
             )->when(
@@ -84,8 +88,8 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
                     fn ($query) => $query->where('token_chain_id', $tokenId)
                 )
             )
-            ->get(['value'])
-            ->each(fn ($attribute) => $metadataService->fetchAndCache($attribute->value));
+            ->get()
+            ->each(fn ($attribute) => $metadataService->fetchAndCache($attribute->value_string));
 
         return true;
     }
@@ -99,7 +103,7 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
             'collectionId' => [
                 new MinBigInt(0),
                 new MaxBigInt(Hex::MAX_UINT128),
-                Rule::exists('collections', 'collection_chain_id')
+                Rule::exists('collections', 'collection_chain_id'),
             ],
             ...$this->getOptionalTokenFieldRulesExist(),
         ];

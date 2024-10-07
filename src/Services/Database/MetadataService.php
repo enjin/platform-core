@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Services\Database;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\MetadataHttpClient;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Support\Hex;
@@ -73,7 +72,7 @@ class MetadataService
 
     protected function convertHexToString(string $url): string
     {
-        return Hex::isHexEncoded($url) ? HexConverter::hexToString($url) : $url;
+        return Hex::isHexEncoded($url) ? Hex::safeConvertToString($url) : $url;
     }
 
     protected function cacheKey(string $suffix): string

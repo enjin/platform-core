@@ -9,11 +9,9 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\Token as TokenMethods;
-use Enjin\Platform\Support\Hex;
 use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Token extends BaseModel
 {
@@ -149,28 +147,9 @@ class Token extends BaseModel
     protected function metadata(): Attribute
     {
         return new Attribute(
-            get: function () {
-                $tokenUriAttribute = $this->fetchUriAttribute($this);
-                if ($tokenUriAttribute) {
-                    $tokenUriAttribute->value = Hex::safeConvertToString($tokenUriAttribute->value);
-                }
-                $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::getCache($tokenUriAttribute->value);
-
-                if (!$fetchedMetadata) {
-                    $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
-                    if ($collectionUriAttribute) {
-                        $collectionUriAttribute->value = Hex::safeConvertToString($collectionUriAttribute->value);
-                    }
-
-                    if ($collectionUriAttribute?->value && Str::contains($collectionUriAttribute->value, '{id}')) {
-                        $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
-                    }
-
-                    $fetchedMetadata = MetadataService::getCache($collectionUriAttribute->value);
-                }
-
-                return $fetchedMetadata;
-            },
+            get: fn () => $this->attributes['metadata']
+                ?? MetadataService::getCache($this->fetchUriAttribute($this)?->value_string ?? '')
+                ?? MetadataService::getCache($this->fetchUriAttribute($this->collection)->value_string ?? ''),
         );
     }
 

@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Jobs;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Services\Database\MetadataService;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Bus\Queueable;
@@ -32,7 +31,7 @@ class SyncMetadata implements ShouldQueue
     {
         try {
             $service->fetchAndCache(
-                Hex::isHexEncoded($this->url) ? HexConverter::hexToString($this->url) : $this->url
+                Hex::isHexEncoded($this->url) ? Hex::safeConvertToString($this->url) : $this->url
             );
         } catch (Throwable $e) {
             Log::error("Unable to sync metadata for url {$this->url}", $e->getMessage());

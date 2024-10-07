@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Commands;
 
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Jobs\SyncMetadata as SyncMetadataJob;
 use Enjin\Platform\Models\Attribute;
 use Illuminate\Console\Command;
@@ -29,7 +28,10 @@ class SyncMetadata extends Command
      */
     public function handle(): void
     {
-        $query = Attribute::query()->select('value')->where('key', HexConverter::stringToHexPrefixed('uri'));
+        $query = Attribute::query()
+            ->select('key', 'value', 'token_id', 'collection_id')
+            ->where('key', '0x757269'); // uri hex
+
         if (($total = $query->count()) == 0) {
             $this->info('No attributes found to sync.');
 
@@ -40,9 +42,15 @@ class SyncMetadata extends Command
         $progress->start();
         Log::info('Syncing metadata for ' . $total . ' attributes.');
 
-        foreach($query->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
-            SyncMetadataJob::dispatch($attribute->value);
+        $withs = [
+            'token:id,collection_id,token_chain_id',
+            'token.collection:id,collection_chain_id',
+        ];
+        foreach ($query->with($withs)->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
+            SyncMetadataJob::dispatch($attribute->value_string);
             $progress->advance();
+
+            break;
         }
 
         $progress->finish();
