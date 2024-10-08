@@ -302,5 +302,7 @@ return [
     */
     'sync_metadata' => [
         'data_chunk_size' => env('SYNC_METADATA_CHUNK_SIZE', 10000),
+        'refresh_max_attempts' => env('REFRESH_METADATA_MAX_ATTEMPTS', 10),
+        'refresh_decay_seconds' => env('REFRESH_METADATA_DECAY_SECONDS', 60),
     ],
 ];

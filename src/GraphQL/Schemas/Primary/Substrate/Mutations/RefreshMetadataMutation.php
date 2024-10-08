@@ -3,12 +3,14 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Interfaces\PlatformPublicGraphQlOperation;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
@@ -18,10 +20,11 @@ use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutation
+class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutation, PlatformPublicGraphQlOperation
 {
     use HasEncodableTokenId;
     use HasTokenIdFieldRules;
@@ -73,6 +76,16 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
         SerializationServiceInterface $serializationService,
         MetadataService $metadataService,
     ): mixed {
+        $key = 'RefreshMetadataMutation'
+                . ':' . Arr::get($args, 'collectionId')
+                . ':' . $this->encodeTokenId($args);
+        if (RateLimiter::tooManyAttempts($key, config('enjin-platform.sync_metadata.refresh_max_attempts'))) {
+            throw new PlatformException(
+                __('enjin-platform::error.too_many_requests', ['num' => RateLimiter::availableIn($key)])
+            );
+        }
+        RateLimiter::hit($key, config('enjin-platform.sync_metadata.refresh_decay_seconds'));
+
         Attribute::query()
             ->select('key', 'value', 'token_id', 'collection_id')
             ->with([
