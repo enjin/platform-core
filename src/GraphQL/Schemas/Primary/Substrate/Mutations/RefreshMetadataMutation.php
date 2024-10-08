@@ -77,8 +77,8 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
         MetadataService $metadataService,
     ): mixed {
         $key = 'RefreshMetadataMutation'
-                . ':' . Arr::get($args, 'collectionId')
-                . ':' . $this->encodeTokenId($args);
+                . ':' . ($collectionId = Arr::get($args, 'collectionId'))
+                . ':' . ($tokenId = $this->encodeTokenId($args));
         if (RateLimiter::tooManyAttempts($key, config('enjin-platform.sync_metadata.refresh_max_attempts'))) {
             throw new PlatformException(
                 __('enjin-platform::error.too_many_requests', ['num' => RateLimiter::availableIn($key)])
@@ -93,9 +93,9 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
                 'collection:id,collection_chain_id',
             ])->whereHas(
                 'collection',
-                fn ($query) => $query->where('collection_chain_id', Arr::get($args, 'collectionId'))
+                fn ($query) => $query->where('collection_chain_id', $collectionId)
             )->when(
-                $tokenId = $this->encodeTokenId($args),
+                $tokenId,
                 fn ($query) => $query->whereHas(
                     'token',
                     fn ($query) => $query->where('token_chain_id', $tokenId)
