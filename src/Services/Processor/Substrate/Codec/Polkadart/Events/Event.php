@@ -33,9 +33,7 @@ class Event implements PolkadartEvent
 
     public function getValue(array $data, array|string|int $keys): mixed
     {
-        if (!is_array($keys)) {
-            $keys = [$keys];
-        }
+        $keys = Arr::wrap($keys);
 
         foreach ($keys as $key) {
             if (Arr::has($data, $k = "event.{$this->getKey($key)}")) {
