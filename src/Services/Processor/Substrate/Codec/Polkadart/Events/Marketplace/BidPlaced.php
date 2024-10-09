@@ -24,9 +24,9 @@ class BidPlaced extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
-        $self->bidder = Account::parseAccount($self->getValue($data, ['bid.bidder', 'BidOf<T>.bidder', 'Bid<T>.bidder']));
-        $self->price = $self->getValue($data, ['bid.price', 'BidOf<T>.price', 'Bid<T>.price']);
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, 'ListingIdOf<T>')) ? $value : HexConverter::bytesToHex($value));
+        $self->bidder = Account::parseAccount($self->getValue($data, 'Bid<T>.bidder'));
+        $self->price = $self->getValue($data, 'Bid<T>.price');
 
         return $self;
     }

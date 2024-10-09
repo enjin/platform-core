@@ -22,8 +22,8 @@ class BalanceSet extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->who = Account::parseAccount($self->getValue($data, ['who', 'T::AccountId']));
-        $self->free = $self->getValue($data, ['free', 'T::Balance']);
+        $self->who = Account::parseAccount($self->getValue($data, 'T::AccountId'));
+        $self->free = $self->getValue($data, 'T::Balance');
 
         return $self;
     }

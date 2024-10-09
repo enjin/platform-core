@@ -22,8 +22,8 @@ class CollectionDestroyed extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->caller = Account::parseAccount($self->getValue($data, ['caller', 'T::AccountId']));
+        $self->collectionId = $self->getValue($data, 'T::CollectionId');
+        $self->caller = Account::parseAccount($self->getValue($data, 'T::AccountId'));
 
         return $self;
     }

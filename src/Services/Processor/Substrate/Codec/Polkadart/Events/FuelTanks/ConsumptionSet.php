@@ -23,9 +23,9 @@ class ConsumptionSet extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', 'T::AccountId']));
-        $self->userId = Account::parseAccount($self->getValue($data, ['user_id', 'Option<T::AccountId>']));
-        $self->consumption = $self->getValue($data, ['consumption', 'ConsumptionOf<T>']);
+        $self->tankId = Account::parseAccount($self->getValue($data, 'T::AccountId'));
+        $self->userId = Account::parseAccount($self->getValue($data, 'Option<T::AccountId>'));
+        $self->consumption = $self->getValue($data, 'ConsumptionOf<T>');
 
         return $self;
     }

@@ -24,8 +24,8 @@ class Frozen extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'FreezeOf<T>.collection_id']);
-        $self->freezeType = is_string($type = $self->getValue($data, ['freeze_type', 'FreezeOf<T>.freeze_type'])) ? $type : array_key_first($type);
+        $self->collectionId = $self->getValue($data, 'FreezeOf<T>.collection_id');
+        $self->freezeType = is_string($type = $self->getValue($data, 'FreezeOf<T>.freeze_type')) ? $type : array_key_first($type);
         $self->tokenId = $self->getTokenId($data, $self->freezeType);
         $self->account = Account::parseAccount($self->getAccount($data, $self->freezeType));
 
@@ -49,8 +49,8 @@ class Frozen extends Event implements PolkadartEvent
         }
 
         return $freezeType === 'Token'
-            ? $this->getValue($data, ['freeze_type.Token.token_id', 'FreezeOf<T>.freeze_type.Token.token_id'])
-            : $this->getValue($data, ['freeze_type.TokenAccount.token_id', 'FreezeOf<T>.freeze_type.TokenAccount.token_id']);
+            ? $this->getValue($data, 'FreezeOf<T>.freeze_type.Token.token_id')
+            : $this->getValue($data, 'FreezeOf<T>.freeze_type.TokenAccount.token_id');
     }
 
     protected function getAccount(array $data, string $freezeType): string|array|null
@@ -60,8 +60,8 @@ class Frozen extends Event implements PolkadartEvent
         }
 
         return $freezeType === 'CollectionAccount'
-            ? $this->getValue($data, ['freeze_type.CollectionAccount', 'FreezeOf<T>.freeze_type.CollectionAccount'])
-            : $this->getValue($data, ['freeze_type.TokenAccount.account_id', 'FreezeOf<T>.freeze_type.TokenAccount.account_id']);
+            ? $this->getValue($data, 'FreezeOf<T>.freeze_type.CollectionAccount')
+            : $this->getValue($data, 'FreezeOf<T>.freeze_type.TokenAccount.account_id');
     }
 }
 
