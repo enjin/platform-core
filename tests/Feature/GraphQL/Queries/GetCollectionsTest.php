@@ -15,7 +15,6 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
-use Illuminate\Support\Facades\Schema;
 
 class GetCollectionsTest extends TestCaseGraphQL
 {
@@ -49,12 +48,6 @@ class GetCollectionsTest extends TestCaseGraphQL
 
     public function test_it_can_get_total_count_correctly(): void
     {
-        Schema::disableForeignKeyConstraints();
-        Collection::truncate();
-        Token::truncate();
-        CollectionAccount::truncate();
-        Schema::enableForeignKeyConstraints();
-
         $collections = Collection::factory(2)->create();
         $collection1 = $collections->shift();
         Token::factory(random_int(16, 100))->create(['collection_id' => $collection1->id]);
@@ -63,7 +56,11 @@ class GetCollectionsTest extends TestCaseGraphQL
         Token::factory(random_int(16, 100))->create(['collection_id' => $collection2->id]);
         CollectionAccount::factory(random_int(16, 100))->create(['collection_id' => $collection2->id]);
 
-        $response = $this->graphql($this->method, ['tokensLimit' => 1, 'accountsLimit' => 1]);
+        $response = $this->graphql($this->method, [
+            'collectionIds' => [$collection1->collection_chain_id, $collection2->collection_chain_id],
+            'tokensLimit' => 1,
+            'accountsLimit' => 1,
+        ]);
         $this->assertTrue(count($response['edges']) > 0);
         $this->assertCount(1, Arr::get($response, 'edges.0.node.tokens.edges'));
         $this->assertCount(1, Arr::get($response, 'edges.0.node.accounts.edges'));
