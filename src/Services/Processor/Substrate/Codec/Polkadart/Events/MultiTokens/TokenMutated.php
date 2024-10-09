@@ -30,15 +30,15 @@ class TokenMutated extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->tokenId = $self->getValue($data, ['token_id', 'T::TokenId']);
-        $self->listingForbidden = $self->getValue($data, ['mutation.listing_forbidden.SomeMutation', 'T::TokenMutation.listing_forbidden.SomeMutation']);
-        $self->behavior = is_string($behavior = $self->getValue($data, ['mutation.behavior', 'T::TokenMutation.behavior'])) ? $behavior : array_key_first($behavior);
-        $self->isCurrency = $self->getValue($data, ['mutation.behavior.SomeMutation.Some', 'T::TokenMutation.behavior.SomeMutation.Some']) === 'IsCurrency';
-        $self->beneficiary = Account::parseAccount($self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary']));
-        $self->percentage = $self->getValue($data, ['mutation.behavior.SomeMutation.Some.HasRoyalty.percentage', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage']);
-        $self->anyoneCanInfuse = $self->getValue($data, ['T::TokenMutation.anyone_can_infuse.SomeMutation']);
-        $self->tokenName = is_array($s = $self->getValue($data, ['T::TokenMutation.name.SomeMutation'])) ? HexConverter::bytesToHex($s) : $s;
+        $self->collectionId = $self->getValue($data, 'T::CollectionId');
+        $self->tokenId = $self->getValue($data, 'T::TokenId');
+        $self->listingForbidden = $self->getValue($data, 'T::TokenMutation.listing_forbidden.SomeMutation');
+        $self->behavior = is_string($behavior = $self->getValue($data, 'T::TokenMutation.behavior')) ? $behavior : array_key_first($behavior);
+        $self->isCurrency = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.Some') === 'IsCurrency';
+        $self->beneficiary = Account::parseAccount($self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary'));
+        $self->percentage = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage');
+        $self->anyoneCanInfuse = $self->getValue($data, 'T::TokenMutation.anyone_can_infuse.SomeMutation');
+        $self->tokenName = is_array($s = $self->getValue($data, 'T::TokenMutation.name.SomeMutation')) ? HexConverter::bytesToHex($s) : $s;
 
         return $self;
     }

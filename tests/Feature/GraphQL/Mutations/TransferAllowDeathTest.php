@@ -13,18 +13,19 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
 
 class TransferAllowDeathTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksHttpClient;
 
     protected string $method = 'TransferAllowDeath';
     protected Codec $codec;
     protected string $defaultAccount;
+    protected array $fee;
 
     protected function setUp(): void
     {
@@ -32,10 +33,13 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->defaultAccount = Account::daemonPublicKey();
+
+        if (static::class === self::class) {
+            $this->mockFee($this->fee = app(Generator::class)->fee_details());
+        }
     }
 
     // Happy Path
-
     public function test_it_can_skip_validation(): void
     {
         Wallet::factory([
@@ -48,7 +52,6 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             value: $amount = fake()->numberBetween(),
         ));
 
-        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($this->defaultAccount),
             'amount' => $amount,
@@ -62,8 +65,8 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'fee' => $feeDetails['fakeSum'],
             'deposit' => null,
+            'fee' => $this->fee['fakeSum'],
             'wallet' => [
                 'account' => [
                     'publicKey' => $publicKey,

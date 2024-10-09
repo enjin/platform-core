@@ -24,10 +24,10 @@ class AttributeSet extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->tokenId = $self->getValue($data, ['token_id.Some', 'Option<T::TokenId>']);
-        $self->key = is_string($value = $self->getValue($data, ['key', 'T::AttributeKey'])) ? $value : HexConverter::bytesToHex($value);
-        $self->value = is_string($value = $self->getValue($data, ['value', 'T::AttributeValue'])) ? $value : HexConverter::bytesToHex($value);
+        $self->collectionId = $self->getValue($data, 'T::CollectionId');
+        $self->tokenId = $self->getValue($data, 'Option<T::TokenId>');
+        $self->key = is_string($value = $self->getValue($data, 'T::AttributeKey')) ? $value : HexConverter::bytesToHex($value);
+        $self->value = is_string($value = $self->getValue($data, 'T::AttributeValue')) ? $value : HexConverter::bytesToHex($value);
 
         return $self;
     }

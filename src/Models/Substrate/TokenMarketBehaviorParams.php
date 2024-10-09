@@ -19,9 +19,11 @@ class TokenMarketBehaviorParams
      */
     public static function fromEncodable(array $params): self
     {
+        $isCurrency = Arr::exists($params, 'IsCurrency');
+
         return new self(
-            hasRoyalty: RoyaltyPolicyParams::fromEncodable(Arr::get($params, 'HasRoyalty')),
-            isCurrency: Arr::get($params, 'IsCurrency'),
+            hasRoyalty: $isCurrency === false ? RoyaltyPolicyParams::fromEncodable(Arr::get($params, 'HasRoyalty')) : null,
+            isCurrency: $isCurrency ? true : null,
         );
     }
 

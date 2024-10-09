@@ -69,6 +69,9 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('add_pending_transfer_collections_table')
             ->hasMigration('alter_attributes_table')
             ->hasMigration('add_network_to_pending_events_table')
+            ->hasMigration('make_token_cap_nullable_on_tokens_table')
+            ->hasMigration('upgrade_tokens_table')
+            ->hasMigration('upgrade_collections_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
@@ -106,9 +109,9 @@ class CoreServiceProvider extends PackageServiceProvider
         Builder::macro('cursorPaginateWithTotal', function ($order, $limit, $cache = true) {
             if ($cache) {
                 $totalCount = (int) Cache::remember(
-                    $this->toSql(),
+                    $this->toRawSql(),
                     6,
-                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toSql()))->get(fn () => $this->count())
+                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toRawSql()))->get(fn () => $this->count())
                 );
             }
 
@@ -121,9 +124,9 @@ class CoreServiceProvider extends PackageServiceProvider
         Builder::macro('cursorPaginateWithTotalDesc', function ($order, $limit, $cache = true) {
             if ($cache) {
                 $totalCount = (int) Cache::remember(
-                    $this->toSql(),
+                    $this->toRawSql(),
                     6,
-                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toSql()))->get(fn () => $this->count())
+                    fn () => Cache::lock(PlatformCache::PAGINATION->key($this->toRawSql()))->get(fn () => $this->count())
                 );
             }
 

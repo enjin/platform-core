@@ -78,7 +78,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
             'maxTokenCount' => $this->collection->max_token_count,
             'maxTokenSupply' => $this->collection->max_token_supply,
-            'forceSingleMint' => $this->collection->force_single_mint,
+            'forceCollapsingSupply' => $this->collection->force_collapsing_supply,
             'frozen' => $this->collection->is_frozen,
             'network' => $this->collection->network,
             'owner' => [

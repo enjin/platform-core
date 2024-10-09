@@ -6,7 +6,7 @@ use Codec\Base;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageType;
 use Enjin\Platform\Exceptions\PlatformException;
@@ -39,17 +39,15 @@ class Encoder
         'Transfer' => 'MultiTokens.transfer',
         'TransferV1010' => 'MultiTokens.transfer',
         'CreateCollection' => 'MultiTokens.create_collection',
-        'CreateCollectionV1010' => 'MultiTokens.create_collection',
         'DestroyCollection' => 'MultiTokens.destroy_collection',
         'MutateCollection' => 'MultiTokens.mutate_collection',
         'MutateToken' => 'MultiTokens.mutate_token',
         'MutateTokenV1010' => 'MultiTokens.mutate_token',
         'Mint' => 'MultiTokens.mint',
-        'MintV1010' => 'MultiTokens.mint',
         'BatchMint' => 'MultiTokens.batch_mint',
-        'BatchMintV1010' => 'MultiTokens.batch_mint',
         'Burn' => 'MultiTokens.burn',
         'BurnV1010' => 'MultiTokens.burn',
+        'Infuse' => 'MultiTokens.infuse',
         'Freeze' => 'MultiTokens.freeze',
         'Thaw' => 'MultiTokens.thaw',
         'SetRoyalty' => 'MultiTokens.set_royalty',
@@ -85,6 +83,7 @@ class Encoder
         'MultiTokens.remove_attribute' => [40, 10],
         'MultiTokens.remove_all_attributes' => [40, 11],
         'MultiTokens.accept_collection_transfer' => [40, 41],
+        'MultiTokens.infuse' => [40, 44],
     ];
 
     public function __construct(public ScaleInstance $scaleInstance)
@@ -153,8 +152,8 @@ class Encoder
         $txVersion = HexConverter::unPrefix($this->uint32(gmp_strval($txVersion)));
         $era = HexConverter::unPrefix($era);
         $tip = $tip == '0' ? '00' : HexConverter::unPrefix($this->compact(gmp_strval($tip)));
-        $mode = networkConfig('spec-version') >= 1010 ? HexConverter::unPrefix($mode) : '';
-        $metadataHash = networkConfig('spec-version') >= 1010 ? HexConverter::unPrefix($metadataHash) : '';
+        $mode = HexConverter::unPrefix($mode);
+        $metadataHash = HexConverter::unPrefix($metadataHash);
 
         return HexConverter::prefix($call . $era . $nonce . $tip . $mode . $specVersion . $txVersion . $genesisHash . $blockHash . $metadataHash);
     }
@@ -181,7 +180,7 @@ class Encoder
                 'genesisHash' => $genesisHash,
                 'method' => $call,
                 'nonce' => HexConverter::intToHexPrefixed($nonce),
-                'signedExtensions' => array_merge([
+                'signedExtensions' => [
                     'CheckSpecVersion',
                     'CheckTxVersion',
                     'CheckGenesis',
@@ -190,18 +189,15 @@ class Encoder
                     'CheckWeight',
                     'ChargeTransactionPayment',
                     'CheckFuelTank',
-                ], networkConfig('spec-version') >= 1010 ? ['CheckMetadataHash'] : []),
+                    'CheckMetadataHash',
+                ],
                 'specVersion' => gmp_strval($specVersion),
                 'tip' => $this->compact(gmp_strval($tip)),
                 'transactionVersion' => gmp_strval($txVersion),
                 'version' => 4,
-            ],
-            networkConfig('spec-version') >= 1010
-            ? [
                 'mode' => $mode,
                 'metadataHash' => $metadataHash,
-            ]
-            : []
+            ],
         );
     }
 
@@ -222,11 +218,7 @@ class Encoder
         $extrinsic .= HexConverter::unPrefix($era);
         $extrinsic .= HexConverter::unPrefix($nonce);
         $extrinsic .= HexConverter::unPrefix($tip);
-
-        if (networkConfig('spec-version') >= 1010) {
-            $extrinsic .= HexConverter::unPrefix($mode);
-        }
-
+        $extrinsic .= HexConverter::unPrefix($mode);
         $extrinsic .= HexConverter::unPrefix($call);
 
         return $this->sequenceLength($extrinsic) . $extrinsic;
@@ -240,13 +232,9 @@ class Encoder
         $era = '00';
         $nonce = '00';
         $tip = '00';
+        $mode = '00';
 
-        $extrinsic = $extraByte . $signer . $signature . $era . $nonce . $tip;
-
-        if (networkConfig('spec-version') >= 1010) {
-            $extrinsic .= HexConverter::unPrefix('00');
-        }
-
+        $extrinsic = $extraByte . $signer . $signature . $era . $nonce . $tip . $mode;
         $extrinsic .= HexConverter::unPrefix($call);
 
         return $this->sequenceLength($extrinsic) . $extrinsic;
@@ -409,7 +397,7 @@ class Encoder
                 return Metadata::v1012();
             }
 
-            $blockchain = new SubstrateWebsocket();
+            $blockchain = new SubstrateSocketClient();
             $response = $blockchain->send('state_getMetadata');
             $blockchain->close();
 

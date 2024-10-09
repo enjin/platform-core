@@ -10,7 +10,7 @@ class MintPolicyParams
      * Create new mint policy parameter instance.
      */
     public function __construct(
-        public bool $forceSingleMint,
+        public ?bool $forceCollapsingSupply = false,
         public ?string $maxTokenCount = null,
         public ?string $maxTokenSupply = null,
     ) {}
@@ -21,7 +21,7 @@ class MintPolicyParams
     public static function fromEncodable(array $params): self
     {
         return new self(
-            forceSingleMint: Arr::get($params, 'forceSingleMint'),
+            forceCollapsingSupply: Arr::get($params, 'forceCollapsingSupply'),
             maxTokenCount: Arr::get($params, 'maxTokenCount'),
             maxTokenSupply: Arr::exists($params, 'maxTokenSupply') ? gmp_strval(Arr::get($params, 'maxTokenSupply')) : null,
         );
@@ -33,7 +33,7 @@ class MintPolicyParams
     public static function fromArray(array $params): self
     {
         return new self(
-            forceSingleMint: Arr::get($params, 'forceSingleMint'),
+            forceCollapsingSupply: Arr::get($params, 'forceCollapsingSupply'),
             maxTokenCount: Arr::get($params, 'maxTokenCount'),
             maxTokenSupply: Arr::get($params, 'maxTokenSupply'),
         );
@@ -45,7 +45,7 @@ class MintPolicyParams
     public function toEncodable(): array
     {
         return [
-            isRunningLatest() ? 'forceCollapsingSupply' : 'forceSingleMint' => $this->forceSingleMint,
+            'forceCollapsingSupply' => $this->forceCollapsingSupply,
             'maxTokenCount' => $this->maxTokenCount,
             'maxTokenSupply' => $this->maxTokenSupply !== null ? gmp_init($this->maxTokenSupply) : null,
         ];
@@ -57,7 +57,7 @@ class MintPolicyParams
     public function toArray(): array
     {
         return [
-            isRunningLatest() ? 'forceCollapsingSupply' : 'forceSingleMint' => $this->forceSingleMint,
+            'forceCollapsingSupply' => $this->forceCollapsingSupply,
             'maxTokenCount' => $this->maxTokenCount,
             'maxTokenSupply' => $this->maxTokenSupply,
         ];

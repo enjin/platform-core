@@ -26,11 +26,11 @@ class AuctionFinalized extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', '0'])) ? $value : HexConverter::bytesToHex($value));
-        $self->winningBidder = Account::parseAccount($self->getValue($data, ['winning_bid.Some.bidder', '1.bidder']));
-        $self->price = $self->getValue($data, ['winning_bid.Some.price', '1.price']);
-        $self->protocolFee = $self->getValue($data, ['protocol_fee', '2']);
-        $self->royalty = $self->getValue($data, ['royalty', '3']);
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, 0)) ? $value : HexConverter::bytesToHex($value));
+        $self->winningBidder = Account::parseAccount($self->getValue($data, '1.bidder'));
+        $self->price = $self->getValue($data, '1.price');
+        $self->protocolFee = $self->getValue($data, 2);
+        $self->royalty = $self->getValue($data, 3);
 
         return $self;
     }

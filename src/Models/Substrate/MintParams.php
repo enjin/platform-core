@@ -12,7 +12,6 @@ class MintParams
     public function __construct(
         public string $tokenId,
         public string $amount,
-        public ?string $unitPrice = null
     ) {}
 
     /**
@@ -23,7 +22,6 @@ class MintParams
         return new self(
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             amount: gmp_strval(Arr::get($params, 'amount')),
-            unitPrice: ($unitPrice = Arr::get($params, 'unitPrice')) !== null ? gmp_strval($unitPrice) : null,
         );
     }
 
@@ -35,7 +33,6 @@ class MintParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             amount: Arr::get($params, 'amount'),
-            unitPrice: ($unitPrice = Arr::get($params, 'unitPrice')) !== null ? gmp_strval($unitPrice) : null,
         );
     }
 
@@ -48,7 +45,6 @@ class MintParams
             'Mint' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'amount' => gmp_init($this->amount),
-                'unitPrice' => $this->unitPrice !== null ? gmp_init($this->unitPrice) : null,
                 'depositor' => null,
             ],
         ];
@@ -63,7 +59,6 @@ class MintParams
             'Mint' => [
                 'tokenId' => $this->tokenId,
                 'amount' => $this->amount,
-                'unitPrice' => $this->unitPrice,
             ],
         ];
     }

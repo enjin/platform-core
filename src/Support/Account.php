@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Support;
 
+use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Services\Database\WalletService;
@@ -11,15 +12,13 @@ use Illuminate\Support\Facades\Cache;
 
 class Account
 {
-    public const EXISTENTIAL_DEPOSIT = 100000000000000000;
-
     public static $publicKey;
     public static $walletAccounts = [];
     private static $account;
 
     public static function existentialDeposit(): GMP
     {
-        return gmp_init(self::EXISTENTIAL_DEPOSIT);
+        return gmp_init(BlockchainConstant::EXISTENTIAL_DEPOSIT);
     }
 
     /**

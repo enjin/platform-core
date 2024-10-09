@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
-use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Tests\TestCase;
 
@@ -46,7 +45,7 @@ final class DecodingTest extends TestCase
                 'mintPolicy' => [
                     'maxTokenCount' => '255',
                     'maxTokenSupply' => '57005',
-                    'forceSingleMint' => true,
+                    'forceCollapsingSupply' => true,
                 ],
                 'marketPolicy' => [
                     'beneficiary' => '0x301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a',
@@ -66,7 +65,7 @@ final class DecodingTest extends TestCase
                 'mintPolicy' => [
                     'maxTokenCount' => '255',
                     'maxTokenSupply' => '57005',
-                    'forceSingleMint' => true,
+                    'forceCollapsingSupply' => true,
                 ],
                 'marketPolicy' => null,
             ],
@@ -80,7 +79,7 @@ final class DecodingTest extends TestCase
                 'mintPolicy' => [
                     'maxTokenCount' => '255',
                     'maxTokenSupply' => '57005',
-                    'forceSingleMint' => true,
+                    'forceCollapsingSupply' => true,
                 ],
                 'marketPolicy' => [
                     'beneficiary' => '0x301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a',
@@ -98,183 +97,6 @@ final class DecodingTest extends TestCase
         $this->assertEquals(
             [
                 'collectionId' => '57005',
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_create_token()
-    {
-        $data = $this->codec->decoder()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000010000c16ff286230000000000000000000101b67a03000000000000');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0x6802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02',
-                'collectionId' => '2000',
-                'params' => [
-                    'CreateToken' => [
-                        'tokenId' => '255',
-                        'initialSupply' => '57005',
-                        'unitPrice' => '10000000000000000',
-                        'cap' => [
-                            'type' => 'SUPPLY',
-                            'amount' => '57005',
-                        ],
-                        'behavior' => null,
-                        'listingForbidden' => false,
-                        'freezeState' => null,
-                        'attributes' => [],
-                    ],
-                ],
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_create_token_with_null_unit_price()
-    {
-        $data = $this->codec->decoder()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000000101b67a03000000000000');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0x6802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02',
-                'collectionId' => '2000',
-                'params' => [
-                    'CreateToken' => [
-                        'tokenId' => '255',
-                        'initialSupply' => '57005',
-                        'unitPrice' => null,
-                        'cap' => [
-                            'type' => 'SUPPLY',
-                            'amount' => '57005',
-                        ],
-                        'behavior' => null,
-                        'listingForbidden' => false,
-                        'freezeState' => null,
-                        'attributes' => [],
-                    ],
-                ],
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_create_token_with_freeze_state()
-    {
-        $data = $this->codec->decoder()->mint('0x2804006802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02411f00fd03b67a030000000101b67a0300000001010000');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0x6802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02',
-                'collectionId' => '2000',
-                'params' => [
-                    'CreateToken' => [
-                        'tokenId' => '255',
-                        'initialSupply' => '57005',
-                        'unitPrice' => null,
-                        'cap' => [
-                            'type' => 'SUPPLY',
-                            'amount' => '57005',
-                        ],
-                        'behavior' => null,
-                        'listingForbidden' => false,
-                        'freezeState' => 'TEMPORARY',
-                        'attributes' => [],
-                    ],
-                ],
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_create_token_with_attributes()
-    {
-        $data = $this->codec->decoder()->mint('0x2804000824170e49c79846e7c0931e64df98605d93fa5f2cd42fec85ce045321071614411f00c90f0400000000000004106e616d652844656d6f20546f6b656e00');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0x0824170e49c79846e7c0931e64df98605d93fa5f2cd42fec85ce045321071614',
-                'collectionId' => '2000',
-                'params' => [
-                    'CreateToken' => [
-                        'tokenId' => '1010',
-                        'initialSupply' => '1',
-                        'unitPrice' => null,
-                        'cap' => [
-                            'type' => TokenMintCapType::INFINITE->name,
-                            'amount' => null,
-                        ],
-                        'behavior' => null,
-                        'listingForbidden' => false,
-                        'freezeState' => null,
-                        'attributes' => [
-                            [
-                                'key' => 'name',
-                                'value' => 'Demo Token',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_mint()
-    {
-        $data = $this->codec->decoder()->mint('0x280300d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0401fd03b67a0300010000c16ff28623000000000000000000');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
-                'collectionId' => '1',
-                'params' => [
-                    'Mint' => [
-                        'tokenId' => '255',
-                        'amount' => '57005',
-                        'unitPrice' => '10000000000000000',
-                    ],
-                ],
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_mint_other()
-    {
-        $data = $this->codec->decoder()->mint('0x280400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d411f01fd03b67a0300010000c16ff28623000000000000000000');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
-                'collectionId' => '2000',
-                'params' => [
-                    'Mint' => [
-                        'tokenId' => '255',
-                        'amount' => '57005',
-                        'unitPrice' => '10000000000000000',
-                    ],
-                ],
-            ],
-            $data
-        );
-    }
-
-    public function test_it_can_decode_mint_without_unit_price()
-    {
-        $data = $this->codec->decoder()->mint('0x280400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d411f01fd03b67a030000');
-
-        $this->assertEquals(
-            [
-                'recipientId' => '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
-                'collectionId' => '2000',
-                'params' => [
-                    'Mint' => [
-                        'tokenId' => '255',
-                        'amount' => '57005',
-                        'unitPrice' => null,
-                    ],
-                ],
             ],
             $data
         );

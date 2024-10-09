@@ -2,12 +2,11 @@
 
 namespace Enjin\Platform\Commands;
 
-use Amp\Future;
 use Amp\Serialization\SerializationException;
 use Amp\Sync\ChannelException;
 use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Commands\contexts\Truncate;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Enums\Global\PlatformCache;
@@ -29,9 +28,6 @@ use STS\Backoff\Strategies\PolynomialStrategy;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
-
-use function Amp\async;
-use function Amp\Parallel\Context\contextFactory;
 
 class Sync extends Command
 {
@@ -76,7 +72,7 @@ class Sync extends Command
      *
      * @throws Exception
      */
-    public function handle(Backoff $backoff, SubstrateWebsocket $rpc): int
+    public function handle(Backoff $backoff, SubstrateSocketClient $rpc): int
     {
         PlatformSyncing::dispatch();
 
@@ -100,7 +96,7 @@ class Sync extends Command
      *
      * @throws PlatformException
      */
-    protected function startSync(SubstrateWebsocket $rpc): void
+    protected function startSync(SubstrateSocketClient $rpc): void
     {
         Cache::forget(PlatformCache::CUSTOM_TYPES->key());
 
@@ -128,14 +124,14 @@ class Sync extends Command
                 $storage[2]
             ));
         }
-        $this->info(__('enjin-platform::commands.sync.total_time', ['sec' => now()->diffInMilliseconds($this->start) / 1000]));
+        $this->info(__('enjin-platform::commands.sync.total_time', ['sec' => $this->start->diffInMilliseconds(now()) / 1000]));
         $this->info('=======================================================');
     }
 
     /**
      * Get the current block.
      */
-    protected function getCurrentBlock(SubstrateWebsocket $rpc): Block
+    protected function getCurrentBlock(SubstrateSocketClient $rpc): Block
     {
         $blockHash = $rpc->send('chain_getBlockHash');
         $blockNumber = Arr::get($rpc->send('chain_getBlock', [$blockHash]), 'block.header.number');
@@ -175,30 +171,62 @@ class Sync extends Command
         $storageKeys = $this->getStorageKeys($blockHash);
         $progress = $this->createAndStartDebugBar(count($storageKeys));
 
-        $storages = Future\await(
-            array_map(
-                fn ($keyAndHash) => async(function () use ($progress, $keyAndHash) {
-                    try {
-                        $storageKey = $keyAndHash[0];
+        $rpc = new SubstrateSocketClient();
 
-                        $context = contextFactory()->start(__DIR__ . '/contexts/get_storage.php');
-                        $context->send($keyAndHash);
-                        [$storage, $total] = $context->join();
+        $storages = array_map(
+            function ($keyAndHash) use ($rpc, $progress) {
+                try {
+                    $storageKey = $keyAndHash[0];
+                    $blockHash = $keyAndHash[1];
 
-                        $this->newLine();
-                        $this->info('Finished to fetch: ' . $storageKey->type->name . ' storage');
+                    $total = 0;
+                    $storageValues = [];
 
-                        $progress->advance();
+                    while (true) {
+                        try {
+                            $keys = $rpc->send(
+                                'state_getKeysPaged',
+                                [
+                                    $storageKey->value,
+                                    1000,
+                                    $startKey ?? null,
+                                    $blockHash,
+                                ]
+                            );
+                        } catch (Throwable) {
+                            continue;
+                        }
 
-                        return [$storageKey, $storage, $total];
-                    } catch (SerializationException|ChannelException $e) {
-                        throw new PlatformException("Failed to sync: {$e->getMessage()}");
+                        if (empty($keys)) {
+                            break;
+                        }
+
+                        $storage = $rpc->send(
+                            'state_queryStorageAt',
+                            [
+                                $keys,
+                                $blockHash,
+                            ]
+                        );
+                        $storageValues[] = Arr::get($storage, '0.changes');
+                        $total += count($keys);
+                        $startKey = Arr::last($keys);
                     }
-                }),
-                $storageKeys,
-            )
+
+                    $this->newLine();
+                    $this->info('Finished to fetch: ' . $storageKey->type->name . ' storage');
+
+                    $progress->advance();
+
+                    return [$storageKey, $storageValues, $total];
+                } catch (SerializationException|ChannelException $e) {
+                    throw new PlatformException("Failed to sync: {$e->getMessage()}");
+                }
+            },
+            $storageKeys,
         );
 
+        $rpc->close();
         $progress->finish();
 
         return $storages;

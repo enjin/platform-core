@@ -20,9 +20,25 @@ query GetTokens(
         cap
         capSupply
         isFrozen
-        minimumBalance
-        unitPrice
-        mintDeposit
+        requiresDeposit
+        creationDeposit {
+          depositor {
+            account {
+              address
+              publicKey
+            }
+          }
+          amount
+        }
+        ownerDeposit
+        totalTokenAccountDeposit
+        infusion
+        anyoneCanInfuse
+        tokenMetadata {
+          name
+          symbol
+          decimalCount
+        }
         attributeCount
         collection {
           collectionId

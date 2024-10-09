@@ -158,7 +158,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
                 function ($recipient) use ($serializationService, $collectionId) {
-                    $data = $serializationService->encode(isRunningLatest() ? 'MintV1010' : 'Mint', [
+                    $data = $serializationService->encode('Mint', [
                         'collectionId' => gmp_init($collectionId),
                         'recipient' => [
                             'Id' => HexConverter::unPrefix($recipient['accountId']),

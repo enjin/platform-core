@@ -41,9 +41,17 @@ class MintPolicyInputType extends InputType implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.collection_type.field.maxTokenSupply'),
                 'rules' => ['nullable', new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
             ],
+            'forceCollapsingSupply' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::input_type.mint_policy.field.forceCollapsingSupply'),
+                'defaultValue' => false,
+            ],
+            // Deprecated
             'forceSingleMint' => [
-                'type' => GraphQL::type('Boolean!'),
+                'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::input_type.mint_policy.field.forceSingleMint'),
+                'deprecationReason' => __('enjin-platform::deprecated.mint_policy.field.forceSingleMint'),
+                'defaultValue' => false,
             ],
         ];
     }

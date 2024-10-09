@@ -26,12 +26,12 @@ class Approved extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', '0']);
-        $self->tokenId = $self->getValue($data, ['token_id.Some', '1']);
-        $self->owner = Account::parseAccount($self->getValue($data, ['owner', '2']));
-        $self->operator = Account::parseAccount($self->getValue($data, ['operator', '3']));
-        $self->amount = $self->getValue($data, ['amount.Some', '4']);
-        $self->expiration = $self->getValue($data, ['expiration.Some', '5']);
+        $self->collectionId = $self->getValue($data, 0);
+        $self->tokenId = $self->getValue($data, 1);
+        $self->owner = Account::parseAccount($self->getValue($data, 2));
+        $self->operator = Account::parseAccount($self->getValue($data, 3));
+        $self->amount = $self->getValue($data, 4);
+        $self->expiration = $self->getValue($data, 5);
 
         return $self;
     }

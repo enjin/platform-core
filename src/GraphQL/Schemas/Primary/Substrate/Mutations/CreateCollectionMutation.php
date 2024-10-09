@@ -68,8 +68,9 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
     {
         return [
             'mintPolicy' => [
-                'type' => GraphQL::type('MintPolicy!'),
+                'type' => GraphQL::type('MintPolicy'),
                 'description' => __('enjin-platform::mutation.create_collection.args.mintPolicy'),
+                'defaultValue' => null,
             ],
             'marketPolicy' => [
                 'type' => GraphQL::type('MarketPolicy'),
@@ -106,18 +107,16 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
         SerializationServiceInterface $serializationService,
         TransactionService $transactionService
     ): mixed {
-        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
-
         return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $serializationService->encode($method, static::getEncodableParams(...$blockchainService->getCollectionPolicies($args)))),
+            $this->storeTransaction($args, $serializationService->encode($this->getMutationName(), static::getEncodableParams(...$blockchainService->getCollectionPolicies($args)))),
             $resolveInfo
         );
     }
 
     public static function getEncodableParams(...$params): array
     {
-        $mintPolicy = Arr::get($params, 'mintPolicy', new MintPolicyParams(false));
-        $marketPolicy = Arr::get($params, 'marketPolicy', null);
+        $mintPolicy = Arr::get($params, 'mintPolicy') ?? new MintPolicyParams();
+        $marketPolicy = Arr::get($params, 'marketPolicy');
         $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', []);
         $attributes = Arr::get($params, 'attributes', []);
 

@@ -15,7 +15,7 @@ class SerializationTest extends TestCase
         $encoded = $substrate->encode(
             'CreateCollection',
             CreateCollectionMutation::getEncodableParams(
-                mintPolicy: new MintPolicyParams(forceSingleMint: true)
+                mintPolicy: new MintPolicyParams(forceCollapsingSupply: true)
             )
         );
         $this->assertNotEmpty($encoded);
@@ -24,7 +24,7 @@ class SerializationTest extends TestCase
         $this->assertNotEmpty($decoded);
         $this->assertEquals([
             'mintPolicy' => [
-                'forceSingleMint' => true,
+                'forceCollapsingSupply' => true,
                 'maxTokenCount' => null,
                 'maxTokenSupply' => '0',
             ],

@@ -9,8 +9,19 @@ query GetCollection(
     collectionId
     maxTokenCount
     maxTokenSupply
-    forceSingleMint
+    forceCollapsingSupply
     frozen
+    creationDeposit {
+      depositor {
+        account {
+          publicKey
+          address
+        }
+      }
+      amount
+    }
+    totalDeposit
+    totalInfusion
     network
     owner {
       account {

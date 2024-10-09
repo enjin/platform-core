@@ -15,13 +15,16 @@ class CreateTokenParams
     public function __construct(
         public string $tokenId,
         public string $initialSupply,
-        public TokenMintCapType $cap,
-        public ?string $unitPrice = null,
-        public ?string $supply = null,
+        public ?int $accountDepositCount = 0,
+        public ?TokenMintCapType $cap = null,
+        public ?string $capSupply = null,
         public ?TokenMarketBehaviorParams $behavior = null,
         public ?bool $listingForbidden = false,
         public ?FreezeStateType $freezeState = null,
         public ?array $attributes = [],
+        public ?string $infusion = '0',
+        public ?bool $anyoneCanInfuse = false,
+        public ?MetadataParams $metadata = new MetadataParams(),
     ) {}
 
     /**
@@ -32,13 +35,16 @@ class CreateTokenParams
         return new self(
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             initialSupply: gmp_strval(Arr::get($params, 'initialSupply')),
-            cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()) ?? TokenMintCapType::INFINITE,
-            unitPrice: ($unitPrice = Arr::get($params, 'sufficiency.Insufficient')) !== null ? gmp_strval($unitPrice) : null,
-            supply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? gmp_strval($supply) : null,
+            accountDepositCount: gmp_strval(Arr::get($params, 'accountDepositCount')),
+            cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()),
+            capSupply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? gmp_strval($supply) : null,
             behavior: ($behavior = Arr::get($params, 'behavior')) !== null ? TokenMarketBehaviorParams::fromEncodable($behavior) : null,
             listingForbidden: Arr::get($params, 'listingForbidden'),
             freezeState: FreezeStateType::tryFrom(Arr::get($params, 'freezeState')),
             attributes: Arr::get($params, 'attributes'),
+            infusion: gmp_strval(Arr::get($params, 'infusion')),
+            anyoneCanInfuse: Arr::get($params, 'anyoneCanInfuse') ?? false,
+            metadata: MetadataParams::fromEncodable(Arr::get($params, 'metadata')),
         );
     }
 
@@ -50,13 +56,16 @@ class CreateTokenParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             initialSupply: Arr::get($params, 'initialSupply'),
-            cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()) ?? TokenMintCapType::INFINITE,
-            unitPrice: ($unitPrice = Arr::get($params, 'unitPrice')) !== null ? $unitPrice : null,
-            supply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? $supply : null,
+            accountDepositCount: Arr::get($params, 'accountDepositCount'),
+            cap: TokenMintCapType::tryFrom(collect(Arr::get($params, 'cap'))?->keys()->first()),
+            capSupply: ($supply = Arr::get($params, 'cap.Supply')) !== null ? $supply : null,
             behavior: Arr::get($params, 'behavior'),
             listingForbidden: Arr::get($params, 'listingForbidden'),
             freezeState: FreezeStateType::tryFrom(Arr::get($params, 'freezeState')),
             attributes: Arr::get($params, 'attributes'),
+            infusion: Arr::get($params, 'infusion'),
+            anyoneCanInfuse: Arr::get($params, 'anyoneCanInfuse'),
+            metadata: MetadataParams::fromArray(Arr::get($params, 'metadata')),
         );
     }
 
@@ -65,36 +74,18 @@ class CreateTokenParams
      */
     public function toEncodable(): array
     {
-        $extra = isRunningLatest()
-            ? [
-                'accountDepositCount' => 0,
-                'cap' => in_array($this->cap, [TokenMintCapType::INFINITE, TokenMintCapType::SINGLE_MINT]) ? null : [
-                    $this->cap->value => gmp_init($this->supply),
-                ],
-                'infusion' => 0,
-                'anyoneCanInfuse' => false,
-                // TODO: This is being ignored for now as php-scale-codec does not support encoding `0x` values.
-                //      'metadata' => [
-                //          'name' => '0x',
-                //          'symbol' => '0x',
-                //          'decimals' => 0,
-                //      ],
-                //      'privilegedParams' => null,
-            ]
-            : [
-                'sufficiency' => [
-                    'Insufficient' => $this->unitPrice ? gmp_init($this->unitPrice) : null,
-                ],
-                'cap' => $this->cap === TokenMintCapType::INFINITE ? null : [
-                    $this->cap->value => $this->cap === TokenMintCapType::SINGLE_MINT ? null : gmp_init($this->supply),
-                ],
-                'foreignParams' => null,
-            ];
+        if ($this->cap === TokenMintCapType::COLLAPSING_SUPPLY && $this->capSupply === null) {
+            $this->capSupply = $this->initialSupply;
+        }
 
         return [
             'CreateToken' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'initialSupply' => gmp_init($this->initialSupply),
+                'accountDepositCount' => $this->accountDepositCount,
+                'cap' => $this->cap ? [
+                    $this->cap->value => gmp_init($this->capSupply),
+                ] : null,
                 'behavior' => $this->behavior?->toEncodable(),
                 'listingForbidden' => $this->listingForbidden,
                 'freezeState' => $this->freezeState?->value,
@@ -105,7 +96,10 @@ class CreateTokenParams
                     ],
                     $this->attributes
                 ),
-                ...$extra,
+                'infusion' => gmp_init($this->infusion),
+                'anyoneCanInfuse' => $this->anyoneCanInfuse,
+                'metadata' => $this->metadata->toEncodable(),
+                'privilegedParams' => null,
             ],
         ];
     }
@@ -115,15 +109,19 @@ class CreateTokenParams
      */
     public function toArray(): array
     {
+        if ($this->cap === TokenMintCapType::COLLAPSING_SUPPLY && $this->capSupply === null) {
+            $this->capSupply = $this->initialSupply;
+        }
+
         return [
             'CreateToken' => [
                 'tokenId' => $this->tokenId,
                 'initialSupply' => $this->initialSupply,
-                'unitPrice' => $this->unitPrice,
-                'cap' => [
+                'accountDepositCount' => $this->accountDepositCount,
+                'cap' => $this->cap ? [
                     'type' => $this->cap->name,
-                    'amount' => $this->supply,
-                ],
+                    'amount' => $this->capSupply,
+                ] : null,
                 'behavior' => $this->behavior?->toArray(),
                 'listingForbidden' => $this->listingForbidden,
                 'freezeState' => $this->freezeState?->name,
@@ -134,6 +132,9 @@ class CreateTokenParams
                     ],
                     $this->attributes
                 ),
+                'infusion' => $this->infusion,
+                'anyoneCanInfuse' => $this->anyoneCanInfuse,
+                'metadata' => $this->metadata->toArray(),
             ],
         ];
     }

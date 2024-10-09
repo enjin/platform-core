@@ -5,6 +5,7 @@ namespace Enjin\Platform\Services\Blockchain\Implementations;
 use Crypto\sr25519;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
@@ -15,6 +16,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
+use Enjin\Platform\Models\Substrate\MetadataParams;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
@@ -26,6 +28,7 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
+use Exception;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -148,9 +151,10 @@ class Substrate implements BlockchainServiceInterface
     {
         return Cache::remember(PlatformCache::FEE->key($call), now()->addWeek(), function () use ($call) {
             $extrinsic = $this->codec->encoder()->addFakeSignature($call);
-            $result = $this->callMethod('payment_queryFeeDetails', [
-                $extrinsic,
-            ]);
+            $result = (new SubstrateHttpClient())
+                ->jsonRpc('payment_queryFeeDetails', [
+                    $extrinsic,
+                ]);
 
             $baseFee = gmp_init(Arr::get($result, 'inclusionFee.baseFee'));
             $lenFee = gmp_init(Arr::get($result, 'inclusionFee.lenFee'));
@@ -175,12 +179,17 @@ class Substrate implements BlockchainServiceInterface
                 })->toArray();
         }
 
-        $mintPolicy = new MintPolicyParams(...$args['mintPolicy']);
         if ($args['marketPolicy'] !== null) {
             $args['marketPolicy']['royalty']['beneficiary'] = SS58Address::getPublicKey($args['marketPolicy']['royalty']['beneficiary']);
         }
-
         $marketPolicy = $args['marketPolicy'] !== null ? new RoyaltyPolicyParams(...$args['marketPolicy']['royalty']) : null;
+
+        if (Arr::get($args, 'mintPolicy.forceCollapsingSupply') === false && Arr::get($args, 'mintPolicy.forceSingleMint') === true) {
+            $args['mintPolicy']['forceCollapsingSupply'] = true;
+        }
+        unset($args['mintPolicy']['forceSingleMint']);
+
+        $mintPolicy = $args['mintPolicy'] !== null ? new MintPolicyParams(...$args['mintPolicy']) : null;
 
         return [
             'mintPolicy' => $mintPolicy,
@@ -211,26 +220,38 @@ class Substrate implements BlockchainServiceInterface
             $this->encodeTokenId($args),
             $args['amount'],
         ];
-        if (isset($args['unitPrice'])) {
-            $data['unitPrice'] = $args['unitPrice'];
-        }
 
         return new MintParams(...$data);
     }
 
     /**
-     * Create a new create token params object.
+     * Create a CreateTokenParams object.
      */
     public function getCreateTokenParams(array $args): CreateTokenParams
     {
         $data = [
-            $this->encodeTokenId($args),
-            $args['initialSupply'],
+            'tokenId' => $this->encodeTokenId($args),
+            'accountDepositCount' => $args['accountDepositCount'],
+            'initialSupply' => $args['initialSupply'],
+            'listingForbidden' => $args['listingForbidden'],
+            'attributes' => Arr::get($args, 'attributes', []),
+            'infusion' => $args['infusion'],
+            'anyoneCanInfuse' => $args['anyoneCanInfuse'],
         ];
 
-        if ($args['cap'] !== null) {
-            $data['cap'] = TokenMintCapType::getEnumCase($args['cap']['type']);
-            $data['supply'] = $args['cap']['amount'];
+        $cap = Arr::get($args, 'cap.type');
+
+        // TODO: SingleMint can be removed on v2.1.0
+        if ($cap === 'SINGLE_MINT' || $cap === 'COLLAPSING_SUPPLY') {
+            $data['cap'] = TokenMintCapType::COLLAPSING_SUPPLY;
+            $data['capSupply'] = $args['initialSupply'];
+        }
+        // TODO: Infinite can be removed on v2.1.0
+        elseif ($cap === 'INFINITE') {
+            $data['cap'] = null;
+        } elseif ($cap !== null) {
+            $data['cap'] = TokenMintCapType::getEnumCase($cap);
+            $data['capSupply'] = $args['cap']['amount'];
         }
 
         if (($beneficiary = Arr::get($args, 'behavior.hasRoyalty.beneficiary')) !== null) {
@@ -245,9 +266,9 @@ class Substrate implements BlockchainServiceInterface
             $data['freezeState'] = FreezeStateType::getEnumCase($args['freezeState']);
         }
 
-        $data['listingForbidden'] = $args['listingForbidden'];
-        $data['unitPrice'] = Arr::get($args, 'unitPrice');
-        $data['attributes'] = Arr::get($args, 'attributes', []);
+        if (isset($args['metadata'])) {
+            $data['metadata'] = new MetadataParams(...$args['metadata']);
+        }
 
         return new CreateTokenParams(...$data);
     }
@@ -371,11 +392,12 @@ class Substrate implements BlockchainServiceInterface
             $wallet = WalletService::firstOrStore(['public_key' => SS58Address::getPublicKey($wallet)]);
         }
 
-        $accountInfo = Cache::remember(
-            PlatformCache::BALANCE->key($wallet->public_key),
-            now()->addSeconds(12),
-            fn () => $this->codec->decoder()->systemAccount($this->fetchSystemAccount($wallet->public_key))
-        );
+        try {
+            $storage = $this->fetchSystemAccount($wallet->public_key);
+            $accountInfo = $this->codec->decoder()->systemAccount($storage);
+        } catch (Exception) {
+            return $wallet;
+        }
 
         $wallet->nonce = Arr::get($accountInfo, 'nonce');
         $wallet->balances = Arr::get($accountInfo, 'balances');
@@ -404,7 +426,7 @@ class Substrate implements BlockchainServiceInterface
                 sodium_hex2bin(HexConverter::unPrefix($message)),
                 sodium_hex2bin(HexConverter::unPrefix($publicKey)),
             );
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -417,9 +439,10 @@ class Substrate implements BlockchainServiceInterface
         return Cache::remember(
             PlatformCache::SYSTEM_ACCOUNT->key($publicKey),
             now()->addSeconds(12),
-            fn () => $this->callMethod('state_getStorage', [
-                $this->codec->encoder()->systemAccountStorageKey($publicKey),
-            ])
+            fn () => (new SubstrateHttpClient())
+                ->jsonRpc('state_getStorage', [
+                    $this->codec->encoder()->systemAccountStorageKey($publicKey),
+                ])
         );
     }
 }

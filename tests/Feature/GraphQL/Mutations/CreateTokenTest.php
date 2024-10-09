@@ -22,7 +22,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Event;
 class CreateTokenTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksHttpClient;
 
     protected string $method = 'CreateToken';
     protected Codec $codec;
@@ -58,8 +58,7 @@ class CreateTokenTest extends TestCaseGraphQL
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: $capType = TokenMintCapType::SINGLE_MINT,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                cap: $capType = TokenMintCapType::COLLAPSING_SUPPLY,
             ),
         ));
 
@@ -69,7 +68,6 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
                 'cap' => [
                     'type' => $capType->name,
                 ],
@@ -101,9 +99,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode(),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -140,9 +136,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -178,7 +172,6 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween(1, 10)),
-                'cap' => ['type' => TokenMintCapType::INFINITE->name],
             ],
             'nonce' => fake()->numberBetween(),
         ], true);
@@ -200,12 +193,9 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
-
         $params = $params->toArray()[$this->method];
         $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
@@ -249,9 +239,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -298,9 +286,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -343,8 +329,6 @@ class CreateTokenTest extends TestCaseGraphQL
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: null
             ),
         ));
 
@@ -374,7 +358,7 @@ class CreateTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
-    public function test_can_create_a_token_with_single_mint(): void
+    public function test_can_create_a_token_with_collapsin_g_supply(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
@@ -382,8 +366,7 @@ class CreateTokenTest extends TestCaseGraphQL
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: $capType = TokenMintCapType::SINGLE_MINT,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply)
+                cap: $capType = TokenMintCapType::COLLAPSING_SUPPLY,
             ),
         ));
 
@@ -393,7 +376,6 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
                 'cap' => [
                     'type' => $capType->name,
                 ],
@@ -428,8 +410,7 @@ class CreateTokenTest extends TestCaseGraphQL
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
                     cap: $capType = TokenMintCapType::SUPPLY,
-                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                    supply: $capSupply = fake()->numberBetween($initialSupply)
+                    capSupply: $capSupply = fake()->numberBetween($initialSupply)
                 )
             ),
         );
@@ -440,7 +421,6 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
                 'cap' => [
                     'type' => $capType->name,
                     'amount' => $capSupply,
@@ -475,8 +455,6 @@ class CreateTokenTest extends TestCaseGraphQL
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
-                    cap: TokenMintCapType::INFINITE,
-                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                     behavior: null,
                 )
             ),
@@ -488,11 +466,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
                 'behavior' => null,
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'cap' => null,
             ],
         ]);
 
@@ -521,8 +496,6 @@ class CreateTokenTest extends TestCaseGraphQL
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                 behavior: new TokenMarketBehaviorParams(
                     hasRoyalty: new RoyaltyPolicyParams(
                         beneficiary: $beneficiary = $this->wallet->public_key,
@@ -538,10 +511,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'cap' => null,
                 'behavior' => [
                     'hasRoyalty' => [
                         'beneficiary' => SS58Address::encode($beneficiary),
@@ -578,8 +548,6 @@ class CreateTokenTest extends TestCaseGraphQL
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
-                    cap: TokenMintCapType::INFINITE,
-                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                     listingForbidden: null,
                 )
             ),
@@ -591,10 +559,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'cap' => null,
                 'listingForbidden' => null,
             ],
         ]);
@@ -626,8 +591,6 @@ class CreateTokenTest extends TestCaseGraphQL
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
-                    cap: TokenMintCapType::INFINITE,
-                    unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                     listingForbidden: $listingForbidden = fake()->boolean(),
                 )
             ),
@@ -639,11 +602,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => $initialSupply,
-                'unitPrice' => $unitPrice,
                 'listingForbidden' => $listingForbidden,
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'cap' => null,
             ],
         ]);
 
@@ -672,8 +632,6 @@ class CreateTokenTest extends TestCaseGraphQL
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $unitPrice = $this->randomGreaterThanMinUnitPriceFor($initialSupply),
             ),
         ));
 
@@ -683,10 +641,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable((string) $tokenId),
                 'initialSupply' => (string) $initialSupply,
-                'unitPrice' => $unitPrice,
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'cap' => null,
             ],
         ]);
 
@@ -721,9 +676,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -760,9 +713,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode(Hex::MAX_UINT128),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -807,9 +758,7 @@ class CreateTokenTest extends TestCaseGraphQL
             collectionId: $collectionId = $collection->collection_chain_id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
-                initialSupply: $initialSupply = fake()->numberBetween(1),
-                cap: TokenMintCapType::INFINITE,
-                unitPrice: $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                initialSupply: fake()->numberBetween(1),
             ),
         ));
 
@@ -858,11 +807,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
             ],
         ], true);
 
@@ -881,11 +827,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
             ],
         ], true);
 
@@ -906,11 +849,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
             ],
         ], true);
 
@@ -929,8 +869,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(-1),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                'initialSupply' => fake()->numberBetween(1),
+
             ],
         ], true);
 
@@ -949,11 +889,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(Hex::MAX_UINT256),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
             ],
         ], true);
 
@@ -985,29 +922,6 @@ class CreateTokenTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_supply_zero(): void
-    {
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => 0,
-                'unitPrice' => gmp_strval(gmp_pow(10, 17)),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
-            ],
-        ], true);
-
-        $this->assertStringContainsString(
-            'The params.initial supply is too small, the minimum value it can be is 1.',
-            $response['error']['params.initialSupply'][0]
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_with_supply_overflow(): void
     {
         $response = $this->graphql($this->method, [
@@ -1017,38 +931,13 @@ class CreateTokenTest extends TestCaseGraphQL
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => Hex::MAX_UINT256,
                 'unitPrice' => gmp_strval(gmp_pow(10, 17)),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'cap' => null,
             ],
         ], true);
 
         $this->assertStringContainsString(
             'The params.initial supply is too large, the maximum value it can be is',
             $response['error']['params.initialSupply'][0]
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_invalid_unit_price(): void
-    {
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->minUnitPriceFor($initialSupply) - 1,
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
-            ],
-        ], true);
-
-        $this->assertArraySubset(
-            ['params.unitPrice' => ['The params.unit price is too small, the min token deposit is 0.01 ENJ thus initialSupply * unitPrice must be greater than 10^16.']],
-            $response['error']
         );
 
         Event::assertNotDispatched(TransactionCreated::class);
@@ -1061,8 +950,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                'initialSupply' => fake()->numberBetween(1),
                 'cap' => 'invalid',
             ],
         ], true);
@@ -1082,38 +970,14 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                'initialSupply' => fake()->numberBetween(1),
+
                 'cap' => [],
             ],
         ], true);
 
         $this->assertStringContainsString(
             'Field "type" of required type "TokenMintCapType!" was not provided',
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_cap_single_mint_and_supply(): void
-    {
-        $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
-            'params' => [
-                'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::SINGLE_MINT->name,
-                    'amount' => fake()->numberBetween($initialSupply),
-                ],
-            ],
-        ], true);
-
-        $this->assertArraySubset(
-            ['params.cap.amount' => ['The params.cap.amount field is prohibited when params.cap.type is SINGLE_MINT.']],
             $response['error']
         );
 
@@ -1128,7 +992,6 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                 'cap' => [
                     'type' => TokenMintCapType::SUPPLY->name,
                     'amount' => fake()->numberBetween(0, $initialSupply - 1),
@@ -1151,8 +1014,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                'initialSupply' => fake()->numberBetween(1),
+
                 'cap' => [
                     'type' => TokenMintCapType::SUPPLY->name,
                     'amount' => 0,
@@ -1175,8 +1038,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                'initialSupply' => fake()->numberBetween(1),
+
                 'cap' => [
                     'type' => TokenMintCapType::SUPPLY->name,
                     'supply' => -1,
@@ -1199,8 +1062,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
+                'initialSupply' => fake()->numberBetween(1),
+
                 'cap' => [
                     'type' => TokenMintCapType::SUPPLY->name,
                     'amount' => null,
@@ -1224,7 +1087,6 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
                 'cap' => [
                     'amount' => fake()->numberBetween($initialSupply),
                 ],
@@ -1246,11 +1108,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => 'invalid',
             ],
         ], true);
@@ -1270,11 +1128,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
                 'behavior' => [
                     'hasRoyalty' => [],
                 ],
@@ -1296,11 +1151,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => [
                     'hasRoyalty' => [
                         'percentage' => fake()->numberBetween(1, 50),
@@ -1324,11 +1175,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => ['hasRoyalty' => [
                     'beneficiary' => null,
                     'percentage' => fake()->numberBetween(1, 50),
@@ -1351,11 +1198,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => ['hasRoyalty' => [
                     'beneficiary' => 'invalid',
                     'percentage' => fake()->numberBetween(1, 50),
@@ -1382,11 +1225,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
                 'behavior' => ['hasRoyalty' => [
                     'beneficiary' => SS58Address::encode($this->recipient->public_key),
                 ]],
@@ -1408,11 +1248,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => [
                     'hasRoyalty' => [
                         'beneficiary' => SS58Address::encode($this->recipient->public_key),
@@ -1436,11 +1272,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => ['hasRoyalty' => [
                     'beneficiary' => SS58Address::encode($this->recipient->public_key),
                     'percentage' => 'invalid',
@@ -1463,11 +1295,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
                 'behavior' => ['hasRoyalty' => [
                     'beneficiary' => SS58Address::encode($this->recipient->public_key),
                     'percentage' => -0.1,
@@ -1494,11 +1323,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
                 'behavior' => [
                     'hasRoyalty' => [
                         'beneficiary' => SS58Address::encode($this->recipient->public_key),
@@ -1527,11 +1353,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'behavior' => [
                     'hasRoyalty' => [
                         'beneficiary' => SS58Address::encode($this->recipient->public_key),
@@ -1560,11 +1382,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
                 'behavior' => [
                     'hasRoyalty' => [
                         'beneficiary' => SS58Address::encode($this->recipient->public_key),
@@ -1593,11 +1412,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
                 'listingForbidden' => 'invalid',
             ],
         ], true);
@@ -1618,11 +1433,8 @@ class CreateTokenTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
-                'initialSupply' => $initialSupply = fake()->numberBetween(1),
-                'unitPrice' => $this->randomGreaterThanMinUnitPriceFor($initialSupply),
-                'cap' => [
-                    'type' => TokenMintCapType::INFINITE->name,
-                ],
+                'initialSupply' => fake()->numberBetween(1),
+                'cap' => null,
             ],
         ], true);
 

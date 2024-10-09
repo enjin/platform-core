@@ -4,7 +4,7 @@ namespace Enjin\Platform\Clients\Implementations;
 
 use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
 
-class SubstrateWebsocket extends WebsocketAbstract
+class SubstrateSocketClient extends WebsocketAbstract
 {
     /**
      * Create a new websocket client instance.

@@ -1,3 +1,6 @@
+providers:
+  - Enjin\Platform\CoreServiceProvider
+
 env:
   - APP_ENV="local"
   - APP_DEBUG="true"
@@ -14,8 +17,3 @@ env:
   - ENJIN_PLATFORM_API_THROTTLE="false"
   - SYNC_ALL="true"
   - DAEMON_ACCOUNT="0x68b427dda4f3894613e113b570d5878f3eee981196133e308c0a82584cf2e160"
-
-providers:
-  - Enjin\Platform\CoreServiceProvider
-
-

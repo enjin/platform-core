@@ -132,7 +132,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {

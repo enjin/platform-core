@@ -26,12 +26,12 @@ class Transferred extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', '0']);
-        $self->tokenId = $self->getValue($data, ['token_id', '1']);
-        $self->operator = Account::parseAccount($self->getValue($data, ['operator', '2']));
-        $self->from = Account::parseAccount($self->getValue($data, ['from', '3']));
-        $self->to = Account::parseAccount($self->getValue($data, ['to', '4']));
-        $self->amount = $self->getValue($data, ['amount', '5']);
+        $self->collectionId = $self->getValue($data, 0);
+        $self->tokenId = $self->getValue($data, 1);
+        $self->operator = Account::parseAccount($self->getValue($data, 2));
+        $self->from = Account::parseAccount($self->getValue($data, 3));
+        $self->to = Account::parseAccount($self->getValue($data, 4));
+        $self->amount = $self->getValue($data, 5);
 
         return $self;
     }

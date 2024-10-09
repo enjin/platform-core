@@ -13,6 +13,7 @@ use Enjin\Platform\Models\Laravel\TokenAccount;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Enjin\Platform\Models\Syncable;
+use Enjin\Platform\Services\Database\SyncableService;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Support\SS58Address;
@@ -25,7 +26,12 @@ abstract class SubstrateEvent
 {
     protected array $extra = [];
 
-    public function __construct(protected Event $event, protected Block $block, protected Codec $codec) {}
+    protected $syncableService;
+
+    public function __construct(protected Event $event, protected Block $block, protected Codec $codec)
+    {
+        $this->syncableService = app()->make(SyncableService::class);
+    }
 
     public function __destruct()
     {
@@ -171,7 +177,7 @@ abstract class SubstrateEvent
             return true;
         }
 
-        return Syncable::query()
+        return $this->getTransaction($this->block, $this->event->extrinsicIndex) || Syncable::query()
             ->where('syncable_type', $model)
             ->where('syncable_id', $value)
             ->exists();

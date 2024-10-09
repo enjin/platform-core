@@ -34,19 +34,19 @@ class ListingCreated extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
-        $self->seller = Account::parseAccount($self->getValue($data, ['listing.seller', 'ListingOf<T>.seller', 'Listing<T>.creator']));
-        $self->makeAssetId = $self->getValue($data, ['listing.make_asset_id', 'ListingOf<T>.make_asset_id', 'Listing<T>.make_asset_id']);
-        $self->takeAssetId = $self->getValue($data, ['listing.take_asset_id', 'ListingOf<T>.take_asset_id', 'Listing<T>.take_asset_id']);
-        $self->amount = $self->getValue($data, ['listing.amount', 'ListingOf<T>.amount', 'Listing<T>.amount']);
-        $self->price = $self->getValue($data, ['listing.price', 'ListingOf<T>.price', 'Listing<T>.price']);
-        $self->minTakeValue = $self->getValue($data, ['listing.min_take_value', 'ListingOf<T>.min_take_value', 'Listing<T>.min_received']);
-        $self->feeSide = $self->getValue($data, ['listing.fee_side', 'ListingOf<T>.fee_side', 'Listing<T>.fee_side']);
-        $self->creationBlock = $self->getValue($data, ['listing.creation_block', 'ListingOf<T>.creation_block', 'Listing<T>.creation_block']);
-        $self->deposit = $self->getValue($data, ['listing.deposit', 'ListingOf<T>.deposit', 'Listing<T>.deposit.amount']);
-        $self->salt = HexConverter::bytesToHexPrefixed($self->getValue($data, ['listing.salt', 'ListingOf<T>.salt', 'Listing<T>.salt']));
-        $self->data = $self->getValue($data, ['listing.data', 'ListingOf<T>.data', 'Listing<T>.data']);
-        $self->state = $self->getValue($data, ['listing.state', 'ListingOf<T>.state', 'Listing<T>.state']);
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, 'ListingIdOf<T>')) ? $value : HexConverter::bytesToHex($value));
+        $self->seller = Account::parseAccount($self->getValue($data, 'Listing<T>.creator'));
+        $self->makeAssetId = $self->getValue($data, 'Listing<T>.make_asset_id');
+        $self->takeAssetId = $self->getValue($data, 'Listing<T>.take_asset_id');
+        $self->amount = $self->getValue($data, 'Listing<T>.amount');
+        $self->price = $self->getValue($data, 'Listing<T>.price');
+        $self->minTakeValue = $self->getValue($data, 'Listing<T>.min_received');
+        $self->feeSide = $self->getValue($data, 'Listing<T>.fee_side');
+        $self->creationBlock = $self->getValue($data, 'Listing<T>.creation_block');
+        $self->deposit = $self->getValue($data, 'Listing<T>.deposit.amount');
+        $self->salt = HexConverter::bytesToHexPrefixed($self->getValue($data, 'Listing<T>.salt'));
+        $self->data = $self->getValue($data, 'Listing<T>.data');
+        $self->state = $self->getValue($data, 'Listing<T>.state');
 
         return $self;
     }

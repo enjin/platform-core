@@ -9,7 +9,7 @@ use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Event;
 class SendTransactionTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksSocketClient;
 
     protected string $method = 'SendTransaction';
 

@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate;
 
-use Enjin\Platform\Clients\Implementations\DecoderClient;
+use Enjin\Platform\Clients\Implementations\DecoderHttpClient;
 use Enjin\Platform\Facades\Package;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
@@ -15,13 +15,11 @@ use Throwable;
 
 class DecoderService
 {
-    protected DecoderClient $client;
     protected string $host;
     protected string $network;
 
-    public function __construct(?string $network = null)
+    public function __construct(protected DecoderHttpClient $client, ?string $network = null)
     {
-        $this->client = new DecoderClient();
         $this->host = config('enjin-platform.decoder_container');
         $this->network = $network ?? network()->value;
     }
@@ -50,6 +48,13 @@ class DecoderService
         }
 
         return $this->polkadartSerialize($type, $data);
+    }
+
+    public function setNetwork(string $network): self
+    {
+        $this->network = $network;
+
+        return $this;
     }
 
     protected function safeSerialize($function, $data): mixed

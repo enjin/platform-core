@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories;
 
-use Enjin\Platform\Enums\Substrate\TokenMintCapType;
+use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,16 +23,33 @@ class TokenFactory extends Factory
      */
     public function definition()
     {
+        $supply = gmp_init(fake()->numberBetween(1));
+        $depositPerTokenAccount = gmp_init(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT);
+        $ownerDeposit = gmp_mul(gmp_sub($supply, 1), $depositPerTokenAccount);
+
         return [
             'collection_id' => Collection::factory(),
             'token_chain_id' => (string) fake()->unique()->numberBetween(),
-            'supply' => (string) $supply = fake()->numberBetween(1),
-            'cap' => TokenMintCapType::INFINITE->name,
+            'supply' => gmp_strval($supply),
+            'cap' => null,
             'cap_supply' => null,
             'is_frozen' => false,
-            'unit_price' => (string) fake()->numberBetween(1 / $supply * 10 ** 17),
-            'minimum_balance' => '1',
-            'attribute_count' => '0',
+            'royalty_wallet_id' => null,
+            'royalty_percentage' => null,
+            'is_currency' => false,
+            'listing_forbidden' => false,
+            'requires_deposit' => true,
+            'creation_depositor' => null,
+            'creation_deposit_amount' => gmp_strval($depositPerTokenAccount),
+            'owner_deposit' => gmp_strval($ownerDeposit),
+            'total_token_account_deposit' => '0',
+            'attribute_count' => 0,
+            'account_count' => 0,
+            'infusion' => '0',
+            'anyone_can_infuse' => false,
+            'decimal_count' => 0,
+            'name' => null,
+            'symbol' => null,
         ];
     }
 }

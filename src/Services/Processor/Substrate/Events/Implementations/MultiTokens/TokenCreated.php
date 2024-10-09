@@ -69,18 +69,15 @@ class TokenCreated extends SubstrateEvent
         }
 
         $createToken = Arr::get($params, 'params.CreateToken') ?? Arr::get($params, 'params.CreateOrMint');
-        $isSingleMint = Arr::get($createToken, 'cap.Some') === 'SingleMint' || Arr::has($createToken, 'cap.SingleMint');
         $capSupply = $this->getValue($createToken, ['cap.Some.Supply', 'cap.Supply']);
         $collapsingSupply = $this->getValue($createToken, ['cap.Some.CollapsingSupply', 'cap.CollapsingSupply']);
 
-        $cap = TokenMintCapType::INFINITE;
+        $cap = null;
 
         if ($capSupply !== null) {
             $cap = TokenMintCapType::SUPPLY;
         } elseif ($collapsingSupply !== null) {
             $cap = TokenMintCapType::COLLAPSING_SUPPLY;
-        } elseif ($isSingleMint) {
-            $cap = TokenMintCapType::SINGLE_MINT;
         }
 
         $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary'])));
@@ -101,7 +98,7 @@ class TokenCreated extends SubstrateEvent
             'collection_id' => $collection->id,
             'token_chain_id' => $event->tokenId,
             'supply' => $this->getValue($createToken, ['initial_supply', 'amount']) ?? 0,
-            'cap' => $cap->name,
+            'cap' => $cap?->name,
             'cap_supply' => $capSupply ?? $collapsingSupply,
             'is_frozen' => $isFrozen,
             'royalty_wallet_id' => $beneficiary?->id,

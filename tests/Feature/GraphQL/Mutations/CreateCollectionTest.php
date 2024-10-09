@@ -2,7 +2,9 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
+use Cache;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -18,7 +20,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Tests\Support\MocksWebsocketClient;
+use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -26,7 +28,7 @@ use Illuminate\Support\Facades\Event;
 class CreateCollectionTest extends TestCaseGraphQL
 {
     use ArraySubsetAsserts;
-    use MocksWebsocketClient;
+    use MocksHttpClient;
 
     protected string $method = 'CreateCollection';
 
@@ -44,43 +46,34 @@ class CreateCollectionTest extends TestCaseGraphQL
     }
 
     // Happy Path
-
-    public function test_it_will_fail_with_duplicate_names(): void
+    public function test_create_collection_no_args(): void
     {
-        self::$queries['CreateCollectionDuplicateFieldName'] = '
-            mutation CreateCollection {
-                CreateCollection(
-                    mintPolicy: {
-                        maxTokenCount: 100000
-                        maxTokenSupply: 10
-                        forceSingleMint: true
-                    }
-                    marketPolicy: {
-                        royalty: {
-                            beneficiary: "rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ",
-                            percentage: 5
-                            percentage: 50
-                        }
-                    }
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams());
 
-                ) {
-                    id
-                    encodedData
-                    state
-                }
-            }';
-        $response = $this->graphql('CreateCollectionDuplicateFieldName', [], true, ['operationName' => $this->method]);
-        $this->assertArraySubset(
-            ['percentage' => ['message' => 'There can be only one input field named "percentage".']],
-            $response['errors']
-        );
+        $response = $this->graphql($this->method);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
     }
 
-    public function test_create_collection_single_mint(): void
+    public function test_create_collection_collapsing_supply(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             )
         ));
 
@@ -106,11 +99,43 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_create_collection_single_mint(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: new MintPolicyParams(
+                forceCollapsingSupply: true,
+            )
+        ));
+
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => true,
+            ],
+            'simulate' => null,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_create_collection_with_ss58_signing_account(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             )
         ));
 
@@ -145,7 +170,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             )
         ));
 
@@ -180,9 +205,11 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             )
         ));
+
+        Cache::forget(PlatformCache::FEE->key($encodedData));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
@@ -207,7 +234,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             )
         ));
 
@@ -258,7 +285,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(1, Hex::MAX_UINT64),
             )
         ));
@@ -293,7 +320,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
                 maxTokenSupply: fake()->numberBetween(1, Hex::MAX_UINT64),
             )
         ));
@@ -323,7 +350,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(1, Hex::MAX_UINT64),
                 maxTokenSupply: fake()->numberBetween(1, Hex::MAX_UINT64),
             )
@@ -354,7 +381,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
                 maxTokenCount: Hex::MAX_UINT64,
             )
         ));
@@ -384,7 +411,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
                 maxTokenSupply: Hex::MAX_UINT128,
             )
         ));
@@ -414,7 +441,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $mintPolicy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             ),
             marketPolicy: $marketPolicy = new RoyaltyPolicyParams(
                 beneficiary: app(Generator::class)->public_key(),
@@ -450,7 +477,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $mintPolicy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             ),
             explicitRoyaltyCurrencies: $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9)),
         ));
@@ -481,7 +508,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $mintPolicy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
             ),
             explicitRoyaltyCurrencies: [],
         ));
@@ -512,7 +539,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $mintPolicy = new MintPolicyParams(
-                forceSingleMint: fake()->boolean(),
+                forceCollapsingSupply: fake()->boolean(),
                 maxTokenCount: fake()->numberBetween(),
                 maxTokenSupply: fake()->numberBetween(),
             ),
@@ -553,7 +580,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => false,
+                'forceCollapsingSupply' => false,
             ],
             'idempotencyKey' => '',
         ], true);
@@ -570,7 +597,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => false,
+                'forceCollapsingSupply' => false,
             ],
             'idempotencyKey' => fake()->text(28),
         ], true);
@@ -587,39 +614,13 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => false,
+                'forceCollapsingSupply' => false,
             ],
             'idempotencyKey' => fake()->realTextBetween(256, 300),
         ], true);
 
         $this->assertArraySubset(
             ['idempotencyKey' => ['The idempotency key field must not be greater than 255 characters.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_no_args(): void
-    {
-        $response = $this->graphql($this->method, [], true);
-
-        $this->assertStringContainsString(
-            'Variable "$mintPolicy" of required type "MintPolicy!" was not provided.',
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_null_mint_policy(): void
-    {
-        $response = $this->graphql($this->method, [
-            'mintPolicy' => null,
-        ], true);
-
-        $this->assertStringContainsString(
-            'Variable "$mintPolicy" of non-null type "MintPolicy!" must not be null.',
             $response['error']
         );
 
@@ -640,41 +641,11 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_no_force_single_mint(): void
-    {
-        $response = $this->graphql($this->method, [
-            'mintPolicy' => [],
-        ], true);
-
-        $this->assertStringContainsString(
-            'Variable "$mintPolicy" got invalid value []; Field "forceSingleMint" of required type "Boolean!" was not provided',
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_null_force_single_mint(): void
-    {
-        $response = $this->graphql($this->method, [
-            'mintPolicy' => [
-                'forceSingleMint' => null,
-            ],
-        ], true);
-
-        $this->assertStringContainsString(
-            'value null at "mintPolicy.forceSingleMint"; Expected non-nullable type "Boolean!" not to be null',
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_with_invalid_force_single_mint(): void
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => 'invalid',
+                'forceCollapsingSupply' => 'invalid',
             ],
         ], true);
 
@@ -690,7 +661,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'simulate' => 'invalid',
         ], true);
@@ -707,7 +678,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenCount' => -1,
             ],
         ], true);
@@ -724,7 +695,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenCount' => 0,
             ],
         ], true);
@@ -741,7 +712,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenCount' => 'invalid',
             ],
         ], true);
@@ -758,7 +729,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenCount' => Hex::MAX_UINT128,
             ],
         ], true);
@@ -775,7 +746,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenSupply' => -1,
             ],
         ], true);
@@ -792,7 +763,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenSupply' => 0,
             ],
         ], true);
@@ -809,7 +780,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenSupply' => 'invalid',
             ],
         ], true);
@@ -826,7 +797,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
                 'maxTokenSupply' => Hex::MAX_UINT256,
             ],
         ], true);
@@ -843,7 +814,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => 'invalid',
         ], true);
@@ -860,7 +831,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [],
         ], true);
@@ -877,7 +848,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => 'invalid',
@@ -896,7 +867,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => null,
@@ -915,7 +886,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -937,7 +908,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -958,7 +929,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -980,7 +951,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -1001,7 +972,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -1023,7 +994,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -1045,7 +1016,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -1067,7 +1038,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -1089,7 +1060,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'marketPolicy' => [
                 'royalty' => [
@@ -1111,7 +1082,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => 'invalid',
         ], true);
@@ -1128,7 +1099,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds(array_merge($this->generateCurrencies(), [
                 [
@@ -1149,7 +1120,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds(array_merge($this->generateCurrencies(), [
                 [
@@ -1171,7 +1142,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds(array_merge($this->generateCurrencies(), [
                 [
@@ -1195,7 +1166,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => array_merge($this->generateCurrencies(), [
                 [
@@ -1218,7 +1189,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => array_merge($this->generateCurrencies(), [
                 [
@@ -1242,7 +1213,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => array_merge($this->generateCurrencies(), [
                 [
@@ -1264,7 +1235,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds(array_merge($currencies = $this->generateCurrencies(), [$currencies[0]])),
         ], true);
@@ -1281,7 +1252,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds($this->generateCurrencies(11)),
         ], true);
@@ -1298,7 +1269,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'attributes' => [
                 [
@@ -1320,7 +1291,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'attributes' => [
                 [
@@ -1342,7 +1313,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'attributes' => [
                 ['key' => 'key', 'value' => 'value'],
@@ -1357,11 +1328,42 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
+    public function test_it_will_fail_with_duplicate_names(): void
+    {
+        self::$queries['CreateCollectionDuplicateFieldName'] = '
+            mutation CreateCollection {
+                CreateCollection(
+                    mintPolicy: {
+                        maxTokenCount: 100000
+                        maxTokenSupply: 10
+                        forceCollapsingSupply: true
+                    }
+                    marketPolicy: {
+                        royalty: {
+                            beneficiary: "rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ",
+                            percentage: 5
+                            percentage: 50
+                        }
+                    }
+
+                ) {
+                    id
+                    encodedData
+                    state
+                }
+            }';
+        $response = $this->graphql('CreateCollectionDuplicateFieldName', [], true, ['operationName' => $this->method]);
+        $this->assertArraySubset(
+            ['percentage' => ['message' => 'There can be only one input field named "percentage".']],
+            $response['errors']
+        );
+    }
+
     public function test_it_will_fail_passing_daemon_as_signing_account(): void
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [
-                'forceSingleMint' => fake()->boolean(),
+                'forceCollapsingSupply' => fake()->boolean(),
             ],
             'signingAccount' => Account::daemonPublicKey(),
         ], true);

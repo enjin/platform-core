@@ -13,7 +13,10 @@ class CounterOfferPlaced extends Event implements PolkadartEvent
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
-    public readonly string $counterOffer;
+    public readonly string $sellerPrice;
+    public readonly ?string $buyerPrice;
+    public readonly string $depositor;
+    public readonly string $depositAmount;
 
     public static function fromChain(array $data): self
     {
@@ -22,8 +25,12 @@ class CounterOfferPlaced extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
-        $self->counterOffer = $self->getValue($data, ['CounterOffer<T>']);
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, 'ListingIdOf<T>')) ? $value : HexConverter::bytesToHex($value));
+        $self->sellerPrice = $self->getValue($data, 'CounterOffer<T>.seller_price');
+        $self->buyerPrice = $self->getValue($data, 'CounterOffer<T>.buyer_price');
+        $self->depositor =  HexConverter::prefix(is_string($value = $self->getValue($data, 'CounterOffer<T>.deposit.depositor')) ? $value : HexConverter::bytesToHex($value));
+        $self->depositAmount = $self->getValue($data, 'CounterOffer<T>.deposit.amount');
+
 
         return $self;
     }

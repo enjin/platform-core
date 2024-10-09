@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate;
 
-use Enjin\Platform\Clients\Implementations\SubstrateWebsocket;
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\TokenAccount;
@@ -17,11 +17,11 @@ use Throwable;
 
 class State
 {
-    protected SubstrateWebsocket $client;
+    protected SubstrateSocketClient $client;
 
-    public function __construct()
+    public function __construct(protected Processor $processor)
     {
-        $this->client = new SubstrateWebsocket();
+        $this->client = new SubstrateSocketClient();
     }
 
     public function __destruct()
@@ -39,7 +39,7 @@ class State
             return $extrinsics;
         }
 
-        $extrinsics = (new Processor())->withMetadata(
+        $extrinsics = $this->processor->withMetadata(
             'Extrinsics',
             JSON::decode($block['extrinsics']),
             $block['number'],
@@ -66,7 +66,7 @@ class State
             return $events;
         }
 
-        $events = (new Processor())->withMetadata(
+        $events = $this->processor->withMetadata(
             'Vec<EventRecord>',
             $block['events'],
             $block['number'],

@@ -22,8 +22,8 @@ class RuleSetRemoved extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', 'T::AccountId']));
-        $self->ruleSetId = $self->getValue($data, ['rule_set_id', 'T::RuleSetId']);
+        $self->tankId = Account::parseAccount($self->getValue($data, 'T::AccountId'));
+        $self->ruleSetId = $self->getValue($data, 'T::RuleSetId');
 
         return $self;
     }

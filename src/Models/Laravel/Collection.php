@@ -33,13 +33,16 @@ class Collection extends BaseModel
         'pending_transfer',
         'max_token_count',
         'max_token_supply',
-        'force_single_mint',
+        'force_collapsing_supply',
         'is_frozen',
         'royalty_wallet_id',
         'royalty_percentage',
         'token_count',
         'attribute_count',
+        'creation_depositor',
+        'creation_deposit_amount',
         'total_deposit',
+        'total_infusion',
         'network',
         'created_at',
         'updated_at',
@@ -51,11 +54,12 @@ class Collection extends BaseModel
      * @var array
      */
     protected $attributes = [
-        'force_single_mint' => false,
+        'force_collapsing_supply' => false,
         'is_frozen' => false,
         'token_count' => '0',
         'attribute_count' => '0',
         'total_deposit' => '0',
+        'total_infusion' => '0',
     ];
 
     /**
