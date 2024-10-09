@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class GetCollectionsTest extends TestCaseGraphQL
 {
@@ -49,6 +51,11 @@ class GetCollectionsTest extends TestCaseGraphQL
 
     public function test_it_can_get_total_count_correctly(): void
     {
+        Schema::disableForeignKeyConstraints();
+        Collection::truncate();
+        Token::truncate();
+        Schema::enableForeignKeyConstraints();
+
         $collections = Collection::factory(2)->create();
         $collection1 = $collections->shift();
         Token::factory(random_int(16, 100))->create(['collection_id' => $collection1->id]);
