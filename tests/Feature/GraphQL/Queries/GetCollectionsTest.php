@@ -15,6 +15,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
+use Illuminate\Support\Facades\Cache;
 
 class GetCollectionsTest extends TestCaseGraphQL
 {
@@ -56,6 +57,7 @@ class GetCollectionsTest extends TestCaseGraphQL
         Token::factory(random_int(16, 100))->create(['collection_id' => $collection2->id]);
         CollectionAccount::factory(random_int(16, 100))->create(['collection_id' => $collection2->id]);
 
+        Cache::flush();
         $response = $this->graphql($this->method, [
             'collectionIds' => [$collection1->collection_chain_id, $collection2->collection_chain_id],
             'tokensLimit' => 1,
