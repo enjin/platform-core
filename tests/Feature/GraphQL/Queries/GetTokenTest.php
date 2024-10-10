@@ -116,13 +116,10 @@ class GetTokenTest extends TestCaseGraphQL
 
         $this->assertArraySubset([
             'tokenId' => $this->tokenIdEncoder->encode(),
-            'supply' => $supply = $this->token->supply,
+            'supply' => $this->token->supply,
             'cap' => $this->token->cap,
             'capSupply' => $this->token->cap_supply,
             'isFrozen' => $this->token->is_frozen,
-            'minimumBalance' => $this->token->minimum_balance,
-            'unitPrice' => $unitPrice = $this->token->unit_price,
-            'mintDeposit' => $supply * $unitPrice,
             'attributeCount' => $this->token->attribute_count,
             'collection' => [
                 'collectionId' => $collectionId,

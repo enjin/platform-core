@@ -179,12 +179,17 @@ class Substrate implements BlockchainServiceInterface
                 })->toArray();
         }
 
-        $mintPolicy = new MintPolicyParams(...$args['mintPolicy']);
         if ($args['marketPolicy'] !== null) {
             $args['marketPolicy']['royalty']['beneficiary'] = SS58Address::getPublicKey($args['marketPolicy']['royalty']['beneficiary']);
         }
-
         $marketPolicy = $args['marketPolicy'] !== null ? new RoyaltyPolicyParams(...$args['marketPolicy']['royalty']) : null;
+
+        if (Arr::get($args, 'mintPolicy.forceCollapsingSupply') === false && Arr::get($args, 'mintPolicy.forceSingleMint') === true) {
+            $args['mintPolicy']['forceCollapsingSupply'] = true;
+        }
+        unset($args['mintPolicy']['forceSingleMint']);
+
+        $mintPolicy = $args['mintPolicy'] !== null ? new MintPolicyParams(...$args['mintPolicy']) : null;
 
         return [
             'mintPolicy' => $mintPolicy,

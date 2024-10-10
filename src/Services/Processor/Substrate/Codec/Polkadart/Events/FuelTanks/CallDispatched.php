@@ -22,8 +22,8 @@ class CallDispatched extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->caller = Account::parseAccount($self->getValue($data, ['caller', '0']));
-        $self->tankId = Account::parseAccount($self->getValue($data, ['tank_id', '1']));
+        $self->caller = Account::parseAccount($self->getValue($data, 0));
+        $self->tankId = Account::parseAccount($self->getValue($data, 1));
 
         return $self;
     }

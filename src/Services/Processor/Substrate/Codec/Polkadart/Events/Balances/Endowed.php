@@ -22,8 +22,8 @@ class Endowed extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->account = Account::parseAccount($self->getValue($data, ['account', 'T::AccountId']));
-        $self->freeBalance = $self->getValue($data, ['free_balance', 'T::Balance']);
+        $self->account = Account::parseAccount($self->getValue($data, 'T::AccountId'));
+        $self->freeBalance = $self->getValue($data, 'T::Balance');
 
         return $self;
     }

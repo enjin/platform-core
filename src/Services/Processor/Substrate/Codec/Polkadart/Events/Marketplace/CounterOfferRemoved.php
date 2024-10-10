@@ -14,7 +14,7 @@ class CounterOfferRemoved extends Event implements PolkadartEvent
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
-    public readonly ?string $creator;  // TODO: Should not be null after mainnet upgrade
+    public readonly string $creator;
 
     public static function fromChain(array $data): self
     {
@@ -23,8 +23,8 @@ class CounterOfferRemoved extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
-        $self->creator = Account::parseAccount($self->getValue($data, ['T::AccountId']));
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, 'ListingIdOf<T>')) ? $value : HexConverter::bytesToHex($value));
+        $self->creator = Account::parseAccount($self->getValue($data, 'T::AccountId'));
 
         return $self;
     }

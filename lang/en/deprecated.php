@@ -10,4 +10,6 @@ return [
     'token.field.mintDeposit' => 'Tokens no longer have a mint deposit in the blockchain. This argument will always return null.',
     'token.field.unitPrice' => 'Tokens no longer have a unit price in the blockchain. This argument will always return null.',
     'token_mint_cap_type.description' => 'The enum values `SINGLE_MINT` and `INFINITE` were deprecated.',
+    'collection_type.field.forceSingleMint' => 'This field has been deprecated in favor of `forceCollapsingSupply`.',
+    'mint_policy.field.forceSingleMint' => 'This field has been deprecated in favor of `forceCollapsingSupply`.',
 ];

@@ -53,9 +53,14 @@ class Parser
         foreach ($data as [$key, $collection]) {
             $collectionKey = $this->serializationService->decode('collectionStorageKey', $key);
             $collectionData = $this->serializationService->decode('collectionStorageData', $collection);
+
             $ownerWallet = $this->getCachedWallet(
                 $collectionData['owner'],
                 fn () => $this->walletService->firstOrStore(['account' => $collectionData['owner']])
+            );
+            $depositorWallet = $this->getCachedWallet(
+                $collectionData['creationDepositor'],
+                fn () => $this->walletService->firstOrStore(['account' => $collectionData['creationDepositor']])
             );
             $royaltyWallet = $this->getCachedWallet(
                 $collectionData['royaltyBeneficiary'],
@@ -74,16 +79,17 @@ class Parser
                 'owner_wallet_id' => $ownerWallet->id,
                 'max_token_count' => $collectionData['maxTokenCount'],
                 'max_token_supply' => $collectionData['maxTokenSupply'],
-                'force_single_mint' => $collectionData['forceSingleMint'],
+                'force_collapsing_supply' => $collectionData['forceCollapsingSupply'],
                 'is_frozen' => $collectionData['isFrozen'],
                 'royalty_wallet_id' => $royaltyWallet?->id,
                 'royalty_percentage' => $collectionData['royaltyPercentage'],
                 'token_count' => $collectionData['tokenCount'],
                 'attribute_count' => $collectionData['attributeCount'],
+                'creation_depositor' => $depositorWallet->id,
+                'creation_deposit_amount' => $collectionData['creationDepositAmount'],
                 'total_deposit' => $collectionData['totalDeposit'],
+                'total_infusion' => $collectionData['totalInfusion'],
                 'network' => config('enjin-platform.chains.network'),
-                'created_at' => $now = Carbon::now(),
-                'updated_at' => $now,
             ];
         }
 
@@ -159,6 +165,10 @@ class Parser
                 $tokenData['royaltyBeneficiary'],
                 fn () => $this->walletService->firstOrStore(['account' => $tokenData['royaltyBeneficiary']])
             );
+            $depositorWallet = $this->getCachedWallet(
+                $tokenData['creationDepositor'],
+                fn () => $this->walletService->firstOrStore(['account' => $tokenData['creationDepositor']])
+            );
 
             $insertData[] = [
                 'token_chain_id' => $tokenKey['tokenId'],
@@ -171,11 +181,18 @@ class Parser
                 'royalty_percentage' => $tokenData['royaltyPercentage'],
                 'is_currency' => $tokenData['isCurrency'],
                 'listing_forbidden' => $tokenData['listingForbidden'],
-                'minimum_balance' => $tokenData['minimumBalance'],
-                'unit_price' => $tokenData['unitPrice'],
                 'attribute_count' => $tokenData['attributeCount'],
-                'created_at' => $now = Carbon::now(),
-                'updated_at' => $now,
+                'account_count' => $tokenData['accountCount'],
+                'requires_deposit' => $tokenData['requiresDeposit'],
+                'creation_depositor' => $depositorWallet?->id,
+                'creation_deposit_amount' => $tokenData['creationDepositAmount'],
+                'owner_deposit' => $tokenData['ownerDeposit'],
+                'total_token_account_deposit' => $tokenData['totalTokenAccountDeposit'],
+                'infusion' => $tokenData['infusion'],
+                'anyone_can_infuse' => $tokenData['anyoneCanInfuse'],
+                'decimal_count' => $tokenData['decimalCount'],
+                'name' => empty($tokenData['name']) ? null : $tokenData['name'],
+                'symbol' => empty($tokenData['symbol']) ? null : $tokenData['symbol'],
             ];
         }
 

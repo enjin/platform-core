@@ -72,6 +72,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('add_network_to_pending_events_table')
             ->hasMigration('make_token_cap_nullable_on_tokens_table')
             ->hasMigration('upgrade_tokens_table')
+            ->hasMigration('upgrade_collections_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)

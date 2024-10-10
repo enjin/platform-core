@@ -46,39 +46,30 @@ class CreateCollectionTest extends TestCaseGraphQL
     }
 
     // Happy Path
-
-    public function test_it_will_fail_with_duplicate_names(): void
+    public function test_create_collection_no_args(): void
     {
-        self::$queries['CreateCollectionDuplicateFieldName'] = '
-            mutation CreateCollection {
-                CreateCollection(
-                    mintPolicy: {
-                        maxTokenCount: 100000
-                        maxTokenSupply: 10
-                        forceCollapsingSupply: true
-                    }
-                    marketPolicy: {
-                        royalty: {
-                            beneficiary: "rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ",
-                            percentage: 5
-                            percentage: 50
-                        }
-                    }
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams());
 
-                ) {
-                    id
-                    encodedData
-                    state
-                }
-            }';
-        $response = $this->graphql('CreateCollectionDuplicateFieldName', [], true, ['operationName' => $this->method]);
-        $this->assertArraySubset(
-            ['percentage' => ['message' => 'There can be only one input field named "percentage".']],
-            $response['errors']
-        );
+        $response = $this->graphql($this->method);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
     }
 
-    public function test_create_collection_single_mint(): void
+    public function test_create_collection_collapsing_supply(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
@@ -88,6 +79,38 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
+            'simulate' => null,
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_create_collection_single_mint(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
+            mintPolicy: new MintPolicyParams(
+                forceCollapsingSupply: true,
+            )
+        ));
+
+        $response = $this->graphql($this->method, [
+            'mintPolicy' => [
+                'forceSingleMint' => true,
+            ],
             'simulate' => null,
         ]);
 
@@ -598,32 +621,6 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $this->assertArraySubset(
             ['idempotencyKey' => ['The idempotency key field must not be greater than 255 characters.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_no_args(): void
-    {
-        $response = $this->graphql($this->method, [], true);
-
-        $this->assertStringContainsString(
-            'Variable "$mintPolicy" of required type "MintPolicy!" was not provided.',
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_will_fail_with_null_mint_policy(): void
-    {
-        $response = $this->graphql($this->method, [
-            'mintPolicy' => null,
-        ], true);
-
-        $this->assertStringContainsString(
-            'Variable "$mintPolicy" of non-null type "MintPolicy!" must not be null.',
             $response['error']
         );
 
@@ -1329,6 +1326,37 @@ class CreateCollectionTest extends TestCaseGraphQL
         );
 
         Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_will_fail_with_duplicate_names(): void
+    {
+        self::$queries['CreateCollectionDuplicateFieldName'] = '
+            mutation CreateCollection {
+                CreateCollection(
+                    mintPolicy: {
+                        maxTokenCount: 100000
+                        maxTokenSupply: 10
+                        forceCollapsingSupply: true
+                    }
+                    marketPolicy: {
+                        royalty: {
+                            beneficiary: "rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ",
+                            percentage: 5
+                            percentage: 50
+                        }
+                    }
+
+                ) {
+                    id
+                    encodedData
+                    state
+                }
+            }';
+        $response = $this->graphql('CreateCollectionDuplicateFieldName', [], true, ['operationName' => $this->method]);
+        $this->assertArraySubset(
+            ['percentage' => ['message' => 'There can be only one input field named "percentage".']],
+            $response['errors']
+        );
     }
 
     public function test_it_will_fail_passing_daemon_as_signing_account(): void

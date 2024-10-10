@@ -26,12 +26,12 @@ class CollectionMutated extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->collectionId = $self->getValue($data, ['collection_id', 'T::CollectionId']);
-        $self->owner = Account::parseAccount($self->getValue($data, ['mutation.owner.Some', 'T::CollectionMutation.owner']));
+        $self->collectionId = $self->getValue($data, 'T::CollectionId');
+        $self->owner = Account::parseAccount($self->getValue($data, 'T::CollectionMutation.owner'));
         $self->royalty = $self->getRoyalty($data);
         $self->beneficiary = Account::parseAccount($self->getBeneficiary($data, $self->royalty));
         $self->percentage = $self->getPercentage($data, $self->royalty);
-        $self->explicitRoyaltyCurrencies = $self->getValue($data, ['mutation.explicit_royalty_currencies.Some', 'T::CollectionMutation.explicit_royalty_currencies']);
+        $self->explicitRoyaltyCurrencies = $self->getValue($data, 'T::CollectionMutation.explicit_royalty_currencies');
 
         return $self;
     }
@@ -53,7 +53,7 @@ class CollectionMutated extends Event implements PolkadartEvent
 
     protected function getRoyalty($data): string
     {
-        $royalty = $this->getValue($data, ['mutation.royalty', 'T::CollectionMutation.royalty']);
+        $royalty = $this->getValue($data, 'T::CollectionMutation.royalty');
 
         if ($royalty === null || $royalty === 'NoMutation') {
             return 'NoMutation';
@@ -68,7 +68,7 @@ class CollectionMutated extends Event implements PolkadartEvent
             return null;
         }
 
-        return $this->getValue($data, ['mutation.royalty.SomeMutation.Some.beneficiary', 'T::CollectionMutation.royalty.SomeMutation.beneficiary']);
+        return $this->getValue($data, 'T::CollectionMutation.royalty.SomeMutation.beneficiary');
     }
 
     protected function getPercentage($data, $royalty): ?string
@@ -77,7 +77,7 @@ class CollectionMutated extends Event implements PolkadartEvent
             return null;
         }
 
-        return $this->getValue($data, ['mutation.royalty.SomeMutation.Some.percentage', 'T::CollectionMutation.royalty.SomeMutation.percentage']);
+        return $this->getValue($data, 'T::CollectionMutation.royalty.SomeMutation.percentage');
     }
 }
 

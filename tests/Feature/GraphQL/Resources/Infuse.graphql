@@ -1,21 +1,17 @@
-mutation CreateCollection(
-  $mintPolicy: MintPolicy
-  $marketPolicy: MarketPolicy
-  $explicitRoyaltyCurrencies: [MultiTokenIdInput]
-  $attributes: [AttributeInput]
-  $idempotencyKey: String
+mutation Infuse(
+  $collectionId: BigInt!
+  $tokenId: EncodableTokenIdInput!
+  $amount: BigInt!
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
   $nonce: Int
   $tip: BigInt
 ) {
-  CreateCollection(
-    mintPolicy: $mintPolicy
-    marketPolicy: $marketPolicy
-    explicitRoyaltyCurrencies: $explicitRoyaltyCurrencies
-    attributes: $attributes
-    idempotencyKey: $idempotencyKey
+  Infuse(
+    collectionId: $collectionId
+    tokenId: $tokenId
+    amount: $amount
     skipValidation: $skipValidation
     simulate: $simulate
     signingAccount: $signingAccount
@@ -35,6 +31,5 @@ mutation CreateCollection(
         address
       }
     }
-    idempotencyKey
   }
 }

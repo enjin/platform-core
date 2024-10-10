@@ -8,7 +8,7 @@ use Enjin\Platform\Rules\StringMaxByteLength;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 
-class MetadataInputType extends InputType implements PlatformGraphQlType
+class TokenMetadataInputType extends InputType implements PlatformGraphQlType
 {
     use InSubstrateSchema;
 
@@ -18,7 +18,7 @@ class MetadataInputType extends InputType implements PlatformGraphQlType
     public function attributes(): array
     {
         return [
-            'name' => 'MetadataInput',
+            'name' => 'TokenMetadataInput',
             'description' => __('enjin-platform::type.metadata_input.description'),
         ];
     }

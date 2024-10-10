@@ -13,6 +13,8 @@ class CounterOfferAnswered extends Event implements PolkadartEvent
     public readonly string $module;
     public readonly string $name;
     public readonly string $listingId;
+    public readonly string $creator;
+    public readonly ?string $response; // Null means the offer was rejected
 
     public static function fromChain(array $data): self
     {
@@ -21,7 +23,9 @@ class CounterOfferAnswered extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, ['listing_id', 'ListingIdOf<T>'])) ? $value : HexConverter::bytesToHex($value));
+        $self->listingId = HexConverter::prefix(is_string($value = $self->getValue($data, 'ListingIdOf<T>')) ? $value : HexConverter::bytesToHex($value));
+        $self->creator = HexConverter::prefix(is_string($value = $self->getValue($data, 'T::AccountId')) ? $value : HexConverter::bytesToHex($value));
+        $self->response = $self->getValue($data, 'CounterOfferResponseOf<T>.Counter');
 
         return $self;
     }

@@ -24,9 +24,9 @@ class FuelTankCreated extends Event implements PolkadartEvent
         $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
         $self->module = array_key_first(Arr::get($data, 'event'));
         $self->name = array_key_first(Arr::get($data, 'event.' . $self->module));
-        $self->owner = Account::parseAccount($self->getValue($data, ['owner', '0']));
-        $self->tankName = HexConverter::hexToString(is_string($value = $self->getValue($data, ['name', '1'])) ? $value : HexConverter::bytesToHex($value));
-        $self->tankId = HexConverter::prefix(is_string($value = $self->getValue($data, ['tank_id', '2'])) ? $value : HexConverter::bytesToHex($value));
+        $self->owner = Account::parseAccount($self->getValue($data, 0));
+        $self->tankName = HexConverter::hexToString(is_string($value = $self->getValue($data, 1)) ? $value : HexConverter::bytesToHex($value));
+        $self->tankId = HexConverter::prefix(is_string($value = $self->getValue($data, 2)) ? $value : HexConverter::bytesToHex($value));
 
         return $self;
     }

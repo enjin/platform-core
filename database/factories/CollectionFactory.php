@@ -28,11 +28,14 @@ class CollectionFactory extends Factory
             'pending_transfer' => null,
             'max_token_count' => fake()->numberBetween(1),
             'max_token_supply' => (string) fake()->numberBetween(1),
-            'force_single_mint' => fake()->boolean(),
+            'force_collapsing_supply' => fake()->boolean(),
             'is_frozen' => false,
+            'creation_depositor' => Wallet::factory(),
+            'creation_deposit_amount' => (string) fake()->numberBetween(1),
             'token_count' => '0',
             'attribute_count' => '0',
             'total_deposit' => '0',
+            'total_infusion' => '0',
             'network' => 'local',
         ];
     }

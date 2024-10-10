@@ -68,8 +68,9 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
     {
         return [
             'mintPolicy' => [
-                'type' => GraphQL::type('MintPolicy!'),
+                'type' => GraphQL::type('MintPolicy'),
                 'description' => __('enjin-platform::mutation.create_collection.args.mintPolicy'),
+                'defaultValue' => null,
             ],
             'marketPolicy' => [
                 'type' => GraphQL::type('MarketPolicy'),
@@ -114,7 +115,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
 
     public static function getEncodableParams(...$params): array
     {
-        $mintPolicy = Arr::get($params, 'mintPolicy', new MintPolicyParams());
+        $mintPolicy = Arr::get($params, 'mintPolicy') ?? new MintPolicyParams();
         $marketPolicy = Arr::get($params, 'marketPolicy');
         $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', []);
         $attributes = Arr::get($params, 'attributes', []);
