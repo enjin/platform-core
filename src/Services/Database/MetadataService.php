@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Database;
 
 use Enjin\Platform\Clients\Implementations\MetadataHttpClient;
+use Enjin\Platform\Events\Substrate\MultiTokens\MetadataUpdated;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Facades\Cache;
@@ -39,6 +40,20 @@ class MetadataService
         }
 
         return $this->client->fetch($url) ?: null;
+    }
+
+    public function fetchAttributeWithEvent(Attribute $attribute): mixed
+    {
+        $old = $this->getCache($url = $attribute->value_string);
+        $new = $this->fetchAndCache($url);
+        if ($old !== $new) {
+            event(new MetadataUpdated(
+                $attribute->collection->collection_chain_id,
+                $attribute->token?->token_chain_id,
+            ));
+        }
+
+        return $new;
     }
 
     public function fetchAndCache(string $url, bool $forget = true): mixed

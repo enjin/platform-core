@@ -103,7 +103,7 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
                 )
             )
             ->get()
-            ->each(fn ($attribute) => $metadataService->fetchAndCache($attribute->value_string));
+            ->each(fn ($attribute) => $metadataService->fetchAttributeWithEvent($attribute));
 
         return true;
     }

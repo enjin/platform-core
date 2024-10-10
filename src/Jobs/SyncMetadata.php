@@ -3,9 +3,9 @@
 namespace Enjin\Platform\Jobs;
 
 use Enjin\Platform\Services\Database\MetadataService;
-use Enjin\Platform\Support\Hex;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -22,7 +22,7 @@ class SyncMetadata implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected string $url) {}
+    public function __construct(protected Model $attribute) {}
 
     /**
      * Execute the job.
@@ -30,11 +30,9 @@ class SyncMetadata implements ShouldQueue
     public function handle(MetadataService $service): void
     {
         try {
-            $service->fetchAndCache(
-                Hex::isHexEncoded($this->url) ? Hex::safeConvertToString($this->url) : $this->url
-            );
+            $service->fetchAttributeWithEvent($this->attribute);
         } catch (Throwable $e) {
-            Log::error("Unable to sync metadata for url {$this->url}", $e->getMessage());
+            Log::error("Unable to sync metadata for url {$this->attribute->value_string}", $e->getMessage());
         }
     }
 }
