@@ -58,8 +58,16 @@ class Attribute extends BaseModel
                 $key = Hex::safeConvertToString($attributes['key']);
                 $value = Hex::safeConvertToString($attributes['value']);
 
-                if ($key == 'uri' && str_contains($value, '{id}') && $this->token_id) {
-                    return Str::replace('{id}', "{$this->token->collection->collection_chain_id}-{$this->token->token_chain_id}", $value);
+                if ($key == 'uri' && str_contains($value, '{id}')) {
+                    if (!$this->relationLoaded('collection')) {
+                        $this->load('collection:id,collection_chain_id');
+                    }
+
+                    if (!$this->relationLoaded('token')) {
+                        $this->load('token:id,token_chain_id');
+                    }
+
+                    return Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token->token_chain_id}", $value);
                 }
 
                 return $value;
