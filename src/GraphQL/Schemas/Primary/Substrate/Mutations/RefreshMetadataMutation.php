@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
@@ -76,9 +77,9 @@ class RefreshMetadataMutation extends Mutation implements PlatformGraphQlMutatio
         SerializationServiceInterface $serializationService,
         MetadataService $metadataService,
     ): mixed {
-        $key = 'RefreshMetadataMutation'
-                . ':' . ($collectionId = Arr::get($args, 'collectionId'))
-                . ':' . ($tokenId = $this->encodeTokenId($args));
+        $key = PlatformCache::REFRESH_METADATA->key(
+            ($collectionId = Arr::get($args, 'collectionId')) . ':' . ($tokenId = $this->encodeTokenId($args))
+        );
         if (RateLimiter::tooManyAttempts($key, config('enjin-platform.sync_metadata.refresh_max_attempts'))) {
             throw new PlatformException(
                 __('enjin-platform::error.too_many_requests', ['num' => RateLimiter::availableIn($key)])
