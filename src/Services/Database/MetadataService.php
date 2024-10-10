@@ -48,7 +48,7 @@ class MetadataService
         $new = $this->fetchAndCache($url);
         if ($old !== $new) {
             event(new MetadataUpdated(
-                $attribute->collection->collection_chain_id,
+                $attribute->collection?->collection_chain_id,
                 $attribute->token?->token_chain_id,
             ));
         }
