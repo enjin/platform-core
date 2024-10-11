@@ -16,7 +16,7 @@ jobs:
               }
             }
           variables: |
-            input: "test"
+            input: '{ "description": "test" }'
             issueUpdateId: "PLA-2033"
             headers: '{ "Authorization": "test" }'
         env:
