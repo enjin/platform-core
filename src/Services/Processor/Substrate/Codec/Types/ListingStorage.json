@@ -25,6 +25,10 @@
       "Offer": "OfferData"
     }
   },
+  "AuctionData": {
+    "startBlock": "Compact<u32>",
+    "endBlock": "Compact<u32>"
+  },
   "OfferData": {
     "expiration": "Option<u32>"
   },
