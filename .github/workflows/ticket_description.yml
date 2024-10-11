@@ -9,7 +9,6 @@ jobs:
       - uses: octokit/graphql-action@v2.x
         id: get_latest_release
         with:
-          headers: "Authorization: dummy_key"
           query: |
             mutation issueUpdate($input: IssueUpdateInput!, $issueUpdateId: String!) {
               issueUpdate(input: $input, id: $issueUpdateId) {
@@ -19,6 +18,7 @@ jobs:
           variables: |
             input: "test"
             issueUpdateId: "PLA-2033"
+            headers: '{ "Authorization": "test" }'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: "echo 'latest release: ${{ steps.get_latest_release.outputs.data }}'"
