@@ -7,14 +7,5 @@
   "TransferRecipient": {
     "accountId": "AccountId",
     "params": "TransferParamsOf"
-  },
-  "BatchTransferV1010": {
-    "callIndex": "(u8, u8)",
-    "collectionId": "Compact<u128>",
-    "recipients": "Vec<TransferRecipientV1010>"
-  },
-  "TransferRecipientV1010": {
-    "accountId": "AccountId",
-    "params": "TransferParamsOfV1010"
   }
 }

@@ -95,8 +95,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         TransactionService $transactionService,
         Substrate $blockchainService
     ): mixed {
-        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
-        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),

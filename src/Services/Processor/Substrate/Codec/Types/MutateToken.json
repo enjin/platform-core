@@ -8,24 +8,13 @@
   "TokenMutation": {
     "behavior": "BehaviorParamOf",
     "listingForbidden": "Option<bool>",
-    "metadata": "Option<DefaultTokenMetadata>"
+    "anyoneCanInfuse": "Option<bool>",
+    "name": "Option<Bytes>"
   },
   "BehaviorParamOf": {
     "_enum": {
       "NoMutation": "Null",
       "SomeMutation": "Option<TokenMarketBehavior>"
     }
-  },
-  "MutateTokenV1010": {
-    "callIndex": "(u8, u8)",
-    "collectionId": "Compact<u128>",
-    "tokenId": "Compact<u128>",
-    "mutation": "TokenMutationV1010"
-  },
-  "TokenMutationV1010": {
-    "behavior": "BehaviorParamOf",
-    "listingForbidden": "Option<bool>",
-    "anyoneCanInfuse": "Option<bool>",
-    "name": "Option<Bytes>"
   }
 }
