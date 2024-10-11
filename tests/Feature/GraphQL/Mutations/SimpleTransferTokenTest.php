@@ -86,7 +86,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -130,7 +129,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -166,7 +164,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -240,7 +237,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -336,7 +332,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -395,7 +390,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -438,7 +432,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -477,7 +470,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -518,7 +510,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -577,7 +568,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -632,7 +622,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             simpleTransferParams: $params = new SimpleTransferParams(
                 tokenId: $this->tokenIdInput->encode($token->token_chain_id),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 

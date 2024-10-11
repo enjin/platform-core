@@ -267,7 +267,6 @@ class EncodingTest extends TestCase
             'params' => new SimpleTransferParams(
                 tokenId: '255',
                 amount: '1',
-                keepAlive: false,
             ),
         ];
 
@@ -291,7 +290,6 @@ class EncodingTest extends TestCase
                 tokenId: '1',
                 source: '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
                 amount: '1',
-                keepAlive: false,
             ),
         ];
 
@@ -315,7 +313,6 @@ class EncodingTest extends TestCase
             simpleTransferParams: new SimpleTransferParams(
                 tokenId: '255',
                 amount: '1',
-                keepAlive: false,
             ),
         ));
 
@@ -335,7 +332,6 @@ class EncodingTest extends TestCase
                 tokenId: '255',
                 source: 'rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ',
                 amount: '1',
-                keepAlive: false,
             ),
         ));
 
@@ -484,7 +480,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a0300fd0301000000",
+            "0x{$callIndex}b67a0300fd030100000000",
             $data
         );
     }
@@ -499,7 +495,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a0300fd03000000",
+            "0x{$callIndex}b67a0300fd0300000000",
             $data
         );
     }
@@ -514,7 +510,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a0300fd030100010100",
+            "0x{$callIndex}b67a0300fd03010001010000",
             $data
         );
     }
@@ -529,7 +525,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a0300fd030101010000",
+            "0x{$callIndex}b67a0300fd03010101000000",
             $data
         );
     }
@@ -585,14 +581,13 @@ class EncodingTest extends TestCase
             burnParams: new BurnParams(
                 tokenId: '57005',
                 amount: 100,
-                keepAlive: true,
                 removeTokenStorage: true
             )
         ));
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.burn', true);
         $this->assertEquals(
-            "0x{$callIndex}411fb67a030091010101",
+            "0x{$callIndex}411fb67a0300910101",
             $data
         );
     }
@@ -789,7 +784,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.set_attribute', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a030001ff000000000000000000000000000000106e616d6530476f6c64656e2053776f7264",
+            "0x{$callIndex}b67a030001ff000000000000000000000000000000106e616d6530476f6c64656e2053776f726400",
             $data
         );
     }

@@ -121,12 +121,6 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     public static function getEncodableParams(...$params): array
     {
         $behavior = Arr::get($params, 'behavior');
-        $extra = isRunningLatest() ? [
-            'anyoneCanInfuse' => null,
-            'name' => null,
-        ] : [
-            'metadata' => null,
-        ];
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
@@ -134,7 +128,8 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             'mutation' => [
                 'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
                 'listingForbidden' => Arr::get($params, 'listingForbidden'),
-                ...$extra,
+                'anyoneCanInfuse' => null, // TODO: Add this when the mutation is changed
+                'name' => null, // TODO: Add this when the mutation is changed
             ],
         ];
     }
