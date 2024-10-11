@@ -135,8 +135,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         // TODO: With the v1010 upgrade we run into a bug with the php-scale-codec lib where it cannot
         //  Encode the transaction with `0x` the solution here is to use Batch and within each call append the 0's
         $continueOnFailure = true;
-        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             recipients: $recipients->toArray(),
             continueOnFailure: $continueOnFailure

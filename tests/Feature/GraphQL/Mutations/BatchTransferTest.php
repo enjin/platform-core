@@ -400,7 +400,6 @@ class BatchTransferTest extends TestCaseGraphQL
                     'params' => new SimpleTransferParams(
                         tokenId: $this->tokenIdEncoder->encode(),
                         amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                        keepAlive: $keepAlive = fake()->boolean(),
                     ),
                 ],
             ]
@@ -414,7 +413,6 @@ class BatchTransferTest extends TestCaseGraphQL
                     'simpleParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => $amount,
-                        'keepAlive' => $keepAlive,
                     ],
                 ],
             ],
@@ -447,7 +445,6 @@ class BatchTransferTest extends TestCaseGraphQL
                     'params' => new SimpleTransferParams(
                         tokenId: $this->tokenIdEncoder->encode(),
                         amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                        keepAlive: null,
                     ),
                 ],
             ]
@@ -544,7 +541,6 @@ class BatchTransferTest extends TestCaseGraphQL
                             tokenId: $this->tokenIdEncoder->encode(),
                             source: $source = $this->wallet->public_key,
                             amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                            keepAlive: $keepAlive = fake()->boolean(),
                         ),
                     ],
                 ]
@@ -560,7 +556,6 @@ class BatchTransferTest extends TestCaseGraphQL
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'source' => SS58Address::encode($source),
                         'amount' => $amount,
-                        'keepAlive' => $keepAlive,
                     ],
                 ],
             ],
@@ -596,7 +591,6 @@ class BatchTransferTest extends TestCaseGraphQL
                             tokenId: $this->tokenIdEncoder->encode(),
                             source: $source = $this->wallet->public_key,
                             amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                            keepAlive: null,
                         ),
                     ],
                 ]

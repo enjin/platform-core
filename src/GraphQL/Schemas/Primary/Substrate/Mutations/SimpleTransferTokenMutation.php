@@ -120,7 +120,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
      */
     public function getMethodName(): string
     {
-        return isRunningLatest() ? 'TransferV1010' : 'Transfer';
+        return 'Transfer';
     }
 
     public static function getEncodableParams(...$params): array

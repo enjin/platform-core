@@ -95,8 +95,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         TransactionService $transactionService,
         Substrate $blockchainService
     ): mixed {
-        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
-        $encodedData = $serializationService->encode($method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
@@ -122,12 +121,6 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     public static function getEncodableParams(...$params): array
     {
         $behavior = Arr::get($params, 'behavior');
-        $extra = isRunningLatest() ? [
-            'anyoneCanInfuse' => null,
-            'name' => null,
-        ] : [
-            'metadata' => null,
-        ];
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
@@ -135,7 +128,8 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             'mutation' => [
                 'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
                 'listingForbidden' => Arr::get($params, 'listingForbidden'),
-                ...$extra,
+                'anyoneCanInfuse' => null, // TODO: Add this when the mutation is changed
+                'name' => null, // TODO: Add this when the mutation is changed
             ],
         ];
     }

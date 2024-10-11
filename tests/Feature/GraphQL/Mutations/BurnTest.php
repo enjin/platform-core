@@ -363,7 +363,6 @@ class BurnTest extends TestCaseGraphQL
                 burnParams: new BurnParams(
                     tokenId: $this->tokenIdEncoder->encode(),
                     amount: $amount = fake()->numberBetween(1, $this->tokenAccount->balance),
-                    keepAlive: $keepAlive = fake()->boolean(),
                 )
             ),
         );
@@ -373,7 +372,6 @@ class BurnTest extends TestCaseGraphQL
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(),
                 'amount' => $amount,
-                'keepAlive' => $keepAlive,
             ],
         ]);
 
@@ -542,7 +540,6 @@ class BurnTest extends TestCaseGraphQL
             burnParams: $params = new BurnParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
                 removeTokenStorage: fake()->boolean(),
             ),
         ));
