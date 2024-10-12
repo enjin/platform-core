@@ -1,16 +1,18 @@
 name: Linear Description Update
 on:
-  push:
+  pull_request:
 
 jobs:
   comment:
     name: PR Comment
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo Comment PR body: $BODY
+      - name: Get Body
         env:
           BODY: ${{ github.event.pull_request.body }}
+        run: |
+          echo Comment PR body: $BODY
+
           
       - uses: fjogeleit/http-request-action@v1
         with:
