@@ -1,15 +1,21 @@
 name: Linear Description Update
 on:
-  push:
+  issue_comment:
 
 jobs:
   update:
+    name: PR Comment
     runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request }}
     steps:
-    - name: Deploy Stage
-      uses: fjogeleit/http-request-action@v1
-      with:
-        url: 'https://api.linear.app/graphql'
-        method: 'POST'
-        customHeaders: '{"Content-Type": "application/json", "Authorization": "test"}'
-        data: '{"query":"mutation issueUpdate($input: IssueUpdateInput!, $issueUpdateId: String!) {\n  issueUpdate(input: $input, id: $issueUpdateId) {\n    success\n  }\n}","variables":{"input":{"description":"test"},"issueUpdateId":"PLA-2033"}}'
+      - run: |
+          echo Comment PR $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
+          
+      - uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://api.linear.app/graphql'
+          method: 'POST'
+          customHeaders: '{"Content-Type": "application/json", "Authorization": "test"}'
+          data: '{"query":"mutation issueUpdate($input: IssueUpdateInput!, $issueUpdateId: String!) {\n  issueUpdate(input: $input, id: $issueUpdateId) {\n    success\n  }\n}","variables":{"input":{"description":"test"},"issueUpdateId":"PLA-2033"}}'
