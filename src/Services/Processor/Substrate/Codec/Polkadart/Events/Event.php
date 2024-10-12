@@ -15,10 +15,10 @@ class Event implements PolkadartEvent
     public static function fromChain(array $data): self
     {
         $self = new self();
-        $self->extrinsicIndex = Arr::get($data, 'phase.ApplyExtrinsic');
-        $self->module = array_key_first(Arr::get($data, 'event'));
-        $self->name = is_string($eventId = Arr::get($data, 'event.' . $self->module)) ? $eventId : array_key_first($eventId);
-        $self->data = Arr::get($data, 'event.' . $self->module . '.' . $self->name);
+        $self->extrinsicIndex = arrGetSubstrateKey($data, 'phase.ApplyExtrinsic');
+        $self->module = array_key_first(arrGetSubstrateKey($data, 'event'));
+        $self->name = is_string($eventId = arrGetSubstrateKey($data, 'event.' . $self->module)) ? $eventId : array_key_first($eventId);
+        $self->data = arrGetSubstrateKey($data, 'event.' . $self->module . '.' . $self->name);
 
         return $self;
     }
@@ -36,8 +36,8 @@ class Event implements PolkadartEvent
         $keys = Arr::wrap($keys);
 
         foreach ($keys as $key) {
-            if (Arr::has($data, $k = "event.{$this->getKey($key)}")) {
-                return Arr::get($data, $k);
+            if (arrHasSubstrateKey($data, $k = "event.{$this->getKey($key)}")) {
+                return arrGetSubstrateKey($data, $k);
             }
         }
 

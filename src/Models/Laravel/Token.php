@@ -106,7 +106,7 @@ class Token extends BaseModel
             return true;
         }
 
-        if ($this->collection->force_single_mint && $this->supply === '1') {
+        if ($this->collection->force_collapsing_supply && $this->supply === '1') {
             // If the collection has a rule of forceSingleMint and there is only one unit of the token means it is a NFT
             return true;
         }
