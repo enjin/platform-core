@@ -1,6 +1,6 @@
 name: Linear Description Update
 on:
-  issue_comment:
+  push:
 
 jobs:
   comment:
@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo Comment PR $NUMBER
+          echo Comment PR body: $BODY
         env:
-          NUMBER: ${{ github.event.issue.number }}
+          BODY: ${{ github.event.pull_request.body }}
           
       - uses: fjogeleit/http-request-action@v1
         with:
