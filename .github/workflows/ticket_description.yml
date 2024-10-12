@@ -3,22 +3,13 @@ on:
   push:
 
 jobs:
-  logLatestRelease:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - uses: octokit/graphql-action@v2.x
-        id: get_latest_release
-        with:
-          query: |
-            mutation issueUpdate($input: IssueUpdateInput!, $issueUpdateId: String!) {
-              issueUpdate(input: $input, id: $issueUpdateId) {
-                success
-              }
-            }
-          variables: |
-            input: '{ "description": "test" }'
-            issueUpdateId: "PLA-2033"
-            headers: '{ "Authorization": "test" }'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo 'latest release: ${{ steps.get_latest_release.outputs.data }}'"
+    - name: Deploy Stage
+      uses: fjogeleit/http-request-action@v1
+      with:
+        url: 'https://api.linear.app/graphql'
+        method: 'POST'
+        customHeaders: '{"Content-Type": "application/json", "Authorization": "test"}'
+        data: '{"query": "{ issueUpdate(input: \"test\", id: \"PLA-2033\") { success } }" }'
