@@ -12,4 +12,4 @@ jobs:
         url: 'https://api.linear.app/graphql'
         method: 'POST'
         customHeaders: '{"Content-Type": "application/json", "Authorization": "test"}'
-        data: '{"query": "{ issueUpdate(input: \"test\", id: \"PLA-2033\") { success } }" }'
+        data: '{"query": "mutation { issueUpdate(input: \"test\", id: \"PLA-2033\") { success } }" }'
