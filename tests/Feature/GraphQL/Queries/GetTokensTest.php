@@ -139,6 +139,19 @@ class GetTokensTest extends TestCaseGraphQL
         $this->assertTrue($response['totalCount'] >= 1);
     }
 
+    public function test_it_can_validate_invalid_after_param(): void
+    {
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'after' => 'eyJjb2xsZWN0aW9uX2lkIjoxMDM2MywiX3BvaW50c1RvTmV4dEl0ZW1zIjp0cnVlfQ',
+        ], true);
+
+        $this->assertEquals(
+            ['after' => ['The after contains and invalid encoded data.']],
+            $response['error'],
+        );
+    }
+
     public function test_it_can_fetch_tokens_next_page_from_a_collection(): void
     {
         $after = '';
