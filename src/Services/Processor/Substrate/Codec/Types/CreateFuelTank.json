@@ -6,23 +6,9 @@
   "FuelTankDescriptor": {
     "name": "Bytes",
     "userAccountManagement": "Option<UserAccountManagement>",
-    "ruleSets": "BTreeMap<u32, Vec<DispatchRule>>",
-    "providesDeposit": "bool",
+    "ruleSets": "BTreeMap<u32, RuleSetDescriptor>",
+    "coveragePolicy": "CoveragePolicy",
     "accountRules": "Vec<AccountRule>"
-  },
-  "UserAccountManagement": {
-    "tankReservesExistentialDeposit": "bool",
-    "tankReservesAccountCreationDeposit": "bool"
-  },
-  "AccountRule": {
-    "_enum": {
-      "WhitelistedCallers": "Vec<AccountId>",
-      "RequireToken": "RequireTokenRule"
-    }
-  },
-  "RequireTokenRule": {
-    "collectionId": "u128",
-    "tokenId": "u128"
   },
   "DispatchRule": {
     "_enum": {
@@ -37,32 +23,7 @@
       "WhitelistedPallets": "Vec<Bytes>"
     }
   },
-  "UserFuelBudgetRule": {
-    "amount": "Compact",
-    "resetPeriod": "u32"
-  },
-  "TankFuelBudgetRule": {
-    "amount": "Compact",
-    "resetPeriod": "u32"
-  },
-  "PermittedCallsRule": {
-    "calls": "Vec<Bytes>"
-  },
-  "PermittedExtrinsicsRule": {
-    "extrinsics": "Vec<Call>"
-  },
-  "CreateFuelTankV1010": {
-  "callIndex": "(u8, u8)",
-  "descriptor": "FuelTankDescriptorV1010"
-  },
-  "FuelTankDescriptorV1010": {
-    "name": "Bytes",
-    "userAccountManagement": "Option<UserAccountManagementV1010>",
-    "ruleSets": "BTreeMap<u32, RuleSetDescriptorV1010>",
-    "coveragePolicy": "CoveragePolicy",
-    "accountRules": "Vec<AccountRule>"
-  },
-  "UserAccountManagementV1010": {
+  "UserAccountManagement": {
     "tankReservesAccountCreationDeposit": "bool"
   },
   "AccountRule": {
@@ -76,7 +37,7 @@
     "tokenId": "u128"
   },
   "RuleSetDescriptorV1010": {
-    "rules": "Vec<DispatchRuleV1010>",
+    "rules": "Vec<DispatchRule>",
     "requireAccount": "bool"
   },
   "DispatchRuleV1010": {
