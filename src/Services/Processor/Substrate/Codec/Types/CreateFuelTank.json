@@ -10,21 +10,12 @@
     "coveragePolicy": "CoveragePolicy",
     "accountRules": "Vec<AccountRule>"
   },
-  "DispatchRule": {
-    "_enum": {
-      "WhitelistedCallers": "Vec<AccountId>",
-      "WhitelistedCollections": "Vec<u128>",
-      "MaxFuelBurnPerTransaction": "u128",
-      "UserFuelBudget": "UserFuelBudgetRule",
-      "TankFuelBudget": "TankFuelBudgetRule",
-      "RequireToken": "RequireTokenRule",
-      "PermittedCalls": "PermittedCallsRule",
-      "PermittedExtrinsics": "PermittedExtrinsicsRule",
-      "WhitelistedPallets": "Vec<Bytes>"
-    }
-  },
   "UserAccountManagement": {
     "tankReservesAccountCreationDeposit": "bool"
+  },
+  "RuleSetDescriptor": {
+    "rules": "Vec<DispatchRule>",
+    "requireAccount": "bool"
   },
   "AccountRule": {
     "_enum": {
@@ -36,11 +27,7 @@
     "collectionId": "u128",
     "tokenId": "u128"
   },
-  "RuleSetDescriptorV1010": {
-    "rules": "Vec<DispatchRule>",
-    "requireAccount": "bool"
-  },
-  "DispatchRuleV1010": {
+  "DispatchRule": {
     "_enum": {
       "WhitelistedCallers": "Vec<AccountId>",
       "WhitelistedCollections": "Vec<u128>",

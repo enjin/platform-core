@@ -3,12 +3,6 @@
     "callIndex": "(u8, u8)",
     "tankId": "MultiAddress",
     "ruleSetId": "u32",
-    "rules": "Vec<DispatchRule>"
-  },
-  "InsertRuleSetV1010": {
-    "callIndex": "(u8, u8)",
-    "tankId": "MultiAddress",
-    "ruleSetId": "u32",
-    "ruleSet": "RuleSetDescriptorV1010"
+    "ruleSet": "RuleSetDescriptor"
   }
 }
