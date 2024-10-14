@@ -15,7 +15,7 @@ class FuelTankMutated extends Event implements PolkadartEvent
     public readonly string $tankId;
 
     public readonly ?array $userAccountManagement;
-    public readonly ?bool $providesDeposit;
+    public readonly ?string $coveragePolicy;
     public readonly ?array $accountRules;
 
     public static function fromChain(array $data): self
@@ -28,10 +28,10 @@ class FuelTankMutated extends Event implements PolkadartEvent
         $self->tankId = Account::parseAccount($self->getValue($data, 'T::AccountId'));
 
         $self->userAccountManagement = is_bool($b = $self->getValue($data, 'T::TankMutation.user_account_management.SomeMutation'))
-                ? ['tankReservesAccountCreationDeposit' => $b]
-                : $b;
+            ? ['tankReservesAccountCreationDeposit' => $b]
+            : $b;
 
-        $self->providesDeposit = $self->getValue($data, 'T::TankMutation.coverage_policy') === 'FeesAndDeposit';
+        $self->coveragePolicy = $self->getValue($data, 'T::TankMutation.coverage_policy');
         $self->accountRules = $self->getValue($data, 'T::TankMutation.account_rules');
 
         return $self;
@@ -42,7 +42,7 @@ class FuelTankMutated extends Event implements PolkadartEvent
         return [
             ['type' => 'tankId', 'value' => $this->tankId],
             ['type' => 'userAccountManagement', 'value' => $this->userAccountManagement],
-            ['type' => 'providesDeposit', 'value' => $this->providesDeposit],
+            ['type' => 'coveragePolicy', 'value' => $this->coveragePolicy],
             ['type' => 'accountRules', 'value' => $this->accountRules],
         ];
     }
