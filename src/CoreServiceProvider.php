@@ -69,6 +69,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('add_pending_transfer_collections_table')
             ->hasMigration('alter_attributes_table')
             ->hasMigration('add_network_to_pending_events_table')
+            ->hasMigration('add_index_to_syncables_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
