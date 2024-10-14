@@ -95,7 +95,7 @@ class CollectionCreated extends SubstrateEvent
             'owner_wallet_id' => $owner->id,
             'max_token_count' => $this->getValue($params, ['descriptor.policy.mint.max_token_count.Some', 'descriptor.policy.mint.max_token_count']),
             'max_token_supply' => $this->getValue($params, ['descriptor.policy.mint.max_token_supply.Some', 'descriptor.policy.mint.max_token_supply']),
-            'force_single_mint' => $this->getValue($params, ['descriptor.policy.mint.force_single_mint']) ?? false,
+            'force_collapsing_supply' => $this->getValue($params, ['descriptor.policy.mint.force_collapsing_supply']) ?? false,
             'is_frozen' => false,
             'royalty_wallet_id' => $beneficiary ? WalletService::firstOrStore(['account' => Account::parseAccount($beneficiary)])->id : null,
             'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
