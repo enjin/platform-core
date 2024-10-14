@@ -12,6 +12,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Token;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Pagination\Cursor;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -80,5 +81,23 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
             ))
             ->when(Arr::get($args, 'tokenIds'), fn ($query) => $query->whereIn('token_chain_id', $args['tokenIds']))
             ->cursorPaginateWithTotalDesc('identifier', $args['first']);
+    }
+
+    /**
+     * Get the validatio rules.
+     */
+    protected function rules(array $args = []): array
+    {
+        return [
+            'after' => [
+                'nullable',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (!Arr::get(Cursor::fromEncoded($value)?->toArray(), 'identifier')) {
+                        $fail('enjin-platform::validation.invalid_after')->translate();
+                    }
+
+                },
+            ],
+        ];
     }
 }
