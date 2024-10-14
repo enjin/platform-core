@@ -641,7 +641,7 @@ class CreateCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_invalid_force_single_mint(): void
+    public function test_it_will_fail_with_invalid_force_collapsing_supply(): void
     {
         $response = $this->graphql($this->method, [
             'mintPolicy' => [

@@ -129,7 +129,7 @@ class Parser
             'owner_wallet_id' => $ownerWallet->id,
             'max_token_count' => $collectionData['maxTokenCount'],
             'max_token_supply' => $collectionData['maxTokenSupply'],
-            'force_single_mint' => $collectionData['forceSingleMint'],
+            'force_collapsing_supply' => $collectionData['forceCollapsingSupply'],
             'is_frozen' => $collectionData['isFrozen'],
             'royalty_wallet_id' => $royaltyWallet?->id,
             'royalty_percentage' => $collectionData['royaltyPercentage'],

@@ -103,7 +103,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
      */
     public function getMethodName(): string
     {
-        return isRunningLatest() ? 'SetAttributeV1010' : 'SetAttribute';
+        return 'SetAttribute';
     }
 
     public static function getEncodableParams(...$params): array

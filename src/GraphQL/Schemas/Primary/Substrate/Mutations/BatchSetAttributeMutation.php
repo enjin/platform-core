@@ -99,8 +99,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService
     ): mixed {
         $continueOnFailure = $args['continueOnFailure'];
-        $method = isRunningLatest() ? $this->getMutationName() . 'V1010' : $this->getMutationName();
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $method, static::getEncodableParams(
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             attributes: $args['attributes'],

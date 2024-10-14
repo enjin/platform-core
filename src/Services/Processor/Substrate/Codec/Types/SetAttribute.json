@@ -4,13 +4,6 @@
     "collectionId": "Compact<u128>",
     "tokenId": "Option<u128>",
     "key": "Bytes",
-    "value": "Bytes"
-  },
-  "SetAttributeV1010": {
-    "callIndex": "(u8, u8)",
-    "collectionId": "Compact<u128>",
-    "tokenId": "Option<u128>",
-    "key": "Bytes",
     "value": "Bytes",
     "depositor": "Option<MultiAddress>"
   }

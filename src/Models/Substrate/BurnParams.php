@@ -12,7 +12,6 @@ class BurnParams
     public function __construct(
         public string $tokenId,
         public string $amount,
-        public ?bool $keepAlive = false,
         public ?bool $removeTokenStorage = false,
     ) {}
 
@@ -24,7 +23,6 @@ class BurnParams
         return new self(
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             amount: gmp_strval(Arr::get($params, 'amount')),
-            keepAlive: Arr::get($params, 'keepAlive'),
             removeTokenStorage: Arr::get($params, 'removeTokenStorage'),
         );
     }
@@ -37,7 +35,6 @@ class BurnParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             amount: Arr::get($params, 'amount'),
-            keepAlive: Arr::get($params, 'keepAlive'),
             removeTokenStorage: Arr::get($params, 'removeTokenStorage')
         );
     }
@@ -47,11 +44,11 @@ class BurnParams
      */
     public function toEncodable(): array
     {
-        return array_merge([
+        return [
             'tokenId' => gmp_init($this->tokenId),
             'amount' => gmp_init($this->amount),
             'removeTokenStorage' => $this->removeTokenStorage,
-        ], isRunningLatest() ? [] : ['keepAlive' => $this->keepAlive]);
+        ];
     }
 
     /**
@@ -59,11 +56,10 @@ class BurnParams
      */
     public function toArray(): array
     {
-        return array_merge([
+        return [
             'tokenId' => $this->tokenId,
             'amount' => $this->amount,
-            'keepAlive' => $this->keepAlive,
             'removeTokenStorage' => $this->removeTokenStorage,
-        ], isRunningLatest() ? [] : ['keepAlive' => $this->keepAlive]);
+        ];
     }
 }

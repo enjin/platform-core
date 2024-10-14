@@ -121,7 +121,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
      */
     public function getMethodName(): string
     {
-        return isRunningLatest() ? 'TransferV1010' : 'Transfer';
+        return 'Transfer';
     }
 
     public static function getEncodableParams(...$params): array
