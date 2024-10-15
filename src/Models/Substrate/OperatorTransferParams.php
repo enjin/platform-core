@@ -14,7 +14,6 @@ class OperatorTransferParams
         public string $tokenId,
         public string $source,
         public string $amount,
-        public ?bool $keepAlive = false
     ) {}
 
     /**
@@ -26,7 +25,6 @@ class OperatorTransferParams
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             source: SS58Address::encode(Arr::get($params, 'source')),
             amount: gmp_strval(Arr::get($params, 'amount')),
-            keepAlive: Arr::get($params, 'keepAlive', false),
         );
     }
 
@@ -39,7 +37,6 @@ class OperatorTransferParams
             tokenId: Arr::get($params, 'tokenId'),
             source: SS58Address::encode(Arr::get($params, 'source')),
             amount: Arr::get($params, 'amount'),
-            keepAlive: Arr::get($params, 'keepAlive', false),
         );
     }
 
@@ -48,16 +45,12 @@ class OperatorTransferParams
      */
     public function toEncodable(): array
     {
-        $extra = isRunningLatest()
-            ? ['depositor' => null]
-            : ['keepAlive' => $this->keepAlive];
-
         return [
             'Operator' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'source' => SS58Address::getPublicKey($this->source),
                 'amount' => gmp_init($this->amount),
-                ...$extra,
+                'depositor' => null,
             ],
         ];
     }
@@ -67,16 +60,11 @@ class OperatorTransferParams
      */
     public function toArray(): array
     {
-        isRunningLatest()
-            ? $extra['depositor'] = null
-            : $extra['keepAlive'] = $this->keepAlive;
-
         return [
             'Operator' => [
                 'tokenId' => $this->tokenId,
                 'source' => $this->source,
                 'amount' => $this->amount,
-                ...$extra,
             ],
         ];
     }

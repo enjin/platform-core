@@ -85,7 +85,6 @@ class Decoder
             'collectionId' => gmp_strval(Arr::get($decoded, 'collectionId')),
             'tokenId' => gmp_strval(Arr::get($decoded, 'params.tokenId')),
             'amount' => gmp_strval(Arr::get($decoded, 'params.amount')),
-            'keepAlive' => Arr::get($decoded, 'params.keepAlive'),
             'removeTokenStorage' => Arr::get($decoded, 'params.removeTokenStorage'),
         ];
     }

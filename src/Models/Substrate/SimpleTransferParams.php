@@ -12,7 +12,6 @@ class SimpleTransferParams
     public function __construct(
         public string $tokenId,
         public string $amount,
-        public ?bool $keepAlive = false
     ) {}
 
     /**
@@ -23,7 +22,6 @@ class SimpleTransferParams
         return new self(
             tokenId: gmp_strval(Arr::get($params, 'tokenId')),
             amount: gmp_strval(Arr::get($params, 'amount')),
-            keepAlive: Arr::get($params, 'keepAlive', false),
         );
     }
 
@@ -35,7 +33,6 @@ class SimpleTransferParams
         return new self(
             tokenId: Arr::get($params, 'tokenId'),
             amount: Arr::get($params, 'amount'),
-            keepAlive: Arr::get($params, 'keepAlive', false),
         );
     }
 
@@ -44,15 +41,11 @@ class SimpleTransferParams
      */
     public function toEncodable(): array
     {
-        $extra = isRunningLatest()
-            ? ['depositor' => null]
-            : ['keepAlive' => $this->keepAlive];
-
         return [
             'Simple' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'amount' => gmp_init($this->amount),
-                ...$extra,
+                'depositor' => null,
             ],
         ];
     }
@@ -62,15 +55,10 @@ class SimpleTransferParams
      */
     public function toArray(): array
     {
-        isRunningLatest()
-            ? $extra['depositor'] = null
-            : $extra['keepAlive'] = $this->keepAlive;
-
         return [
             'Simple' => [
                 'tokenId' => $this->tokenId,
                 'amount' => $this->amount,
-                ...$extra,
             ],
         ];
     }

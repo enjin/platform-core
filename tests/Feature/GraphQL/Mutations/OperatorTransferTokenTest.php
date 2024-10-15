@@ -78,7 +78,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -123,7 +122,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -160,7 +158,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -244,7 +241,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -306,7 +302,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $signingWallet->public_key,
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -367,7 +362,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $signingWallet->public_key,
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -469,7 +463,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $signingWallet->public_key,
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -513,7 +506,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -553,7 +545,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -595,7 +586,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -657,7 +647,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 
@@ -713,7 +702,6 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
-                keepAlive: fake()->boolean(),
             ),
         ));
 

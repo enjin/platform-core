@@ -104,14 +104,13 @@ final class DecodingTest extends TestCase
 
     public function test_it_can_decode_burn()
     {
-        $data = $this->codec->decoder()->burn('0x2804b67a0300fd03040100');
+        $data = $this->codec->decoder()->burn('0x2805b67a0300fd030400');
 
         $this->assertEquals(
             [
                 'collectionId' => '57005',
                 'tokenId' => '255',
                 'amount' => '1',
-                'keepAlive' => true,
                 'removeTokenStorage' => false,
             ],
             $data
