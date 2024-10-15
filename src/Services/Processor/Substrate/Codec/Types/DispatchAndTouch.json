@@ -3,10 +3,5 @@
     "callIndex": "(u8, u8)",
     "tankId": "MultiAddress",
     "ruleSetId": "u32"
-  },
-  "DispatchAndTouchV1010": {
-    "callIndex": "(u8, u8)",
-    "tankId": "MultiAddress",
-    "ruleSetId": "u32"
   }
 }

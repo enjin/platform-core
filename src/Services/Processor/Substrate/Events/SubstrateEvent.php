@@ -45,8 +45,10 @@ abstract class SubstrateEvent
 
     abstract public function run(): void;
 
-    public function getValue(array $data, array $keys): mixed
+    public function getValue(array $data, array|string|int $keys): mixed
     {
+        $keys = Arr::wrap($keys);
+
         foreach ($keys as $key) {
             if (Arr::has($data, $key)) {
                 return Arr::get($data, $key);

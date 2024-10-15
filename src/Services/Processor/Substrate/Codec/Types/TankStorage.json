@@ -9,28 +9,20 @@
     "owner": "AccountId",
     "name": "Bytes",
     "ruleSets": "BTreeMap<u32, DispatchRuleSet>",
-    "totalReserved": "Compact",
-    "accountCount": "Compact",
+    "totalReserved": "Compact<u128>",
+    "accountCount": "Compact<u32>",
     "userAccountManagement": "Option<UserAccountManagement>",
     "isFrozen": "bool",
-    "providesDeposit": "bool",
+    "coveragePolicy": "CoveragePolicy",
     "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
   },
-  "AccountRuleKind": {
-    "_enum": [
-      "WhitelistedCallers",
-      "RequireToken"
-    ]
-  },
-  "AccountRuleStorage": {
-    "_enum": {
-      "WhitelistedCallers": "Vec<AccountId>",
-      "RequireToken": "RequireTokenRuleStorage"
-    }
+  "UserAccountManagement": {
+    "tankReservesAccountCreationDeposit": "bool"
   },
   "DispatchRuleSet": {
     "rules": "BTreeMap<DispatchRuleKind, DispatchRuleStorage>",
-    "isFrozen": "bool"
+    "isFrozen": "bool",
+    "requireAccount": "bool"
   },
   "DispatchRuleKind": {
     "_enum": [
@@ -42,7 +34,8 @@
       "RequireToken",
       "PermittedCalls",
       "PermittedExtrinsics",
-      "WhitelistedPallets"
+      "WhitelistedPallets",
+      "RequireSignature"
     ]
   },
   "DispatchRuleStorage": {
@@ -55,7 +48,26 @@
       "RequireToken": "RequireTokenRuleStorage",
       "PermittedCalls": "PermittedCallsRuleStorage",
       "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage",
-      "WhitelistedPallets": "Vec<Bytes>"
+      "WhitelistedPallets": "Vec<Bytes>",
+      "RequireSignature": "[u8; 32]"
+    }
+  },
+  "CoveragePolicy": {
+    "_enum": [
+      "Fees",
+      "FeesAndDeposit"
+    ]
+  },
+  "AccountRuleKind": {
+    "_enum": [
+      "WhitelistedCallers",
+      "RequireToken"
+    ]
+  },
+  "AccountRuleStorage": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "RequireToken": "RequireTokenRuleStorage"
     }
   },
   "RequireTokenRuleStorage": {
@@ -87,58 +99,5 @@
   "ExtrinsicInfo": {
     "palletName": "Bytes",
     "extrinsicName": "Bytes"
-  },
-  "TankStorageDataV1010": {
-    "owner": "AccountId",
-    "name": "Bytes",
-    "ruleSets": "BTreeMap<u32, DispatchRuleSetV1010>",
-    "totalReserved": "Compact<u128>",
-    "accountCount": "Compact<u32>",
-    "userAccountManagement": "Option<UserAccountManagementV1010>",
-    "isFrozen": "bool",
-    "coveragePolicy": "CoveragePolicy",
-    "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
-  },
-  "UserAccountManagementV1010": {
-    "tankReservesAccountCreationDeposit": "bool"
-  },
-  "DispatchRuleSetV1010": {
-    "rules": "BTreeMap<DispatchRuleKindV1010, DispatchRuleStorageV1010>",
-    "isFrozen": "bool",
-    "requireAccount": "bool"
-  },
-  "DispatchRuleKindV1010": {
-    "_enum": [
-      "WhitelistedCallers",
-      "WhitelistedCollections",
-      "MaxFuelBurnPerTransaction",
-      "UserFuelBudget",
-      "TankFuelBudget",
-      "RequireToken",
-      "PermittedCalls",
-      "PermittedExtrinsics",
-      "WhitelistedPallets",
-      "RequireSignature"
-    ]
-  },
-  "DispatchRuleStorageV1010": {
-    "_enum": {
-      "WhitelistedCallers": "Vec<AccountId>",
-      "WhitelistedCollections": "Vec<u128>",
-      "MaxFuelBurnPerTransaction": "u128",
-      "UserFuelBudget": "UserFuelBudgetRuleStorage",
-      "TankFuelBudget": "TankFuelBudgetRuleStorage",
-      "RequireToken": "RequireTokenRuleStorage",
-      "PermittedCalls": "PermittedCallsRuleStorage",
-      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage",
-      "WhitelistedPallets": "Vec<Bytes>",
-      "RequireSignature": "[u8; 32]"
-    }
-  },
-  "CoveragePolicy": {
-    "_enum": [
-      "Fees",
-      "FeesAndDeposit"
-    ]
   }
 }

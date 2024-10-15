@@ -8,11 +8,6 @@
     "account": "AccountId"
   },
   "FuelTankAccountStorageData": {
-    "tankDeposit": "u128",
-    "userDeposit": "u128",
-    "totalReceived": "Compact"
-  },
-  "FuelTankAccountStorageDataV1010": {
     "tankDeposit": "Compact<u128>",
     "userDeposit": "Compact<u128>",
     "totalReceived": "Compact<u128>",
