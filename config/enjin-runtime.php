@@ -67,5 +67,6 @@ return [
         ['specVersion' => 1010, 'blockNumber' => 3109598, 'blockHash' => '0xd760a5c84f80be25664743b7ee06202062d8f521784548648706ceebe1b675f7'],
         ['specVersion' => 1011, 'blockNumber' => 3253151, 'blockHash' => '0xb832dc63775ce6378040e661726392fde1646f9c816438202bd9c5015f31dbcd'],
         ['specVersion' => 1012, 'blockNumber' => 3354745, 'blockHash' => '0x0b4724ff82756fc720716a950a112a261e2f0c2e64a5f3ec7fee6c56e3643607'],
+        ['specVersion' => 1013, 'blockNumber' => 3759476, 'blockHash' => '0x4abd481656d215c785c7c3ff28b5f8a5c3cc1d0ee55efe4c1ab4b3938fc3a80b'],
     ],
 ];
