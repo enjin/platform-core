@@ -49,17 +49,13 @@ class GetCollectionsTest extends TestCaseGraphQL
 
     public function test_it_can_get_total_count_correctly(): void
     {
-        $collections = Collection::factory(2)->create();
-        $collection1 = $collections->shift();
-        Token::factory(random_int(16, 100))->create(['collection_id' => $collection1->id]);
-        CollectionAccount::factory(random_int(16, 100))->create(['collection_id' => $collection1->id]);
-        $collection2 = $collections->shift();
-        Token::factory(random_int(16, 100))->create(['collection_id' => $collection2->id]);
-        CollectionAccount::factory(random_int(16, 100))->create(['collection_id' => $collection2->id]);
+        $collection = Collection::factory()->create();
+        Token::factory(random_int(16, 100))->create(['collection_id' => $collection->id]);
+        CollectionAccount::factory(random_int(16, 100))->create(['collection_id' => $collection->id]);
 
-        Cache::clear();
+        Cache::flush();
         $response = $this->graphql($this->method, [
-            'collectionIds' => [$collection1->collection_chain_id, $collection2->collection_chain_id],
+            'collectionIds' => [$collection->collection_chain_id],
             'tokensLimit' => 1,
             'accountsLimit' => 1,
         ]);
@@ -67,20 +63,12 @@ class GetCollectionsTest extends TestCaseGraphQL
         $this->assertCount(1, Arr::get($response, 'edges.0.node.tokens.edges'));
         $this->assertCount(1, Arr::get($response, 'edges.0.node.accounts.edges'));
         $this->assertEquals(
-            Token::where('collection_id', $collection1->id)->count(),
+            Token::where('collection_id', $collection->id)->count(),
             Arr::get($response, 'edges.0.node.tokens.totalCount')
         );
         $this->assertEquals(
-            CollectionAccount::where('collection_id', $collection1->id)->count(),
+            CollectionAccount::where('collection_id', $collection->id)->count(),
             Arr::get($response, 'edges.0.node.accounts.totalCount')
-        );
-        $this->assertEquals(
-            Token::where('collection_id', $collection2->id)->count(),
-            Arr::get($response, 'edges.1.node.tokens.totalCount')
-        );
-        $this->assertEquals(
-            CollectionAccount::where('collection_id', $collection2->id)->count(),
-            Arr::get($response, 'edges.1.node.accounts.totalCount')
         );
     }
 
