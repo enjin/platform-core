@@ -163,6 +163,10 @@ class Token extends BaseModel
 
     protected function pivotIdentifier(): Attribute
     {
+        if (!$this->relationLoaded('collection')) {
+            $this->load('collection:id,collection_chain_id');
+        }
+
         if (!$collection = $this->collection) {
             throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
         }

@@ -29,9 +29,8 @@ class SyncMetadata extends Command
     public function handle(): void
     {
         $query = Attribute::query()
-            ->select('key', 'value', 'token_id', 'collection_id')
+            ->select('id')
             ->where('key', '0x757269'); // uri hex
-
         if (($total = $query->count()) == 0) {
             $this->info('No attributes found to sync.');
 
@@ -40,17 +39,14 @@ class SyncMetadata extends Command
 
         $progress = $this->output->createProgressBar($total);
         $progress->start();
-        Log::info('Syncing metadata for ' . $total . ' attributes.');
+        Log::debug('Syncing metadata for ' . $total . ' attributes.');
 
-        $withs = [
-            'token:id,token_chain_id',
-            'collection:id,collection_chain_id',
-        ];
-        foreach ($query->with($withs)->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
-            SyncMetadataJob::dispatch($attribute);
+        foreach ($query->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
+            SyncMetadataJob::dispatch($attribute->id);
+            $progress->advance();
         }
 
         $progress->finish();
-        Log::info('Finished syncing metadata.');
+        Log::debug('Finished syncing metadata.');
     }
 }

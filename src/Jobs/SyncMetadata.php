@@ -2,10 +2,10 @@
 
 namespace Enjin\Platform\Jobs;
 
+use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -22,7 +22,7 @@ class SyncMetadata implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected Model $attribute) {}
+    public function __construct(protected int $attributeId) {}
 
     /**
      * Execute the job.
@@ -30,9 +30,14 @@ class SyncMetadata implements ShouldQueue
     public function handle(MetadataService $service): void
     {
         try {
-            $service->fetchAttributeWithEvent($this->attribute);
+            $service->fetchAttributeWithEvent(
+                Attribute::with([
+                    'token:id,token_chain_id',
+                    'collection:id,collection_chain_id',
+                ])->find($this->attributeId)
+            );
         } catch (Throwable $e) {
-            Log::error("Unable to sync metadata for url {$this->attribute->value_string}", $e->getMessage());
+            Log::error("Unable to sync metadata for attribute ID {$this->attributeId}", $e->getMessage());
         }
     }
 }
