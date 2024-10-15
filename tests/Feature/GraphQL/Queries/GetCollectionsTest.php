@@ -50,11 +50,6 @@ class GetCollectionsTest extends TestCaseGraphQL
 
     public function test_it_can_get_total_count_correctly(): void
     {
-        Schema::disableForeignKeyConstraints();
-        Collection::truncate();
-        Token::truncate();
-        Schema::enableForeignKeyConstraints();
-
         $collections = Collection::factory(2)->create();
         $collection1 = $collections->shift();
         Token::factory(random_int(16, 100))->create(['collection_id' => $collection1->id]);
