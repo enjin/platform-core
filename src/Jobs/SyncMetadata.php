@@ -37,7 +37,7 @@ class SyncMetadata implements ShouldQueue
                 ])->find($this->attributeId)
             );
         } catch (Throwable $e) {
-            Log::error("Unable to sync metadata for attribute ID {$this->attributeId}", $e->getMessage());
+            Log::error("Unable to sync metadata for attribute ID {$this->attributeId}", ['error' => $e->getMessage()]);
         }
     }
 }
