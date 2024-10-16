@@ -252,7 +252,7 @@ class BlockProcessor
 
             PlatformBlockIngesting::dispatch($block);
 
-            $this->info(sprintf('Ingested header for block #%s in %s seconds', $block->number, now()->diffInMilliseconds($syncTime) / 1000));
+            $this->info(sprintf('Ingested header for block #%s in %s seconds', $block->number, $syncTime->diffInMilliseconds(now()) / 1000));
 
             $this->fetchEvents($block);
             $this->fetchExtrinsics($block);
