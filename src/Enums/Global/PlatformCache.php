@@ -24,10 +24,9 @@ enum PlatformCache: string implements PlatformCacheable
     case FEE = 'fee';
     case DEPOSIT = 'deposit';
     case RELEASE_DIFF = 'releaseDiff';
-
     case BLOCK_EVENT_COUNT = 'blockEventCount';
-
     case BLOCK_TRANSACTION = 'blockTransaction';
+    case REFRESH_METADATA = 'refreshMetadata';
 
     public function key(?string $suffix = null, ?string $network = null): string
     {

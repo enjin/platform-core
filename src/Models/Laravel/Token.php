@@ -9,11 +9,9 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\Token as TokenMethods;
-use Enjin\Platform\Support\Hex;
 use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Token extends BaseModel
 {
@@ -136,7 +134,7 @@ class Token extends BaseModel
             get: fn () => $this->attributes['fetch_metadata'] ?? false,
             set: function ($value): void {
                 if ($value === true) {
-                    $this->attributes['metadata'] = MetadataService::fetch($this->getRelation('attributes')->first());
+                    $this->attributes['metadata'] = MetadataService::getCache($this->getRelation('attributes')->first());
                 }
                 $this->attributes['fetch_metadata'] = $value;
             }
@@ -149,28 +147,9 @@ class Token extends BaseModel
     protected function metadata(): Attribute
     {
         return new Attribute(
-            get: function () {
-                $tokenUriAttribute = $this->fetchUriAttribute($this);
-                if ($tokenUriAttribute) {
-                    $tokenUriAttribute->value = Hex::safeConvertToString($tokenUriAttribute->value);
-                }
-                $fetchedMetadata = $this->attributes['metadata'] ?? MetadataService::fetch($tokenUriAttribute);
-
-                if (!$fetchedMetadata) {
-                    $collectionUriAttribute = $this->fetchUriAttribute($this->collection);
-                    if ($collectionUriAttribute) {
-                        $collectionUriAttribute->value = Hex::safeConvertToString($collectionUriAttribute->value);
-                    }
-
-                    if ($collectionUriAttribute?->value && Str::contains($collectionUriAttribute->value, '{id}')) {
-                        $collectionUriAttribute->value = Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token_chain_id}", $collectionUriAttribute->value);
-                    }
-
-                    $fetchedMetadata = MetadataService::fetch($collectionUriAttribute);
-                }
-
-                return $fetchedMetadata;
-            },
+            get: fn () => $this->attributes['metadata']
+                ?? MetadataService::getCache($this->fetchUriAttribute($this)?->value_string ?? '')
+                ?? MetadataService::getCache($this->fetchUriAttribute($this->collection)->value_string ?? ''),
         );
     }
 
@@ -184,6 +163,10 @@ class Token extends BaseModel
 
     protected function pivotIdentifier(): Attribute
     {
+        if (!$this->relationLoaded('collection')) {
+            $this->load('collection:id,collection_chain_id');
+        }
+
         if (!$collection = $this->collection) {
             throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
         }
