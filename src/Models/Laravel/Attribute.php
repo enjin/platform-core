@@ -67,7 +67,7 @@ class Attribute extends BaseModel
                         $this->load('token:id,token_chain_id');
                     }
 
-                    return Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token->token_chain_id}", $value);
+                    return Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token?->token_chain_id}", $value);
                 }
 
                 return $value;
