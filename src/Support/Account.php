@@ -89,4 +89,9 @@ class Account
 
         return SS58Address::getPublicKey($account);
     }
+
+    public static function isManaged(string $publicKey): bool
+    {
+        return in_array($publicKey, static::managedPublicKeys());
+    }
 }
