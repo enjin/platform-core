@@ -18,7 +18,7 @@ return new class () extends Migration {
             DB::statement("
                 UPDATE transactions SET managed = 1
                 WHERE wallet_public_key IS  NULL
-                or wallet_public_key IN('".implode("','", Account::managedPublicKeys())."')
+                or wallet_public_key IN('" . implode("','", Account::managedPublicKeys()) . "')
             ");
         });
     }

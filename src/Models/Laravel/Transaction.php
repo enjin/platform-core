@@ -67,6 +67,8 @@ class Transaction extends BaseModel
 
     public static function boot(): void
     {
+        parent::boot();
+
         static::creating(
             fn ($model) => $model->managed = empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key),
         );
