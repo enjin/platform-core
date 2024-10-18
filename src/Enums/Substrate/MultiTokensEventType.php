@@ -12,6 +12,7 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionMutated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\CollectionTransferred;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Freeze;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Infused;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Minted;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Reserved;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Thawed;
@@ -43,6 +44,7 @@ enum MultiTokensEventType: string
     case TOKEN_ACCOUNT_DESTROYED = 'TokenAccountDestroyed';
     case MINTED = 'Minted';
     case BURNED = 'Burned';
+    case INFUSED = 'Infused';
     case FROZEN = 'Frozen';
     case THAWED = 'Thawed';
     case TRANSFERRED = 'Transferred';
@@ -51,9 +53,7 @@ enum MultiTokensEventType: string
     case APPROVED = 'Approved';
     case UNAPPROVED = 'Unapproved';
     case TOKEN_MUTATED = 'TokenMutated';
-
     case RESERVED = 'Reserved';
-
     case UNRESERVED = 'Unreserved';
 
     /**
@@ -74,6 +74,7 @@ enum MultiTokensEventType: string
             self::TOKEN_ACCOUNT_DESTROYED => new TokenAccountDestroyed($event, $block, $codec),
             self::MINTED => new Minted($event, $block, $codec),
             self::BURNED => new TokenBurned($event, $block, $codec),
+            self::INFUSED => new Infused($event, $block, $codec),
             self::FROZEN => new Freeze($event, $block, $codec),
             self::THAWED => new Thawed($event, $block, $codec),
             self::TRANSFERRED => new Transferred($event, $block, $codec),

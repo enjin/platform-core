@@ -30,7 +30,11 @@ class TokenMutated extends SubstrateEvent
         $token = $this->getToken($collection->id, $this->event->tokenId);
         $attributes = [];
 
-        if ($this->event->listingForbidden) {
+        if ($this->event->anyoneCanInfuse !== null) {
+            $attributes['anyone_can_infuse'] = $this->event->anyoneCanInfuse;
+        }
+
+        if ($this->event->listingForbidden != null) {
             $attributes['listing_forbidden'] = $this->event->listingForbidden;
         }
 
