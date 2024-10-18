@@ -14,13 +14,13 @@ return new class () extends Migration {
     {
         Schema::table('transactions', function (Blueprint $table) {
             $table->boolean('managed')->default(false)->index()->after('state');
-
-            DB::statement('
-                UPDATE transactions SET managed = 1
-                WHERE wallet_public_key IS  NULL
-                or wallet_public_key IN(?)
-            ', ["'" . implode("','", Account::managedPublicKeys()) . "'"]);
         });
+
+        DB::statement('
+            UPDATE transactions SET managed = 1
+            WHERE wallet_public_key IS  NULL
+            or wallet_public_key IN(?)
+        ', ["'" . implode("','", Account::managedPublicKeys()) . "'"]);
     }
 
     /**
