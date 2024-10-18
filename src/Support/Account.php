@@ -70,7 +70,7 @@ class Account
         return Cache::remember(
             PlatformCache::MANAGED_ACCOUNTS->key(),
             now()->addHour(),
-            fn () => collect(Wallet::where('managed', '=', true)->get()->pluck('public_key'))
+            fn () => collect(Wallet::where('managed', true)->pluck('public_key'))
                 ->filter()
                 ->add(static::daemonPublicKey())
                 ->unique()
@@ -88,5 +88,10 @@ class Account
         }
 
         return SS58Address::getPublicKey($account);
+    }
+
+    public static function isManaged(string $publicKey): bool
+    {
+        return in_array($publicKey, static::managedPublicKeys());
     }
 }

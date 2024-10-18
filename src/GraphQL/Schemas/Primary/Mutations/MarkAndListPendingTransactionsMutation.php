@@ -11,7 +11,6 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -79,24 +78,16 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                 $args['network'] ?? false,
                 fn (Builder $query) => $query->where(
                     'network',
-                    '=',
                     $args['network'] === 'relay' ? currentRelay()->name : currentMatrix()->name
                 ),
             )
             ->when(
                 $args['accounts'] ?? false,
-                function (Builder $query) use ($args) {
-                    $publicKeys = array_map(fn ($wallet) => SS58Address::getPublicKey($wallet), $args['accounts']);
-
-                    return $query->whereIn('wallet_public_key', $publicKeys);
-                },
-                function (Builder $query): void {
-                    $query->where(
-                        fn ($subquery) => $subquery
-                            ->whereIn('wallet_public_key', Account::managedPublicKeys())
-                            ->orWhereNull('wallet_public_key')
-                    );
-                }
+                fn (Builder $query) => $query->whereIn(
+                    'wallet_public_key',
+                    array_map(fn ($wallet) => SS58Address::getPublicKey($wallet), $args['accounts'])
+                ),
+                fn (Builder $query) =>  $query->where('managed', true)
             )->cursorPaginateWithTotal('id', $args['first'], false);
 
         if ($args['markAsProcessing'] === true || $args['markAsProcessing'] === null) {

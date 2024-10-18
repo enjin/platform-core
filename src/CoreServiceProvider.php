@@ -74,6 +74,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('upgrade_tokens_table')
             ->hasMigration('upgrade_collections_table')
             ->hasMigration('add_index_to_syncables_table')
+            ->hasMigration('add_managed_to_transactions_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
