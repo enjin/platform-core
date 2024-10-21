@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Models\Laravel;
 
 use Enjin\Platform\Database\Factories\AttributeFactory;
+use Enjin\Platform\Jobs\SyncMetadata;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\Attribute as AttributeMethods;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
@@ -37,6 +38,23 @@ class Attribute extends BaseModel
      * @var array<string>|bool
      */
     protected $guarded = [];
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function ($model): void {
+            if ($model->key == '0x757269') {
+                SyncMetadata::dispatch($model->id);
+            }
+        });
+
+        static::updated(function ($model): void {
+            if ($model->key == '0x757269') {
+                SyncMetadata::dispatch($model->id);
+            }
+        });
+    }
 
     /**
      * The attribute key as String.
