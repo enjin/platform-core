@@ -42,11 +42,16 @@ class SyncMetadata extends Command
         Log::debug('Syncing metadata for ' . $total . ' attributes.');
 
         foreach ($query->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
-            SyncMetadataJob::dispatch($attribute->id);
+            $this->dispatchSyncJob($attribute->id);
             $progress->advance();
         }
 
         $progress->finish();
         Log::debug('Finished syncing metadata.');
+    }
+
+    public function dispatchSyncJob(int $id): void
+    {
+        SyncMetadataJob::dispatch($id);
     }
 }
