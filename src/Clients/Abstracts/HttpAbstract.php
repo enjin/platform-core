@@ -15,7 +15,7 @@ abstract class HttpAbstract
      */
     protected function getClient(): PendingRequest
     {
-        return Http::retry(3, 500)->timeout(60)->withoutVerifying()->asJson()->acceptJson();
+        return Http::retry(3, 500)->timeout(60)->asJson()->acceptJson();
     }
 
     /**
