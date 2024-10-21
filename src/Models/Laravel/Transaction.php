@@ -70,11 +70,11 @@ class Transaction extends BaseModel
         parent::boot();
 
         static::creating(
-            fn ($model) => $model->managed = empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key),
+            fn ($model) => $model->managed = (int) (empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key)),
         );
 
         static::updating(
-            fn ($model) => $model->managed = empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key),
+            fn ($model) => $model->managed = (int) (empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key)),
         );
     }
 
