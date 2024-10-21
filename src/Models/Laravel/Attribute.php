@@ -39,6 +39,23 @@ class Attribute extends BaseModel
      */
     protected $guarded = [];
 
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function ($model): void {
+            if ($model->key == '0x757269') {
+                SyncMetadata::dispatch($model->id);
+            }
+        });
+
+        static::updated(function ($model): void {
+            if ($model->key == '0x757269') {
+                SyncMetadata::dispatch($model->id);
+            }
+        });
+    }
+
     /**
      * The attribute key as String.
      */
@@ -82,22 +99,5 @@ class Attribute extends BaseModel
     protected static function newFactory(): AttributeFactory
     {
         return AttributeFactory::new();
-    }
-
-    public static function boot(): void
-    {
-        parent::boot();
-
-        static::created(function($model) {
-            if ($model->key == '0x757269') {
-                SyncMetadata::dispatch($model->id);
-            }
-        });
-
-        static::updated(function($model) {
-            if ($model->key == '0x757269') {
-                SyncMetadata::dispatch($model->id);
-            }
-        });
     }
 }
