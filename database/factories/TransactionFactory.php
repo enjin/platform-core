@@ -36,6 +36,7 @@ class TransactionFactory extends Factory
             'method' => fake()->randomElement((new TransactionMethodEnum())->getAttributes()['values']),
             'idempotency_key' => fake()->uuid(),
             'signed_at_block' => fake()->numberBetween(),
+            'managed' => true,
         ];
     }
 }

@@ -7,6 +7,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\Transaction as TransactionMethods;
+use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,6 +63,19 @@ class Transaction extends BaseModel
         $attributes['state'] ??= TransactionState::PENDING->name;
 
         parent::__construct($attributes);
+    }
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(
+            fn ($model) => $model->managed = (int) (empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key)),
+        );
+
+        static::updating(
+            fn ($model) => $model->managed = (int) (empty($model->wallet_public_key) || Account::isManaged($model->wallet_public_key)),
+        );
     }
 
     /**
