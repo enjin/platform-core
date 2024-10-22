@@ -106,7 +106,7 @@ class TokenCreated extends SubstrateEvent
             'creation_deposit_amount' => 0, // TODO: Implement this
             'owner_deposit' => 0, // TODO: Implement this
             'total_token_account_deposit' => 0, // TODO: Implement this
-            'attribute_count' => 0, // This will be increase in the AttributeSet event
+            'attribute_count' => 0, // This will be increased in the AttributeSet event
             'account_count' => $this->getValue($createToken, 'account_deposit_count') ?? 1,
             'infusion' => $this->getValue($createToken, 'infusion') ?? 0,
             'anyone_can_infuse' => Arr::get($createToken, 'anyone_can_infuse') ?? false,
