@@ -17,6 +17,7 @@ class Attribute extends BaseModel
     use AttributeMethods;
     use EagerLoadSelectFields;
     use HasFactory;
+    public const URL_ENCODED_KEY = '0x757269';
 
     /**
      * The attributes that are mass assignable.
@@ -44,13 +45,13 @@ class Attribute extends BaseModel
         parent::boot();
 
         static::created(function ($model): void {
-            if ($model->key == '0x757269') {
+            if ($model->key == static::URL_ENCODED_KEY) {
                 SyncMetadata::dispatch($model->id);
             }
         });
 
         static::updated(function ($model): void {
-            if ($model->key == '0x757269') {
+            if ($model->key == static::URL_ENCODED_KEY) {
                 SyncMetadata::dispatch($model->id);
             }
         });

@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Laravel\Attribute as LaravelAttribute;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\TokenAccountApproval;
@@ -91,7 +92,7 @@ class GetTokenTest extends TestCaseGraphQL
 
     public function test_it_can_replace_id_metadata_from_hex(): void
     {
-        $this->tokenAttribute->forceFill(['key' => '0x757269', 'value' => '0x68747470733a2f2f6578616d706c652e636f6d2f7b69647d'])->save();
+        $this->tokenAttribute->forceFill(['key' => LaravelAttribute::URL_ENCODED_KEY, 'value' => '0x68747470733a2f2f6578616d706c652e636f6d2f7b69647d'])->save();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
@@ -230,7 +231,7 @@ class GetTokenTest extends TestCaseGraphQL
         Attribute::factory([
             'collection_id' => $collection,
             'token_id' => $token->id,
-            'key' => '0x757269',
+            'key' =>  LaravelAttribute::URL_ENCODED_KEY,
             'value' => '0x68747470733a2f2f656e6a696e2e696f2f6d6f636b2f6d657461646174612f746f6b656e2e6a736f6e',
         ])->create();
 

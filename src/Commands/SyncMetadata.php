@@ -4,6 +4,7 @@ namespace Enjin\Platform\Commands;
 
 use Enjin\Platform\Jobs\SyncMetadata as SyncMetadataJob;
 use Enjin\Platform\Models\Attribute;
+use Enjin\Platform\Models\Laravel\Attribute as LaravelAttribute;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +31,7 @@ class SyncMetadata extends Command
     {
         $query = Attribute::query()
             ->select('id')
-            ->where('key', '0x757269'); // uri hex
+            ->where('key', LaravelAttribute::URL_ENCODED_KEY);
         if (($total = $query->count()) == 0) {
             $this->info('No attributes found to sync.');
 
