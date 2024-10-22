@@ -32,69 +32,88 @@ class Mint extends Extrinsic implements PolkadartExtrinsic {}
   "calls" => array:1 [▼
     "MultiTokens" => array:1 [▼
       "mint" => array:3 [▼
-        "recipient" => array:1 [▼
-          "Id" => array:32 [▶]
-        ]
-        "collection_id" => "77161"
-        "params" => array:1 [▼
-          "CreateToken" => array:12 [▼
-            "token_id" => "1"
-            "initial_supply" => "20"
-            "account_deposit_count" => 0
-            "cap" => null
-            "behavior" => array:1 [▼
-              "HasRoyalty" => array:2 [▼
-                "beneficiary" => array:32 [▼
-                  0 => 142
-                  1 => 175
-                  2 => 4
-                  3 => 21
-                  4 => 22
-                  5 => 135
-                  6 => 115
-                  7 => 99
-                  8 => 38
-                  9 => 201
-                  10 => 254
-                  11 => 161
-                  12 => 126
-                  13 => 37
-                  14 => 252
-                  15 => 82
-                  16 => 135
-                  17 => 97
-                  18 => 54
-                  19 => 147
-                  20 => 201
-                  21 => 18
-                  22 => 144
-                  23 => 156
-                  24 => 178
-                  25 => 38
-                  26 => 170
-                  27 => 71
-                  28 => 148
-                  29 => 242
-                  30 => 106
-                  31 => 72
-                ]
-                "percentage" => 100000000
-              ]
-            ]
-            "listing_forbidden" => true
-            "freeze_state" => "Temporary"
-            "attributes" => array:1 [▶]
-            "infusion" => "100000000"
-            "anyone_can_infuse" => false
-            "metadata" => array:3 [▼
-              "name" => []
-              "symbol" => []
-              "decimal_count" => 0
-            ]
-            "privileged_params" => null
-          ]
+       "recipient" => array:1 [▼
+        "Id" => array:32 [▼
+          0 => 198
+          1 => 96
+          2 => 254
+          3 => 244
+          4 => 192
+          5 => 146
+          6 => 110
+          7 => 56
+          8 => 40
+          9 => 57
+          10 => 210
+          11 => 12
+          12 => 174
+          13 => 230
+          14 => 212
+          15 => 227
+          16 => 173
+          17 => 180
+          18 => 210
+          19 => 126
+          20 => 198
+          21 => 107
+          22 => 34
+          23 => 62
+          24 => 214
+          25 => 69
+          26 => 104
+          27 => 69
+          28 => 25
+          29 => 110
+          30 => 62
+          31 => 121
         ]
       ]
+      "collection_id" => "91971"
+      "params" => array:1 [▼
+        "CreateToken" => array:12 [▼
+          "token_id" => "2"
+          "initial_supply" => "1"
+          "account_deposit_count" => 1
+          "cap" => array:1 [▼
+            "Supply" => "1"
+          ]
+          "behavior" => array:1 [▼
+            "IsCurrency" => null
+          ]
+          "listing_forbidden" => true
+          "freeze_state" => "Temporary"
+          "attributes" => array:1 [▼
+            0 => array:2 [▼
+              "key" => array:4 [▶]
+              "value" => array:4 [▶]
+            ]
+          ]
+          "infusion" => "1000"
+          "anyone_can_infuse" => true
+          "metadata" => array:3 [▼
+            "name" => array:10 [▼
+              0 => 84
+              1 => 101
+              2 => 115
+              3 => 116
+              4 => 32
+              5 => 84
+              6 => 111
+              7 => 107
+              8 => 101
+              9 => 110
+            ]
+            "symbol" => array:3 [▼
+              0 => 84
+              1 => 83
+              2 => 84
+            ]
+            "decimal_count" => 8
+          ]
+          "privileged_params" => null
+        ]
+      ]
+    ]
     ]
   ]
   "extrinsic_hash" => "b7338dec9ae05eccb59593168b566a557538c4ca21b7b33c7b3e583be9939aef"

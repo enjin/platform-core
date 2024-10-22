@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenCreated as TokenCreatedEvent;
@@ -13,6 +14,7 @@ use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class TokenCreated extends SubstrateEvent
 {
@@ -83,16 +85,10 @@ class TokenCreated extends SubstrateEvent
         $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary'])));
         $percentage = $this->getValue($createToken, ['behavior.Some.HasRoyalty.percentage', 'behavior.HasRoyalty.percentage']);
         $isCurrency = Arr::get($createToken, 'behavior.Some') === 'IsCurrency' || Arr::has($createToken, 'behavior.IsCurrency');
-
-        $unitPrice = gmp_init($this->getValue($createToken, ['sufficiency.Insufficient.unit_price.Some', 'sufficiency.Insufficient']) ?? 10 ** 16);
-        $minBalance = Arr::get($createToken, 'sufficiency.Sufficient.minimum_balance');
-
-        if (!$minBalance) {
-            $minBalance = gmp_div(gmp_pow(10, 16), $unitPrice, GMP_ROUND_PLUSINF);
-            $minBalance = gmp_cmp(1, $minBalance) > 0 ? '1' : gmp_strval($minBalance);
-        }
-
         $isFrozen = in_array($this->getValue($createToken, ['freeze_state.Some', 'freeze_state']), ['Permanent', 'Temporary']);
+        $name = is_array($name = $this->getValue($createToken, 'metadata.name')) ? HexConverter::bytesToHexPrefixed($name) : $name;
+        $symbol = is_array($symbol = $this->getValue($createToken, 'metadata.symbol')) ? HexConverter::bytesToHexPrefixed($symbol) : $symbol;
+        $privilegedParams = $this->getValue($createToken, 'privileged_params');
 
         return Token::create([
             'collection_id' => $collection->id,
@@ -105,15 +101,29 @@ class TokenCreated extends SubstrateEvent
             'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
             'is_currency' => $isCurrency,
             'listing_forbidden' => Arr::get($createToken, 'listing_forbidden') ?? false,
-            'unit_price' => gmp_strval($unitPrice),
-            'minimum_balance' => $minBalance,
-            'attribute_count' => 0,
+            'requires_deposit' => $privilegedParams === null ? true : Arr::get($privilegedParams, 'requires_deposit', true),
+            'creation_depositor' => null,
+            'creation_deposit_amount' => 0, // TODO: Implement this
+            'owner_deposit' => 0, // TODO: Implement this
+            'total_token_account_deposit' => 0, // TODO: Implement this
+            'attribute_count' => 0, // This will be increase in the AttributeSet event
+            'account_count' => $this->getValue($createToken, 'account_deposit_count') ?? 1,
+            'infusion' => $this->getValue($createToken, 'infusion') ?? 0,
+            'anyone_can_infuse' => Arr::get($createToken, 'anyone_can_infuse') ?? false,
+            'decimal_count' => $this->getValue($createToken, 'metadata.decimal_count') ?? 0,
+            'name' => $name === '0x' ? null : $name,
+            'symbol' => $symbol === '0x' ? null : $symbol,
         ]);
     }
 
     public function log(): void
     {
-        // TODO: Implement log() method.
+        Log::debug(sprintf(
+            'Account %s created token %s-%s.',
+            $this->event->issuer,
+            $this->event->collectionId,
+            $this->event->tokenId,
+        ));
     }
 
     public function broadcast(): void
