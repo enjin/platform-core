@@ -20,8 +20,8 @@ class Codec
         $generator = Base::create();
         Base::regCustom($generator, $this->loadCustomTypes());
         $this->scaleInstance = new ScaleInstance($generator);
-        // $this->decoder = new Decoder($this->scaleInstance);
-        // $this->encoder = new Encoder($this->scaleInstance);
+        $this->decoder = new Decoder($this->scaleInstance);
+        $this->encoder = new Encoder($this->scaleInstance);
     }
 
     public function decoder(): Decoder
