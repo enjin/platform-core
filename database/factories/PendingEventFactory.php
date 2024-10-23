@@ -28,7 +28,6 @@ class PendingEventFactory extends Factory
             'sent' => fake()->date(),
             'channels' => json_encode([]),
             'data' => json_encode([]),
-
         ];
     }
 }
