@@ -18,7 +18,6 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
 use Enjin\Platform\Rules\IsCollectionOwner;
@@ -156,21 +155,13 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
 
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
-                function ($recipient) use ($serializationService, $collectionId) {
-                    $data = $serializationService->encode('Mint', [
-                        'collectionId' => gmp_init($collectionId),
-                        'recipient' => [
-                            'Id' => HexConverter::unPrefix($recipient['accountId']),
-                        ],
-                        'params' => $recipient['params']->toEncodable(),
-                    ]);
-
-                    if ($recipient['params'] instanceof MintParams) {
-                        return $data;
-                    }
-
-                    return isRunningLatest() ? $data . '00000000' : $data;
-                }
+                fn ($recipient) => $serializationService->encode('Mint', [
+                    'collectionId' => gmp_init($collectionId),
+                    'recipient' => [
+                        'Id' => HexConverter::unPrefix($recipient['accountId']),
+                    ],
+                    'params' => $recipient['params']->toEncodable(),
+                ])
             );
 
             return [
