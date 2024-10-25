@@ -5,12 +5,5 @@
     "userId": "MultiAddress",
     "ruleSetId": "u32",
     "ruleKind": "DispatchRuleKind"
-  },
-  "RemoveAccountRuleDataV1010": {
-    "callIndex": "(u8, u8)",
-    "tankId": "MultiAddress",
-    "userId": "MultiAddress",
-    "ruleSetId": "u32",
-    "ruleKind": "DispatchRuleKindV1010"
   }
 }
