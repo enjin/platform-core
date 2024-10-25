@@ -64,8 +64,10 @@ class GetPendingEventsTest extends TestCaseGraphQL
 
     public function test_it_can_fetch_filter_event_with_names(): void
     {
-        $eventNames = PendingEvent::take(100)->get('name')->toArray();
-        $response = $this->graphql($this->method, ['names' => $eventNames]);
+        PendingEvent::truncate();
+        PendingEvent::insert(PendingEvent::factory(10)->make()->toArray());
+        $eventNames = PendingEvent::pluck('name')->toArray();
+        $response = $this->graphql($this->method, ['names' => array_unique($eventNames)]);
         $this->assertEquals(count($eventNames), count($response['edges']));
     }
 

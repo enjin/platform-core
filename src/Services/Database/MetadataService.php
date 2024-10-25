@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class MetadataService
 {
+    public const URL_ENCODED_KEY = '0x757269';
     public static $cacheKey = 'platform:attributeMetadata';
 
     /**

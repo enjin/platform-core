@@ -7,6 +7,7 @@ use Enjin\Platform\Jobs\SyncMetadata;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\Attribute as AttributeMethods;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
+use Enjin\Platform\Services\Database\MetadataService;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute as AttributeCasts;
@@ -44,13 +45,13 @@ class Attribute extends BaseModel
         parent::boot();
 
         static::created(function ($model): void {
-            if ($model->key == '0x757269') {
+            if ($model->key == MetadataService::URL_ENCODED_KEY) {
                 SyncMetadata::dispatch($model->id);
             }
         });
 
         static::updated(function ($model): void {
-            if ($model->key == '0x757269') {
+            if ($model->key == MetadataService::URL_ENCODED_KEY) {
                 SyncMetadata::dispatch($model->id);
             }
         });

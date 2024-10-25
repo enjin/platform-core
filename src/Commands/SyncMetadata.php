@@ -4,6 +4,7 @@ namespace Enjin\Platform\Commands;
 
 use Enjin\Platform\Jobs\SyncMetadata as SyncMetadataJob;
 use Enjin\Platform\Models\Attribute;
+use Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +31,7 @@ class SyncMetadata extends Command
     {
         $query = Attribute::query()
             ->select('id')
-            ->where('key', '0x757269'); // uri hex
+            ->where('key', MetadataService::URL_ENCODED_KEY);
         if (($total = $query->count()) == 0) {
             $this->info('No attributes found to sync.');
 
@@ -40,7 +41,6 @@ class SyncMetadata extends Command
         $progress = $this->output->createProgressBar($total);
         $progress->start();
         Log::debug('Syncing metadata for ' . $total . ' attributes.');
-
         foreach ($query->lazy(config('enjin-platform.sync_metadata.data_chunk_size')) as $attribute) {
             $this->dispatchSyncJob($attribute->id);
             $progress->advance();
