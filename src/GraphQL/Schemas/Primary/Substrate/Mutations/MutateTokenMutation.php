@@ -131,7 +131,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             'mutation' => [
                 'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
                 'listingForbidden' => Arr::get($params, 'listingForbidden'),
-                'anyoneCanInfuse' => Arr::get($params, 'anyoneCanInfuse', false),
+                'anyoneCanInfuse' => Arr::get($params, 'anyoneCanInfuse'),
                 'name' => ($name = Arr::get($params, 'name')) ? HexConverter::stringToHexPrefixed($name) : null,
             ],
         ];
