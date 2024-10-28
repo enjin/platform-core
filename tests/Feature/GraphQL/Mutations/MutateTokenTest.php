@@ -224,6 +224,82 @@ class MutateTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
+    public function test_it_can_mutate_a_token_with_anyone_can_infuse(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            anyoneCanInfuse: $anyoneCanInfuse = fake()->boolean(),
+        ));
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'mutation' => [
+                'anyoneCanInfuse' => $anyoneCanInfuse,
+            ],
+            'nonce' => $nonce = fake()->numberBetween(),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
+    public function test_it_can_mutate_a_token_with_name(): void
+    {
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId = $this->collection->collection_chain_id,
+            tokenId: $this->tokenIdEncoder->encode(),
+            name: $name = fake()->name(),
+        ));
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'mutation' => [
+                'name' => $name,
+            ],
+            'nonce' => $nonce = fake()->numberBetween(),
+        ]);
+
+        $this->assertArraySubset([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'signingPayload' => Substrate::getSigningPayload($encodedData, [
+                'nonce' => $nonce,
+                'tip' => '0',
+            ]),
+            'wallet' => null,
+        ], $response);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $response['id'],
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encoded_data' => $encodedData,
+        ]);
+
+        Event::assertDispatched(TransactionCreated::class);
+    }
+
     public function test_it_can_mutate_a_token_with_ss58_signing_account(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
@@ -679,7 +755,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['mutation.behavior' => ['The mutation.behavior field is required when mutation.listing forbidden is not present.']],
+            ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
 
@@ -697,7 +773,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['mutation.behavior' => ['The mutation.behavior field is required when mutation.listing forbidden is not present.']],
+            ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
 
@@ -733,7 +809,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['mutation.behavior' => ['The mutation.behavior field is required when mutation.listing forbidden is not present.']],
+            ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
 
