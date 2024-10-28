@@ -36,6 +36,14 @@ class TokenMutationInputType extends InputType implements PlatformGraphQlType
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::input_type.token_mutation.field.listingForbidden'),
             ],
+            'anyoneCanInfuse' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::type.token.field.anyoneCanInfuse'),
+            ],
+            'name' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::type.token.field.name'),
+            ],
         ];
     }
 }

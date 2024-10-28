@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -99,7 +100,9 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             collectionId: $args['collectionId'],
             tokenId: $this->encodeTokenId($args),
             behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
-            listingForbidden: Arr::get($args, 'mutation.listingForbidden')
+            listingForbidden: Arr::get($args, 'mutation.listingForbidden'),
+            anyoneCanInfuse: Arr::get($args, 'mutation.anyoneCanInfuse'),
+            name: Arr::get($args, 'mutation.name'),
         ));
 
         return Transaction::lazyLoadSelectFields(
@@ -128,8 +131,8 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             'mutation' => [
                 'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
                 'listingForbidden' => Arr::get($params, 'listingForbidden'),
-                'anyoneCanInfuse' => null, // TODO: Add this when the mutation is changed
-                'name' => null, // TODO: Add this when the mutation is changed
+                'anyoneCanInfuse' => Arr::get($params, 'anyoneCanInfuse', false),
+                'name' => ($name = Arr::get($params, 'name')) ? HexConverter::stringToHexPrefixed($name) : null,
             ],
         ];
     }
@@ -142,11 +145,13 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         $isBehaviorEmpty = Arr::get($args, 'mutation.behavior') === [];
 
         return [
-            'mutation.behavior' => $isBehaviorEmpty ? [] : ['required_without:mutation.listingForbidden'],
+            'mutation.behavior' => $isBehaviorEmpty ? [] : ['required_without_all:mutation.listingForbidden,mutation.anyoneCanInfuse,mutation.name'],
             'mutation.behavior.hasRoyalty.beneficiary' => ['nullable', 'bail', 'required_with:mutation.behavior.hasRoyalty.percentage', new ValidSubstrateAccount()],
             'mutation.behavior.hasRoyalty.percentage' => ['required_with:mutation.behavior.hasRoyalty.beneficiary', new ValidRoyaltyPercentage()],
             'mutation.behavior.isCurrency' => ['sometimes', 'accepted'],
-            'mutation.listingForbidden' => $isBehaviorEmpty ? [] : ['required_without:mutation.behavior'],
+            'mutation.listingForbidden' => $isBehaviorEmpty ? [] : ['required_without_all:mutation.behavior,mutation.anyoneCanInfuse,mutation.name'],
+            'mutation.anyoneCanInfuse' => $isBehaviorEmpty ? [] : ['required_without_all:mutation.behavior,mutation.listingForbidden,mutation.name'],
+            'mutation.name' => $isBehaviorEmpty ? [] : ['required_without_all:mutation.behavior,mutation.listingForbidden,mutation.anyoneCanInfuse'],
         ];
     }
 

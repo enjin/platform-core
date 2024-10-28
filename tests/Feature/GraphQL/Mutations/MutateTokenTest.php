@@ -679,7 +679,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['mutation.behavior' => ['The mutation.behavior field is required when mutation.listing forbidden is not present.']],
+            ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
 
@@ -697,7 +697,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['mutation.behavior' => ['The mutation.behavior field is required when mutation.listing forbidden is not present.']],
+            ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
 
@@ -733,7 +733,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArraySubset(
-            ['mutation.behavior' => ['The mutation.behavior field is required when mutation.listing forbidden is not present.']],
+            ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
 
