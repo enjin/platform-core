@@ -22,7 +22,10 @@ class SyncMetadata implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected int $attributeId) {}
+    public function __construct(protected int $attributeId)
+    {
+        $this->onQueue(config('enjin-platform.queue'));
+    }
 
     /**
      * Execute the job.

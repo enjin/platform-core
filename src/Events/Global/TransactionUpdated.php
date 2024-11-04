@@ -4,11 +4,14 @@ namespace Enjin\Platform\Events\Global;
 
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Support\Account;
+use Enjin\Platform\Traits\HasCustomQueue;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 
 class TransactionUpdated extends PlatformBroadcastEvent
 {
+    use HasCustomQueue;
+
     /**
      * Create a new event instance.
      *
