@@ -7,9 +7,12 @@ use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Endowed as EndowedPolkadart;
+use Enjin\Platform\Traits\HasCustomQueue;
 
 class Endowed extends PlatformBroadcastEvent
 {
+    use HasCustomQueue;
+
     /**
      * Create a new event instance.
      */

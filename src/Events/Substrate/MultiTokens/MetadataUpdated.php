@@ -5,9 +5,12 @@ namespace Enjin\Platform\Events\Substrate\MultiTokens;
 use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Illuminate\Broadcasting\Channel;
+use Enjin\Platform\Traits\HasCustomQueue;
 
 class MetadataUpdated extends PlatformBroadcastEvent
 {
+    use HasCustomQueue;
+
     /**
      * Create a new event instance.
      */
