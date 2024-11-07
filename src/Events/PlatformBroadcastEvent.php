@@ -7,6 +7,7 @@ use Enjin\Platform\Models\PendingEvent;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PendingBroadcast;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -18,6 +19,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
+    use Queueable;
     use SerializesModels;
 
     public ?Model $model = null;
@@ -54,6 +56,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     {
         $this->className = (new \ReflectionClass(static::class))->getShortName();
         $this->uuid = Str::uuid()->toString();
+        $this->setQueue();
     }
 
     /**
@@ -146,4 +149,6 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
 
         return $event;
     }
+
+    protected function setQueue(): void {}
 }

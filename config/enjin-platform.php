@@ -305,4 +305,14 @@ return [
         'refresh_max_attempts' => env('REFRESH_METADATA_MAX_ATTEMPTS', 10),
         'refresh_decay_seconds' => env('REFRESH_METADATA_DECAY_SECONDS', 60),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the dedicated queue for this package
+    |
+    */
+    'queue' => env('PLATFORM_CORE_QUEUE', 'default'),
 ];
