@@ -28,14 +28,14 @@ class TransactionUpdated extends PlatformBroadcastEvent
             'idempotencyKey' => $transaction->idempotency_key,
         ];
 
-        $address = $transaction->wallet?->address ?? Account::daemon()->address;
+        $publicKey = $transaction->wallet?->public_key ?? Account::daemonPublicKey();
 
-        if ($address == null) {
+        if ($publicKey == null) {
             return;
         }
 
         $this->broadcastChannels = [
-            new Channel($address),
+            new Channel($publicKey),
         ];
     }
 }
