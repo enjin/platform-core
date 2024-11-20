@@ -49,7 +49,6 @@ class TokenCreated extends SubstrateEvent
 
         $extrinsic = $this->block->extrinsics[$this->event->extrinsicIndex];
         $params = $extrinsic->params;
-        Log::info('Create token params', $params);
 
         // This unwraps any calls from a FuelTank extrinsic
         if ($extrinsic->module === 'FuelTanks') {
