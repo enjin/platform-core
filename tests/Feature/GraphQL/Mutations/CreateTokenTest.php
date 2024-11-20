@@ -358,7 +358,7 @@ class CreateTokenTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
-    public function test_can_create_a_token_with_collapsin_g_supply(): void
+    public function test_can_create_a_token_with_collapsing_supply(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->public_key,
@@ -367,6 +367,7 @@ class CreateTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 cap: $capType = TokenMintCapType::COLLAPSING_SUPPLY,
+                capSupply: $initialSupply + 10
             ),
         ));
 
@@ -378,6 +379,7 @@ class CreateTokenTest extends TestCaseGraphQL
                 'initialSupply' => $initialSupply,
                 'cap' => [
                     'type' => $capType->name,
+                    'amount' => $initialSupply + 10,
                 ],
             ],
         ]);

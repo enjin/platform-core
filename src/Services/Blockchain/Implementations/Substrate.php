@@ -242,7 +242,7 @@ class Substrate implements BlockchainServiceInterface
         $cap = Arr::get($args, 'cap.type');
 
         // TODO: SingleMint can be removed on v2.1.0
-        if ($cap === 'SINGLE_MINT' || $cap === 'COLLAPSING_SUPPLY') {
+        if ($cap === 'SINGLE_MINT') {
             $data['cap'] = TokenMintCapType::COLLAPSING_SUPPLY;
             $data['capSupply'] = $args['initialSupply'];
         }
