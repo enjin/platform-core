@@ -133,7 +133,13 @@ class CollectionType extends Type implements PlatformGraphQlType
             'tokens' => [
                 'type' => GraphQL::paginate('Token', 'TokenConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.tokens'),
-                'args' => ConnectionInput::args(),
+                'args' => ConnectionInput::args([
+                    'tokenIds' => [
+                        'type' => GraphQL::type('[EncodableTokenIdInput]'),
+                        'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
+                        'rules' => ['array', 'max:100'],
+                    ],
+                ]),
                 'resolve' => fn ($collection, $args) => [
                     'items' => new CursorPaginator(
                         $collection?->tokens,

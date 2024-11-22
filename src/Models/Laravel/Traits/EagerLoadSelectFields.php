@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Models\Laravel\Traits;
 
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Types\Global\PendingEventType;
 use Enjin\Platform\GraphQL\Types\Substrate\BlockType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountApprovalType;
@@ -16,6 +17,8 @@ use Enjin\Platform\GraphQL\Types\Substrate\TransactionType;
 use Enjin\Platform\GraphQL\Types\Substrate\WalletType;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Services\Token\TokenIdManager;
+use Enjin\Platform\Support\SS58Address;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -26,6 +29,8 @@ use Illuminate\Support\Facades\DB;
 
 trait EagerLoadSelectFields
 {
+    use HasEncodableTokenId;
+
     /**
      * The query name.
      */
@@ -155,7 +160,15 @@ trait EagerLoadSelectFields
                         ->when(
                             Arr::get($args, 'after'),
                             fn ($q) => $q->where('id', '>', Cursor::fromEncoded($args['after'])->parameter('id'))
-                        )->orderBy('tokens.id');
+                        )
+                        ->when(
+                            $tokenIds = Arr::get($args, 'tokenIds'),
+                            fn ($q) => $q->whereIn(
+                                'token_chain_id',
+                                collect($tokenIds)->map(fn ($tokenId) => resolve(TokenIdManager::class)->encode(array_shift($tokenId)) ?? null)->all()
+                            )
+                        )
+                        ->orderBy('tokens.id');
                     // This must be done this way to load eager limit correctly.
                     if ($limit = Arr::get($args, 'first')) {
                         $query->limit($limit + 1);
@@ -381,8 +394,33 @@ trait EagerLoadSelectFields
 
                     break;
                 case 'tokenAccountApprovals':
+                    $withCount[$relation] = fn ($query) => $query->when(
+                        $accounts = Arr::get($fields, 'tokenAccountApprovals.args.walletAccounts'),
+                        fn ($q) => $q->whereExists(
+                            fn ($query) => $query->selectRaw('1')
+                                ->from('wallets')
+                                ->whereColumn('token_account_approvals.wallet_id', 'wallets.id')
+                                ->whereIn(
+                                    'public_key',
+                                    collect($accounts)->map(fn ($account) => SS58Address::getPublicKey($account))->all()
+                                )
+                        )
+                    );
+
+                    break;
                 case 'collectionAccountApprovals':
-                    $withCount[] = $relation;
+                    $withCount[$relation] = fn ($query) => $query->when(
+                        $accounts = Arr::get($fields, 'collectionAccountApprovals.args.walletAccounts'),
+                        fn ($q) => $q->whereExists(
+                            fn ($query) => $query->selectRaw('1')
+                                ->from('wallets')
+                                ->whereColumn('collection_account_approvals.wallet_id', 'wallets.id')
+                                ->whereIn(
+                                    'public_key',
+                                    collect($accounts)->map(fn ($account) => SS58Address::getPublicKey($account))->all()
+                                )
+                        )
+                    );
 
                     break;
             }
