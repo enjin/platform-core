@@ -421,7 +421,6 @@ class GetWalletTest extends TestCaseGraphQL
         );
     }
 
-
     public function test_it_can_get_a_wallet_and_filter_token_accounts(): void
     {
         $this->mockNonceAndBalance();
