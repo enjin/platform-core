@@ -107,6 +107,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => fake()->text(),
         ], true);
 
+        dump($response);
         $this->assertEquals(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
