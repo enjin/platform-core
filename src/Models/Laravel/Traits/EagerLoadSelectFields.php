@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Models\Laravel\Traits;
 
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Types\Global\PendingEventType;
 use Enjin\Platform\GraphQL\Types\Substrate\BlockType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountApprovalType;
@@ -29,8 +28,6 @@ use Illuminate\Support\Facades\DB;
 
 trait EagerLoadSelectFields
 {
-    use HasEncodableTokenId;
-
     /**
      * The query name.
      */
