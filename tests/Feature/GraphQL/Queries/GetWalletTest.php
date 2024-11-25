@@ -389,6 +389,39 @@ class GetWalletTest extends TestCaseGraphQL
         ], $response['collectionAccounts']['edges'][0]['node']);
     }
 
+    public function test_it_can_get_a_wallet_and_filter_collection_account_approvals(): void
+    {
+        $this->mockNonceAndBalance();
+
+        $response = $this->graphql($this->method, [
+            'id' => $id = $this->wallet->id,
+            'collectionApprovalAccounts' => [$this->wallet->public_key],
+        ]);
+        $this->assertTrue($response['id'] == $id);
+        $this->assertTrue($response['collectionAccounts']['totalCount'] === 1);
+        $this->assertEquals(
+            Arr::get($response, 'collectionAccounts.edges.0.node.wallet.account.publicKey'),
+            $this->wallet->public_key
+        );
+    }
+
+    public function test_it_can_get_a_wallet_and_filter_token_account_approvals(): void
+    {
+        $this->mockNonceAndBalance();
+
+        $response = $this->graphql($this->method, [
+            'id' => $id = $this->wallet->id,
+            'tokenApprovalAccounts' => [$this->wallet->public_key],
+        ]);
+        $this->assertTrue($response['id'] == $id);
+        $this->assertTrue($response['tokenAccountApprovals']['totalCount'] === 1);
+        $this->assertEquals(
+            Arr::get($response, 'tokenAccountApprovals.edges.0.node.wallet.account.publicKey'),
+            $this->wallet->public_key
+        );
+    }
+
+
     public function test_it_can_get_a_wallet_and_filter_token_accounts(): void
     {
         $this->mockNonceAndBalance();
