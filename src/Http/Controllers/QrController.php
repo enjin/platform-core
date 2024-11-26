@@ -30,6 +30,9 @@ class QrController extends Controller
         $qrCode = QrCode::format($format)->size($size)
             ->errorCorrection('Q')
             ->merge(config('enjin-platform.qr.image'), config('enjin-platform.qr.image_size'), true)
+            ->eyeColor(0, 121, 102, 221, 121, 102, 221)
+            ->eyeColor(1, 121, 102, 221, 121, 102, 221)
+            ->eyeColor(2, 121, 102, 221, 121, 102, 221)
             ->generate($data);
 
         $mimeType = match ($format) {
