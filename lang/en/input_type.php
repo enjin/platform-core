@@ -7,7 +7,7 @@ return [
     'collection_mutation.description' => 'The params that can be mutated for a collection.',
     'collection_mutation.field.owner' => 'The new owner account of the collection.',
     'collection_mutation.field.royalty' => 'The new royalty of the collection.',
-    'create_token_params.description' => 'The params to create a token.',
+    'create_token_params.description' => "Defines the token's key properties, such as initial and max supply, metadata, and optional ENJ backing through infusion.",
     'create_token_params.field.attributes' => 'Set initial attributes for this token.',
     'create_token_params.field.cap' => 'The token cap (if required). A cap of 1 will create this token as a Single Mint type to produce an NFT.',
     'create_token_params.field.initialSupply' => 'The initial supply of tokens to mint to the specified recipient. Must not exceed the token cap if set.',
