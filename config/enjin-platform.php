@@ -230,13 +230,13 @@ return [
         'adapter' => PlatformQrAdapter::class,
         'size' => env('QR_CODE_SIZE', 512),
         'format' => env('QR_CODE_FORMAT', 'png'),
-        'image' => env('QR_CODE_IMAGE_URL', __DIR__ . '/../resources/images/enjin-logo.webp'),
+        'image' => env('QR_CODE_IMAGE_URL', __DIR__ . '/../resources/images/enjin-logo.jpg'),
         'image_size' => env('QR_CODE_IMAGE_SIZE', .20),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | The ingest sync wait timeout
+    | The ingest sync wa it timeout
     |--------------------------------------------------------------------------
     |
     | Here you may set how long the ingest command to wait for the sync to finish
