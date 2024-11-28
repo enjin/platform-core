@@ -24,6 +24,7 @@ use Enjin\Platform\Providers\FakerServiceProvider;
 use Enjin\Platform\Providers\GitHubServiceProvider;
 use Enjin\Platform\Providers\GraphQlServiceProvider;
 use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -112,6 +113,9 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(GitHubServiceProvider::class);
 
         $this->app[Kernel::class]->pushMiddleware(Telemetry::class);
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            $schedule->command('platform:send-telemetry-event')->daily();
+        });
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::syncing());
         Event::listen(PlatformSynced::class, fn () => BlockProcessor::syncingDone());
