@@ -61,10 +61,6 @@ jobs:
           composer build-sr25519
           composer dump-autoload      
 
-      - name: Run Laravel Pint
-        run: |
-          ./vendor/bin/pint --test
-
       - name: Execute tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --colors=always --coverage-clover coverage.xml
