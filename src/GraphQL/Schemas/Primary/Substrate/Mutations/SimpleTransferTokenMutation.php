@@ -47,6 +47,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -66,6 +67,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -118,6 +120,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the serialization service method name.
      */
+    #[\Override]
     public function getMethodName(): string
     {
         return 'Transfer';

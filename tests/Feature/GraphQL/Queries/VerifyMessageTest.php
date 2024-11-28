@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Faker\Generator;
@@ -10,11 +9,10 @@ use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class VerifyMessageTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'VerifyMessage';
     protected string $message;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -209,7 +207,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => $data['publicKey'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['message' => ['The message has an invalid hex string.']],
             $response['error']
         );
@@ -225,7 +223,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => $data['publicKey'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['message' => ['The message has an invalid hex string.']],
             $response['error']
         );
@@ -241,7 +239,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => $data['publicKey'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signature' => ['The signature has an invalid hex string.']],
             $response['error']
         );
@@ -257,7 +255,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => $data['publicKey'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signature' => ['The signature has an invalid hex string.']],
             $response['error']
         );
@@ -274,7 +272,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => '0x01234',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['publicKey' => ['The public key has an invalid hex string.']],
             $response['error']
         );
@@ -290,7 +288,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => '0x01234',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['publicKey' => ['The public key has an invalid hex string.']],
             $response['error']
         );
@@ -306,7 +304,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => HexConverter::unPrefix($data['publicKey']),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['publicKey' => ['The public key has an invalid hex string.']],
             $response['error']
         );
@@ -322,7 +320,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => $data['publicKey'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signature' => ['The signature field must have a value.']],
             $response['error']
         );
@@ -338,7 +336,7 @@ class VerifyMessageTest extends TestCaseGraphQL
             'publicKey' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['publicKey' => ['The public key field must have a value.']],
             $response['error']
         );

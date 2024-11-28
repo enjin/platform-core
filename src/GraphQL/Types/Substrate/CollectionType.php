@@ -21,6 +21,7 @@ class CollectionType extends Type implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -33,6 +34,7 @@ class CollectionType extends Type implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
+    #[\Override]
     public function fields(): array
     {
         return [

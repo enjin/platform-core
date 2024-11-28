@@ -14,6 +14,7 @@ class AccountType extends GraphQlType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -25,6 +26,7 @@ class AccountType extends GraphQlType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
+    #[\Override]
     public function fields(): array
     {
         return [

@@ -31,6 +31,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    #[\Override]
     public function register()
     {
         config(['graphql.pagination_type' => ConnectionType::class]);

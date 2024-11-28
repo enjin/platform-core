@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\CoreServiceProvider;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Models\Wallet;
@@ -17,7 +16,6 @@ use Rebing\GraphQL\GraphQLServiceProvider;
 
 class GetWalletAuthTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksSocketClient;
 
     protected string $method = 'GetWallet';
@@ -26,6 +24,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
     protected Model $wallet;
     protected string $token;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,7 +59,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
             ['Authorization' => $this->token]
         );
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->wallet->id,
             'account' => [
                 'publicKey' => $this->wallet->public_key,
@@ -86,6 +85,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
         );
     }
 
+    #[\Override]
     protected function getPackageProviders($app): array
     {
         return [
@@ -94,6 +94,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
         ];
     }
 
+    #[\Override]
     protected function defineEnvironment($app): void
     {
         parent::defineEnvironment($app);

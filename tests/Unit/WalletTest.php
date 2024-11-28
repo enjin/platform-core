@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Unit;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -15,12 +14,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 final class WalletTest extends TestCase
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
     use RefreshDatabase;
 
     protected Substrate $blockchainService;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,7 +43,7 @@ final class WalletTest extends TestCase
 
         $result = $this->blockchainService->walletWithBalanceAndNonce(SS58Address::encode($publicKey = app(Generator::class)->public_key))->toArray();
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'public_key' => $publicKey,
             'nonce' => 0,
             'balances' => [
@@ -53,7 +52,7 @@ final class WalletTest extends TestCase
                 'miscFrozen' => '0',
                 'feeFrozen' => '0',
             ],
-        ], $result, true);
+        ], $result);
 
         $this->assertDatabaseHas('wallets', [
             'public_key' => $publicKey,
@@ -74,7 +73,7 @@ final class WalletTest extends TestCase
 
         $result = $this->blockchainService->walletWithBalanceAndNonce($wallet)->toArray();
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'public_key' => $publicKey,
             'external_id' => $externalId,
             'network' => 'rococo',
@@ -85,7 +84,7 @@ final class WalletTest extends TestCase
                 'miscFrozen' => '0',
                 'feeFrozen' => '0',
             ],
-        ], $result, true);
+        ], $result);
 
         $this->assertDatabaseHas('wallets', [
             'public_key' => $publicKey,
@@ -101,7 +100,7 @@ final class WalletTest extends TestCase
 
         $result = $this->blockchainService->walletWithBalanceAndNonce(SS58Address::encode($publicKey = app(Generator::class)->public_key))->toArray();
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'public_key' => $publicKey,
             'nonce' => 0,
             'balances' => [
@@ -110,7 +109,7 @@ final class WalletTest extends TestCase
                 'miscFrozen' => '0',
                 'feeFrozen' => '0',
             ],
-        ], $result, true);
+        ], $result);
 
         $this->assertDatabaseHas('wallets', [
             'public_key' => $publicKey,
@@ -131,7 +130,7 @@ final class WalletTest extends TestCase
 
         $result = $this->blockchainService->walletWithBalanceAndNonce($wallet)->toArray();
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'public_key' => $publicKey,
             'network' => 'rococo',
             'external_id' => $externalId,
@@ -142,7 +141,7 @@ final class WalletTest extends TestCase
                 'miscFrozen' => '0',
                 'feeFrozen' => '0',
             ],
-        ], $result, true);
+        ], $result);
 
         $this->assertDatabaseHas('wallets', [
             'public_key' => $publicKey,

@@ -18,6 +18,7 @@ class TestCaseGraphQL extends TestCase
     protected static bool $initialized = false;
     protected bool $fakeEvents = true;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

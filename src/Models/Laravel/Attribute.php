@@ -40,6 +40,7 @@ class Attribute extends BaseModel
      */
     protected $guarded = [];
 
+    #[\Override]
     public static function boot(): void
     {
         parent::boot();

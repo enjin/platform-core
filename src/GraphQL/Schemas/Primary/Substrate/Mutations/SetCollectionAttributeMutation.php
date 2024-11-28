@@ -37,6 +37,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -56,6 +57,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -101,6 +103,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     /**
      * Get the serialization service method name.
      */
+    #[\Override]
     public function getMethodName(): string
     {
         return 'SetAttribute';

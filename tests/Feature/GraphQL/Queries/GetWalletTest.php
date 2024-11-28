@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -26,7 +25,6 @@ use Illuminate\Support\Arr;
 
 class GetWalletTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
     use MocksSocketClient;
 
@@ -60,6 +58,7 @@ class GetWalletTest extends TestCaseGraphQL
     protected Model $anotherTokenAccount;
     protected Model $anotherTokenAccountApprovedToWallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -153,7 +152,7 @@ class GetWalletTest extends TestCaseGraphQL
             'id' => $this->wallet->id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->wallet->id,
             'account' => [
                 'publicKey' => $this->wallet->public_key,
@@ -383,7 +382,7 @@ class GetWalletTest extends TestCaseGraphQL
 
         $this->assertTrue($response['id'] == $id);
         $this->assertTrue($response['collectionAccounts']['totalCount'] === 1);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'accountCount' => $this->collectionAccount->account_count,
             'isFrozen' => $this->collectionAccount->is_frozen,
         ], $response['collectionAccounts']['edges'][0]['node']);
@@ -401,7 +400,7 @@ class GetWalletTest extends TestCaseGraphQL
 
         $this->assertTrue($response['id'] == $id);
         $this->assertTrue($response['tokenAccounts']['totalCount'] === 1);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'balance' => $this->tokenAccount->balance,
             'reservedBalance' => $this->tokenAccount->reserved_balance,
             'isFrozen' => $this->tokenAccount->is_frozen,
@@ -441,7 +440,7 @@ class GetWalletTest extends TestCaseGraphQL
 
         $this->assertTrue($response['id'] == $id);
         $this->assertTrue($response['ownedCollections']['totalCount'] === 1);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => $this->collection->collection_chain_id,
             'maxTokenCount' => $this->collection->max_token_count,
             'maxTokenSupply' => $this->collection->max_token_supply,
@@ -487,7 +486,7 @@ class GetWalletTest extends TestCaseGraphQL
             'externalId' => $externalId = $this->wallet->external_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->wallet->id,
             'externalId' => $externalId,
         ], $response);
@@ -501,7 +500,7 @@ class GetWalletTest extends TestCaseGraphQL
             'account' => SS58Address::encode($this->wallet->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->wallet->id,
             'account' => [
                 'publicKey' => $this->wallet->public_key,
@@ -519,7 +518,7 @@ class GetWalletTest extends TestCaseGraphQL
             'verificationId' => $this->wallet->verification_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->wallet->id,
             'account' => [
                 'publicKey' => $this->wallet->public_key,
@@ -543,7 +542,7 @@ class GetWalletTest extends TestCaseGraphQL
             'id' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['id' => ['The id field must have a value.']],
             $response['error'],
         );
@@ -567,7 +566,7 @@ class GetWalletTest extends TestCaseGraphQL
             'externalId' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['externalId' => ['The external id field must have a value.']],
             $response['error'],
         );
@@ -579,7 +578,7 @@ class GetWalletTest extends TestCaseGraphQL
             'verificationId' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['verificationId' => ['The verification id field must have a value.']],
             $response['error'],
         );
@@ -591,7 +590,7 @@ class GetWalletTest extends TestCaseGraphQL
             'account' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account field must have a value.']],
             $response['error'],
         );
@@ -603,7 +602,7 @@ class GetWalletTest extends TestCaseGraphQL
             'account' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account is not a valid substrate account.']],
             $response['error'],
         );
@@ -615,7 +614,7 @@ class GetWalletTest extends TestCaseGraphQL
             'verificationId' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['verificationId' => ['The verification ID is not valid.']],
             $response['error'],
         );
@@ -717,7 +716,7 @@ class GetWalletTest extends TestCaseGraphQL
             'externalId' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['externalId' => ['The external id field must have a value.']],
             $response['error'],
         );
@@ -729,7 +728,7 @@ class GetWalletTest extends TestCaseGraphQL
             'verificationId' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['verificationId' => ['The verification id field must have a value.']],
             $response['error'],
         );
@@ -741,7 +740,7 @@ class GetWalletTest extends TestCaseGraphQL
             'account' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account field must have a value.']],
             $response['error'],
         );

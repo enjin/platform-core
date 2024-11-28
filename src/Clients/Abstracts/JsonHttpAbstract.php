@@ -12,6 +12,7 @@ abstract class JsonHttpAbstract extends HttpAbstract
     /**
      * Get the http client instance.
      */
+    #[\Override]
     protected function getClient(): PendingRequest
     {
         return parent::getClient()
@@ -24,6 +25,7 @@ abstract class JsonHttpAbstract extends HttpAbstract
      *
      * @throws RequestException
      */
+    #[\Override]
     protected function getResponse(Response|PromiseInterface $response): mixed
     {
         return $response instanceof Response ?

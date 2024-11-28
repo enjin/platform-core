@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -19,12 +18,11 @@ use Illuminate\Support\Facades\Cache;
 
 class GetCollectionsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetCollections';
     protected Model $wallet;
     protected CollectionSupport $collections;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,6 +31,7 @@ class GetCollectionsTest extends TestCaseGraphQL
         $this->collections = $this->generateCollections();
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         Collection::destroy($this->collections);
@@ -148,7 +147,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'collectionIds' => [$collectionId = $collection->collection_chain_id],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => $collectionId,
             'maxTokenCount' => $collection->max_token_count,
             'maxTokenSupply' => $collection->max_token_supply,
@@ -275,7 +274,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'collectionIds' => [Hex::MAX_UINT256],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'collectionIds.0' => [
                     0 => 'The collectionIds.0 is too large, the maximum value it can be is 340282366920938463463374607431768211455.',

@@ -19,6 +19,7 @@ class RequestAccountQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [

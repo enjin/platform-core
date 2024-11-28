@@ -45,6 +45,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -64,6 +65,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -114,6 +116,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the validation error messages.
      */
+    #[\Override]
     public function validationErrorMessages(array $args = []): array
     {
         return [

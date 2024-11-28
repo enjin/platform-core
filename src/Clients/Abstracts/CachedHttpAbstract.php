@@ -17,6 +17,7 @@ abstract class CachedHttpAbstract extends JsonHttpAbstract
     /**
      * Get the http client instance.
      */
+    #[\Override]
     protected function getClient(): PendingRequest
     {
         $stack = HandlerStack::create();
@@ -39,6 +40,7 @@ abstract class CachedHttpAbstract extends JsonHttpAbstract
      *
      * @throws RequestException
      */
+    #[\Override]
     protected function getResponse(Response|PromiseInterface $response): mixed
     {
         return parent::getResponse($response);

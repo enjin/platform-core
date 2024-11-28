@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -26,7 +25,6 @@ use Illuminate\Support\Facades\Event;
 
 class SetTokenAttributeTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'SetTokenAttribute';
@@ -37,6 +35,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     protected Encoder $tokenIdEncoder;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -66,7 +65,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -95,7 +94,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         ));
 
         $this->assertIsNumeric($response['deposit']);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -123,7 +122,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -175,7 +174,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -213,7 +212,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -251,7 +250,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -292,7 +291,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -328,7 +327,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             value: $value
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -348,7 +347,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => fake()->realText(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['key' =>  ['The key field is too large.']],
             $response['error']
         );
@@ -365,7 +364,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => fake()->asciify(str_repeat('*', 1025)),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['value' =>  ['The value field is too large.']],
             $response['error']
         );
@@ -384,7 +383,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => fake()->realText(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -453,7 +452,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
             'value' => fake()->realText(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id does not exist in the specified collection.']],
             $response['error']
         );

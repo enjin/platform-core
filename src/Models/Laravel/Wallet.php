@@ -90,6 +90,7 @@ class Wallet extends BaseModel
      *
      * @return void
      */
+    #[\Override]
     protected static function boot()
     {
         parent::boot();
@@ -97,6 +98,7 @@ class Wallet extends BaseModel
         self::observe(new WalletObserver());
     }
 
+    #[\Override]
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(

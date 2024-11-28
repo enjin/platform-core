@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -12,12 +11,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class SetWalletAccountTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use HasHttp;
 
     protected string $method = 'SetWalletAccount';
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -91,7 +90,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
             'account' => $wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'id' => ['The id field is required when external id is not present.'],
                 'externalId' => ['The external id field is required when id is not present.'],
@@ -104,7 +103,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
             'externalId' => $wallet->external_id,
             'account' => $wallet->public_key,
         ], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'id' => ['The id field prohibits external id from being present.'],
                 'externalId' => ['The external id field prohibits id from being present.'],
@@ -145,7 +144,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
             'account' => 'invalid_address',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account is not a valid substrate account.']],
             $response['error']
         );
@@ -162,7 +161,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
             'account' => SS58Address::encode($publicKey),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account has already been taken.']],
             $response['error']
         );

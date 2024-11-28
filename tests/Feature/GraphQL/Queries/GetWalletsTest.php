@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -25,7 +24,6 @@ use Illuminate\Support\Str;
 
 class GetWalletsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksSocketClient;
 
     protected string $method = 'GetWallets';
@@ -58,6 +56,7 @@ class GetWalletsTest extends TestCaseGraphQL
     protected Model $anotherTokenAccount;
     protected Model $anotherTokenAccountApprovedToWallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -168,7 +167,7 @@ class GetWalletsTest extends TestCaseGraphQL
             'verificationIds' => [$this->verification->verification_id],
             'accounts' => [$this->wallet->public_key],
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'ids' => ['The ids field is prohibited.'],
             'externalIds' => ['The external ids field is prohibited.'],
             'verificationIds' => ['The verification ids field is prohibited.'],
@@ -178,7 +177,7 @@ class GetWalletsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'ids' => SupportCollection::range(1, 200)->toArray(),
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'ids' => ['The ids field must not have more than 100 items.'],
         ], $response['error']);
 
@@ -196,21 +195,21 @@ class GetWalletsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'externalIds' => SupportCollection::range(1, 200)->map(fn ($val) => (string) $val)->toArray(),
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'externalIds' => ['The external ids field must not have more than 100 items.'],
         ], $response['error']);
 
         $response = $this->graphql($this->method, [
             'externalIds' => [Str::random(2000)],
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'externalIds.0' => ['The externalIds.0 field must not be greater than 1000 characters.'],
         ], $response['error']);
 
         $response = $this->graphql($this->method, [
             'externalIds' => [''],
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'externalIds.0' => ['The externalIds.0 field must have a value.'],
         ], $response['error']);
     }
@@ -220,21 +219,24 @@ class GetWalletsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'verificationIds' => SupportCollection::range(1, 200)->map(fn ($val) => (string) $val)->toArray(),
         ], true);
-        $this->assertArraySubset([
-            'verificationIds' => ['The verification ids field must not have more than 100 items.'],
-        ], $response['error']);
+
+        $this->assertEquals(
+            ['The verification ids field must not have more than 100 items.',
+            ],
+            $response['error']['verificationIds']
+        );
 
         $response = $this->graphql($this->method, [
             'verificationIds' => [Str::random(2000)],
         ], true);
-        $this->assertArraySubset([
+        $this->assertEquals([
             'verificationIds.0' => ['The verificationIds.0 field must not be greater than 1000 characters.'],
         ], $response['error']);
 
         $response = $this->graphql($this->method, [
             'verificationIds' => [''],
         ], true);
-        $this->assertArraySubset([
+        $this->assertEquals([
             'verificationIds.0' => ['The verificationIds.0 field must have a value.'],
         ], $response['error']);
     }
@@ -244,28 +246,26 @@ class GetWalletsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'accounts' => SupportCollection::range(1, 200)->map(fn ($val) => (string) $val)->toArray(),
         ], true);
-        $this->assertArraySubset([
-            'accounts' => ['The accounts field must not have more than 100 items.'],
-        ], $response['error']);
+        $this->assertEquals(['The accounts field must not have more than 100 items.'], $response['error']['accounts']);
 
         $response = $this->graphql($this->method, [
             'accounts' => [Str::random(2000)],
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'accounts.0' => ['The accounts.0 field must not be greater than 255 characters.'],
         ], $response['error']);
 
         $response = $this->graphql($this->method, [
             'accounts' => [''],
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'accounts.0' => ['The accounts.0 field must have a value.'],
         ], $response['error']);
 
         $response = $this->graphql($this->method, [
             'accounts' => [Str::random(255)],
         ], true);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'accounts.0' => ['The accounts.0 is not a valid substrate account.'],
         ], $response['error']);
     }
