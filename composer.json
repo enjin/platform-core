@@ -39,7 +39,7 @@
     "gmajor/substrate-codec-php": "^1.0",
     "guzzlehttp/guzzle": "^7.0",
     "illuminate/contracts": "^11.0",
-    "kevinrob/guzzle-cache-middleware": "^5.0",
+    "kevinrob/guzzle-cache-middleware": "^6.0",
     "laravel/pail": "^1.1",
     "mll-lab/laravel-graphiql": "^3.0",
     "phrity/websocket": "^1.0",
