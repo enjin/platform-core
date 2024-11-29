@@ -24,8 +24,8 @@ class WalletCreated extends PlatformBroadcastEvent
             'id' => $wallet->id,
             'publicKey' => $wallet->public_key,
         ];
-        $this->broadcastChannels = [
-            new Channel($wallet->public_key),
-        ];
+        $this->broadcastChannels = $wallet->public_key
+            ? [new Channel($wallet->public_key)]
+            : [];
     }
 }
