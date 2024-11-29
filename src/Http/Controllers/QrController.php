@@ -3,14 +3,12 @@
 namespace Enjin\Platform\Http\Controllers;
 
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Services\Qr\QRGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrController extends Controller
 {
-    public function __construct(protected QRGenerator $qr) {}
-
     public function get(Request $request)
     {
         $data = $request->input('d');
@@ -29,12 +27,7 @@ class QrController extends Controller
             throw new PlatformException(__('enjin-platform::error.qr.extension_not_installed'), 501);
         }
 
-        $qrCode = $this->qr->format($format)
-            ->eye('rounded')
-            ->externalEye('rounded')
-            ->eyeColor(0, 121, 102, 221, 121, 102, 221)
-            ->eyeColor(1, 121, 102, 221, 121, 102, 221)
-            ->eyeColor(2, 121, 102, 221, 121, 102, 221)
+        $qrCode = QrCode::format($format)
             ->size($size)
             ->errorCorrection('Q')
             ->merge(config('enjin-platform.qr.image'), config('enjin-platform.qr.image_size'), true)

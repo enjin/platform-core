@@ -236,7 +236,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The ingest sync wa it timeout
+    | The ingest sync wait timeout
     |--------------------------------------------------------------------------
     |
     | Here you may set how long the ingest command to wait for the sync to finish
