@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -28,7 +27,6 @@ use Illuminate\Support\Facades\Event;
 
 class BurnTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected $method = 'Burn';
@@ -39,6 +37,7 @@ class BurnTest extends TestCaseGraphQL
     protected Encoder $tokenIdEncoder;
     protected Model $tokenAccount;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -76,7 +75,7 @@ class BurnTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -111,7 +110,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -146,7 +145,7 @@ class BurnTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -178,7 +177,7 @@ class BurnTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -272,7 +271,7 @@ class BurnTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -333,7 +332,7 @@ class BurnTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -375,7 +374,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -415,7 +414,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -453,7 +452,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -517,7 +516,7 @@ class BurnTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -552,7 +551,7 @@ class BurnTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -603,7 +602,7 @@ class BurnTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -655,7 +654,7 @@ class BurnTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -686,7 +685,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -706,7 +705,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.tokenId' => ['The params.token id does not exist in the specified collection.']],
             $response['error']
         );
@@ -814,7 +813,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.amount' => ['The params.amount is too small, the minimum value it can be is 1.']],
             $response['error']
         );
@@ -936,7 +935,7 @@ class BurnTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
@@ -979,7 +978,7 @@ class BurnTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => ['The collection id provided is not owned by you.'],
         ], $response['error']);
 

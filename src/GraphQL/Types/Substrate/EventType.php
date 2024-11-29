@@ -18,6 +18,7 @@ class EventType extends GraphQLType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -30,6 +31,7 @@ class EventType extends GraphQLType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
+    #[\Override]
     public function fields(): array
     {
         return [

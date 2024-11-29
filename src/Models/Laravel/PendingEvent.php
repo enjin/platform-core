@@ -57,6 +57,7 @@ class PendingEvent extends BaseModel
         return static::where('id', 0);
     }
 
+    #[\Override]
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(

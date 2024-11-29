@@ -21,6 +21,7 @@ class ListingFilled extends Event implements PolkadartEvent
     public readonly string $protocolFee;
     public readonly string $royalty;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -40,6 +41,7 @@ class ListingFilled extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

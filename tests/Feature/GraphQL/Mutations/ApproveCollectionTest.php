@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -25,7 +24,6 @@ use Illuminate\Support\Facades\Event;
 
 class ApproveCollectionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'ApproveCollection';
@@ -33,6 +31,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     protected Model $owner;
     protected Model $collection;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,7 +59,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -111,7 +110,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -137,7 +136,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -170,7 +169,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -203,7 +202,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -235,7 +234,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator->public_key
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -267,7 +266,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -291,7 +290,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             expiration: $expiration
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -329,7 +328,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             operator: $operator
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'wallet' => null,
@@ -352,7 +351,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => app(Generator::class)->public_key(),
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => ["The collection doesn't have any tokens."],
         ], $response['error']);
     }
@@ -435,7 +434,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => 'not_a_substrate_address',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator is not a valid substrate account.']],
             $response['error']
         );
@@ -469,7 +468,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'expiration' => -1,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['expiration' => ["The expiration must be at least {$block->number}."]],
             $response['error'],
         );
@@ -517,7 +516,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => Account::daemonPublicKey(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator cannot be set to the daemon account.']],
             $response['error'],
         );
@@ -534,7 +533,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => app(Generator::class)->public_key(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );

@@ -15,6 +15,7 @@ class CollectionTransferred extends Event implements PolkadartEvent
     public readonly string $collectionId;
     public readonly string $owner;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -28,6 +29,7 @@ class CollectionTransferred extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

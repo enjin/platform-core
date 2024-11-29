@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -31,7 +30,6 @@ use Illuminate\Support\Facades\Event;
 
 class BatchTransferTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected $method = 'BatchTransfer';
@@ -44,6 +42,7 @@ class BatchTransferTest extends TestCaseGraphQL
     protected Model $tokenAccount;
     protected Model $recipient;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -123,7 +122,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -172,7 +171,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -217,7 +216,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -259,7 +258,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -369,7 +368,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -418,7 +417,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -464,7 +463,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -511,7 +510,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -561,7 +560,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -612,7 +611,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -665,7 +664,7 @@ class BatchTransferTest extends TestCaseGraphQL
             })->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -719,7 +718,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'continueOnFailure' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -770,7 +769,7 @@ class BatchTransferTest extends TestCaseGraphQL
             })->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -836,7 +835,7 @@ class BatchTransferTest extends TestCaseGraphQL
             })->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -906,7 +905,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingWallet->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -980,7 +979,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingWallet->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1044,7 +1043,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'signingAccount' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1122,7 +1121,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1199,7 +1198,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1260,7 +1259,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1376,7 +1375,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
@@ -1405,7 +1404,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'recipients' => [],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients' => ['The recipients field must have at least 1 items.']],
             $response['error'],
         );
@@ -1503,7 +1502,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.account' => ['The recipients.0.account is not a valid substrate account.']],
             $response['error'],
         );
@@ -1677,7 +1676,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.simpleParams.tokenId' => ['The recipients.0.simpleParams.tokenId does not exist in the specified collection.']],
             $response['error'],
         );
@@ -1745,7 +1744,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
@@ -1814,7 +1813,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error'],
         );
@@ -1898,7 +1897,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ], )->toArray(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients' => ['The recipients field must not have more than 250 items.']],
             $response['error'],
         );
@@ -2055,7 +2054,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.operatorParams.tokenId' => ['The recipients.0.operatorParams.tokenId does not exist in the specified collection.']],
             $response['error'],
         );
@@ -2126,7 +2125,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.operatorParams.source' => ['The recipients.0.operatorParams.source is not a valid substrate account.']],
             $response['error'],
         );
@@ -2152,7 +2151,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.operatorParams.amount' => ['The recipients.0.operatorParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error'],
         );
@@ -2199,7 +2198,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.operatorParams.amount' => ['The recipients.0.operatorParams.amount is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
@@ -2271,7 +2270,7 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.operatorParams.amount' => ['The recipients.0.operatorParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error'],
         );
@@ -2320,7 +2319,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'signingAccount' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
             $response['error'],
         );

@@ -16,6 +16,7 @@ class CounterOfferRemoved extends Event implements PolkadartEvent
     public readonly string $listingId;
     public readonly string $creator;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -29,6 +30,7 @@ class CounterOfferRemoved extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

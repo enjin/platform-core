@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Support\Hex;
@@ -12,13 +11,12 @@ use Illuminate\Support\Carbon;
 
 class RemoveFromTrackedTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'RemoveFromTracked';
     protected bool $fakeEvents = false;
 
     protected static array $syncableIds = [];
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -130,7 +128,7 @@ class RemoveFromTrackedTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, $data, true);
 
         if (is_array($response['error'])) {
-            $this->assertArraySubset(
+            $this->assertArrayContainsArray(
                 [$errorKey => Arr::wrap($errorValue)],
                 $response['error'],
             );

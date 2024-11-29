@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Global\TransactionCreated;
@@ -34,7 +33,6 @@ use Illuminate\Support\Facades\Event;
 
 class BatchMintTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'BatchMint';
@@ -47,6 +45,7 @@ class BatchMintTest extends TestCaseGraphQL
     protected Model $tokenAccount;
     protected Model $recipient;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -107,7 +106,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -155,7 +154,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -203,7 +202,7 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         $this->assertIsNumeric($response['deposit']);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -246,7 +245,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -340,7 +339,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -398,7 +397,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -451,7 +450,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -500,7 +499,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -549,7 +548,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -602,7 +601,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -649,7 +648,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -699,7 +698,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -755,7 +754,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -808,7 +807,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -860,7 +859,7 @@ class BatchMintTest extends TestCaseGraphQL
             })->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -914,7 +913,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -968,7 +967,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1041,7 +1040,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1093,7 +1092,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1156,7 +1155,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1206,7 +1205,7 @@ class BatchMintTest extends TestCaseGraphQL
             'continueOnFailure' => false, // TODO: Please remove the line when we support `continueOnFailure = false`
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -1326,7 +1325,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
@@ -1385,7 +1384,7 @@ class BatchMintTest extends TestCaseGraphQL
             'recipients' => [],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients' => ['The recipients field must have at least 1 items.']],
             $response['error'],
         );
@@ -1596,7 +1595,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.account' => ['The recipients.0.account is not a valid substrate account.']],
             $response['error'],
         );
@@ -1691,7 +1690,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['integer' => ['The integer is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['errors'],
         );
@@ -1764,7 +1763,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.createParams.initialSupply' => ['The recipients.0.create params.initial supply is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['error'],
         );
@@ -1993,7 +1992,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['integer' => ['The integer is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['errors'],
         );
@@ -2065,7 +2064,7 @@ class BatchMintTest extends TestCaseGraphQL
         ], true);
 
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.mintParams.tokenId' => ['The recipients.0.mintParams.tokenId does not exist in the specified collection.']],
             $response['error'],
         );
@@ -2111,7 +2110,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.mintParams.amount' => ['The recipients.0.mint params.amount is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
@@ -2202,7 +2201,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.mintParams.amount' => ['The recipients.0.mint params.amount is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['error'],
         );
@@ -2250,7 +2249,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.mintParams.unitPrice' => ['The recipients.0.mint params.unit price is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
@@ -2274,7 +2273,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients.0.mintParams.unitPrice' => ['The recipients.0.mint params.unit price is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['error'],
         );
@@ -2326,7 +2325,7 @@ class BatchMintTest extends TestCaseGraphQL
             )->toArray(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipients' => ['The recipients field must not have more than 250 items.']],
             $response['error'],
         );
@@ -2466,7 +2465,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'recipients.0.createParams.behavior.hasRoyalty.beneficiary' => [
                     0 => 'The recipients.0.create params.behavior.has royalty.beneficiary is not a valid substrate account.',
@@ -2585,7 +2584,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'recipients.0.createParams.behavior.hasRoyalty.percentage' => [
                     0 => 'The recipients.0.create params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -2618,7 +2617,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'recipients.0.createParams.behavior.hasRoyalty.percentage' => [
                     0 => 'The recipients.0.create params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -2651,7 +2650,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'recipients.0.createParams.behavior.hasRoyalty.percentage' => [
                     0 => 'The recipients.0.create params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -2684,7 +2683,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'recipients.0.createParams.behavior.hasRoyalty.percentage' => [
                     0 => 'The recipients.0.create params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -2717,7 +2716,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'recipients.0.createParams.behavior.hasRoyalty.percentage' => [
                     0 => 'The recipients.0.create params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -2774,7 +2773,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The overall token count 2 have exceeded the maximum cap of 0 tokens.']],
             $response['error'],
         );

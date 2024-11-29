@@ -16,6 +16,7 @@ class TokenAccountDestroyed extends Event implements PolkadartEvent
     public readonly string $tokenId;
     public readonly string $account;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -30,6 +31,7 @@ class TokenAccountDestroyed extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

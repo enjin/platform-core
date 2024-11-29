@@ -19,6 +19,7 @@ class Reserved extends Event implements PolkadartEvent
     public readonly string $amount;
     public readonly string $reserveId;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -39,6 +40,7 @@ class Reserved extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

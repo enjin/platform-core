@@ -14,6 +14,7 @@ class FuelTankDestroyed extends Event implements PolkadartEvent
     public readonly string $name;
     public readonly string $tankId;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -26,6 +27,7 @@ class FuelTankDestroyed extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

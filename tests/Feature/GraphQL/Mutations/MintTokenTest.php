@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -27,7 +26,6 @@ use Illuminate\Support\Facades\Event;
 
 class MintTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'MintToken';
@@ -38,6 +36,7 @@ class MintTokenTest extends TestCaseGraphQL
     protected Model $recipient;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -72,7 +71,7 @@ class MintTokenTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -112,7 +111,7 @@ class MintTokenTest extends TestCaseGraphQL
         ]);
 
         $this->assertIsNumeric($response['deposit']);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -170,7 +169,7 @@ class MintTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -218,7 +217,7 @@ class MintTokenTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -267,7 +266,7 @@ class MintTokenTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -308,7 +307,7 @@ class MintTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -357,7 +356,7 @@ class MintTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -396,7 +395,7 @@ class MintTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -430,7 +429,7 @@ class MintTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipient' => ['The recipient is not a valid substrate account.']],
             $response['error']
         );
@@ -527,7 +526,7 @@ class MintTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.amount' => ['The params.amount is too small, the minimum value it can be is 1.']],
             $response['error']
         );

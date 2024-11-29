@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -21,7 +20,6 @@ use Illuminate\Support\Facades\Event;
 
 class AcceptCollectionTransferTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'AcceptCollectionTransfer';
@@ -29,6 +27,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
     protected Model $owner;
     protected Model $collection;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -53,7 +52,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             collectionId: $collectionId,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -75,7 +74,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             collectionId: $this->collection->collection_chain_id,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -99,7 +98,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             collectionId: $this->collection->collection_chain_id,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -129,7 +128,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             collectionId: $collection->collection_chain_id,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -165,7 +164,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             collectionId: $collection->collection_chain_id,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'wallet' => null,
@@ -181,7 +180,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             'collectionId' => random_int(1, 1000),
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => ['The selected collection id is invalid.'],
         ], $response['error']);
     }
@@ -225,7 +224,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $collection->collection_chain_id,
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => [sprintf('There is no pending collection transfer for the account %s at collection %s.', Account::daemonPublicKey(), $collectionId)],
         ], $response['error']);
     }
@@ -240,7 +239,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $collection->collection_chain_id,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => [sprintf('There is no pending collection transfer for the account %s at collection %s.', Account::daemonPublicKey(), $collectionId)]],
             $response['error']
         );
