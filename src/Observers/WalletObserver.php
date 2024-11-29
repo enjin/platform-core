@@ -4,7 +4,6 @@ namespace Enjin\Platform\Observers;
 
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Global\WalletCreated;
-use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Illuminate\Support\Facades\Cache;
 
