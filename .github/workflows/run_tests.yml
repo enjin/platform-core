@@ -74,7 +74,7 @@ jobs:
           DB_DATABASE: platform
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           dry_run: github.event.pull_request.draft == true
           token: ${{ secrets.CODECOV_TOKEN }}
