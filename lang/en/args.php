@@ -2,7 +2,7 @@
 
 return [
     'common.tokenId' => 'The token ID.',
-    'idempotencyKey' => 'The idempotency key to set. It is recommended to use a UUID for this.',
-    'tokenId' => 'The token ID to set. This must be unique for this collection.',
+    'idempotencyKey' => 'A unique key used to prevent duplicate operations. If multiple mutations are sent with the same key, only one will be broadcasted. Using a UUID is recommended.',
+    'tokenId' => 'The token ID to create. This must be unique for this collection.',
     'simulate' => 'Simulates a transaction without broadcasting it to the network.',
 ];
