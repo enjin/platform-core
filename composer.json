@@ -61,7 +61,7 @@
     "phpstan/phpstan-phpunit": "^2.0",
     "phpunit/php-code-coverage": "^11.0",
     "phpunit/phpunit": "^11.0",
-    "rector/rector": "2.0.0-rc2",
+    "rector/rector": "2.0.0-rc3",
     "roave/security-advisories": "dev-latest"
   },
   "autoload": {
