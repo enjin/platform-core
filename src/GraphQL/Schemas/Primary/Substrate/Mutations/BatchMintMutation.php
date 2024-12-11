@@ -73,7 +73,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
             ],
             'recipients' => [
                 'type' => GraphQL::type('[MintRecipient!]!'),
-                'description' => __('enjin-platform::mutation.common.args.recipients'),
+                'description' => __('enjin-platform::mutation.batch_mint.args.recipients'),
                 'rules' => ['array', 'min:1', 'max:250'],
             ],
             'continueOnFailure' => [
