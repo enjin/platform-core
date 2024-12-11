@@ -38,6 +38,10 @@ class TokenMutated extends SubstrateEvent
             $attributes['listing_forbidden'] = $this->event->listingForbidden;
         }
 
+        if ($this->event->tokenName != null) {
+            $attributes['name'] = $this->event->tokenName;
+        }
+
         if ($this->event->behavior === 'SomeMutation') {
             $attributes['is_currency'] = $this->event->isCurrency;
             $attributes['royalty_wallet_id'] = null;

@@ -132,7 +132,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
             'mutation' => [
-                'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
+                'behavior' => (is_array($behavior) || !isset($behavior)) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
                 'listingForbidden' => Arr::get($params, 'listingForbidden'),
                 'anyoneCanInfuse' => Arr::get($params, 'anyoneCanInfuse'),
                 'name' => ($name = Arr::get($params, 'name')) ? HexConverter::stringToHexPrefixed($name) : null,
