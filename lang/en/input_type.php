@@ -44,7 +44,7 @@ return [
     'mutation_royalty.field.percentage' => 'Specifies the percentage of the sale value that the beneficiary will receive as royalties.',
     'operator_transfer_params.description' => "The params to make an operator transfer. Operator transfers are transfers that you make using tokens from somebody else's wallet as the source. To make this type of transfer the source wallet owner must approve you for transferring their tokens.",
     'operator_transfer_params.field.source' => 'The source account of the token.',
-    'simple_transfer_params.description' => 'The params to make a simple transfer.',
+    'simple_transfer_params.description' => 'The token id, and the amount to transfer.',
     'token_data.description' => 'Data for a token on the Ethereum network.',
     'token_freeze_state.description' => 'Specifies the freeze configuration for the token, determining if and how it can be frozen. By default, the token is not frozen. [Learn more](https://docs.enjin.io/docs/freezing-thawing)',
     'token_id_encoder.erc1155.description' => 'Creates an integer representation from an ERC1155 style token input.',
