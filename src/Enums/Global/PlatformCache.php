@@ -27,6 +27,8 @@ enum PlatformCache: string implements PlatformCacheable
     case BLOCK_EVENT_COUNT = 'blockEventCount';
     case BLOCK_TRANSACTION = 'blockTransaction';
     case REFRESH_METADATA = 'refreshMetadata';
+    case TELEMETRY_UUID = 'telemetry:uuid';
+    case TELEMETRY_CACHE_LOCK = 'telemetry:cacheLock';
 
     public function key(?string $suffix = null, ?string $network = null): string
     {
