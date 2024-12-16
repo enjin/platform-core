@@ -4,18 +4,18 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Mul
 
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenMinted;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\Minted as MintedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
 class Minted extends SubstrateEvent
 {
     /** @var MintedPolkadart */
     protected Event $event;
-    protected ?Token $tokenMinted = null;
+    protected ?Model $tokenMinted = null;
 
     /**
      * @throws PlatformException
@@ -34,7 +34,7 @@ class Minted extends SubstrateEvent
         $recipient = $this->firstOrStoreAccount($this->event->recipient);
 
         $this->tokenMinted->update([
-            'supply', gmp_strval(gmp_add($this->tokenMinted->supply, $this->event->amount)) ?? 0,
+            'supply' => gmp_strval(gmp_add($this->tokenMinted->supply, $this->event->amount)) ?? 0,
         ]);
 
         TokenAccount::where([
