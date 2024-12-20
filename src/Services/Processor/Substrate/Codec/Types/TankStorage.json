@@ -35,7 +35,8 @@
       "PermittedCalls",
       "PermittedExtrinsics",
       "WhitelistedPallets",
-      "RequireSignature"
+      "RequireSignature",
+      "MinimumInfusion"
     ]
   },
   "DispatchRuleStorage": {
@@ -49,7 +50,8 @@
       "PermittedCalls": "PermittedCallsRuleStorage",
       "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage",
       "WhitelistedPallets": "Vec<Bytes>",
-      "RequireSignature": "[u8; 32]"
+      "RequireSignature": "[u8; 32]",
+      "MinimumInfusion": "u128"
     }
   },
   "CoveragePolicy": {
