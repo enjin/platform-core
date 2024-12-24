@@ -78,7 +78,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             ...$this->getTokenFields(__('enjin-platform::mutation.thaw.args.tokenId'), true),
             'collectionAccount' => [
                 'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::mutation.thaw.description'),
+                'description' => __('enjin-platform::mutation.thaw.args.collectionAccount'),
             ],
             'tokenAccount' => [
                 'type' => GraphQL::type('String'),
