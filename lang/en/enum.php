@@ -11,7 +11,7 @@ Defines the token's freeze state, determining if and how it can be frozen. Optio
 - **NEVER**: The token cannot be frozen, ensuring it remains transferable at all times.
 MD,
     'freezable_type.description' => <<<MD
-Configures the target of the operation, determining which tokens or token groups will have their transfer restrictions applied or removed. [Learn more](https://docs.enjin.io/docs/freezing-thawing)  
+Configures the target of the operation, determining which tokens or token groups will have their transfer restrictions applied or removed. [Learn more](https://docs.enjin.io/docs/freezing-thawing).  
 
 Options include:  
 

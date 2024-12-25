@@ -30,7 +30,7 @@ class TokenMutationInputType extends InputType implements PlatformGraphQlType
         return [
             'behavior' => [
                 'type' => GraphQL::type('TokenMarketBehaviorInput'),
-                'description' => __('enjin-platform::input_type.token_mutation.field.behavior'),
+                'description' => __('enjin-platform::input_type.    '),
             ],
             'listingForbidden' => [
                 'type' => GraphQL::type('Boolean'),
@@ -38,11 +38,11 @@ class TokenMutationInputType extends InputType implements PlatformGraphQlType
             ],
             'anyoneCanInfuse' => [
                 'type' => GraphQL::type('Boolean'),
-                'description' => __('enjin-platform::type.token.field.anyoneCanInfuse'),
+                'description' => __('enjin-platform::input_type.token_mutation.field.anyoneCanInfuse'),
             ],
             'name' => [
                 'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::type.token.field.name'),
+                'description' => __('enjin-platform::input_type.token_mutation.field.name'),
             ],
         ];
     }
