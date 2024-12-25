@@ -2,8 +2,8 @@
 
 return [
     'balance_transfer.description' => 'The params to make a balance transfer.',
-    'burn_params.description' => 'The params to burn a token.',
-    'burn_params.field.removeTokenStorage' => 'If true, the token storage will be removed if no tokens are left. Defaults to False.',
+    'burn_params.description' => 'Defines the configuration for the token burn operation, including the token to be burned, the amount to reduce from circulation, and additional settings for permanent removal from the blockchain.',
+    'burn_params.field.removeTokenStorage' => 'If set to `true`, the token will be removed from the blockchain if its circulating supply is fully burned and it has no attributes. Removing the token storage retrieves the ENJ reserved for the token. Defaults to `false`.',
     'collection_mutation.description' => 'The params that can be mutated for a collection.',
     'collection_mutation.field.owner' => 'The new owner account of the collection.',
     'collection_mutation.field.royalty' => 'The new royalty of the collection.',

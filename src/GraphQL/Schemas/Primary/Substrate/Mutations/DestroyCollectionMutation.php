@@ -44,7 +44,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     {
         return [
             'name' => 'DestroyCollection',
-            'description' => __('enjin-platform::mutation.burn.description'),
+            'description' => __('enjin-platform::mutation.destroy_collection.description'),
         ];
     }
 
