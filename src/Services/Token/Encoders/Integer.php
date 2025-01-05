@@ -29,6 +29,7 @@ class Integer extends BaseEncoder
     /**
      * Get the rules of the encoder.
      */
+    #[\Override]
     public static function getRules(): array
     {
         return [

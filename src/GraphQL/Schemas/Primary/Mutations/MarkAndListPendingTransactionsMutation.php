@@ -29,6 +29,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -48,6 +49,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return ConnectionInput::args([
@@ -105,6 +107,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     /**
      * Get the validation rules.
      */
+    #[\Override]
     protected function rules(array $args = []): array
     {
         return [

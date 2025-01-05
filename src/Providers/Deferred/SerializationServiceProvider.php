@@ -13,6 +13,7 @@ class SerializationServiceProvider extends ServiceProvider implements Deferrable
     /**
      * Register any application services.
      */
+    #[\Override]
     public function register()
     {
         $map = [
@@ -30,6 +31,7 @@ class SerializationServiceProvider extends ServiceProvider implements Deferrable
     /**
      * Get the services provided by the provider.
      */
+    #[\Override]
     public function provides()
     {
         return [SerializationServiceInterface::class];

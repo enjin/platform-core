@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchSetAttributeMutation;
@@ -23,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BatchSetAttributeTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'BatchSetAttribute';
@@ -33,6 +31,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     protected Encoder $tokenIdEncoder;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -63,7 +62,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -95,7 +94,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
         ]);
 
         $this->assertIsNumeric($response['deposit']);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -119,7 +118,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $attributes,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -178,7 +177,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -219,7 +218,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -252,7 +251,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -286,7 +285,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'continueOnFailure' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -315,7 +314,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $attributes,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -343,7 +342,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $attributes,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -372,7 +371,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $attributes,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -435,7 +434,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $this->randomAttributes(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'collectionId' => [
                     0 => 'The selected collection id is invalid.',
@@ -453,7 +452,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $this->randomAttributes(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'collectionId' => [
                     0 => 'The selected collection id is invalid.',
@@ -474,7 +473,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $this->randomAttributes(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'tokenId' => [
                     0 => 'The token id does not exist in the specified collection.',
@@ -494,7 +493,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $this->randomAttributes(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'tokenId' => [
                     0 => 'The token id does not exist in the specified collection.',
@@ -553,7 +552,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => [],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'attributes' => [
                     0 => 'The attributes field must have at least 1 items.',
@@ -703,7 +702,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $this->randomAttributes(21, 21),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'attributes' => [
                     0 => 'The attributes field must not have more than 20 items.',
@@ -722,7 +721,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
             'attributes' => $this->randomAttributes(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );

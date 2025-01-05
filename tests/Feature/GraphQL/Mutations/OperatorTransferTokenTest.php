@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -29,7 +28,6 @@ use Illuminate\Support\Facades\Event;
 
 class OperatorTransferTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
 
@@ -43,6 +41,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     protected Model $tokenAccount;
     protected Model $recipient;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -92,7 +91,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -134,7 +133,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -172,7 +171,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -254,7 +253,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -315,7 +314,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -377,7 +376,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         ]);
 
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -419,7 +418,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -476,7 +475,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingWallet->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -519,7 +518,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'signingAccount' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -558,7 +557,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'signingAccount' => '',
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -598,7 +597,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -659,7 +658,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -714,7 +713,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -747,7 +746,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -826,7 +825,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipient' => ['The recipient is not a valid substrate account.']],
             $response['error']
         );
@@ -887,7 +886,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.tokenId' => ['The params.token id does not exist in the specified collection.']],
             $response['error']
         );
@@ -966,7 +965,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.source' => ['The params.source is not a valid substrate account.']],
             $response['error']
         );
@@ -1104,7 +1103,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
@@ -1146,7 +1145,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'signingAccount' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
             $response['error']
         );

@@ -26,6 +26,8 @@ query GetWallet(
   $ownedCollectionsLimit: Int
   $tokenTokenAccountsCursor: String
   $tokenTokenAccountsLimit: Int
+  $collectionApprovalAccounts: [String!]
+  $tokenApprovalAccounts: [String!]
 ) {
   GetWallet(
     id: $id
@@ -136,6 +138,7 @@ query GetWallet(
       }
     }
     collectionAccountApprovals(
+      walletAccounts: $collectionApprovalAccounts
       after: $collectionAccountApprovalsCursor
       first: $collectionAccountApprovalsLimit
     ) {
@@ -160,6 +163,7 @@ query GetWallet(
       }
     }
     tokenAccountApprovals(
+      walletAccounts: $tokenApprovalAccounts
       after: $tokenAccountApprovalsCursor
       first: $tokenAccountApprovalsLimit
     ) {

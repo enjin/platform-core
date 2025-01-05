@@ -18,6 +18,7 @@ class CounterOfferPlaced extends Event implements PolkadartEvent
     public readonly string $depositor;
     public readonly string $depositAmount;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -35,6 +36,7 @@ class CounterOfferPlaced extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

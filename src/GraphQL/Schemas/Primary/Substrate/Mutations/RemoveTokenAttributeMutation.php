@@ -47,6 +47,7 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -66,6 +67,7 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -112,6 +114,7 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
     /**
      * Get the serialization service method name.
      */
+    #[\Override]
     public function getMethodName(): string
     {
         return 'RemoveAttribute';

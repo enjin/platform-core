@@ -45,6 +45,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -64,6 +65,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -114,6 +116,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the validation error messages.
      */
+    #[\Override]
     public function validationErrorMessages(array $args = []): array
     {
         return [
@@ -129,7 +132,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
             'mutation' => [
-                'behavior' => is_array($behavior) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
+                'behavior' => (is_array($behavior) || !isset($behavior)) ? ['NoMutation' => null] : ['SomeMutation' => $behavior?->toEncodable()],
                 'listingForbidden' => Arr::get($params, 'listingForbidden'),
                 'anyoneCanInfuse' => Arr::get($params, 'anyoneCanInfuse'),
                 'name' => ($name = Arr::get($params, 'name')) ? HexConverter::stringToHexPrefixed($name) : null,

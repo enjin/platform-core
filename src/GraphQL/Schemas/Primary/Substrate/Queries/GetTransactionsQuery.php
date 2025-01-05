@@ -35,6 +35,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -54,6 +55,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return self::resolveArgs();
@@ -148,6 +150,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the validation rules.
      */
+    #[\Override]
     protected function rules(array $args = []): array
     {
         return [

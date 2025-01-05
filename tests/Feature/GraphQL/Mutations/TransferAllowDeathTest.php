@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -19,7 +18,6 @@ use Illuminate\Support\Facades\Event;
 
 class TransferAllowDeathTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'TransferAllowDeath';
@@ -27,6 +25,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     protected string $defaultAccount;
     protected array $fee;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,7 +59,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -90,7 +89,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -129,7 +128,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'amount' => $amount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -160,7 +159,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'amount' => $amount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -197,7 +196,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'amount' => $amount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -232,7 +231,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($publicKey),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -259,7 +258,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'signingAccount' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -282,7 +281,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'signingAccount' => '',
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -371,7 +370,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'amount' => fake()->numberBetween(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['recipient' => ['The recipient is not a valid substrate account.']],
             $response['error'],
         );
@@ -417,7 +416,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'signingAccount' => 'not_valid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
             $response['error'],
         );

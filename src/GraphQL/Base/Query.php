@@ -12,6 +12,7 @@ abstract class Query extends BaseQuery
     /**
      * Validate arguments base from the rules.
      */
+    #[\Override]
     protected function validateArguments(array $arguments, array $rules): void
     {
         $validator = $this->getValidator($arguments, $rules);

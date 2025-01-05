@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -25,7 +24,6 @@ use Illuminate\Support\Facades\Event;
 
 class UnapproveCollectionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'UnapproveCollection';
@@ -36,6 +34,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     protected Model $collectionAccount;
     protected Model $collectionAccountApproval;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -68,7 +67,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -92,7 +91,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -147,7 +146,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -187,7 +186,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -227,7 +226,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -253,7 +252,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -285,7 +284,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             operator: $this->operator->public_key
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -389,7 +388,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => 'not_a_substrate_address',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator is not a valid substrate account.']],
             $response['error']
         );
@@ -406,7 +405,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );

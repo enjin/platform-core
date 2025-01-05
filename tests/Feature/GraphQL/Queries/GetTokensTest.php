@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -21,14 +20,13 @@ use Illuminate\Support\Collection as CollectionSupport;
 
 class GetTokensTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetTokens';
     protected Model $wallet;
     protected Model $collection;
     protected CollectionSupport $tokens;
     protected Encoder $tokenIdEncoder;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -41,6 +39,7 @@ class GetTokensTest extends TestCaseGraphQL
         $this->tokenIdEncoder = new Integer();
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         $this->collection->delete();
@@ -74,7 +73,7 @@ class GetTokensTest extends TestCaseGraphQL
         ]);
 
         $this->assertTrue($response['totalCount'] === 1);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'tokenId' => $this->tokenIdEncoder->encode($token->token_chain_id),
             'supply' => $token->supply,
             'cap' => $token->cap,
@@ -147,7 +146,7 @@ class GetTokensTest extends TestCaseGraphQL
         ], true);
 
         $this->assertEquals(
-            ['after' => ['The after contains and invalid encoded data.']],
+            ['after' => ['The after contains an invalid encoded data.']],
             $response['error'],
         );
     }
@@ -303,7 +302,7 @@ class GetTokensTest extends TestCaseGraphQL
             'tokenIds' => [$this->tokenIdEncoder->toEncodable(Hex::MAX_UINT256)],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['integer' => ['The integer is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['errors'],
         );
@@ -317,7 +316,7 @@ class GetTokensTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );

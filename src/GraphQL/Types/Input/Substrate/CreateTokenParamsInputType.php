@@ -19,6 +19,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
     /**
      * Get the type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -30,6 +31,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
     /**
      * Get the type's fields definition.
      */
+    #[\Override]
     public function fields(): array
     {
         return [

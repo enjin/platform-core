@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -16,8 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class GetCollectionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetCollection';
     protected Model $wallet;
     protected Model $collectionOwner;
@@ -29,6 +26,7 @@ class GetCollectionTest extends TestCaseGraphQL
     protected Model $collectionAttribute;
     protected Model $tokenAttribute;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -74,7 +72,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $this->collection->collection_chain_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => $collectionId,
             'maxTokenCount' => $this->collection->max_token_count,
             'maxTokenSupply' => $this->collection->max_token_supply,
@@ -141,7 +139,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $collection->collection_chain_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => $collectionId,
         ], $response);
     }
@@ -156,7 +154,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $collection->collection_chain_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => $collectionId,
             'maxTokenCount' => null,
         ], $response);
@@ -172,7 +170,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId = $collection->collection_chain_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'collectionId' => $collectionId,
             'maxTokenSupply' => null,
         ], $response);
@@ -246,7 +244,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
@@ -258,7 +256,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collectionId' => Hex::MAX_UINT256,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );

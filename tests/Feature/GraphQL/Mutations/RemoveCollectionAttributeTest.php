@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
@@ -25,7 +24,6 @@ use Illuminate\Support\Facades\Event;
 
 class RemoveCollectionAttributeTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'RemoveCollectionAttribute';
@@ -34,6 +32,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
     protected Model $attribute;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,7 +64,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -97,7 +96,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -148,7 +147,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -192,7 +191,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -235,7 +234,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -270,7 +269,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -312,7 +311,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -340,7 +339,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -428,7 +427,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['key' => ['The key field must have a value.']],
             $response['error']
         );
@@ -445,7 +444,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
             'key' => $key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['key' => ['The key does not exist in the specified collection.']],
             $response['error']
         );

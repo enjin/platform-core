@@ -12,6 +12,7 @@ class SingleArgOnly extends Middleware
     /**
      * Process the middleware.
      */
+    #[\Override]
     public function handle($root, array $args, $context, ResolveInfo $info, Closure $next)
     {
         if (count($args) != 1) {

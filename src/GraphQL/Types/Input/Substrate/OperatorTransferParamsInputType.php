@@ -16,6 +16,7 @@ class OperatorTransferParamsInputType extends InputType implements PlatformGraph
     /**
      * Get the type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -27,6 +28,7 @@ class OperatorTransferParamsInputType extends InputType implements PlatformGraph
     /**
      * Get the type's fields definition.
      */
+    #[\Override]
     public function fields(): array
     {
         return [

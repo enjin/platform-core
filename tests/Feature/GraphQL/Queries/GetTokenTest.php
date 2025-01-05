@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -21,8 +20,6 @@ use Illuminate\Support\Facades\Http;
 
 class GetTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetToken';
     protected Model $wallet;
     protected Model $collectionOwner;
@@ -34,6 +31,7 @@ class GetTokenTest extends TestCaseGraphQL
     protected Model $tokenAccountNamedReserve;
     protected Model $tokenAttribute;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -81,7 +79,7 @@ class GetTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'attributes' => [[
                 'key' => 'uri',
                 'value' => "https://example.com/{$this->collection->collection_chain_id}-{$this->token->token_chain_id}",
@@ -99,7 +97,7 @@ class GetTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'attributes' => [[
                 'key' => 'uri',
                 'value' => "https://example.com/{$this->collection->collection_chain_id}-{$this->token->token_chain_id}",
@@ -115,7 +113,7 @@ class GetTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'tokenId' => $this->tokenIdEncoder->encode(),
             'supply' => $this->token->supply,
             'cap' => $this->token->cap,
@@ -180,7 +178,7 @@ class GetTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'tokenId' => $this->tokenIdEncoder->encode($token->token_chain_id),
         ], $response);
     }
@@ -211,7 +209,7 @@ class GetTokenTest extends TestCaseGraphQL
             'metadata' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'tokenId' => $this->tokenIdEncoder->encode($token->token_chain_id),
             'metadata' => (object) [
                 'name' => 'Mock Token',
@@ -247,7 +245,7 @@ class GetTokenTest extends TestCaseGraphQL
             'metadata' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'tokenId' => $this->tokenIdEncoder->encode($token->token_chain_id),
             'metadata' => (object) [
                 'name' => 'Mock Token',
@@ -380,7 +378,7 @@ class GetTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
@@ -395,7 +393,7 @@ class GetTokenTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id doesn\'t exist.']],
             $response['error'],
         );

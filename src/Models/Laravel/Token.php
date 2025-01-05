@@ -161,6 +161,7 @@ class Token extends BaseModel
         return TokenFactory::new();
     }
 
+    #[\Override]
     protected function pivotIdentifier(): Attribute
     {
         if (!$this->relationLoaded('collection')) {
@@ -176,6 +177,7 @@ class Token extends BaseModel
         );
     }
 
+    #[\Override]
     protected function ownerId(): Attribute
     {
         if (!$this->loadMissing('collection')->collection) {

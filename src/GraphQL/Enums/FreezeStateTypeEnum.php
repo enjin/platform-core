@@ -11,6 +11,7 @@ class FreezeStateTypeEnum extends EnumType implements PlatformGraphQlEnum
     /**
      * Get the enum's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [

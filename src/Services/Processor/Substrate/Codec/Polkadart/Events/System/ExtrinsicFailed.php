@@ -13,6 +13,7 @@ class ExtrinsicFailed extends Event implements PolkadartEvent
     public readonly string $name;
     public readonly ?array $data;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -25,6 +26,7 @@ class ExtrinsicFailed extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return array_map(

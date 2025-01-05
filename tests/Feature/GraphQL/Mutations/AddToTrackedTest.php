@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Jobs\HotSync;
 use Enjin\Platform\Models\Syncable;
@@ -15,11 +14,10 @@ use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class AddToTrackedTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'AddToTracked';
     protected bool $fakeEvents = false;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -160,7 +158,7 @@ class AddToTrackedTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, $data, true);
 
         if (is_array($response['error'])) {
-            $this->assertArraySubset(
+            $this->assertArrayContainsArray(
                 [$errorKey => Arr::wrap($errorValue)],
                 $response['error'],
             );

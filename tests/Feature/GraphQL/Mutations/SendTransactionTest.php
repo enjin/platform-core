@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Global\TransactionUpdated;
@@ -16,7 +15,6 @@ use Illuminate\Support\Facades\Event;
 
 class SendTransactionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksSocketClient;
 
     protected string $method = 'SendTransaction';
@@ -26,6 +24,7 @@ class SendTransactionTest extends TestCaseGraphQL
     protected string $signature;
     protected string $hash;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -156,7 +155,7 @@ class SendTransactionTest extends TestCaseGraphQL
             'signingPayloadJson' => $this->payload,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signature' => ['The signature has an invalid hex string.']],
             $response['error']
         );
@@ -218,7 +217,7 @@ class SendTransactionTest extends TestCaseGraphQL
             'signingPayloadJson' => $this->payload,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['id' => ['The selected id is invalid.']],
             $response['error']
         );

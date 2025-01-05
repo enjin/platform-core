@@ -2,14 +2,11 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class CreateWalletTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     // Happy Path
 
     public function test_create_ask_to_create_a_wallet_with_single_word(): void
@@ -72,7 +69,7 @@ class CreateWalletTest extends TestCaseGraphQL
             'externalId' => $externalId,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['externalId' => ['The external id has already been taken.']],
             $response['error'],
         );

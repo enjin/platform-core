@@ -38,6 +38,7 @@ class Syncable extends BaseModel
      */
     protected $attributes = [];
 
+    #[\Override]
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(

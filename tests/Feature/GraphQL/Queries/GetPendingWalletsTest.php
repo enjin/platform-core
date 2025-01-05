@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
@@ -12,12 +11,12 @@ use Illuminate\Support\Arr;
 
 class GetPendingWalletsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use HasHttp;
 
     protected string $method = 'GetPendingWallets';
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -30,7 +29,7 @@ class GetPendingWalletsTest extends TestCaseGraphQL
     public function test_it_can_get_pending_wallets_without_auth(): void
     {
         $response = $this->httpGraphql($this->method);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'id' => $this->wallet->id,
                 'account' => [
@@ -48,7 +47,7 @@ class GetPendingWalletsTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, []);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'id' => $this->wallet->id,
                 'account' => [

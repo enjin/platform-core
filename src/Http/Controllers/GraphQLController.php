@@ -28,6 +28,7 @@ class GraphQLController extends GraphQLGraphQLController
     /**
      * Handle graphql query.
      */
+    #[\Override]
     public function query(Request $request, RequestParser $parser, Repository $config, GraphQL $graphql): JsonResponse
     {
         $response = parent::query($request, $parser, $config, $graphql);

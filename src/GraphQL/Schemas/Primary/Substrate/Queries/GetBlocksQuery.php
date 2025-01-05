@@ -29,6 +29,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
         SingleFilterOnly::class,
     ];
 
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -48,6 +49,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
     /**
      * Get the query's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return ConnectionInput::args([
@@ -78,6 +80,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
     /**
      * Get the validatio rules.
      */
+    #[\Override]
     protected function rules(array $args = []): array
     {
         return [
