@@ -5,6 +5,7 @@ namespace Enjin\Platform;
 use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\RelayWatcher;
+use Enjin\Platform\Commands\SendTelemetryEvent;
 use Enjin\Platform\Commands\Sync;
 use Enjin\Platform\Commands\SyncMetadata;
 use Enjin\Platform\Commands\TransactionChecker;
@@ -13,6 +14,7 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
+use Enjin\Platform\Http\Middleware\Telemetry;
 use Enjin\Platform\Providers\AuthServiceProvider;
 use Enjin\Platform\Providers\Deferred\BlockchainServiceProvider;
 use Enjin\Platform\Providers\Deferred\QrServiceProvider;
@@ -22,6 +24,8 @@ use Enjin\Platform\Providers\FakerServiceProvider;
 use Enjin\Platform\Providers\GitHubServiceProvider;
 use Enjin\Platform\Providers\GraphQlServiceProvider;
 use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -75,6 +79,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('upgrade_collections_table')
             ->hasMigration('add_index_to_syncables_table')
             ->hasMigration('add_managed_to_transactions_table')
+            ->hasMigration('create_telemetry_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
@@ -83,6 +88,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasCommand(TransactionChecker::class)
             ->hasCommand(RelayWatcher::class)
             ->hasCommand(SyncMetadata::class)
+            ->hasCommand(SendTelemetryEvent::class)
             ->hasTranslations();
     }
 
@@ -106,6 +112,11 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(FakerServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(GitHubServiceProvider::class);
+
+        $this->app[Kernel::class]->pushMiddleware(Telemetry::class);
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            $schedule->command('platform:send-telemetry-event')->daily();
+        });
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::syncing());
         Event::listen(PlatformSynced::class, fn () => BlockProcessor::syncingDone());
