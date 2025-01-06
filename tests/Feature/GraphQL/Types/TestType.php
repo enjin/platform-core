@@ -12,10 +12,7 @@ class TestType
     private $subject;
     private $context;
 
-    public function __construct(private Type $type)
-    {
-        $this->type = $type;
-    }
+    public function __construct(private readonly Type $type) {}
 
     public function resolve($subject): self
     {
