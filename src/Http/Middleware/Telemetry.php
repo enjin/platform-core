@@ -18,18 +18,16 @@ class Telemetry
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!config('telemetry.enabled') || config('telemetry.enabled') === 'false') {
-            return $next($request);
-        }
-
-        try {
-            Cache::lock(PlatformCache::TELEMETRY_CACHE_LOCK->value, 900)->get(fn () => $this->service->phone());
-        } catch (Throwable $e) {
-            Log::error($e->getMessage());
+        if ($this->service->isEnabled()) {
+            try {
+                Cache::lock(PlatformCache::TELEMETRY_CACHE_LOCK->value, 900)->get(fn () => $this->service->phone());
+            } catch (Throwable $e) {
+                Log::error('Failed to send telemetry event.', ['message' => $e->getMessage()]);
+            }
         }
 
         return $next($request);

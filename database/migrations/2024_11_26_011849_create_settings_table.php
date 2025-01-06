@@ -10,10 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('telemetry', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->uuid('uuid')->unique();
+        Schema::create('settings', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->string('value');
         });
     }
 
@@ -22,6 +21,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('telemetry');
+        Schema::dropIfExists('settings');
     }
 };

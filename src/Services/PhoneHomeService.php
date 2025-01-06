@@ -3,8 +3,10 @@
 namespace Enjin\Platform\Services;
 
 use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Enums\Global\SettingsEnum;
 use Enjin\Platform\Enums\TelemetrySource;
 use Enjin\Platform\Http\Controllers\PlatformController;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -16,26 +18,22 @@ class PhoneHomeService
 {
     public function phone(TelemetrySource $source = TelemetrySource::REQUEST): void
     {
-        if (!config('telemetry.enabled') || config('telemetry.enabled') === 'false') {
+        if (!$this->isEnabled()) {
             return;
         }
+
+        $packages = $this->platformPackages();
 
         try {
             $uuid = Cache::rememberForever(
                 PlatformCache::TELEMETRY_UUID->value,
-                function () {
-                    if (!$uuid = DB::table('telemetry')->first()?->uuid) {
-                        DB::table('telemetry')->insert(['uuid' => $uuid = Str::uuid()->toString()]);
-                    }
-
-                    return $uuid;
-                }
+                fn () => $this->getPlatformIdentifier()
             );
 
             $os = php_uname('s');
             $machineType = php_uname('m');
             $phpVersion = PHP_VERSION;
-            $platformVersion = '0.1.2';
+            $platformVersion = Arr::get($packages, 'enjin/platform-core');
 
             $userAgent = "Enjin-Platform/{$platformVersion} ({$os} {$machineType}; PHP {$phpVersion})";
             Http::asJson()
@@ -57,13 +55,29 @@ class PhoneHomeService
                         'type' => $machineType,
                     ],
                     'php' => $phpVersion,
-                    'packages' => $this->platformPackages(),
+                    'packages' => $packages,
                     'source' => $source->value,
                 ]);
-            dd('sent');
         } catch (Throwable $e) {
-            Log::error($e->getMessage());
+            Log::error('Failed to send telemetry event.', ['message' => $e->getMessage()]);
         }
+    }
+
+    public function isEnabled(): bool
+    {
+        return config('telemetry.enabled') && config('telemetry.enabled') !== 'false';
+    }
+
+    protected function getPlatformIdentifier(): string
+    {
+        if (!$uuid = DB::table('settings')->where('key', SettingsEnum::TELEMETRY_UUID->value)->value('value')) {
+            DB::table('settings')->insert([
+                'key' => SettingsEnum::TELEMETRY_UUID->value,
+                'value' => $uuid = Str::uuid()->toString(),
+            ]);
+        }
+
+        return $uuid;
     }
 
     protected function platformPackages(): array

@@ -22,6 +22,8 @@ class SendTelemetryEvent extends Command
      */
     protected $description = 'Send telemetry event to Enjin';
 
+    protected $hidden = true;
+
     /**
      * Execute the console command.
      */
