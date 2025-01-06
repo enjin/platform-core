@@ -76,7 +76,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             ...$this->getTokenFields(__('enjin-platform::mutation.mutate_collection.args.tokenId')),
             'mutation' => [
                 'type' => GraphQL::type('TokenMutationInput!'),
-                'description' => __('enjin-platform::mutation.mutate_collection.args.mutation'),
+                'description' => __('enjin-platform::mutation.mutate_token.args.mutation'),
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),

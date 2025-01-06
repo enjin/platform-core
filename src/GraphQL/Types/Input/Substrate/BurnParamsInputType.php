@@ -35,11 +35,12 @@ class BurnParamsInputType extends InputType implements PlatformGraphQlType
             ...$this->getTokenFields(__('enjin-platform::args.common.tokenId')),
             'amount' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
+                'description' => __('enjin-platform::mutation.burn.args.params.amount'),
             ],
             'keepAlive' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.keepAlive'),
+                'deprecationReason' => __('enjin-platform::deprecated.batch_set_attribute.args.keepAlive'),
                 'defaultValue' => false,
             ],
             'removeTokenStorage' => [
