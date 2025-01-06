@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Support\Hex;
@@ -10,8 +9,6 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class RetryTransactionsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'RetryTransactions';
 
     public function test_it_can_retry_transaction(): void
@@ -42,7 +39,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'ids' => [$transaction->id],
         ], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['ids' => ['The selected ids is invalid.']],
             $response['error']
         );
@@ -50,7 +47,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'idempotencyKeys' => [$transaction->idempotency_key],
         ], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['idempotencyKeys' => ['The selected idempotency keys is invalid.']],
             $response['error']
         );
@@ -65,7 +62,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
         );
 
         $response = $this->graphql($this->method, ['ids' => null], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'ids' => ['The ids field is required when idempotency keys is not present.'],
                 'idempotencyKeys' => ['The idempotency keys field is required when ids is not present.'],
@@ -74,7 +71,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
         );
 
         $response = $this->graphql($this->method, ['ids' => []], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'ids' => ['The ids field is required when idempotency keys is not present.'],
                 'idempotencyKeys' => ['The idempotency keys field is required when ids is not present.'],
@@ -83,13 +80,13 @@ class RetryTransactionsTest extends TestCaseGraphQL
         );
 
         $response = $this->graphql($this->method, ['ids' => [12345678910]], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['ids' => ['The selected ids is invalid.']],
             $response['error']
         );
 
         $response = $this->graphql($this->method, ['ids' => [1], 'idempotencyKeys' => ['asd']], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'ids' => ['The ids field prohibits idempotency keys from being present.'],
                 'idempotencyKeys' => ['The idempotency keys field prohibits ids from being present.'],
@@ -104,7 +101,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
         );
 
         $response = $this->graphql($this->method, ['ids' => [1, 1]], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['ids.0' => ['The ids.0 field has a duplicate value.']],
             $response['error']
         );
@@ -113,7 +110,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_parameter_idempotency_keys(): void
     {
         $response = $this->graphql($this->method, ['idempotencyKeys' => null], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'ids' => ['The ids field is required when idempotency keys is not present.'],
                 'idempotencyKeys' => ['The idempotency keys field is required when ids is not present.'],
@@ -122,7 +119,7 @@ class RetryTransactionsTest extends TestCaseGraphQL
         );
 
         $response = $this->graphql($this->method, ['idempotencyKeys' => []], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'ids' => ['The ids field is required when idempotency keys is not present.'],
                 'idempotencyKeys' => ['The idempotency keys field is required when ids is not present.'],
@@ -131,13 +128,13 @@ class RetryTransactionsTest extends TestCaseGraphQL
         );
 
         $response = $this->graphql($this->method, ['idempotencyKeys' => [fake()->uuid()]], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['idempotencyKeys' => ['The selected idempotency keys is invalid.']],
             $response['error']
         );
 
         $response = $this->graphql($this->method, ['idempotencyKeys' => ['a', 'a']], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['idempotencyKeys.0' => ['The idempotencyKeys.0 field has a duplicate value.']],
             $response['error']
         );

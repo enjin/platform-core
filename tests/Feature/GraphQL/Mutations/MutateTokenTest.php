@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -27,7 +26,6 @@ use Illuminate\Support\Facades\Event;
 
 class MutateTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'MutateToken';
@@ -37,6 +35,7 @@ class MutateTokenTest extends TestCaseGraphQL
     protected Encoder $tokenIdEncoder;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,7 +64,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -98,7 +97,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -131,7 +130,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -165,7 +164,7 @@ class MutateTokenTest extends TestCaseGraphQL
         $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
         IsCollectionOwner::unBypass();
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -203,7 +202,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -241,7 +240,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -279,7 +278,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -322,7 +321,7 @@ class MutateTokenTest extends TestCaseGraphQL
         ]);
         $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -366,7 +365,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -403,7 +402,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -438,7 +437,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -479,7 +478,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -523,7 +522,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -618,7 +617,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -691,7 +690,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id does not exist in the specified collection.']],
             $response['error']
         );
@@ -754,7 +753,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'mutation' => [],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
@@ -772,7 +771,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
@@ -808,7 +807,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior' => ['The mutation.behavior field is required when none of mutation.listing forbidden / mutation.anyone can infuse / mutation.name are present.']],
             $response['error']
         );
@@ -871,7 +870,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior.hasRoyalty.beneficiary' => ['The mutation.behavior.has royalty.beneficiary is not a valid substrate account.']],
             $response['error']
         );
@@ -962,7 +961,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior.hasRoyalty.percentage' => ['The mutation.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.']],
             $response['error']
         );
@@ -985,7 +984,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior.hasRoyalty.percentage' => ['The mutation.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.']],
             $response['error']
         );
@@ -1008,7 +1007,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior.hasRoyalty.percentage' => ['The mutation.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.']],
             $response['error']
         );
@@ -1051,7 +1050,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior.isCurrency' => ['The isCurrency parameter only accepts true. If you don\'t want it to be a currency, don\'t pass it.']],
             $response['error']
         );
@@ -1071,7 +1070,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mutation.behavior.isCurrency' => ['The isCurrency parameter only accepts true. If you don\'t want it to be a currency, don\'t pass it.']],
             $response['error']
         );

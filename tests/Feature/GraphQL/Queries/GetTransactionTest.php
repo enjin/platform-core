@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
 use Enjin\Platform\Models\Transaction;
@@ -14,12 +13,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class GetTransactionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetTransaction';
     protected string $defaultAccount;
     protected Model $transaction;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -43,7 +41,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'id' => $transactionId = $this->transaction->id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $transactionId,
             'transactionId' => $this->transaction->transaction_chain_id,
             'transactionHash' => $this->transaction->transaction_chain_hash,
@@ -68,7 +66,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'idempotencyKey' => $idempotencyKey = $this->transaction->idempotency_key,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->transaction->id,
             'idempotencyKey' => $idempotencyKey,
             'transactionId' => $this->transaction->transaction_chain_id,
@@ -94,7 +92,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionId' => $transactionId = $this->transaction->transaction_chain_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->transaction->id,
             'transactionId' => $transactionId,
             'transactionHash' => $this->transaction->transaction_chain_hash,
@@ -119,7 +117,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionHash' => $transactionHash = $this->transaction->transaction_chain_hash,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->transaction->id,
             'transactionId' => $this->transaction->transaction_chain_id,
             'transactionHash' => $transactionHash,
@@ -152,7 +150,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionHash' => $transactionHash = $transaction->transaction_chain_hash,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $transaction->id,
             'transactionId' => $transaction->transaction_chain_id,
             'transactionHash' => $transactionHash,
@@ -181,7 +179,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'id' => $this->transaction->id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $this->transaction->id,
             'transactionId' => $this->transaction->transaction_chain_id,
             'transactionHash' => $this->transaction->transaction_chain_hash,
@@ -230,7 +228,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'id' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['id' => ['The id field must have a value.']],
             $response['error'],
         );
@@ -254,7 +252,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionId' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionId' => ['The transaction id field must have a value.']],
             $response['error'],
         );
@@ -266,7 +264,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionId' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionId' => ['The transaction id has a not valid substrate transaction ID.']],
             $response['error'],
         );
@@ -278,7 +276,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionHash' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionHash' => ['The transaction hash field must have a value.']],
             $response['error'],
         );
@@ -290,7 +288,7 @@ class GetTransactionTest extends TestCaseGraphQL
             'transactionHash' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionHash' => ['The transaction hash has an invalid hex string.']],
             $response['error'],
         );

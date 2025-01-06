@@ -12,6 +12,7 @@ class WebsocketClientProvider extends ServiceProvider implements DeferrableProvi
     /**
      * Register any application services.
      */
+    #[\Override]
     public function register()
     {
         $map = [
@@ -29,6 +30,7 @@ class WebsocketClientProvider extends ServiceProvider implements DeferrableProvi
     /**
      * Get the services provided by the provider.
      */
+    #[\Override]
     public function provides()
     {
         return [WebsocketAbstract::class];

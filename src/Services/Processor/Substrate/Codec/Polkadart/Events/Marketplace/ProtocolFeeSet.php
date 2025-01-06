@@ -13,6 +13,7 @@ class ProtocolFeeSet extends Event implements PolkadartEvent
     public readonly string $name;
     public readonly string $protocolFee;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -25,6 +26,7 @@ class ProtocolFeeSet extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

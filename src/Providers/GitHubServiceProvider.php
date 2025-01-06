@@ -12,6 +12,7 @@ class GitHubServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    #[\Override]
     public function register()
     {
         $githubHttp = new Factory();

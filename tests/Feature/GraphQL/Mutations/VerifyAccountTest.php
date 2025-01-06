@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Models\Verification;
@@ -16,12 +15,12 @@ use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class VerifyAccountTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use HasHttp;
 
     protected string $method = 'VerifyAccount';
     protected Model $verification;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -187,7 +186,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => $data['address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['verificationId' => ['The selected verification id is invalid.']],
             $response['error']
         );
@@ -273,7 +272,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => $data['address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['verificationId' => ['The verification ID is already in use.']],
             $response['error']
         );
@@ -290,7 +289,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => $data['address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => [
                     0 => 'The verification id field must have a value.',
@@ -341,7 +340,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => $data['address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'signature' => [
                     0 => 'The signature field must have a value.',
@@ -392,7 +391,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => $data['address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'signature' => [
                     0 => 'The signature has an invalid hex string.',
@@ -427,7 +426,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'account' => [
                     0 => 'The account field must have a value.',
@@ -463,7 +462,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => 'not_valid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account is not a valid substrate account.']],
             $response['error']
         );
@@ -479,7 +478,7 @@ class VerifyAccountTest extends TestCaseGraphQL
             'account' => $data['address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signature' => ['The signature has an invalid hex string.']],
             $response['error']
         );

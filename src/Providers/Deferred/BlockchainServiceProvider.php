@@ -13,6 +13,7 @@ class BlockchainServiceProvider extends ServiceProvider implements DeferrablePro
     /**
      * Register any application services.
      */
+    #[\Override]
     public function register()
     {
         $map = [
@@ -30,6 +31,7 @@ class BlockchainServiceProvider extends ServiceProvider implements DeferrablePro
     /**
      * Get the services provided by the provider.
      */
+    #[\Override]
     public function provides()
     {
         return [BlockchainServiceInterface::class];

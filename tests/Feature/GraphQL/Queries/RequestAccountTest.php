@@ -2,17 +2,15 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class RequestAccountTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'RequestAccount';
     protected string $callback;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

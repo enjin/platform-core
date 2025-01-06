@@ -43,6 +43,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -62,6 +63,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [

@@ -18,6 +18,7 @@ class AccountAdded extends Event implements PolkadartEvent
     public readonly string $userDeposit;
     public readonly string $totalReceived;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -34,6 +35,7 @@ class AccountAdded extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

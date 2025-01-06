@@ -13,7 +13,7 @@
     "signature": "Option<ExpirableSignature>"
   },
   "ExpirableSignature": {
-    "signature": "[u8; 32]",
+    "signature": "H512",
     "expiryBlock": "u32"
   }
 }
