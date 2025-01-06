@@ -47,7 +47,7 @@ class CoreServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('enjin-platform')
-            ->hasConfigFile(['enjin-platform', 'enjin-runtime', 'graphql'])
+            ->hasConfigFile(['enjin-platform', 'enjin-runtime', 'graphql', 'telemetry'])
             ->hasMigration('create_wallets_table')
             ->hasMigration('create_collections_table')
             ->hasMigration('create_collection_accounts_table')
@@ -79,7 +79,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('upgrade_collections_table')
             ->hasMigration('add_index_to_syncables_table')
             ->hasMigration('add_managed_to_transactions_table')
-            ->hasMigration('create_telemetry_table')
+            ->hasMigration('create_settings_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
