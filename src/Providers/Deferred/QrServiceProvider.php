@@ -13,6 +13,7 @@ class QrServiceProvider extends ServiceProvider implements DeferrableProvider
      *
      * @return void
      */
+    #[\Override]
     public function register()
     {
         $this->app->singleton(
@@ -24,6 +25,7 @@ class QrServiceProvider extends ServiceProvider implements DeferrableProvider
     /**
      * Get the services provided by the provider.
      */
+    #[\Override]
     public function provides(): array
     {
         return [QrAdapterInterface::class];

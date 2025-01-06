@@ -17,6 +17,7 @@ class AttributeSet extends Event implements PolkadartEvent
     public readonly string $key;
     public readonly string $value;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -32,6 +33,7 @@ class AttributeSet extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

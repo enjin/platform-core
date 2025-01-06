@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionUpdated;
@@ -16,12 +15,12 @@ use Illuminate\Support\Facades\Event;
 
 class UpdateTransactionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use HasHttp;
 
     protected Model $transaction;
     protected string $method = 'UpdateTransaction';
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -277,7 +276,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'signingAccount' => 'not_valid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['signingAccount' => ['The signing account is not a valid substrate account.']],
             $response['error']
         );
@@ -307,7 +306,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionId' => 'not_valid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionId' => ['The transaction id has a not valid substrate transaction ID.']],
             $response['error'],
         );
@@ -322,7 +321,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionHash' => 'not_valid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionHash' => ['The transaction hash has an invalid hex string.']],
             $response['error']
         );
@@ -337,7 +336,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionHash' => fake()->sha256(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionHash' => ['The transaction hash has an invalid hex string.']],
             $response['error']
         );
@@ -366,7 +365,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'id' => $this->transaction->id,
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'state' => ['The state field is required when none of transaction id / transaction hash / signed at block / signing account are present.'],
             'transactionId' => ['The transaction id field is required when none of state / transaction hash / signed at block / signing account are present.'],
             'transactionHash' => ['The transaction hash field is required when none of state / transaction id / signed at block / signing account are present.'],
@@ -386,7 +385,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionId' => fake()->numerify('######-#'),
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'transactionId' => ['The transaction id and hash are immutable once set.'],
         ], $response['error']);
 
@@ -402,7 +401,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
             'transactionHash' => HexConverter::prefix(fake()->sha256()),
         ], true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'transactionHash' => ['The transaction id and hash are immutable once set.'],
         ], $response['error']);
 

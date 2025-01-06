@@ -29,6 +29,7 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -48,6 +49,7 @@ class UpdateTransactionMutation extends Mutation implements PlatformGraphQlMutat
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [

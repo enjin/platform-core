@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
@@ -13,13 +12,13 @@ use Illuminate\Support\Collection;
 
 class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use HasHttp;
 
     protected Collection $transactions;
 
     protected string $method = 'MarkAndListPendingTransactions';
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -29,6 +28,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
         $this->transactions = $this->generateTransactions();
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         Transaction::destroy($this->transactions);
@@ -232,7 +232,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
             'accounts' => ['not_valid_address'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['accounts.0' => ['The accounts.0 is not a valid substrate account.']],
             $response['error']
         );

@@ -13,6 +13,7 @@ class FakerServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    #[\Override]
     public function register()
     {
         $this->app->singleton(Generator::class, function () {

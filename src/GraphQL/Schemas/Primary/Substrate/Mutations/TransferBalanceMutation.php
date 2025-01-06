@@ -42,6 +42,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -62,6 +63,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -111,6 +113,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
         );
     }
 
+    #[\Override]
     public function getMethodName(): string
     {
         return 'TransferAllowDeath';

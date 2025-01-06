@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
 use Enjin\Platform\Models\Transaction;
@@ -14,12 +13,11 @@ use Illuminate\Support\Collection;
 
 class GetTransactionsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetTransactions';
     protected string $defaultAccount;
     protected Collection $transactions;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,6 +32,7 @@ class GetTransactionsTest extends TestCaseGraphQL
         $this->transactions = $this->generateTransactions();
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         Transaction::destroy($this->transactions);
@@ -47,7 +46,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'ids' => [($transaction = fake()->randomElement($this->transactions))->id],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $transaction->id,
             'transactionId' => $transaction->transaction_chain_id,
             'transactionHash' => $transaction->transaction_chain_hash,
@@ -71,7 +70,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'transactionIds' => [($transaction = fake()->randomElement($this->transactions))->transaction_chain_id],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $transaction->id,
             'transactionId' => $transaction->transaction_chain_id,
             'transactionHash' => $transaction->transaction_chain_hash,
@@ -95,7 +94,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'idempotencyKeys' => [($transaction = fake()->randomElement($this->transactions))->idempotency_key],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $transaction->id,
             'idempotencyKey' => $transaction->idempotency_key,
             'transactionId' => $transaction->transaction_chain_id,
@@ -125,7 +124,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'transactionIds' => [$transaction->transaction_chain_id],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => $transaction->id,
             'transactionId' => $transaction->transaction_chain_id,
             'transactionHash' => $transaction->transaction_chain_hash,
@@ -542,7 +541,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'transactionIds' => ['invalid'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionIds' => ['The transaction ids has a not valid substrate transaction ID.']],
             $response['error'],
         );
@@ -556,7 +555,7 @@ class GetTransactionsTest extends TestCaseGraphQL
             'transactionHashes' => ['invalid'],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['transactionHashes' => ['The transaction hashes has an invalid hex string.']],
             $response['error'],
         );

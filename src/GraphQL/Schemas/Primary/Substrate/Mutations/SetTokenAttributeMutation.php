@@ -43,6 +43,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -62,6 +63,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -113,6 +115,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the serialization service method name.
      */
+    #[\Override]
     public function getMethodName(): string
     {
         return 'SetAttribute';

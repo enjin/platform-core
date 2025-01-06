@@ -5,6 +5,7 @@ namespace Enjin\Platform\Tests;
 use Enjin\Platform\CoreServiceProvider;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasConvertableObject;
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -64,5 +65,15 @@ abstract class TestCase extends BaseTestCase
     protected function usesLocalNetwork($app): void
     {
         $app->config->set('enjin-platform.chains.network', 'local');
+    }
+
+    protected function assertArrayContainsArray(array $expected, array $actual): void
+    {
+        $this->assertArrayIsEqualToArrayOnlyConsideringListOfKeys($expected, $actual, $this->arrayKeys($expected));
+    }
+
+    protected function arrayKeys($array): array
+    {
+        return array_keys(Arr::dot($array));
     }
 }

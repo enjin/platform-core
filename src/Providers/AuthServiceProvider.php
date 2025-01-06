@@ -10,6 +10,7 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    #[\Override]
     public function register()
     {
         $this->app->singleton(AuthManager::class, fn ($app) => new AuthManager($app));

@@ -7,6 +7,7 @@ use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Traits\HasSelectFields;
 use Illuminate\Pagination\Cursor;
@@ -30,6 +31,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -42,6 +44,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
+    #[\Override]
     public function fields(): array
     {
         return [
@@ -96,6 +99,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                     'collectionIds' => [
                         'type' => GraphQL::type('[BigInt]'),
                         'description' => __('enjin-platform::type.wallet.field.collectionIds'),
+                        'rules' => ['array', 'max:500'],
                     ],
                 ]),
                 'resolve' => fn ($wallet, $args) => [
@@ -116,14 +120,17 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                     'collectionIds' => [
                         'type' => GraphQL::type('[BigInt]'),
                         'description' => __('enjin-platform::query.get_tokens.args.collectionId'),
+                        'rules' => ['array', 'max:500'],
                     ],
                     'tokenIds' => [
                         'type' => GraphQL::type('[BigInt]'),
                         'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
+                        'rules' => ['array', 'max:500'],
                     ],
                     'bulkFilter' => [
                         'type' => GraphQL::type('[TokenFilterInput!]'),
                         'description' => __('enjin-platform::input_type.multi_token_id.description'),
+                        'rules' => ['array', 'max:500'],
                     ],
                 ]),
                 'resolve' => fn ($wallet, $args) => [
@@ -140,7 +147,13 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
             'collectionAccountApprovals' => [
                 'type' => GraphQL::paginate('CollectionAccountApproval', 'CollectionAccountApprovalConnection'),
                 'description' => __('enjin-platform::type.wallet.field.collectionAccountApprovals'),
-                'args' => ConnectionInput::args(),
+                'args' => ConnectionInput::args([
+                    'walletAccounts' => [
+                        'type' => GraphQL::type('[String!]'),
+                        'description' => __('enjin-platform::query.get_wallet.args.account'),
+                        'rules' => ['array', new ValidSubstrateAccount(), 'max:500'],
+                    ],
+                ]),
                 'resolve' => fn ($wallet, $args) => [
                     'items' => new CursorPaginator(
                         $wallet?->collectionAccountApprovals,
@@ -155,7 +168,13 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
             'tokenAccountApprovals' => [
                 'type' => GraphQL::paginate('TokenAccountApproval', 'TokenAccountApprovalConnection'),
                 'description' => __('enjin-platform::type.wallet.field.tokenAccountApprovals'),
-                'args' => ConnectionInput::args(),
+                'args' => ConnectionInput::args([
+                    'walletAccounts' => [
+                        'type' => GraphQL::type('[String!]'),
+                        'description' => __('enjin-platform::query.get_wallet.args.account'),
+                        'rules' => ['array', new ValidSubstrateAccount(), 'max:500'],
+                    ],
+                ]),
                 'resolve' => fn ($wallet, $args) => [
                     'items' => new CursorPaginator(
                         $wallet?->tokenAccountApprovals,
@@ -189,6 +208,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                     'collectionIds' => [
                         'type' => GraphQL::type('[BigInt]'),
                         'description' => __('enjin-platform::type.wallet.field.collectionIds'),
+                        'rules' => ['array', 'max:500'],
                     ],
                 ]),
                 'resolve' => fn ($wallet, $args) => [

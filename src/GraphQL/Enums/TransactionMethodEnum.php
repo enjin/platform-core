@@ -11,6 +11,7 @@ class TransactionMethodEnum extends EnumType implements PlatformGraphQlEnum
     /**
      * Get the enum's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         // TODO: Need to check the implications of removing:

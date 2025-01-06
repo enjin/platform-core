@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -28,7 +27,6 @@ use Illuminate\Support\Facades\Event;
 
 class ApproveTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected $method = 'ApproveToken';
@@ -40,6 +38,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     protected Model $tokenAccount;
     protected Encoder $tokenIdEncoder;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -76,7 +75,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -145,7 +144,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -180,7 +179,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -212,7 +211,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -258,7 +257,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -305,7 +304,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -346,7 +345,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -383,7 +382,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -422,7 +421,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'expiration' => $expiration,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -472,7 +471,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -518,7 +517,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -565,7 +564,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -612,7 +611,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -708,7 +707,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => app(Generator::class)->public_key(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
@@ -800,7 +799,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => app(Generator::class)->public_key(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id doesn\'t exist.']],
             $response['error'],
         );
@@ -871,7 +870,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => app(Generator::class)->public_key(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['amount' => ['The amount is too small, the minimum value it can be is 1.']],
             $response['error'],
         );
@@ -981,7 +980,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'expiration' => -1,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['expiration' => ["The expiration must be at least {$block->number}."]],
             $response['error'],
         );
@@ -1018,7 +1017,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => Account::daemonPublicKey(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator cannot be set to the daemon account.']],
             $response['error'],
         );

@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Events\Global\TransactionCreated;
@@ -30,7 +29,6 @@ use Illuminate\Support\Facades\Event;
 
 class ThawTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'Thaw';
@@ -42,6 +40,7 @@ class ThawTest extends TestCaseGraphQL
     protected Encoder $tokenIdEncoder;
     protected Model $tokenAccount;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -78,7 +77,7 @@ class ThawTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -111,7 +110,7 @@ class ThawTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -163,7 +162,7 @@ class ThawTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -203,7 +202,7 @@ class ThawTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -243,7 +242,7 @@ class ThawTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -289,7 +288,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -322,7 +321,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionAccount' => SS58Address::encode($account),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -355,7 +354,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -386,7 +385,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -430,7 +429,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -465,7 +464,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => SS58Address::encode($account),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -508,7 +507,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -568,7 +567,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id field is required.']],
             $response['error']
         );
@@ -583,7 +582,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id field is required.']],
             $response['error']
         );
@@ -617,7 +616,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id does not exist in the specified collection.']],
             $response['error']
         );
@@ -633,7 +632,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionAccount' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ['The collection account field is required.']],
             $response['error']
         );
@@ -648,7 +647,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ['The collection account field is required.']],
             $response['error']
         );
@@ -664,7 +663,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionAccount' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ['The collection account is not a valid substrate account.']],
             $response['error']
         );
@@ -682,7 +681,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionAccount' => $address,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ["Could not find a collection account for {$address} at collection {$collectionId}."]],
             $response['error']
         );
@@ -701,7 +700,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => $address,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ["Could not find a token account for {$address} at collection {$collectionId} and token {$this->token->token_chain_id}."]],
             $response['error']
         );
@@ -718,7 +717,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ['The token account field is required.']],
             $response['error']
         );
@@ -734,7 +733,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ['The token account field is required.']],
             $response['error']
         );
@@ -751,7 +750,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ['The token account is not a valid substrate account.']],
             $response['error']
         );
@@ -767,7 +766,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id field is prohibited.']],
             $response['error']
         );
@@ -783,7 +782,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionAccount' => $this->wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ['The collection account field is prohibited.']],
             $response['error']
         );
@@ -799,7 +798,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => $this->wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ['The token account field is prohibited.']],
             $response['error']
         );
@@ -816,7 +815,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => $this->wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ['The token account field is prohibited.']],
             $response['error']
         );
@@ -833,7 +832,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_address),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id field is prohibited.']],
             $response['error']
         );
@@ -850,7 +849,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => $this->wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenAccount' => ['The token account field is prohibited.']],
             $response['error']
         );
@@ -867,7 +866,7 @@ class ThawTest extends TestCaseGraphQL
             'collectionAccount' => $this->wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ['The collection account field is prohibited.']],
             $response['error']
         );
@@ -885,7 +884,7 @@ class ThawTest extends TestCaseGraphQL
             'tokenAccount' => $this->wallet->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionAccount' => ['The collection account field is prohibited.']],
             $response['error']
         );

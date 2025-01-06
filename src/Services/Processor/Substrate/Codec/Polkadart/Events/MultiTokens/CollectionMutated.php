@@ -19,6 +19,7 @@ class CollectionMutated extends Event implements PolkadartEvent
     public readonly ?string $percentage;
     public readonly ?array $explicitRoyaltyCurrencies;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -36,6 +37,7 @@ class CollectionMutated extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

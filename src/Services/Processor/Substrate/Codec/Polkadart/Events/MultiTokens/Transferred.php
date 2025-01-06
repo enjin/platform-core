@@ -19,6 +19,7 @@ class Transferred extends Event implements PolkadartEvent
     public readonly string $to;
     public readonly string $amount;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -36,6 +37,7 @@ class Transferred extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [
