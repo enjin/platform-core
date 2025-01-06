@@ -4,13 +4,13 @@ return [
     'crypto_signature.description' => 'The type of encryption algorithm used to sign messages.',
     'event_type.description' => 'The event types related to blockchain token transactions.',
     'filter_type.description' => 'The type of filter to use when chaining queries.',
-    'freeze_state_type.description' => <<<MD
+    'freeze_state_type.description' => <<<'MD'
 Defines the token's freeze state, determining if and how it can be frozen. Options include:
 - **PERMANENT**: The token will be permanently frozen, and the freeze state cannot be changed.
 - **TEMPORARY**: The token will be temporarily frozen and can become transferable again if [thawed](https://docs.enjin.io/docs/freezing-thawing#thawing-an-entire-collection).
 - **NEVER**: The token cannot be frozen, ensuring it remains transferable at all times.
 MD,
-    'freezable_type.description' => <<<MD
+    'freezable_type.description' => <<<'MD'
 Configures the target of the operation, determining which tokens or token groups will have their transfer restrictions applied or removed. [Learn more](https://docs.enjin.io/docs/freezing-thawing).  
 
 Options include:  
@@ -24,7 +24,7 @@ MD,
     'network_type.description' => 'The network type.',
     'pallet_identifier.description' => 'The on-chain pallet identifier.',
     'token_market_behavior_type.description' => 'The market behavior types a token supports.',
-    'token_mint_cap_type.description' => <<<MD
+    'token_mint_cap_type.description' => <<<'MD'
 Configures the supply type for the token. Options include:
 
 - **SUPPLY**: A fixed supply model where the cap amount sets the maximum tokens that can exist in circulation. Burned tokens can be re-minted.
