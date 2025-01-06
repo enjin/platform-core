@@ -35,7 +35,7 @@ class SimpleTransferParamsInputType extends InputType implements PlatformGraphQl
             ...$this->getTokenFields(__('enjin-platform::args.common.tokenId')),
             'amount' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::mutation.batch_set_attribute.args.amount'),
+                'description' => __('enjin-platform::mutation.batch_transfer.args.amount'),
             ],
             'keepAlive' => [
                 'type' => GraphQL::type('Boolean'),

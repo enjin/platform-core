@@ -74,6 +74,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             ...$this->getTokenFields(__('enjin-platform::args.common.tokenId'), isOptional: true),
             'attributes' => [
                 'type' => GraphQL::type('[AttributeInput!]!'),
+                'description' => __('enjin-platform::mutation.batch_set_attribute.args.attributes'),
             ],
             'continueOnFailure' => [
                 'type' => GraphQL::type('Boolean'),
