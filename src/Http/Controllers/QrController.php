@@ -27,7 +27,15 @@ class QrController extends Controller
             throw new PlatformException(__('enjin-platform::error.qr.extension_not_installed'), 501);
         }
 
-        $qrCode = QrCode::format($format)->size($size)->generate($data);
+        $generator = QrCode::format($format)
+            ->size($size)
+            ->errorCorrection('Q');
+
+        if ($imageUrl = config('enjin-platform.qr.image')) {
+            $generator->merge($imageUrl, config('enjin-platform.qr.image_size'), true);
+        }
+        $qrCode = $generator->generate($data);
+
         $mimeType = match ($format) {
             'eps' => 'application/postscript',
             'svg' => 'image/svg+xml',
