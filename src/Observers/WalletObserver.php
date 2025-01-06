@@ -21,6 +21,6 @@ class WalletObserver
 
     public function created(Wallet $wallet): void
     {
-        WalletCreated::safeBroadcast($wallet);
+        event(new WalletCreated($wallet));
     }
 }
