@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -29,7 +28,6 @@ use Illuminate\Support\Facades\Event;
 
 class UnapproveTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'UnapproveToken';
@@ -43,6 +41,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
     protected Model $tokenAccountApproval;
     protected Model $collectionAccount;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -86,7 +85,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -119,7 +118,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -180,7 +179,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -221,7 +220,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
         ]);
         $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -262,7 +261,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
         ]);
         $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -321,7 +320,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -377,7 +376,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -465,7 +464,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($this->operator->public_key),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error'],
         );
@@ -531,7 +530,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => $operator,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ["Could not find an approval for {$operator} at collection {$this->collection->collection_chain_id} and token {$tokenId}."]],
             $response['error'],
         );
@@ -578,7 +577,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator is not a valid substrate account.']],
             $response['error'],
         );
@@ -596,7 +595,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => $operator = SS58Address::encode($operator),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['operator' => ["Could not find an approval for {$operator} at collection {$collectionId} and token {$this->token->token_chain_id}."]],
             $response['error'],
         );

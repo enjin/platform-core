@@ -20,6 +20,7 @@ class VerifyMessageQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -39,6 +40,7 @@ class VerifyMessageQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [

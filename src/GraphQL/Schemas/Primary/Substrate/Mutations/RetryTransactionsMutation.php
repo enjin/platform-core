@@ -24,6 +24,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
     /**
      * Get the mutation's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -43,6 +44,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
     /**
      * Get the mutation's arguments definition.
      */
+    #[\Override]
     public function args(): array
     {
         return [
@@ -87,6 +89,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
     /**
      * Get the mutation's validation rules.
      */
+    #[\Override]
     protected function rules(array $args = []): array
     {
         return [

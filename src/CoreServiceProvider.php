@@ -95,6 +95,7 @@ class CoreServiceProvider extends PackageServiceProvider
     /**
      * Bootstrap any application services.
      */
+    #[\Override]
     public function boot()
     {
         parent::boot();

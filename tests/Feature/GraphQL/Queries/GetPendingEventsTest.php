@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\FilterType;
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated;
 use Enjin\Platform\Models\Collection;
@@ -12,13 +11,12 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class GetPendingEventsTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetPendingEvents';
     protected bool $fakeEvents = false;
 
     protected array $collections;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -110,7 +108,7 @@ class GetPendingEventsTest extends TestCaseGraphQL
 
         $data = json_decode(json_encode($response['edges'][0]['node']['data']));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'totalCount' => 1,
             'edges' => [[
                 'node' => [
@@ -138,7 +136,7 @@ class GetPendingEventsTest extends TestCaseGraphQL
         $data0 = json_decode(json_encode($response['edges'][0]['node']['data']));
         $data1 = json_decode(json_encode($response['edges'][1]['node']['data']));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'totalCount' => 2,
             'edges' => [
                 [
@@ -172,7 +170,7 @@ class GetPendingEventsTest extends TestCaseGraphQL
 
         $data0 = json_decode(json_encode($response['edges'][0]['node']['data']));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'totalCount' => 1,
             'edges' => [
                 [

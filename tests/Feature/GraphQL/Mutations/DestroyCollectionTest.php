@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -24,7 +23,6 @@ use Illuminate\Support\Facades\Event;
 
 class DestroyCollectionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'DestroyCollection';
@@ -33,6 +31,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
     protected Model $collection;
     protected Model $owner;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,7 +56,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -86,7 +85,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -128,7 +127,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -168,7 +167,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -208,7 +207,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -239,7 +238,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'collectionId' => $this->collection->collection_chain_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -317,7 +316,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'collectionId' => fake()->numberBetween(0, 1999),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id is too small, the minimum value it can be is 2000.']],
             $response['error']
         );
@@ -331,7 +330,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'collectionId' => Hex::MAX_UINT256,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['error']
         );
@@ -347,7 +346,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'collectionId' => $collectionId,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -364,7 +363,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'collectionId' => $collection->collection_chain_id,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id must not have any existing tokens.']],
             $response['error']
         );
@@ -380,7 +379,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'collectionId' => $collection->collection_chain_id,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );

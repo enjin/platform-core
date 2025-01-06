@@ -17,6 +17,7 @@ class Unapproved extends Event implements PolkadartEvent
     public readonly string $owner;
     public readonly string $operator;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -32,6 +33,7 @@ class Unapproved extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

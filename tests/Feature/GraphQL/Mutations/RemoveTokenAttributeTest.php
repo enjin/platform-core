@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -27,7 +26,6 @@ use Illuminate\Support\Facades\Event;
 
 class RemoveTokenAttributeTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'RemoveTokenAttribute';
@@ -38,6 +36,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
     protected Model $attribute;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -70,7 +69,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -103,7 +102,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -160,7 +159,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -207,7 +206,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -254,7 +253,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -305,7 +304,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -352,7 +351,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             key: $key,
         ));
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -381,7 +380,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -399,7 +398,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['tokenId' => ['The token id doesn\'t exist.']],
             $response['error']
         );
@@ -461,7 +460,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['message' => 'Variable "$tokenId" of required type "EncodableTokenIdInput!" was not provided.'],
             $response['errors'][0]
         );
@@ -493,7 +492,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['message' => 'Variable "$tokenId" of non-null type "EncodableTokenIdInput!" must not be null.'],
             $response['errors'][0]
         );
@@ -540,7 +539,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['key' => ['The key field must have a value.']],
             $response['error']
         );
@@ -558,7 +557,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['key' => ['The key does not exist in the specified token.']],
             $response['error']
         );

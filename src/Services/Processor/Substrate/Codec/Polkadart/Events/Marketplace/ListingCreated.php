@@ -27,6 +27,7 @@ class ListingCreated extends Event implements PolkadartEvent
     public readonly ?array $data;
     public readonly array $state;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -51,6 +52,7 @@ class ListingCreated extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

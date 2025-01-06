@@ -33,6 +33,7 @@ abstract class ModelResolver extends Model
     /**
      * Dynamically pass methods to the model.
      */
+    #[\Override]
     public function __call($method, $parameters)
     {
         return $this->model->{$method}(...$parameters);
@@ -41,6 +42,7 @@ abstract class ModelResolver extends Model
     /**
      * Dynamically pass static methods to the model.
      */
+    #[\Override]
     public static function __callStatic($method, $parameters)
     {
         $class = static::resolveClassFqn(static::class);

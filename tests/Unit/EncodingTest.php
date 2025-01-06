@@ -47,6 +47,7 @@ class EncodingTest extends TestCase
 {
     protected Codec $codec;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -480,7 +481,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a0300fd030100000000",
+            "0x{$callIndex}b67a0300fd0300000000",
             $data
         );
     }
@@ -510,7 +511,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
-            "0x{$callIndex}b67a0300fd03010001010000",
+            "0x{$callIndex}b67a0300fd030001010000",
             $data
         );
     }
@@ -526,6 +527,21 @@ class EncodingTest extends TestCase
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
         $this->assertEquals(
             "0x{$callIndex}b67a0300fd03010101000000",
+            $data
+        );
+    }
+
+    public function test_it_can_encode_mutate_token_with_name()
+    {
+        $data = TransactionSerializer::encode('MutateToken', MutateTokenMutation::getEncodableParams(
+            collectionId: '57005',
+            tokenId: '255',
+            name: 'test_name',
+        ));
+
+        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_token', true);
+        $this->assertEquals(
+            "0x{$callIndex}b67a0300fd030000000124746573745f6e616d65",
             $data
         );
     }

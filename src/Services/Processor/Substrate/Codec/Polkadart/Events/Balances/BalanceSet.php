@@ -15,6 +15,7 @@ class BalanceSet extends Event implements PolkadartEvent
     public readonly string $who;
     public readonly string $free;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -28,6 +29,7 @@ class BalanceSet extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

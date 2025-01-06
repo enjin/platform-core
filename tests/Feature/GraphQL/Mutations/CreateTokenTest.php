@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Global\TransactionCreated;
@@ -30,7 +29,6 @@ use Illuminate\Support\Facades\Event;
 
 class CreateTokenTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'CreateToken';
@@ -40,6 +38,7 @@ class CreateTokenTest extends TestCaseGraphQL
     protected Encoder $tokenIdEncoder;
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -75,7 +74,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'skipValidation' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -113,7 +112,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -152,7 +151,7 @@ class CreateTokenTest extends TestCaseGraphQL
         ]);
 
         $this->assertIsNumeric($response['deposit']);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -206,7 +205,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -253,7 +252,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -300,7 +299,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -341,7 +340,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -384,7 +383,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -430,7 +429,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -473,7 +472,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -523,7 +522,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -566,7 +565,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -609,7 +608,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -647,7 +646,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -691,7 +690,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
             'wallet' => null,
@@ -728,7 +727,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -773,7 +772,7 @@ class CreateTokenTest extends TestCaseGraphQL
             'params' => $params,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -814,7 +813,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.tokenId' => ['The params.token id already exists in the specified collection.']],
             $response['error'],
         );
@@ -856,7 +855,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The selected collection id is invalid.']],
             $response['error']
         );
@@ -896,7 +895,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['integer' => ['The integer is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['errors']
         );
@@ -1073,7 +1072,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['params.cap.amount' => ['The params.cap.amount field is required when params.cap.type is SUPPLY.']],
             $response['error']
         );
@@ -1208,7 +1207,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'params.behavior.hasRoyalty.beneficiary' => [
                     0 => 'The params.behavior.has royalty.beneficiary is not a valid substrate account.',
@@ -1306,7 +1305,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'params.behavior.hasRoyalty.percentage' => [
                     0 => 'The params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -1336,7 +1335,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'params.behavior.hasRoyalty.percentage' => [
                     0 => 'The params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -1365,7 +1364,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'params.behavior.hasRoyalty.percentage' => [
                     0 => 'The params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -1395,7 +1394,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'params.behavior.hasRoyalty.percentage' => [
                     0 => 'The params.behavior.has royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.',
@@ -1440,7 +1439,7 @@ class CreateTokenTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The overall token count 1 have exceeded the maximum cap of 0 tokens.']],
             $response['error'],
         );

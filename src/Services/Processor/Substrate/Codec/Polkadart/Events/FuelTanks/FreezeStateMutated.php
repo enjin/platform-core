@@ -16,6 +16,7 @@ class FreezeStateMutated extends Event implements PolkadartEvent
     public readonly ?int $ruleSetId;
     public readonly bool $isFrozen;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -30,6 +31,7 @@ class FreezeStateMutated extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

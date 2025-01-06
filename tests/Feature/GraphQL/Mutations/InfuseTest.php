@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -21,7 +20,6 @@ use Illuminate\Support\Facades\Event;
 
 class InfuseTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected $method = 'Infuse';
@@ -33,6 +31,7 @@ class InfuseTest extends TestCaseGraphQL
     protected Model $tokenAccount;
     protected Encoder $tokenIdEncoder;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -59,7 +58,7 @@ class InfuseTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,

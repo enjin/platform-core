@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -19,7 +18,6 @@ use Illuminate\Support\Facades\Event;
 
 class BatchTransferBalanceTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'BatchTransferBalance';
@@ -28,6 +26,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
 
     protected string $defaultAccount;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -161,7 +160,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -193,7 +192,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
         ], true);
 
         if (is_array($response['error'])) {
-            $this->assertArraySubset(
+            $this->assertArrayContainsArray(
                 [$errorKey => Arr::wrap($errorValue)],
                 $response['error'],
             );

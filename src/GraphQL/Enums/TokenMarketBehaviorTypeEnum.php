@@ -11,6 +11,7 @@ class TokenMarketBehaviorTypeEnum extends EnumType implements PlatformGraphQlEnu
     /**
      * Get the enum's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [

@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -11,11 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class GetAccountVerifiedTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'GetAccountVerified';
     protected Model $verification;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -30,7 +28,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'verificationId' => $verificationId = $this->verification->verification_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'verified' => true,
             'account' => [
                 'publicKey' => $publicKey = $this->verification->public_key,
@@ -52,7 +50,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'verificationId' => $verificationId = $verification->verification_id,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'verified' => false,
             'account' => [
                 'publicKey' => null,
@@ -74,7 +72,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => SS58Address::encode($publicKey),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'verified' => false,
             'account' => [
                 'publicKey' => null,
@@ -92,7 +90,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'verificationId' => $verificationId,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'verified' => false,
             'account' => [
                 'publicKey' => null,
@@ -106,7 +104,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => SS58Address::encode($publicKey = $this->verification->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'verified' => true,
             'account' => [
                 'publicKey' => $publicKey,
@@ -130,7 +128,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => $publicKey,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'verified' => true,
             'account' => [
                 'publicKey' => $publicKey,
@@ -148,7 +146,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => ['The verification id field is required when account is not present.'],
                 'account' => ['The account field is required when verification id is not present.'],
@@ -163,7 +161,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => ['The verification id field is required when account is not present.'],
                 'account' => ['The account field is required when verification id is not present.'],
@@ -178,7 +176,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'verificationId' => null,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => ['The verification id field is required when account is not present.'],
                 'account' => ['The account field is required when verification id is not present.'],
@@ -195,7 +193,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => ['The verification id field is required when account is not present.'],
                 'account' => ['The account field is required when verification id is not present.'],
@@ -210,7 +208,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'verificationId' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => ['The verification id field is required when account is not present.'],
                 'account' => ['The account field is required when verification id is not present.'],
@@ -225,7 +223,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account is not a valid substrate account.']],
             $response['error']
         );
@@ -237,7 +235,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'verificationId' => 'invalid',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['verificationId' => ['The verification ID is not valid.']],
             $response['error']
         );
@@ -250,7 +248,7 @@ class GetAccountVerifiedTest extends TestCaseGraphQL
             'account' => $this->verification->public_key,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'verificationId' => ['The verification id field prohibits account from being present.'],
                 'account' => ['The account field prohibits verification id from being present.'],

@@ -12,6 +12,7 @@ class DecoderHttpClient extends JsonHttpAbstract
     /**
      * Get the http client instance.
      */
+    #[\Override]
     public function getClient(): PendingRequest
     {
         return parent::getClient();
@@ -20,6 +21,7 @@ class DecoderHttpClient extends JsonHttpAbstract
     /**
      * Get the response data.
      */
+    #[\Override]
     public function getResponse(Response|PromiseInterface $response): mixed
     {
         return parent::getResponse($response);

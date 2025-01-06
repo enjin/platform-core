@@ -21,6 +21,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     protected string $method = 'TransferKeepAlive';
     protected array $fee;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -31,6 +32,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
         ]);
     }
 
+    #[\Override]
     public function test_it_can_skip_validation(): void
     {
         Wallet::factory([
@@ -54,7 +56,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
             'simulate' => true,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -84,7 +86,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
             'amount' => '1950000000000000000',
         ], expectError: true);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'amount' => [
                 'The amount is not enough to keep the existential deposit of 100000000000000000.',
             ],

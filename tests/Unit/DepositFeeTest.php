@@ -20,6 +20,7 @@ class DepositFeeTest extends TestCase
     use MocksHttpClient;
     protected static bool $initialized = false;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

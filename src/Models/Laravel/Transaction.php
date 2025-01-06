@@ -65,6 +65,7 @@ class Transaction extends BaseModel
         parent::__construct($attributes);
     }
 
+    #[\Override]
     public static function boot(): void
     {
         parent::boot();
@@ -88,6 +89,7 @@ class Transaction extends BaseModel
         );
     }
 
+    #[\Override]
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(

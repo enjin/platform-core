@@ -8,7 +8,7 @@ use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Models\Laravel\CollectionAccount;
-use Enjin\Platform\Models\Laravel\Token;
+use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Laravel\TokenAccount;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Laravel\Wallet;
@@ -91,7 +91,7 @@ abstract class SubstrateEvent
     /**
      * @throws PlatformException
      */
-    protected function getToken(int $collectionId, string $tokenChainId): Token
+    protected function getToken(int $collectionId, string $tokenChainId): Model
     {
         if (!$token = Token::where(['collection_id' => $collectionId, 'token_chain_id' => $tokenChainId])->first()) {
             throw new PlatformException(__('enjin-platform::traits.query_data_or_fail.unable_to_find_token', ['class' => self::class, 'tokenChainId' => $tokenChainId, 'collectionId' => $collectionId]));

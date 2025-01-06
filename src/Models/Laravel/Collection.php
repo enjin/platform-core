@@ -70,6 +70,7 @@ class Collection extends BaseModel
         return CollectionFactory::new();
     }
 
+    #[\Override]
     protected function pivotIdentifier(): Attribute
     {
         return Attribute::make(

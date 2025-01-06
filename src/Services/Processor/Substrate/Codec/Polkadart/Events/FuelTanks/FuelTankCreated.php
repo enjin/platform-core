@@ -17,6 +17,7 @@ class FuelTankCreated extends Event implements PolkadartEvent
     public readonly string $tankName;
     public readonly string $tankId;
 
+    #[\Override]
     public static function fromChain(array $data): self
     {
         $self = new self();
@@ -31,6 +32,7 @@ class FuelTankCreated extends Event implements PolkadartEvent
         return $self;
     }
 
+    #[\Override]
     public function getParams(): array
     {
         return [

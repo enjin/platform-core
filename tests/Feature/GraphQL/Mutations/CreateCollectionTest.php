@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Cache;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
@@ -27,7 +26,6 @@ use Illuminate\Support\Facades\Event;
 
 class CreateCollectionTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
     use MocksHttpClient;
 
     protected string $method = 'CreateCollection';
@@ -36,6 +34,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     protected string $defaultAccount;
     protected Encoder $tokenIdEncoder;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -52,7 +51,7 @@ class CreateCollectionTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -82,7 +81,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -114,7 +113,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'simulate' => null,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -145,7 +144,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -180,7 +179,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'signingAccount' => $signingAccount = app(Generator::class)->public_key,
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -218,7 +217,7 @@ class CreateCollectionTest extends TestCaseGraphQL
         ]);
 
         $this->assertIsNumeric($response['deposit']);
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'id' => null,
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
@@ -254,7 +253,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'idempotencyKey' => $idempotencyKey,
         ]);
 
-        $this->assertArraySubset($expectedResponse, $response);
+        $this->assertArrayContainsArray($expectedResponse, $response);
 
         $this->assertDatabaseHas('transactions', [
             'id' => $responseId = $response['id'],
@@ -269,7 +268,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'idempotencyKey' => $idempotencyKey,
         ]);
 
-        $this->assertArraySubset($expectedResponse, $response);
+        $this->assertArrayContainsArray($expectedResponse, $response);
 
         $this->assertDatabaseHas('transactions', [
             'id' => $responseId,
@@ -295,7 +294,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'state' => TransactionState::PENDING->name,
             'method' => $this->method,
             'encodedData' => $encodedData,
@@ -329,7 +328,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'mintPolicy' => $policy->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -360,7 +359,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'mintPolicy' => $policy->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -390,7 +389,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'mintPolicy' => $policy->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -420,7 +419,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'mintPolicy' => $policy->toArray(),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -456,7 +455,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -487,7 +486,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds($currencies),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -518,7 +517,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'explicitRoyaltyCurrencies' => [],
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -558,7 +557,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds($currencies),
         ]);
 
-        $this->assertArraySubset([
+        $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
@@ -585,7 +584,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'idempotencyKey' => '',
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['idempotencyKey' => ['The idempotency key field must have a value.']],
             $response['error']
         );
@@ -602,7 +601,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'idempotencyKey' => fake()->text(28),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['idempotencyKey' => ['The idempotency key field must be at least 36 characters.']],
             $response['error']
         );
@@ -619,7 +618,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'idempotencyKey' => fake()->realTextBetween(256, 300),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['idempotencyKey' => ['The idempotency key field must not be greater than 255 characters.']],
             $response['error']
         );
@@ -700,7 +699,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mintPolicy.maxTokenCount' => ['The mint policy.max token count is too small, the minimum value it can be is 1.']],
             $response['error']
         );
@@ -734,7 +733,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mintPolicy.maxTokenCount' => ['The mint policy.max token count is too large, the maximum value it can be is 18446744073709551615.']],
             $response['error']
         );
@@ -768,7 +767,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mintPolicy.maxTokenSupply' => ['The mint policy.max token supply is too small, the minimum value it can be is 1.']],
             $response['error']
         );
@@ -802,7 +801,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['mintPolicy.maxTokenSupply' => ['The mint policy.max token supply is too large, the maximum value it can be is 340282366920938463463374607431768211455.']],
             $response['error']
         );
@@ -896,7 +895,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['marketPolicy.royalty.beneficiary' => ['The market policy.royalty.beneficiary is not a valid substrate account.']],
             $response['error']
         );
@@ -1026,7 +1025,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['marketPolicy.royalty.percentage' => ['The market policy.royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.']],
             $response['error']
         );
@@ -1048,7 +1047,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['marketPolicy.royalty.percentage' => ['The market policy.royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.']],
             $response['error']
         );
@@ -1070,7 +1069,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['marketPolicy.royalty.percentage' => ['The market policy.royalty.percentage valid for a royalty is in the range of 0.1% to 50% and a maximum of 7 decimal places.']],
             $response['error']
         );
@@ -1240,7 +1239,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds(array_merge($currencies = $this->generateCurrencies(), [$currencies[0]])),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['explicitRoyaltyCurrencies' => ['The explicit royalty currencies must be an array of distinct multi assets.']],
             $response['error']
         );
@@ -1257,7 +1256,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'explicitRoyaltyCurrencies' => $this->generateEncodeableTokenIds($this->generateCurrencies(11)),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['explicitRoyaltyCurrencies' => ['The explicit royalty currencies field must not have more than 10 items.']],
             $response['error']
         );
@@ -1279,7 +1278,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['attributes.0.key' =>  ['The attributes.0.key field is too large.']],
             $response['error']
         );
@@ -1301,7 +1300,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['attributes.0.value' =>  ['The attributes.0.value field is too large.']],
             $response['error']
         );
@@ -1320,7 +1319,7 @@ class CreateCollectionTest extends TestCaseGraphQL
                 ['key' => 'key', 'value' => 'value'],
             ],
         ], true);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['attributes' => ['The attributes must be an array of distinct attributes keys.']],
             $response['error']
         );
@@ -1353,7 +1352,7 @@ class CreateCollectionTest extends TestCaseGraphQL
                 }
             }';
         $response = $this->graphql('CreateCollectionDuplicateFieldName', [], true, ['operationName' => $this->method]);
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['percentage' => ['message' => 'There can be only one input field named "percentage".']],
             $response['errors']
         );
@@ -1368,7 +1367,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'signingAccount' => Account::daemonPublicKey(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'signingAccount' => ['The signing account is a daemon wallet and should not be used as a signingAccount.'],
             ],

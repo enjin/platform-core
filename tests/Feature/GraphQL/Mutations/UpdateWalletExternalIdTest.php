@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -11,11 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class UpdateWalletExternalIdTest extends TestCaseGraphQL
 {
-    use ArraySubsetAsserts;
-
     protected string $method = 'UpdateWalletExternalId';
     protected Model $wallet;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -145,7 +143,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
             'newExternalId' => fake()->uuid(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['id' => ['The selected id is invalid.']],
             $response['error']
         );
@@ -158,7 +156,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
             'newExternalId' => fake()->uuid(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['externalId' => ['The selected external id is invalid.']],
             $response['error']
         );
@@ -171,7 +169,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
             'newExternalId' => fake()->uuid(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['Could not find the account specified.']],
             $response['error']
         );
@@ -184,7 +182,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
             'newExternalId' => fake()->uuid(),
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             [
                 'id' => ['The id field is required when none of external id / account are present.'],
                 'externalId' => ['The external id field is required when none of id / account are present.'],
@@ -217,7 +215,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
         ], true);
 
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['account' => ['The account is not a valid substrate account.']],
             $response['error']
         );
@@ -234,7 +232,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
             'newExternalId' => $otherWallet->external_id,
         ], true);
 
-        $this->assertArraySubset(
+        $this->assertArrayContainsArray(
             ['newExternalId' => ['The new external id has already been taken.']],
             $response['error']
         );
