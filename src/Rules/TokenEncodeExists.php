@@ -34,10 +34,9 @@ class TokenEncodeExists implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $collectionId = Arr::get($this->data, 'collectionId', 0);
         if (!Token::whereTokenChainId($this->tokenIdManager->encode($this->data))
             ->when(
-                $collectionId,
+                $collectionId = Arr::get($this->data, 'collectionId'),
                 fn ($query) => $query->whereHas('collection', fn ($subQuery) => $subQuery->where('collection_chain_id', $collectionId))
             )->exists()
         ) {
