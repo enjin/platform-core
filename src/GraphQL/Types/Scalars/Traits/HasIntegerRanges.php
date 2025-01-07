@@ -8,7 +8,7 @@ trait HasIntegerRanges
 {
     public function isIntegerRange(string $value): bool
     {
-        return str_contains($value, '..');
+        return preg_match('/-?[0-9]+(\.\.)-?[0-9]+/', $value);
     }
 
     public static function expandRanges($values): array
@@ -16,7 +16,7 @@ trait HasIntegerRanges
         return collect($values)
             ->flatten()
             ->map(function ($range) {
-                if (preg_match('/-?[0-9]+(\.\.)-?[0-9]+/', $range)) {
+                if ($this->isIntegerRange($range)) {
                     [$start, $end] = explode('..', $range, 2);
                     $range = [];
                     while ($start <= $end) {
@@ -71,7 +71,7 @@ trait HasIntegerRanges
 
     protected function validateValue($range): bool
     {
-        if (preg_match('/-?[0-9]+(\.\.)-?[0-9]+/', (string) $range)) {
+        if ($this->isIntegerRange($range)) {
             [$start, $end] = explode('..', (string) $range, 2);
             if (!is_numeric($start) || !is_numeric($end)) {
                 return true;
