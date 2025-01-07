@@ -341,6 +341,15 @@ class GetTokenTest extends TestCaseGraphQL
             'Variable "$tokenId" got invalid value "invalid"; Expected type "EncodableTokenIdInput" to be an object',
             $response['error'],
         );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'tokenId' => ['integer' => 0],
+        ], true);
+        $this->assertArrayContainsArray(
+            ['tokenId' => ['The token id doesn\'t exist.']],
+            $response['error'],
+        );
     }
 
     public function test_it_will_fail_with_collection_id_negative(): void
