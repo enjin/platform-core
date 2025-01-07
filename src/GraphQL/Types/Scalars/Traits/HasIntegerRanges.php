@@ -6,6 +6,11 @@ use phpseclib3\Math\BigInteger;
 
 trait HasIntegerRanges
 {
+    public function isIntegerRange(string $value) : bool
+    {
+        return str_contains($value, '..');
+    }
+
     public static function expandRanges($values): array
     {
         return collect($values)
