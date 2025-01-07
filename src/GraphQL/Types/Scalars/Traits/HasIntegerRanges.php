@@ -13,10 +13,12 @@ trait HasIntegerRanges
 
     public static function expandRanges($values): array
     {
+        $self = new self();
+
         return collect($values)
             ->flatten()
-            ->map(function ($range) {
-                if ($this->isIntegerRange($range)) {
+            ->map(function ($range) use ($self) {
+                if ($self->isIntegerRange($range)) {
                     [$start, $end] = explode('..', $range, 2);
                     $range = [];
                     while ($start <= $end) {
@@ -40,6 +42,7 @@ trait HasIntegerRanges
         $arrayCount = count($value);
         $result = [];
 
+        $curRange = '';
         for ($i = 0; $i < $arrayCount; $i++) {
             $currentValue = new BigInteger($value[$i]);
             if ($i + 1 != $arrayCount) {
