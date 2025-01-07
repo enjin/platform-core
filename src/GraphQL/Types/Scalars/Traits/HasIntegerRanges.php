@@ -6,7 +6,7 @@ use phpseclib3\Math\BigInteger;
 
 trait HasIntegerRanges
 {
-    public function isIntegerRange(string $value) : bool
+    public function isIntegerRange(string $value): bool
     {
         return str_contains($value, '..');
     }
