@@ -41,7 +41,7 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
      */
     public function type(): Type
     {
-        return GraphQL::type('Token');
+        return GraphQL::type('Token!');
     }
 
     /**
