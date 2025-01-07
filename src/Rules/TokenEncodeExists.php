@@ -8,6 +8,7 @@ use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Token\TokenIdManager;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Arr;
 
 class TokenEncodeExists implements DataAwareRule, ValidationRule
 {
@@ -33,7 +34,13 @@ class TokenEncodeExists implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!Token::whereTokenChainId($this->tokenIdManager->encode($this->data))->exists()) {
+        $collectionId = Arr::get($this->data, 'collectionId', 0);
+        if (!Token::whereTokenChainId($this->tokenIdManager->encode($this->data))
+            ->when(
+                $collectionId,
+                fn ($query) => $query->whereHas('collection', fn ($subQuery) => $subQuery->where('collection_chain_id', $collectionId))
+            )->exists()
+        ) {
             $fail('enjin-platform::validation.token_encode_exists')->translate();
         }
     }
