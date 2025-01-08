@@ -284,7 +284,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token_with_big_int_collection_id(): void
     {
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $this->wallet,

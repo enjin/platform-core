@@ -73,7 +73,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'managed' => false,
         ])->create();
 
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
@@ -321,7 +321,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
@@ -858,7 +858,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
@@ -932,7 +932,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'managed' => true,
         ])->create();
 
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $signingWallet,
@@ -1062,7 +1062,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_transfer_with_big_int_collection_id(): void
     {
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $this->wallet,

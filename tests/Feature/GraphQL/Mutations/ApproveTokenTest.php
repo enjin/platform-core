@@ -237,12 +237,12 @@ class ApproveTokenTest extends TestCaseGraphQL
         $newOwner = Wallet::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        Token::factory([
+        $newToken = Token::factory([
             'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
         ])->create();
         $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($newToken->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
@@ -250,7 +250,7 @@ class ApproveTokenTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($newToken->token_chain_id),
             'amount' => $amount,
             'currentAmount' => $currentAmount,
             'operator' => SS58Address::encode($operator),
@@ -283,12 +283,12 @@ class ApproveTokenTest extends TestCaseGraphQL
         $newOwner = Wallet::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        Token::factory([
+        $newToken = Token::factory([
             'collection_id' => $collection = Collection::factory(['owner_wallet_id' => $newOwner])->create(),
         ])->create();
         $encodedData = TransactionSerializer::encode($this->method, ApproveTokenMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
-            tokenId: $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode($newToken->token_chain_id),
             operator: $operator = app(Generator::class)->public_key(),
             amount: $amount = $this->tokenAccount->balance,
             currentAmount: $currentAmount = $this->tokenAccount->balance,
@@ -297,7 +297,7 @@ class ApproveTokenTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($newToken->token_chain_id),
             'amount' => $amount,
             'currentAmount' => $currentAmount,
             'operator' => SS58Address::encode($operator),

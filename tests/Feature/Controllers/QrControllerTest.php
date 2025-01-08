@@ -14,7 +14,7 @@ class QrControllerTest extends TestCaseGraphQL
 
         $this->assertTrue($response->isOk());
         $this->assertSame(
-            'ccac6fd60b4f2e46cb00563d01b2e94ef8760e6a',
+            '1af55b28efc63dbf39aa6f892c832b1113483dc5',
             sha1($response->content())
         );
     }
