@@ -102,7 +102,7 @@ return [
                     'node' => env('SUBSTRATE_ENJIN_RPC', 'wss://rpc.matrix.blockchain.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_ENJIN_SS58_PREFIX', 1110),
                     'genesis-hash' => env('SUBSTRATE_ENJIN_GENESIS_HASH', '0x3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615'),
-                    'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1012),
+                    'spec-version' => env('SUBSTRATE_ENJIN_SPEC_VERSION', 1014),
                     'transaction-version' => env('SUBSTRATE_ENJIN_TRANSACTION_VERSION', 10),
                 ],
                 'enjin' => $enjin,
