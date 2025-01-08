@@ -49,7 +49,7 @@ return [
         ['specVersion' => 1005, 'blockNumber' => 1261794, 'blockHash' => '0xbba1eb93d850c142851ddce6161aecd6a6fe026392a8d478f1f04690b0e97d0f'],
         ['specVersion' => 1006, 'blockNumber' => 1728545, 'blockHash' => '0x24ec59a2831c65aefc8437270299e5e6764c68b4e76cdbc9dc4d2c0d8086b32d'],
         ['specVersion' => 1012, 'blockNumber' => 2609693, 'blockHash' => '0x211403edc5f274431b89e56ee9bb7d22694cfc436673906e9b20121c07490c53'],
-        ['specVersion' => 1024, 'blockNumber' => 3478009, 'blockHash' => '0xc632cbaf0be7d8e48f4dbf50885b5eb416a188b78b84c82807c96cb234846a2a'],
+        ['specVersion' => 1014, 'blockNumber' => 3478009, 'blockHash' => '0xc632cbaf0be7d8e48f4dbf50885b5eb416a188b78b84c82807c96cb234846a2a'],
     ],
     NetworkType::CANARY_MATRIX->value => [
         ['specVersion' => 500, 'blockNumber' => 0, 'blockHash' => '0xa37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f'],
