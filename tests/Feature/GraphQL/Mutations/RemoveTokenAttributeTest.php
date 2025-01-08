@@ -276,7 +276,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => random_int(1, 1000)]);
+        Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
             'owner_wallet_id' => $this->wallet,
