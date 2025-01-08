@@ -11,14 +11,12 @@ trait HasIntegerRanges
         return preg_match('/-?[0-9]+(\.\.)-?[0-9]+/', $value);
     }
 
-    public static function expandRanges($values): array
+    public function expandRanges($values): array
     {
-        $self = new self();
-
         return collect($values)
             ->flatten()
-            ->map(function ($range) use ($self) {
-                if ($self->isIntegerRange($range)) {
+            ->map(function ($range) {
+                if ($this->isIntegerRange($range)) {
                     [$start, $end] = explode('..', $range, 2);
                     $range = [];
                     while ($start <= $end) {
