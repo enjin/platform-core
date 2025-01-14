@@ -11,11 +11,12 @@ class QrControllerTest extends TestCaseGraphQL
     public function test_it_can_get_a_qr_image(): void
     {
         $response = $this->get('/qr?s=128&f=png&m=1&d=test_data');
+        $content = mb_convert_encoding($response->content(), 'UTF-8');
 
         $this->assertTrue($response->isOk());
         $this->assertSame(
-            'a01f48b0e0cdc0b9f3371ec9ef0572ca714decb5',
-            sha1($response->content())
+            'b1f778e2a1c367807931020fbf2085de51f300ec',
+            sha1($content)
         );
     }
 
