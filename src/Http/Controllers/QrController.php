@@ -13,6 +13,7 @@ class QrController extends Controller
     {
         $data = $request->input('d');
         $size = $request->input('s') ?? config('enjin-platform.qr.size');
+        $margin = $request->input('m') ?? config('enjin-platform.qr.margin');
         $format = $request->input('f') ?? config('enjin-platform.qr.format');
 
         if (empty($data)) {
@@ -29,7 +30,8 @@ class QrController extends Controller
 
         $generator = QrCode::format($format)
             ->size($size)
-            ->errorCorrection('Q');
+            ->errorCorrection('Q')
+            ->margin($margin);
 
         if ($imageUrl = config('enjin-platform.qr.image')) {
             $generator->merge($imageUrl, config('enjin-platform.qr.image_size'), true);
