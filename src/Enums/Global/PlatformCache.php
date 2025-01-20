@@ -29,6 +29,8 @@ enum PlatformCache: string implements PlatformCacheable
     case REFRESH_METADATA = 'refreshMetadata';
     case TELEMETRY_UUID = 'telemetry:uuid';
     case TELEMETRY_CACHE_LOCK = 'telemetry:cacheLock';
+    case SPEC_VERSION = 'specVersion';
+    case TRANSACTION_VERSION = 'transactionVersion';
 
     public function key(?string $suffix = null, ?string $network = null): string
     {
@@ -43,6 +45,8 @@ enum PlatformCache: string implements PlatformCacheable
             self::CUSTOM_TYPES,
             self::MANAGED_ACCOUNTS,
             self::RELEASE_DIFF,
+            self::SPEC_VERSION,
+            self::TRANSACTION_VERSION,
         ]);
     }
 }

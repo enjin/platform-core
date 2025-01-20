@@ -3,11 +3,13 @@
 namespace Enjin\Platform\Services\Processor\Substrate;
 
 use Enjin\Platform\Clients\Implementations\DecoderHttpClient;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Facades\Package;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Extrinsics\Extrinsic;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -24,6 +26,10 @@ class DecoderService
         $this->network = $network ?? network()->value;
     }
 
+    /**
+     * @throws ConnectionException
+     * @throws PlatformException
+     */
     public function decode(string $type, string|array $bytes, ?int $blockNumber = null): ?array
     {
         $result = $this->client->getClient()->post($this->host, [
