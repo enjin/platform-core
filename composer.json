@@ -62,7 +62,8 @@
     "phpunit/php-code-coverage": "^11.0",
     "phpunit/phpunit": "^11.5",
     "rector/rector": "^2.0",
-    "roave/security-advisories": "dev-latest"
+    "roave/security-advisories": "dev-latest",
+    "spatie/ray": "^1.41"
   },
   "autoload": {
     "psr-4": {

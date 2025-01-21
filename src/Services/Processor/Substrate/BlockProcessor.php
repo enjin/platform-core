@@ -8,11 +8,13 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Events\Substrate\Commands\PlatformBlockIngested;
 use Enjin\Platform\Events\Substrate\Commands\PlatformBlockIngesting;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Exceptions\RestartIngestException;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\JSON;
+use Enjin\Platform\Support\Util;
 use Exception;
 use Facades\Enjin\Platform\Services\Processor\Substrate\State;
 use Illuminate\Console\BufferedConsoleOutput;
@@ -28,7 +30,7 @@ class BlockProcessor
 {
     use InteractsWithIO;
 
-    public const SYNC_WAIT_DELAY = 5;
+    public const int SYNC_WAIT_DELAY = 5;
 
     protected Codec $codec;
     protected bool $hasCheckedSubBlocks = false;
@@ -55,15 +57,15 @@ class BlockProcessor
         return null;
     }
 
-    public function latestSyncedBlock(): int
+    public function lastSyncedBlock(): ?Block
     {
-        return Block::where('synced', true)->max('number') ?? 0;
+        return Block::where('synced', true)->orderByDesc('number')->first();
     }
 
-    public function checkParentBlocks(string $heightHexed)
+    public function checkParentBlocks(string $heightHexed): void
     {
         $this->warn('Making sure no blocks were left behind');
-        $lastBlockSynced = $this->latestSyncedBlock();
+        $lastBlockSynced = $this->lastSyncedBlock();
         $blockBeforeSubscription = HexConverter::hexToUInt($heightHexed) - 1;
         $this->warn("Last block synced: {$lastBlockSynced}");
         $this->warn("Block before subscription: {$blockBeforeSubscription}");
@@ -138,23 +140,34 @@ class BlockProcessor
         }
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function ingest(): void
     {
         Cache::forget(PlatformCache::CUSTOM_TYPES->key());
 
-        $currentHeight = $this->latestBlock();
-        $lastBlockSynced = $this->latestSyncedBlock();
+        $lastBlock = $this->latestBlock();
+        $lastSyncedBlock = $this->lastSyncedBlock();
+        $lastSyncedHeight = $lastSyncedBlock?->number ?? 0;
+        $runtime = Util::updateRuntimeVersion($lastSyncedBlock?->hash);
 
         $this->info('================ Starting Substrate Ingest ================');
-        $this->info("Current block on-chain: {$currentHeight}");
-        $this->info('Last ingested block: ' . $lastBlockSynced ?: 'No blocks ingested');
+        $this->info('Connected to: ' . currentMatrix()->value);
+        $this->info("Current block on-chain: {$lastBlock}");
+        $this->info("Continuing from block: {$lastSyncedHeight}");
+        $this->info("Transaction version: {$runtime[PlatformCache::TRANSACTION_VERSION->key()]}");
+        $this->info("Spec version: {$runtime[PlatformCache::SPEC_VERSION->key()]}");
         $this->info('=========================================================');
 
-        $this->startIngest($lastBlockSynced, $currentHeight);
+        $this->startIngest($lastSyncedHeight, $lastBlock);
 
         $this->info('An error has occurred the ingest process has been stopped.');
     }
 
+    /**
+     * @throws RestartIngestException
+     */
     public function fetchPastHeads(int $startingHeight, int $currentHeight): void
     {
         $numOfBlocks = $currentHeight - $startingHeight;
@@ -228,17 +241,13 @@ class BlockProcessor
 
     protected function startIngest(int $lastBlockSynced, int $currentHeight): void
     {
-        try {
-            $this->fetchPastHeads($lastBlockSynced, $currentHeight);
-            $this->subscribeToNewHeads();
-        } catch (RestartIngestException) {
-            $this->startIngest(
-                $this->latestSyncedBlock(),
-                $this->latestBlock()
-            );
-        }
+        $this->fetchPastHeads($lastBlockSynced, $currentHeight);
+        $this->subscribeToNewHeads();
     }
 
+    /**
+     * @throws RestartIngestException
+     */
     protected function fetchPreviousBlockHeads(int $blockNumber, int $blockLimit): void
     {
         while ($blockNumber <= $blockLimit) {

@@ -2,8 +2,45 @@
 
 namespace Enjin\Platform\Support;
 
+use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
+use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+
 class Util
 {
+    /**
+     * @throws PlatformException
+     */
+    public static function updateRuntimeVersion(?string $hash = null): array
+    {
+        $client = new Substrate(new SubstrateSocketClient());
+
+        if (!$hash) {
+            $block = Block::where('synced', true)->orderByDesc('number')->first();
+            $hash = $block?->hash;
+        }
+
+        $runtime = $client->callMethod('state_getRuntimeVersion', $hash ? [$hash] : []);
+        $specVersion = Arr::get($runtime, 'specVersion');
+        $transactionVersion = Arr::get($runtime, 'transactionVersion');
+
+        if (!$specVersion || !$transactionVersion) {
+            throw new PlatformException(__('enjin-platform::error.runtime_version_not_found'));
+        }
+
+        Cache::rememberForever(PlatformCache::SPEC_VERSION->key(), fn () => $specVersion);
+        Cache::rememberForever(PlatformCache::TRANSACTION_VERSION->key(), fn () => $transactionVersion);
+
+        return [
+            PlatformCache::SPEC_VERSION->key() => $transactionVersion,
+            PlatformCache::TRANSACTION_VERSION->key() => $specVersion,
+        ];
+    }
+
     /**
      * Create a JSON-RPC encoded string.
      */

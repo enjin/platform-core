@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate;
 
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -93,6 +94,9 @@ class State
         return $data ?: null;
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function checkCollectionAccount($collection, string $addressId, string $blockHash, ?Codec $codec = null): mixed
     {
         $codec ??= new Codec();
@@ -152,7 +156,7 @@ class State
         }
     }
 
-    public function checkTokenAccount($collection, $token, string $tokenId, string $addressId, string $blockHash, ?Codec $codec = null)
+    public function checkTokenAccount($collection, $token, string $tokenId, string $addressId, string $blockHash, ?Codec $codec = null): void
     {
         $codec ??= new Codec();
         $collectionId = $collection->collection_chain_id;
