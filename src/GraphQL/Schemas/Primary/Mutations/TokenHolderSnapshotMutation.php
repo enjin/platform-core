@@ -69,9 +69,9 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
         $user = auth()->user();
-        $key = 'TokenHolderSnapshotRequest'.$user->id;
+        $key = 'TokenHolderSnapshotRequest' . $user->id;
         if (RateLimiter::tooManyAttempts($key, 1)) {
-            return 'Too many attempts, you may try again in '.RateLimiter::availableIn($key).' seconds.';
+            return 'Too many attempts, you may try again in ' . RateLimiter::availableIn($key) . ' seconds.';
         }
         RateLimiter::increment($key);
 
