@@ -128,4 +128,10 @@ return [
     'verify_account.description' => 'The wallet calls this mutation to prove the ownership of the user account.',
     'operator_transfer_token.args.keepAlive' => '(DEPRECATED) If true, the transaction will fail if the balance drops below the minimum requirement. Defaults to False.',
     'refresh_metadata.description' => "Refresh the collection's or token's metadata.",
+    'token_holder_snapshot.description' => 'Get a snapshot of the token holders for a collection. The snapshot will be emailed as a CSV file.',
+    'token_holder_snapshot.args.collectionId' => 'The collection ID to get the snapshot for.',
+    'token_holder_snapshot.args.tokenId' => 'The token ID to get the snapshot for.',
+    'token_holder_snapshot.args.blockOrTimestamp' => 'The block number or timestamp to get the snapshot for.',
+    'token_holder_snapshot.success' => 'Your request has been received. A CSV file is being prepared and will be sent to the email address associated with your account once it is ready.',
+    'token_holder_snapshot.no_tokens_found' => 'No tokens found for the specified collection.',
 ];
