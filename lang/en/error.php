@@ -59,5 +59,6 @@ return [
     'verification.unable_to_generate_verification_id' => 'Unable to generate a verification id.',
     'verification.verification_not_found' => 'Verification not found.',
     'wallet_is_immutable' => 'The wallet account is immutable once set.',
-    'too_many_requests' =>  'Too many requests. Retry in :num seconds',
+    'too_many_requests' =>  'Too many requests. Retry in :num seconds.',
+    'snapshot_email_not_configured' => 'The TOKEN_HOLDER_SNAPSHOT_EMAIL is not configured.',
 ];
