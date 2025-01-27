@@ -120,7 +120,7 @@ class Sync extends Command
         foreach ($storages as $storage) {
             $this->info(sprintf(
                 '%s: %s',
-                ucwords(str_replace('_', ' ', strtolower($storage[0]->type->name))),
+                ucwords(str_replace('_', ' ', strtolower((string) $storage[0]->type->name))),
                 $storage[2]
             ));
         }
