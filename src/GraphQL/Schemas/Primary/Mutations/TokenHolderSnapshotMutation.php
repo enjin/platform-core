@@ -7,6 +7,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Rules\TokenExistsInCollection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Mail\Message;
@@ -20,6 +21,9 @@ use Rebing\GraphQL\Support\Mutation;
 class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMutation
 {
     use InPrimarySchema;
+
+    public static $resolveUserEmail;
+    public static $bypassRateLimiting = false;
 
     /**
      * Get the mutation's attributes.
@@ -56,10 +60,6 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::mutation.token_holder_snapshot.args.tokenId'),
             ],
-            'blockOrTimestamp' => [
-                'type' => GraphQL::type('BigInt'),
-                'description' => __('enjin-platform::mutation.token_holder_snapshot.args.blockOrTimestamp'),
-            ],
         ];
     }
 
@@ -68,12 +68,17 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        $user = auth()->user();
-        $key = 'TokenHolderSnapshotRequest' . $user->id;
-        if (RateLimiter::tooManyAttempts($key, 1)) {
-            return 'Too many attempts, you may try again in ' . RateLimiter::availableIn($key) . ' seconds.';
+        if (!($email = $this->getUserEmail())) {
+            return trans('enjin-platform::error.snapshot_email_not_configured');
         }
-        RateLimiter::increment($key);
+
+        if (!static::$bypassRateLimiting) {
+            $key = 'TokenHolderSnapshotRequest' . $email;
+            if (RateLimiter::tooManyAttempts($key, 1)) {
+                return trans('enjin-platform::error.too_many_requests', ['num' => RateLimiter::availableIn($key)]);
+            }
+            RateLimiter::increment($key);
+        }
 
         $tokens = Token::with(['accounts', 'accounts.wallet'])
             ->where(
@@ -85,7 +90,7 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
         if (empty($tokens)) {
             $message = trans('enjin-platform::mutation.token_holder_snapshot.no_tokens_found');
             Log::info('TokenHolderSnapshot mutation request failed', [
-                'user_id' => $user->id,
+                'email' => $email,
                 'collection_id' => $collectionId,
                 'tokenId' => $tokenId,
                 'block_number' => Arr::get($args, 'blockOrTimestamp'),
@@ -114,7 +119,6 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
             . (($tokenId = Arr::get($args, 'tokenId')) ? ('_' . $tokenId) : '')
             . (($block = Arr::get($args, 'blockOrTimestamp')) ? ('_' . $block) : '')
             . '.csv';
-        $email = $user->email;
         dispatch(function () use ($email, $data, $filename): void {
             Mail::raw(
                 "Your request for a token holders snapshot has been processed successfully.\n
@@ -126,7 +130,7 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
         });
 
         Log::info('TokenHolderSnapshot mutation request', [
-            'user_id' => auth()->id(),
+            'email' => $email,
             'collection_id' => $collectionId,
             'tokenId' => $tokenId,
             'block_number' => Arr::get($args, 'blockOrTimestamp'),
@@ -135,5 +139,28 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
 
         return trans('enjin-platform::mutation.token_holder_snapshot.success');
 
+    }
+
+    protected function getUserEmail(): string
+    {
+        return (static::$resolveUserEmail
+            ? call_user_func(static::$resolveUserEmail)
+            : config('enjin-platform.token_holder_snapshot_email')
+        ) ?? '';
+    }
+
+    #[\Override]
+    protected function rules(array $args = []): array
+    {
+        return [
+            'collectionId' => [
+                'required',
+                'exists:collections,collection_chain_id',
+            ],
+            'tokenId' => [
+                'nullable',
+                new TokenExistsInCollection(),
+            ],
+        ];
     }
 }

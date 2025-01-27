@@ -1,0 +1,6 @@
+mutation TokenHolderSnapshot(
+  $collectionId: BigInt!
+  $tokenId: BigInt
+) {
+  TokenHolderSnapshot(collectionId: $collectionId, tokenId: $tokenId)
+}

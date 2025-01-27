@@ -306,4 +306,14 @@ return [
     |
     */
     'queue' => env('PLATFORM_CORE_QUEUE', 'default'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Snapshot email
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the email to send the token holder snapshot to
+    |
+    */
+    'token_holder_snapshot_email' => env('TOKEN_HOLDER_SNAPSHOT_EMAIL'),
 ];
