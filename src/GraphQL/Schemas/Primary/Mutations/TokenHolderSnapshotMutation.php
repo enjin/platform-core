@@ -93,7 +93,6 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
                 'email' => $email,
                 'collection_id' => $collectionId,
                 'tokenId' => $tokenId,
-                'block_number' => Arr::get($args, 'blockOrTimestamp'),
                 'message' => $message,
             ]);
 
@@ -117,7 +116,6 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
 
         $filename = 'token_holders_snapshot_' . $collectionId
             . (($tokenId = Arr::get($args, 'tokenId')) ? ('_' . $tokenId) : '')
-            . (($block = Arr::get($args, 'blockOrTimestamp')) ? ('_' . $block) : '')
             . '.csv';
         dispatch(function () use ($email, $data, $filename): void {
             Mail::raw(
@@ -133,7 +131,6 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
             'email' => $email,
             'collection_id' => $collectionId,
             'tokenId' => $tokenId,
-            'block_number' => Arr::get($args, 'blockOrTimestamp'),
             'message' => 'success',
         ]);
 
