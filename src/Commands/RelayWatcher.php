@@ -19,6 +19,7 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\DecoderService;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
+use Enjin\Platform\Support\Util;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Str;
@@ -47,11 +48,19 @@ class RelayWatcher extends Command
     public function handle(): int
     {
         $sub = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
+        $runtime = Util::updateRuntimeVersion(null, currentRelay());
 
         try {
-            $this->warn('Subscribing to new heads');
+            $this->info('================ Starting Relay Ingest ================');
+            $this->info('Connected to: ' . currentRelay()->value);
+            $this->info("Transaction version: {$runtime[0]}");
+            $this->info("Spec version: {$runtime[1]}");
+            $this->info('=========================================================');
+
+            $this->info('Subscribing to block new heads...');
             $sub->callMethod('chain_subscribeNewHeads');
-            $this->warn('Subscribing to any changes on account storage');
+
+            $this->info('Subscribing storage changes on any account...');
             $sub->callMethod('state_subscribeStorage', [[StorageType::EVENTS->value]]);
 
             while (true) {
@@ -101,7 +110,7 @@ class RelayWatcher extends Command
         $blockNumber = HexConverter::hexToUInt($heightHexed);
         $blockHash = $this->getHashWhenBlockIsFinalized($blockNumber);
 
-        $this->info(sprintf('Ingested header for block #%s in %s seconds', $blockNumber, now()->diffInMilliseconds($syncTime) / 1000));
+        $this->info(sprintf('Ingested header for block #%s in %s seconds', $blockNumber, $syncTime->diffInMilliseconds(now()) / 1000));
 
         $this->fetchExtrinsics($blockHash, $blockNumber);
     }

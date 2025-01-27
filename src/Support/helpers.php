@@ -55,6 +55,16 @@ if (!function_exists('isTestnet')) {
     }
 }
 
+if (!function_exists('networkUrl')) {
+    /**
+     * Get the equivalent matrixchain url for the current used network.
+     */
+    function networkUrl(?NetworkType $network = null): string
+    {
+        return networkConfig('node', $network ?? currentMatrix());
+    }
+}
+
 if (!function_exists('currentRelayUrl')) {
     /**
      * Get the equivalent relaychain url for the current used network.
@@ -78,15 +88,23 @@ if (!function_exists('currentMatrixUrl')) {
 }
 
 if (!function_exists('isMatrix')) {
-    function isMatrix(NetworkType $network): bool
+    function isMatrix(?NetworkType $network = null): bool
     {
+        if (!$network) {
+            return true;
+        }
+
         return $network === NetworkType::ENJIN_MATRIX || $network === NetworkType::CANARY_MATRIX;
     }
 }
 
 if (!function_exists('isRelay')) {
-    function isRelay(NetworkType $network): bool
+    function isRelay(?NetworkType $network = null): bool
     {
+        if (!$network) {
+            return false;
+        }
+
         return $network === NetworkType::ENJIN_RELAY || $network === NetworkType::CANARY_RELAY;
     }
 }
@@ -100,13 +118,13 @@ if (!function_exists('specForBlock')) {
     function specForBlock(?int $block = null, ?string $network = null): int
     {
         if ($block === null && $network === null) {
-            return cachedRuntimeConfig(PlatformCache::SPEC_VERSION);
+            return cachedRuntimeConfig(PlatformCache::SPEC_VERSION, network());
         }
 
         $network = NetworkType::tryFrom($network) ?? network();
 
         if ($block === null) {
-            return isMatrix($network) ? cachedRuntimeConfig(PlatformCache::SPEC_VERSION) : networkConfig('spec-version', $network);
+            return cachedRuntimeConfig(PlatformCache::SPEC_VERSION, $network);
         }
 
         $runtime = collect(config(sprintf('enjin-runtime.%s', $network->value)))
@@ -114,7 +132,7 @@ if (!function_exists('specForBlock')) {
             ->filter(fn ($runtime) => $block >= $runtime['blockNumber'])
             ->first();
 
-        return $runtime['specVersion'] ?? isMatrix($network) ? cachedRuntimeConfig(PlatformCache::SPEC_VERSION) : networkConfig('spec-version', $network);
+        return $runtime['specVersion'] ?? cachedRuntimeConfig(PlatformCache::SPEC_VERSION, $network);
     }
 }
 
@@ -173,14 +191,14 @@ if (!function_exists('cachedRuntimeConfig')) {
      *
      * @throws Enjin\Platform\Exceptions\PlatformException
      */
-    function cachedRuntimeConfig(PlatformCache $config): mixed
+    function cachedRuntimeConfig(PlatformCache $config, NetworkType $network): mixed
     {
-        $value = Cache::get($config->key());
+        $value = Cache::get($config->key($network->value));
 
         if (!$value) {
-            $value = Util::updateRuntimeVersion();
+            $value = Util::updateRuntimeVersion(null, $network);
 
-            return $value[$config->key()];
+            return $value[$config->key($network->value)];
         }
 
         return $value;

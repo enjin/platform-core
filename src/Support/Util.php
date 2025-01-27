@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Support;
 
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
+use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Block;
@@ -15,11 +16,12 @@ class Util
     /**
      * @throws PlatformException
      */
-    public static function updateRuntimeVersion(?string $hash = null): array
+    public static function updateRuntimeVersion(?string $hash = null, ?NetworkType $network = null): array
     {
-        $client = new Substrate(new SubstrateSocketClient());
+        $network ??= currentMatrix();
+        $client = new Substrate(new SubstrateSocketClient(networkUrl($network)));
 
-        if (!$hash) {
+        if (!$hash && !isRelay($network)) {
             $block = Block::where('synced', true)->orderByDesc('number')->first();
             $hash = $block?->hash;
         }
@@ -32,13 +34,10 @@ class Util
             throw new PlatformException(__('enjin-platform::error.runtime_version_not_found'));
         }
 
-        Cache::rememberForever(PlatformCache::SPEC_VERSION->key(), fn () => $specVersion);
-        Cache::rememberForever(PlatformCache::TRANSACTION_VERSION->key(), fn () => $transactionVersion);
+        Cache::rememberForever(PlatformCache::SPEC_VERSION->key($network->value), fn () => $specVersion);
+        Cache::rememberForever(PlatformCache::TRANSACTION_VERSION->key($network->value), fn () => $transactionVersion);
 
-        return [
-            PlatformCache::SPEC_VERSION->key() => $transactionVersion,
-            PlatformCache::TRANSACTION_VERSION->key() => $specVersion,
-        ];
+        return [$transactionVersion, $specVersion];
     }
 
     /**
