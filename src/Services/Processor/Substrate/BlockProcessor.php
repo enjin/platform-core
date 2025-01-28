@@ -62,17 +62,20 @@ class BlockProcessor
         return Block::where('synced', true)->orderByDesc('number')->first();
     }
 
+    /**
+     * @throws RestartIngestException
+     */
     public function checkParentBlocks(string $heightHexed): void
     {
         $this->warn('Making sure no blocks were left behind');
-        $lastBlockSynced = $this->lastSyncedBlock();
+        $lastSyncedHeight = $this->lastSyncedBlock()?->number ?? 0;
         $blockBeforeSubscription = HexConverter::hexToUInt($heightHexed) - 1;
-        $this->warn("Last block synced: {$lastBlockSynced}");
+        $this->warn("Last block synced: {$lastSyncedHeight}");
         $this->warn("Block before subscription: {$blockBeforeSubscription}");
 
-        if ($blockBeforeSubscription > $lastBlockSynced) {
+        if ($blockBeforeSubscription > $lastSyncedHeight) {
             $this->warn('Processing blocks left behind');
-            $this->fetchPastHeads($lastBlockSynced, $blockBeforeSubscription);
+            $this->fetchPastHeads($lastSyncedHeight, $blockBeforeSubscription);
             $this->warn('Finished processing blocks left behind');
         }
 
