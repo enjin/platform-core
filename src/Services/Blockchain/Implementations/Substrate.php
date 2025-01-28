@@ -12,6 +12,7 @@ use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Laravel\Transaction;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
@@ -120,6 +121,9 @@ class Substrate implements BlockchainServiceInterface
         );
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function getSigningPayload(string $call, array $args): string
     {
         return $this->codec->encoder()->signingPayload(
@@ -127,12 +131,15 @@ class Substrate implements BlockchainServiceInterface
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),
             genesisHash: networkConfig('genesis-hash'),
-            specVersion: networkConfig('spec-version'),
-            txVersion: networkConfig('transaction-version'),
+            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION),
+            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION),
             tip: Arr::get($args, 'tip'),
         );
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function getSigningPayloadJSON(Transaction $transaction, array $args): array
     {
         return $this->codec->encoder()->signingPayloadJSON(
@@ -141,8 +148,8 @@ class Substrate implements BlockchainServiceInterface
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),
             genesisHash: networkConfig('genesis-hash'),
-            specVersion: networkConfig('spec-version'),
-            txVersion: networkConfig('transaction-version'),
+            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION),
+            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION),
             tip: Arr::get($args, 'tip'),
         );
     }

@@ -2,6 +2,8 @@
 
 use Enjin\Platform\Enums\Global\ChainType;
 use Enjin\Platform\Enums\Global\NetworkType;
+use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Support\Util;
 
 if (!function_exists('network')) {
     /**
@@ -26,17 +28,6 @@ if (!function_exists('network')) {
         return NetworkType::tryFrom($network) ?? NetworkType::ENJIN_MATRIX;
     }
 }
-
-if (!function_exists('isRunningLatest')) {
-    /**
-     * Check if the network is matrix.
-     */
-    function isRunningLatest(): bool
-    {
-        return networkConfig('spec-version') >= 1010;
-    }
-}
-
 
 if (!function_exists('isMainnet')) {
     /**
@@ -86,38 +77,44 @@ if (!function_exists('currentMatrixUrl')) {
 
 }
 
+if (!function_exists('isMatrix')) {
+    function isMatrix(NetworkType $network): bool
+    {
+        return $network === NetworkType::ENJIN_MATRIX || $network === NetworkType::CANARY_MATRIX;
+    }
+}
+
+if (!function_exists('isRelay')) {
+    function isRelay(NetworkType $network): bool
+    {
+        return $network === NetworkType::ENJIN_RELAY || $network === NetworkType::CANARY_RELAY;
+    }
+}
+
 if (!function_exists('specForBlock')) {
     /**
      * Get the spec version for a matrixchain block.
+     *
+     * @throws Enjin\Platform\Exceptions\PlatformException
      */
     function specForBlock(?int $block = null, ?string $network = null): int
     {
         if ($block === null && $network === null) {
-            return networkConfig('spec-version');
-        }
-
-        if ($block === null) {
-            return networkConfig('spec-version', NetworkType::tryFrom($network) ?? network());
+            return cachedRuntimeConfig(PlatformCache::SPEC_VERSION);
         }
 
         $network = NetworkType::tryFrom($network) ?? network();
+
+        if ($block === null) {
+            return isMatrix($network) ? cachedRuntimeConfig(PlatformCache::SPEC_VERSION) : networkConfig('spec-version', $network);
+        }
 
         $runtime = collect(config(sprintf('enjin-runtime.%s', $network->value)))
             ->sortByDesc('blockNumber')
             ->filter(fn ($runtime) => $block >= $runtime['blockNumber'])
             ->first();
 
-        return $runtime['specVersion'] ?? networkConfig('spec-version', $network);
-    }
-}
-
-if (!function_exists('currentMatrixRuntime')) {
-    /**
-     * Get current runtime being used at matrixchain.
-     */
-    function currentMatrixRuntime(): array
-    {
-        return config(sprintf('enjin-runtime.%s.%d', network()->value, networkConfig('spec-version'))) ?? [];
+        return $runtime['specVersion'] ?? isMatrix($network) ? cachedRuntimeConfig(PlatformCache::SPEC_VERSION) : networkConfig('spec-version', $network);
     }
 }
 
@@ -167,5 +164,25 @@ if (!function_exists('networkConfig')) {
     function networkConfig(string $config, ?NetworkType $network = null): mixed
     {
         return config(sprintf('enjin-platform.chains.supported.%s.%s.%s', chain()->value, $network?->value ?? network()->value, $config));
+    }
+}
+
+if (!function_exists('cachedRuntimeConfig')) {
+    /**
+     * Get the cached network config.
+     *
+     * @throws Enjin\Platform\Exceptions\PlatformException
+     */
+    function cachedRuntimeConfig(PlatformCache $config): mixed
+    {
+        $value = Cache::get($config->key());
+
+        if (!$value) {
+            $value = Util::updateRuntimeVersion();
+
+            return $value[$config->key()];
+        }
+
+        return $value;
     }
 }
