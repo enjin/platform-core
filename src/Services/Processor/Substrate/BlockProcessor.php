@@ -156,8 +156,8 @@ class BlockProcessor
         $this->info('Connected to: ' . currentMatrix()->value);
         $this->info("Current block on-chain: {$lastBlock}");
         $this->info("Continuing from block: {$lastSyncedHeight}");
-        $this->info("Transaction version: {$runtime[PlatformCache::TRANSACTION_VERSION->key()]}");
-        $this->info("Spec version: {$runtime[PlatformCache::SPEC_VERSION->key()]}");
+        $this->info("Transaction version: {$runtime[0]}");
+        $this->info("Spec version: {$runtime[1]}");
         $this->info('=========================================================');
 
         $this->startIngest($lastSyncedHeight, $lastBlock);

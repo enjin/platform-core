@@ -40,7 +40,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
-        if (!strtotime($valueNode->value)) {
+        if (!strtotime((string) $valueNode->value)) {
             throw new Error(__('enjin-platform::error.invalid_datetime'), [$valueNode]);
         }
 

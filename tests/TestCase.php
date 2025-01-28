@@ -31,8 +31,8 @@ abstract class TestCase extends BaseTestCase
         $app->useDatabasePath(__DIR__ . '/../database');
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
 
-        Cache::rememberForever(PlatformCache::SPEC_VERSION->key(), fn () => 1023);
-        Cache::rememberForever(PlatformCache::TRANSACTION_VERSION->key(), fn () => 10);
+        Cache::rememberForever(PlatformCache::SPEC_VERSION->key(currentMatrix()->value), fn () => 1023);
+        Cache::rememberForever(PlatformCache::TRANSACTION_VERSION->key(currentMatrix()->value), fn () => 10);
 
         $app['config']->set('database.default', env('DB_DRIVER', 'mysql'));
 
