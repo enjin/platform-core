@@ -27,7 +27,7 @@ jobs:
           composer global require laravel/pint rector/rector
 
       - name: Run Rector
-        run: composer global exec rector process --config $GITHUB_WORKSPACE/rector.php
+        run: composer global exec rector process --config=$GITHUB_WORKSPACE/rector.php
 
       - name: Run Laravel Pint
         run: composer global exec pint --config $GITHUB_WORKSPACE/pint.json
