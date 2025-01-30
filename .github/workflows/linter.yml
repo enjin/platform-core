@@ -28,13 +28,11 @@ jobs:
 
       - name: Run Rector
         run: |
-          echo "$GITHUB_WORKSPACE"
-          ls $GITHUB_WORKSPACE
-          ls ${{ github.workspace }}
-          composer global exec "rector process --config $GITHUB_WORKSPACE/rector.php"
+          composer global exec "rector process --config ${{ github.workspace }}/rector.php"
 
       - name: Run Laravel Pint
-        run: composer global exec "pint --config $GITHUB_WORKSPACE/pint.json"
+        run: |
+          composer global exec "pint --config ${{ github.workspace }}/pint.json"
 
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v5
