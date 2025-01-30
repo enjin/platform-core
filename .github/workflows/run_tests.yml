@@ -1,12 +1,10 @@
 name: Unit & Functional Tests
 
 on:
-  pull_request:
-    paths-ignore:
-      - "**.md"
-  push:
-    paths-ignore:
-      - '**.md'
+  workflow_run:
+    workflows: [Automatic Linter]
+    types:
+      - completed
 
 jobs:
   test:

@@ -18,7 +18,6 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
@@ -191,7 +190,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => [new IsCollectionOwner()],
+            'collectionId' => ['exists:collections,collection_chain_id'],
             ...$this->getTokenFieldRulesExist('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRulesExist('recipients.*.operatorParams', $args),
             'recipients.*.simpleParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
@@ -205,6 +204,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     protected function rulesWithoutValidation(array $args): array
     {
         return [
+            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRules('recipients.*.operatorParams', $args),
             'recipients.*.simpleParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],

@@ -1,0 +1,61 @@
+name: Automatic Linter
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.3]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer install
+
+      - name: Run Rector
+        run: |
+          ./vendor/bin/rector --dry-run
+
+      - name: Run Laravel Pint
+        run: |
+          ./vendor/bin/pint --test
+
+#      - name: "Import GPG key"
+#        id: import-gpg
+#        uses: crazy-max/ghaction-import-gpg@v6
+#        with:
+#          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+#          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+#          git_user_signingkey: true
+#          git_commit_gpgsign: true
+#
+#      - name: Commit linted files
+#        uses: stefanzweifel/git-auto-commit-action@v5
+#        with:
+#          commit_message: "Automatic linter"
+#          commit_author: "${{ steps.import-gpg.outputs.name }} <${{ steps.import-gpg.outputs.email }}>"
+#          commit_user_name: ${{ steps.import-gpg.outputs.name }}
+#          commit_user_email: ${{ steps.import-gpg.outputs.email }}
