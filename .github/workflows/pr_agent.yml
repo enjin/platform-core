@@ -1,7 +1,7 @@
 name: PR Agent
 
 on:
-  pull_request:
+  push:
   issue_comment:
 
 jobs:
