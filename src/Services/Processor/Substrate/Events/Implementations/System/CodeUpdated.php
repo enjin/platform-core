@@ -17,8 +17,8 @@ class CodeUpdated extends SubstrateEvent
 
     public function run(): void
     {
-        Cache::forget(PlatformCache::SPEC_VERSION->key());
-        Cache::forget(PlatformCache::TRANSACTION_VERSION->key());
+        Cache::forget(PlatformCache::SPEC_VERSION->key(currentMatrix()->value));
+        Cache::forget(PlatformCache::TRANSACTION_VERSION->key(currentMatrix()->value));
     }
 
     public function log(): void

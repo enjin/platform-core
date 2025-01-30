@@ -62,17 +62,20 @@ class BlockProcessor
         return Block::where('synced', true)->orderByDesc('number')->first();
     }
 
+    /**
+     * @throws RestartIngestException
+     */
     public function checkParentBlocks(string $heightHexed): void
     {
         $this->warn('Making sure no blocks were left behind');
-        $lastBlockSynced = $this->lastSyncedBlock();
+        $lastSyncedHeight = $this->lastSyncedBlock()?->number ?? 0;
         $blockBeforeSubscription = HexConverter::hexToUInt($heightHexed) - 1;
-        $this->warn("Last block synced: {$lastBlockSynced}");
+        $this->warn("Last block synced: {$lastSyncedHeight}");
         $this->warn("Block before subscription: {$blockBeforeSubscription}");
 
-        if ($blockBeforeSubscription > $lastBlockSynced) {
+        if ($blockBeforeSubscription > $lastSyncedHeight) {
             $this->warn('Processing blocks left behind');
-            $this->fetchPastHeads($lastBlockSynced, $blockBeforeSubscription);
+            $this->fetchPastHeads($lastSyncedHeight, $blockBeforeSubscription);
             $this->warn('Finished processing blocks left behind');
         }
 
@@ -156,8 +159,8 @@ class BlockProcessor
         $this->info('Connected to: ' . currentMatrix()->value);
         $this->info("Current block on-chain: {$lastBlock}");
         $this->info("Continuing from block: {$lastSyncedHeight}");
-        $this->info("Transaction version: {$runtime[PlatformCache::TRANSACTION_VERSION->key()]}");
-        $this->info("Spec version: {$runtime[PlatformCache::SPEC_VERSION->key()]}");
+        $this->info("Transaction version: {$runtime[0]}");
+        $this->info("Spec version: {$runtime[1]}");
         $this->info('=========================================================');
 
         $this->startIngest($lastSyncedHeight, $lastBlock);

@@ -131,8 +131,8 @@ class Substrate implements BlockchainServiceInterface
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),
             genesisHash: networkConfig('genesis-hash'),
-            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION),
-            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION),
+            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION, currentMatrix()),
+            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION, currentMatrix()),
             tip: Arr::get($args, 'tip'),
         );
     }
@@ -148,8 +148,8 @@ class Substrate implements BlockchainServiceInterface
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),
             genesisHash: networkConfig('genesis-hash'),
-            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION),
-            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION),
+            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION, currentMatrix()),
+            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION, currentMatrix()),
             tip: Arr::get($args, 'tip'),
         );
     }

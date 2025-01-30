@@ -35,7 +35,7 @@ class TokenMutated extends Event implements PolkadartEvent
         $self->tokenId = $self->getValue($data, 'T::TokenId');
         $self->listingForbidden = $self->getValue($data, 'T::TokenMutation.listing_forbidden.SomeMutation');
         $self->behavior = is_string($behavior = $self->getValue($data, 'T::TokenMutation.behavior')) ? $behavior : array_key_first($behavior);
-        $self->isCurrency = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.Some') === 'IsCurrency';
+        $self->isCurrency = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation') === ['IsCurrency' => null];
         $self->beneficiary = Account::parseAccount($self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary'));
         $self->percentage = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage');
         $self->anyoneCanInfuse = $self->getValue($data, 'T::TokenMutation.anyone_can_infuse.SomeMutation');
