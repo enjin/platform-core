@@ -18,21 +18,21 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, gmp, intl, json, mysql, readline, sodium, bcmath, pcov
+          php-version: 8.3
           tools: composer:v2
+          coverage: none
 
-      - name: Install Laravel Pint and Rector
+      - name: Install dependencies
         run: |
-          composer global require laravel/pint rector/rector
+          composer install
 
       - name: Run Rector
         run: |
-          composer global exec -d ${{ github.workspace }} "rector process --config=${{ github.workspace }}/rector.php"
+          ./vendor/bin/rector
 
       - name: Run Laravel Pint
         run: |
-          composer global exec ${{ github.workspace }} "pint --config=${{ github.workspace }}/pint.json"
+          ./vendor/bin/pint
 
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v5
