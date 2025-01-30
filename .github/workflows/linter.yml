@@ -6,6 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
     strategy:
       fail-fast: true
       matrix:
@@ -24,7 +30,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer install --ignore-platform-reqs
+          composer install
 
       - name: Run Rector
         run: |
