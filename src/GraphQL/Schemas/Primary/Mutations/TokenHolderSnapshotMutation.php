@@ -119,8 +119,7 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
             . '.csv';
         dispatch(function () use ($email, $data, $filename): void {
             Mail::raw(
-                "Your request for a token holders snapshot has been processed successfully.\n
-                Please find the requested CSV file attached to this email.",
+                "Your request for a token holders snapshot has been processed successfully.\nPlease find the requested CSV file attached to this email.",
                 fn (Message $message) => $message->to($email)
                     ->subject('Your Token Holders Snapshot is Ready')
                     ->attachData($data, $filename, ['mime' => 'text/csv'])
