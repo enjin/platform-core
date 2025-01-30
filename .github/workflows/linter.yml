@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer install --no-autoloader
+          composer install --ignore-platform-reqs
 
       - name: Run Rector
         run: |
