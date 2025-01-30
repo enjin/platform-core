@@ -153,7 +153,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => [new IsCollectionOwner()],
+            'collectionId' => ['exists:collections,collection_chain_id'],
             'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
@@ -165,6 +165,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithoutValidation(array $args): array
     {
         return [
+            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
             'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params'),
         ];

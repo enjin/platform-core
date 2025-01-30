@@ -122,11 +122,10 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
      */
     protected function rulesWithValidation(array $args): array
     {
-        $removeTokenStorage = Arr::get($args, 'params.removeTokenStorage', false);
-        $min = $removeTokenStorage ? 0 : 1;
+        $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => ['bail', $removeTokenStorage ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
+            'collectionId' => [$removeTokenStorage ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
             'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
