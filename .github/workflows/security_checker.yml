@@ -1,10 +1,8 @@
 name: Security Checker
-
 on:
-  workflow_run:
-    workflows: [Automatic Linter]
-    types:
-      - completed
+  push:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   security-checker:

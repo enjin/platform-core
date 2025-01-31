@@ -1,5 +1,4 @@
 name: PR Agent
-
 on:
   push:
   issue_comment:
@@ -7,11 +6,11 @@ on:
 jobs:
   pr_agent_job:
     runs-on: ubuntu-latest
+    name: Run agent
     permissions:
       issues: write
       pull-requests: write
       contents: write
-    name: Run agent
     steps:
       - name: PR Agent action step
         id: pragent
