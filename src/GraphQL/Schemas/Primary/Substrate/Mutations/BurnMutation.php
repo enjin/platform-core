@@ -125,7 +125,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => [$min ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
+            'collectionId' => [$min == 0 ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
             'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
