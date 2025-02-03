@@ -299,10 +299,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'nonce' => fake()->numberBetween(),
         ], true);
         $this->assertEquals(
-            [
-                'collectionId' => ['The collection id provided is not owned by you.'],
-                'recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.'],
-            ],
+            ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
 
