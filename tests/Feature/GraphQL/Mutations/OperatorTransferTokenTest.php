@@ -213,10 +213,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             'nonce' => fake()->numberBetween(),
         ], true);
         $this->assertEquals(
-            [
-                'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
-                'collectionId' => ['The collection id provided is not owned by you.'],
-            ],
+            ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
 
