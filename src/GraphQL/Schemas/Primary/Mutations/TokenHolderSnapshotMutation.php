@@ -2,9 +2,11 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
+use Carbon\Carbon;
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Enjin\Platform\Models\Block;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Rules\TokenExistsInCollection;
@@ -60,6 +62,10 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::mutation.token_holder_snapshot.args.tokenId'),
             ],
+            'blockOrTimestamp' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::mutation.token_holder_snapshot.args.blockOrTimestamp'),
+            ],
         ];
     }
 
@@ -80,11 +86,19 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
             RateLimiter::increment($key);
         }
 
+        $timestamp = '';
+        if ($blockOrTimestamp = Arr::get($args, 'blockOrTimestamp')) {
+            $timestamp = strlen((string) $blockOrTimestamp) === 26
+                ? Carbon::createFromTimestamp($timestamp)->toDateTimeString()
+                : Block::where('number', $blockOrTimestamp)->value('created_at')?->toDateTimeString();
+        }
+
         $tokens = Token::with(['accounts', 'accounts.wallet'])
             ->where(
                 'collection_id',
                 Collection::where('collection_chain_id', $collectionId = Arr::get($args, 'collectionId'))->value('id')
             )->when($tokenId = Arr::get($args, 'tokenId'), fn ($query) => $query->where('token_chain_id', $tokenId))
+            ->when($timestamp, fn ($query) => $query->where('created_at', '<=', $timestamp))
             ->get(['id', 'token_chain_id', 'collection_id']);
 
         if (empty($tokens)) {
@@ -93,6 +107,7 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
                 'email' => $email,
                 'collection_id' => $collectionId,
                 'tokenId' => $tokenId,
+                'blockOrTimestamp' => $blockOrTimestamp,
                 'message' => $message,
             ]);
 
@@ -115,7 +130,8 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
         });
 
         $filename = 'token_holders_snapshot_' . $collectionId
-            . (($tokenId = Arr::get($args, 'tokenId')) ? ('_' . $tokenId) : '')
+            . ($tokenId ? ('_' . $tokenId) : '')
+            . ($blockOrTimestamp ? ('_' . $blockOrTimestamp) : '')
             . '.csv';
         dispatch(function () use ($email, $data, $filename): void {
             Mail::raw(
@@ -124,12 +140,13 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
                     ->subject('Your Token Holders Snapshot is Ready')
                     ->attachData($data, $filename, ['mime' => 'text/csv'])
             );
-        });
+        })->onQueue(config('enjin-platform.queue'));
 
         Log::info('TokenHolderSnapshot mutation request', [
             'email' => $email,
             'collection_id' => $collectionId,
             'tokenId' => $tokenId,
+            'blockOrTimestamp' => $blockOrTimestamp,
             'message' => 'success',
         ]);
 
@@ -156,6 +173,11 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
             'tokenId' => [
                 'nullable',
                 new TokenExistsInCollection(),
+            ],
+            'blockOrTimestamp' => [
+                'nullable',
+                'integer',
+                'min:0',
             ],
         ];
     }
