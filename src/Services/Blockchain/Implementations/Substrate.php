@@ -450,21 +450,6 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Fetch the system account from the chain.
-     */
-    protected function fetchSystemAccount(string $publicKey): mixed
-    {
-        return Cache::remember(
-            PlatformCache::SYSTEM_ACCOUNT->key($publicKey),
-            now()->addSeconds(12),
-            fn () => (new SubstrateHttpClient())
-                ->jsonRpc('state_getStorage', [
-                    $this->codec->encoder()->systemAccountStorageKey($publicKey),
-                ])
-        );
-    }
-
-    /**
      * Set user account management param object.
      */
     public function getUserAccountManagementParams(?array $args = null): ?UserAccountManagementParams
@@ -557,5 +542,20 @@ class Substrate implements BlockchainServiceInterface
         }
 
         return $accountRulesParams;
+    }
+
+    /**
+     * Fetch the system account from the chain.
+     */
+    protected function fetchSystemAccount(string $publicKey): mixed
+    {
+        return Cache::remember(
+            PlatformCache::SYSTEM_ACCOUNT->key($publicKey),
+            now()->addSeconds(12),
+            fn () => (new SubstrateHttpClient())
+                ->jsonRpc('state_getStorage', [
+                    $this->codec->encoder()->systemAccountStorageKey($publicKey),
+                ])
+        );
     }
 }
