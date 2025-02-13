@@ -14,6 +14,8 @@ enum StorageType: string
     case ATTRIBUTES = '0xfa7484c926e764ee2a64df96876c8145761e97790c81676703ce25cc0ffeb377';
     case EVENTS = '0x26aa394eea5630e07c48ae0c9558cef780d41e5e16056765bc8461851072c9d7';
     case SYSTEM_ACCOUNT = '0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9';
+    case TANKS  = '0xb8ed204d2f9b209f43a0487b80cceca11dff2785cc2c6efead5657dc32a2065e';
+    case ACCOUNTS = '0xb8ed204d2f9b209f43a0487b80cceca18ee7418a6531173d60d1f6a82d8f4d51';
 
     /**
      * Get the parser for this storage key.

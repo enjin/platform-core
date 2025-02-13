@@ -50,6 +50,20 @@ class Encoder
         'RemoveAttribute' => 'MultiTokens.remove_attribute',
         'RemoveAllAttributes' => 'MultiTokens.remove_all_attributes',
         'AcceptCollectionTransfer' => 'MultiTokens.accept_collection_transfer',
+        'AddAccount' => 'FuelTanks.add_account',
+        'RemoveAccount' => 'FuelTanks.remove_account',
+        'BatchAddAccount' => 'FuelTanks.batch_add_account',
+        'BatchRemoveAccount' => 'FuelTanks.batch_remove_account',
+        'CreateFuelTank' => 'FuelTanks.create_fuel_tank',
+        'DestroyFuelTank' => 'FuelTanks.destroy_fuel_tank',
+        'ForceSetConsumption' => 'FuelTanks.force_set_consumption',
+        'InsertRuleSet' => 'FuelTanks.insert_rule_set',
+        'RemoveRuleSet' => 'FuelTanks.remove_rule_set',
+        'RemoveAccountRuleData' => 'FuelTanks.remove_account_rule_data',
+        'MutateFuelTank' => 'FuelTanks.mutate_fuel_tank',
+        'MutateFreezeState' => 'FuelTanks.mutate_freeze_state',
+        'Dispatch' => 'FuelTanks.dispatch',
+        'DispatchAndTouch' => 'FuelTanks.dispatch_and_touch',
     ];
 
     protected static array $overrideCallIndex = [
