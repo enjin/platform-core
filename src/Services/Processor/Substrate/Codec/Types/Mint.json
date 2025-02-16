@@ -3,11 +3,23 @@
     "callIndex": "(u8, u8)",
     "recipient": "MultiAddress",
     "collectionId": "Compact<u128>",
+    "params": "MintParamsOfV1020"
+  },
+  "MintV1013": {
+    "callIndex": "(u8, u8)",
+    "recipient": "MultiAddress",
+    "collectionId": "Compact<u128>",
     "params": "MintParamsOf"
   },
   "MintParamsOf": {
     "_enum": {
       "CreateToken": "CreateTokenParams",
+      "Mint": "MintParams"
+    }
+  },
+  "MintParamsOfV1020": {
+    "_enum": {
+      "CreateToken": "CreateTokenParamsV1020",
       "Mint": "MintParams"
     }
   },
@@ -22,6 +34,20 @@
     "accountDepositCount": "Compact<u32>",
     "cap": "Option<TokenCap>",
     "behavior": "Option<TokenMarketBehavior>",
+    "listingForbidden": "bool",
+    "freezeState": "Option<FreezeState>",
+    "attributes": "Vec<Attribute>",
+    "infusion": "Compact<u128>",
+    "anyoneCanInfuse": "bool",
+    "metadata": "CreateTokenMetadata",
+    "privilegedParams": "Option<PrivilegedCreateTokenParams>"
+  },
+  "CreateTokenParamsV1020": {
+    "tokenId": "Compact<u128>",
+    "initialSupply": "Compact<u128>",
+    "accountDepositCount": "Compact<u32>",
+    "cap": "Option<TokenCap>",
+    "behavior": "Option<TokenMarketBehaviorV1020>",
     "listingForbidden": "bool",
     "freezeState": "Option<FreezeState>",
     "attributes": "Vec<Attribute>",

@@ -49,6 +49,10 @@
     "depositor": "AccountId",
     "amount": "Compact<u128>"
   },
+  "RoyaltyPolicyDescriptor": {
+    "beneficiary": "AccountId",
+    "percentage": "Compact<u32>"
+  },
   "RoyaltyPolicy": {
     "royalty": "Option<RoyaltyPolicyDescriptor>"
   },

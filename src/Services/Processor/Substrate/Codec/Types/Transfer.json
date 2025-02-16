@@ -3,12 +3,24 @@
     "callIndex": "(u8, u8)",
     "recipient": "MultiAddress",
     "collectionId": "Compact<u128>",
+    "params": "TransferParamsOfV1020"
+  },
+  "TransferV1013": {
+    "callIndex": "(u8, u8)",
+    "recipient": "MultiAddress",
+    "collectionId": "Compact<u128>",
     "params": "TransferParamsOf"
   },
   "TransferParamsOf": {
     "_enum": {
       "Simple": "SimpleTransferParams",
       "Operator": "OperatorTransferParams"
+    }
+  },
+  "TransferParamsOfV1020": {
+    "_enum": {
+      "Simple": "SimpleTransferParams",
+      "Operator": "OperatorTransferParamsV1020"
     }
   },
   "SimpleTransferParams": {
@@ -20,6 +32,13 @@
     "tokenId": "Compact<u128>",
     "source": "AccountId",
     "amount": "Compact<u128>",
+    "depositor": "Option<AccountId>"
+  },
+  "OperatorTransferParamsV1020": {
+    "tokenId": "Compact<u128>",
+    "source": "AccountId",
+    "amount": "Compact<u128>",
+    "operatorPaysDeposit": "bool",
     "depositor": "Option<AccountId>"
   }
 }

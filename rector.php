@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Spatie\Ray\Rector\RemoveRayCallRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -15,4 +16,5 @@ return RectorConfig::configure()
     ])
     ->withPhpSets(php83: true)
     ->withPreparedSets(deadCode: true)
+    ->withRules([RemoveRayCallRector::class])
     ->withTypeCoverageLevel(0);

@@ -2,6 +2,11 @@
   "MutateCollection": {
     "callIndex": "(u8, u8)",
     "collectionId": "Compact<u128>",
+    "mutation": "CollectionMutationV1020"
+  },
+  "MutateCollectionV1013": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
     "mutation": "CollectionMutation"
   },
   "CollectionMutation": {
@@ -9,10 +14,21 @@
     "royalty": "RoyaltyParamOf",
     "explicitRoyaltyCurrencies": "Option<Vec<MultiTokensAssetId>>"
   },
+  "CollectionMutationV1020": {
+    "owner": "Option<AccountId>",
+    "royalty": "RoyaltyParamOfV1020",
+    "explicitRoyaltyCurrencies": "Option<Vec<MultiTokensAssetId>>"
+  },
   "RoyaltyParamOf": {
     "_enum": {
       "NoMutation": "Null",
       "SomeMutation": "Option<RoyaltyPolicyDescriptor>"
+    }
+  },
+  "RoyaltyParamOfV1020": {
+    "_enum": {
+      "NoMutation": "Null",
+      "SomeMutation": "Option<DefaultRoyaltyV1020>"
     }
   }
 }

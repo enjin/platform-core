@@ -112,14 +112,17 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
             );
         }
 
-        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId'],
-            owner: Arr::get($args, 'mutation.owner') !== null
+        $encodedData = $serializationService->encode(
+            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            static::getEncodableParams(
+                collectionId: $args['collectionId'],
+                owner: Arr::get($args, 'mutation.owner') !== null
                 ? $walletService->firstOrStore(['account' => $args['mutation']['owner']])->public_key
                 : null,
-            royalty: $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
-            explicitRoyaltyCurrencies: Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
-        ));
+                royalty: $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
+                explicitRoyaltyCurrencies: Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
+            )
+        );
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -129,9 +132,9 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
 
     public static function getEncodableParams(...$params): array
     {
-        $owner = Arr::get($params, 'owner', null);
-        $royalty = Arr::get($params, 'royalty', null);
-        $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies', null);
+        $owner = Arr::get($params, 'owner');
+        $royalty = Arr::get($params, 'royalty');
+        $explicitRoyaltyCurrencies = Arr::get($params, 'explicitRoyaltyCurrencies');
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),

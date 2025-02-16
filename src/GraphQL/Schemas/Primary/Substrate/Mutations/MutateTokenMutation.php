@@ -98,14 +98,17 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         TransactionService $transactionService,
         Substrate $blockchainService
     ): mixed {
-        $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId'],
-            tokenId: $this->encodeTokenId($args),
-            behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
-            listingForbidden: Arr::get($args, 'mutation.listingForbidden'),
-            anyoneCanInfuse: Arr::get($args, 'mutation.anyoneCanInfuse'),
-            name: Arr::get($args, 'mutation.name'),
-        ));
+        $encodedData = $serializationService->encode(
+            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            static::getEncodableParams(
+                collectionId: $args['collectionId'],
+                tokenId: $this->encodeTokenId($args),
+                behavior: $blockchainService->getMutateTokenBehavior(Arr::get($args, 'mutation')),
+                listingForbidden: Arr::get($args, 'mutation.listingForbidden'),
+                anyoneCanInfuse: Arr::get($args, 'mutation.anyoneCanInfuse'),
+                name: Arr::get($args, 'mutation.name'),
+            )
+        );
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
