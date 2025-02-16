@@ -13,7 +13,6 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System\ExtrinsicFailed;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\System\ExtrinsicSuccess;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\PolkadartExtrinsic;
-use Enjin\Platform\Support\SS58Address;
 use Facades\Enjin\Platform\Services\Database\TransactionService;
 use Facades\Enjin\Platform\Services\Processor\Substrate\State;
 use Illuminate\Support\Facades\Log;

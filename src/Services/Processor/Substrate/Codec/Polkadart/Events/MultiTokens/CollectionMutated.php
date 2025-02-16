@@ -70,7 +70,8 @@ class CollectionMutated extends Event implements PolkadartEvent
             return null;
         }
 
-        return $this->getValue($data, 'T::CollectionMutation.royalty.SomeMutation.beneficiary');
+        // TODO: After v1020 we now have an array of beneficiaries for now we will just use the first one
+        return $this->getValue($data, ['T::CollectionMutation.royalty.SomeMutation.beneficiary', 'T::CollectionMutation.royalty.SomeMutation.0.beneficiary']);
     }
 
     protected function getPercentage($data, $royalty): ?string
@@ -79,7 +80,8 @@ class CollectionMutated extends Event implements PolkadartEvent
             return null;
         }
 
-        return $this->getValue($data, 'T::CollectionMutation.royalty.SomeMutation.percentage');
+        // TODO: After v1020 we now have an array of beneficiaries for now we will just use the first one
+        return $this->getValue($data, ['T::CollectionMutation.royalty.SomeMutation.percentage', 'T::CollectionMutation.royalty.SomeMutation.0.percentage']);
     }
 }
 

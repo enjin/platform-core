@@ -36,8 +36,11 @@ class TokenMutated extends Event implements PolkadartEvent
         $self->listingForbidden = $self->getValue($data, 'T::TokenMutation.listing_forbidden.SomeMutation');
         $self->behavior = is_string($behavior = $self->getValue($data, 'T::TokenMutation.behavior')) ? $behavior : array_key_first($behavior);
         $self->isCurrency = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation') === ['IsCurrency' => null];
-        $self->beneficiary = Account::parseAccount($self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary'));
-        $self->percentage = $self->getValue($data, 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage');
+
+        // TODO: After v1020 we now have an array of beneficiaries for now we will just use the first one
+        $self->beneficiary = Account::parseAccount($self->getValue($data, ['T::TokenMutation.behavior.SomeMutation.HasRoyalty.beneficiary', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.0.beneficiary']));
+        $self->percentage = $self->getValue($data, ['T::TokenMutation.behavior.SomeMutation.HasRoyalty.percentage', 'T::TokenMutation.behavior.SomeMutation.HasRoyalty.0.percentage']);
+
         $self->anyoneCanInfuse = $self->getValue($data, 'T::TokenMutation.anyone_can_infuse.SomeMutation');
         $self->tokenName = is_array($s = $self->getValue($data, 'T::TokenMutation.name.SomeMutation')) ? HexConverter::bytesToHex($s) : $s;
 
@@ -62,79 +65,72 @@ class TokenMutated extends Event implements PolkadartEvent
 }
 
 /* Example 1
-  [▼
-    "phase" => array:1 [▼
-      "ApplyExtrinsic" => 2
-    ]
-    "event" => array:1 [▼
-      "MultiTokens" => array:1 [▼
-        "TokenMutated" => array:3 [▼
-          "T::CollectionId" => "77160"
-          "T::TokenId" => "1"
-          "T::TokenMutation" => array:4 [▼
-            "behavior" => array:1 [▼
-              "SomeMutation" => array:1 [▼
-                "HasRoyalty" => array:2 [▼
-                  "beneficiary" => array:32 [▼
-                    0 => 212
-                    1 => 53
-                    2 => 147
-                    3 => 199
-                    4 => 21
-                    5 => 253
-                    6 => 211
-                    7 => 28
-                    8 => 97
-                    9 => 20
-                    10 => 26
-                    11 => 189
-                    12 => 4
-                    13 => 169
-                    14 => 159
-                    15 => 214
-                    16 => 130
-                    17 => 44
-                    18 => 133
-                    19 => 88
-                    20 => 133
-                    21 => 76
-                    22 => 205
-                    23 => 227
-                    24 => 154
-                    25 => 86
-                    26 => 132
-                    27 => 231
-                    28 => 165
-                    29 => 109
-                    30 => 162
-                    31 => 125
-                  ]
-                  "percentage" => 10000000
-                ]
+{
+  "event": {
+    "MultiTokens": {
+      "TokenMutated": {
+        "T::CollectionId": "100015",
+        "T::TokenId": "1",
+        "T::TokenMutation": {
+          "anyone_can_infuse": {
+            "NoMutation": null
+          },
+          "behavior": {
+            "SomeMutation": {
+              "HasRoyalty": [
+                {
+                  "beneficiary": [
+                    212,
+                    53,
+                    147,
+                    199,
+                    21,
+                    253,
+                    211,
+                    28,
+                    97,
+                    20,
+                    26,
+                    189,
+                    4,
+                    169,
+                    159,
+                    214,
+                    130,
+                    44,
+                    133,
+                    88,
+                    133,
+                    76,
+                    205,
+                    227,
+                    154,
+                    86,
+                    132,
+                    231,
+                    165,
+                    109,
+                    162,
+                    125
+                  ],
+                  "percentage": 1000000
+                }
               ]
-            ]
-            "listing_forbidden" => array:1 [▼
-              "SomeMutation" => true
-            ]
-            "anyone_can_infuse" => array:1 [▼
-              "SomeMutation" => true
-            ]
-            "name" => array:1 [▼
-              "SomeMutation" => array:8 [▼
-                0 => 76
-                1 => 101
-                2 => 32
-                3 => 84
-                4 => 111
-                5 => 107
-                6 => 101
-                7 => 110
-              ]
-            ]
-          ]
-        ]
-      ]
-    ]
-    "topics" => []
-  ]
+            }
+          },
+          "listing_forbidden": {
+            "NoMutation": null
+          },
+          "name": {
+            "NoMutation": null
+          }
+        }
+      }
+    }
+  },
+  "phase": {
+    "ApplyExtrinsic": 2
+  },
+  "topics": []
+}
  */

@@ -82,8 +82,15 @@ class TokenCreated extends SubstrateEvent
             $cap = TokenMintCapType::COLLAPSING_SUPPLY;
         }
 
-        $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary'])));
-        $percentage = $this->getValue($createToken, ['behavior.Some.HasRoyalty.percentage', 'behavior.HasRoyalty.percentage']);
+        if (currentSpec() >= 1020) {
+            // TODO: After v1020 we now have an array of beneficiaries for now we will just use the first one
+            $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.HasRoyalty.0.beneficiary', 'behavior.HasRoyalty.0.beneficiary'])));
+            $percentage = $this->getValue($createToken, ['behavior.Some.HasRoyalty.0.percentage', 'behavior.HasRoyalty.0.percentage']);
+        } else {
+            $beneficiary = $this->firstOrStoreAccount(Account::parseAccount($this->getValue($createToken, ['behavior.Some.HasRoyalty.beneficiary', 'behavior.HasRoyalty.beneficiary'])));
+            $percentage = $this->getValue($createToken, ['behavior.Some.HasRoyalty.percentage', 'behavior.HasRoyalty.percentage']);
+        }
+
         $isCurrency = Arr::get($createToken, 'behavior.Some') === 'IsCurrency' || Arr::has($createToken, 'behavior.IsCurrency');
         $isFrozen = in_array($this->getValue($createToken, ['freeze_state.Some', 'freeze_state']), ['Permanent', 'Temporary']);
         $name = is_array($name = $this->getValue($createToken, 'metadata.name')) ? HexConverter::bytesToHexPrefixed($name) : $name;

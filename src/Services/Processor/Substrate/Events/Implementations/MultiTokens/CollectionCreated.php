@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
-use Cache;
 use Carbon\Carbon;
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Enums\Global\PlatformCache;
@@ -16,6 +15,7 @@ use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Support\Account;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class CollectionCreated extends SubstrateEvent
@@ -86,8 +86,15 @@ class CollectionCreated extends SubstrateEvent
         }
 
         $owner = $this->firstOrStoreAccount($event->owner);
-        $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
-        $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
+
+        if (currentSpec() >= 1020) {
+            // TODO: After v1020 we now have an array of beneficiaries for now we will just use the first one
+            $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.0.beneficiary', 'descriptor.policy.market.beneficiary']);
+            $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.0.percentage', 'descriptor.policy.market.percentage']);
+        } else {
+            $beneficiary = $this->getValue($params, ['descriptor.policy.market.royalty.Some.beneficiary', 'descriptor.policy.market.beneficiary']);
+            $percentage = $this->getValue($params, ['descriptor.policy.market.royalty.Some.percentage', 'descriptor.policy.market.percentage']);
+        }
 
         $this->collectionCreated = Collection::updateOrCreate([
             'collection_chain_id' => $event->collectionId,
@@ -102,6 +109,7 @@ class CollectionCreated extends SubstrateEvent
             'token_count' => '0',
             'attribute_count' => '0',
             'total_deposit' => '25000000000000000000',
+            // 'depositor' => null, TODO: We have a depositor which is an Option<AccountId32> here
             'network' => network()->name,
         ]);
 

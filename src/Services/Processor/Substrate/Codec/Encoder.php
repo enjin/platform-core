@@ -283,11 +283,9 @@ class Encoder
 
     public static function pendingCollectionTransfersStorageKey(string $collectionId): string
     {
-        $hasher = new Twox();
-
         $hexedNumber = HexConverter::uintToHex($collectionId, 32);
         $reversed = Hex::reverseEndian($hexedNumber);
-        $hashAndEncode = $hasher->ByHasherName('Twox64Concat', HexConverter::prefix($reversed));
+        $hashAndEncode = Twox::hash(HexConverter::prefix($reversed));
         $key = StorageType::PENDING_COLLECTION_TRANSFERS->value . $hashAndEncode;
 
         return HexConverter::prefix($key);
