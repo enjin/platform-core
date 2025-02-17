@@ -9,7 +9,7 @@
     "hashAccountId": "u128",
     "accountId": "AccountId"
   },
-  "TokenAccountsStorageData": {
+  "TokenAccountsStorageDataV1013": {
     "balance": "Compact",
     "reservedBalance": "Compact",
     "lockedBalance": "Compact",
@@ -18,6 +18,31 @@
     "approvals": "BTreeMap<AccountId,TokenApproval>",
     "isFrozen": "bool",
     "deposits": "Option<CreationDeposit>"
+  },
+  "TokenAccountsStorageData": {
+    "balance": "Compact",
+    "reservedBalance": "Compact",
+    "lockedBalance": "Compact",
+    "holds": "Vec<TokenAccountReserveV1020>",
+    "locks": "BTreeMap<[u8;8],u128>",
+    "approvals": "BTreeMap<AccountId,TokenApproval>",
+    "isFrozen": "bool",
+    "deposits": "Option<CreationDeposit>",
+    "storageVersion": "u8"
+  },
+  "TokenAccountReserveV1020": {
+    "reason": "RuntimeHoldReasonV1020",
+    "balance": "Compact"
+  },
+  "RuntimeHoldReasonV1020": {
+    "_enum": {
+      "CollatorStaking": "null",
+      "FuelTanks": "null",
+      "Marketplace": "null",
+      "MultiTokens": "null",
+      "Preimage": "null",
+      "SafeMode": "null"
+    }
   },
   "TokenApproval": {
     "amount": "Compact",

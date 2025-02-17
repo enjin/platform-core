@@ -194,7 +194,9 @@ class Decoder
 
     public function collectionStorageData(string $data): array
     {
-        $decoded = $this->codec->process('CollectionStorageData', new ScaleBytes($data));
+        $decoded = currentSpec() >= 1020
+            ? $this->codec->process('CollectionStorageData', new ScaleBytes($data))
+            : $this->codec->process('CollectionStorageDataV1013', new ScaleBytes($data));
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
@@ -213,6 +215,9 @@ class Decoder
             'totalDeposit' => gmp_strval(Arr::get($decoded, 'totalDeposit')),
             'totalInfusion' => gmp_strval(Arr::get($decoded, 'totalInfusion')),
             'explicitRoyaltyCurrencies' => Arr::get($decoded, 'explicitRoyaltyCurrencies'),
+            // TODO: New things from v1020
+            'tokenGroupCount' => ($value = Arr::get($decoded, 'tokenGroupCount')) !== null ? gmp_strval($value) : null,
+            'royalties' => Arr::get($decoded, 'policy.market.royalty.beneficiaries'),
         ];
     }
 
@@ -228,7 +233,9 @@ class Decoder
 
     public function tokenStorageData(string $data): array
     {
-        $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
+        $decoded = currentSpec() >= 1020
+            ? $this->codec->process('TokenStorageData', new ScaleBytes($data))
+            : $this->codec->process('TokenStorageDataV1013', new ScaleBytes($data));
 
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first());
         $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
@@ -256,6 +263,8 @@ class Decoder
             'decimalCount' => gmp_strval(Arr::get($decoded, 'metadata.decimalCount')),
             'name' => Arr::get($decoded, 'metadata.name'),
             'symbol' => Arr::get($decoded, 'metadata.symbol'),
+            // TODO: New things from v1020
+            'royalties' => Arr::get($decoded, 'marketBehavior.HasRoyalty.beneficiaries'),
         ];
 
     }
@@ -301,7 +310,9 @@ class Decoder
 
     public function tokenAccountStorageData(string $data): array
     {
-        $decoded = $this->codec->process('TokenAccountsStorageData', new ScaleBytes($data));
+        $decoded = currentSpec() >= 1020
+            ? $this->codec->process('TokenAccountsStorageData', new ScaleBytes($data))
+            : $this->codec->process('TokenAccountsStorageDataV1013', new ScaleBytes($data));
 
         $approvals = collect(Arr::get($decoded, 'approvals'))->map(
             fn ($approval, $account) => [

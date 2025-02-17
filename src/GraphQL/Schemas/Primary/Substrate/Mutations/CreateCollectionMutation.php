@@ -110,7 +110,13 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
         TransactionService $transactionService
     ): mixed {
         return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $serializationService->encode($this->getMutationName(), static::getEncodableParams(...$blockchainService->getCollectionPolicies($args)))),
+            $this->storeTransaction(
+                $args,
+                $serializationService->encode(
+                    $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))
+                )
+            ),
             $resolveInfo
         );
     }

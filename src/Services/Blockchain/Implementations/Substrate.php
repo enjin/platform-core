@@ -74,7 +74,7 @@ class Substrate implements BlockchainServiceInterface
         return $this->client;
     }
 
-    public static function getStorageKeys()
+    public static function getStorageKeys(): array
     {
         return [
             StorageKey::collections(),

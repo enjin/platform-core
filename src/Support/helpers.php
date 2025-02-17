@@ -4,6 +4,7 @@ use Enjin\Platform\Enums\Global\ChainType;
 use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Support\Util;
+use Illuminate\Support\Facades\Cache;
 
 if (!function_exists('network')) {
     /**
@@ -109,6 +110,24 @@ if (!function_exists('isRelay')) {
     }
 }
 
+if (!function_exists('currentSpec')) {
+    /**
+     * Get the current spec version for matrixchain.
+     */
+    function currentSpec(): int
+    {
+        $runtime = collect(config(sprintf('enjin-runtime.%s', currentMatrix()->value)))
+            ->sortByDesc('blockNumber')
+            ->first();
+
+        try {
+            return cachedRuntimeConfig(PlatformCache::SPEC_VERSION, currentMatrix()) ?? $runtime['specVersion'];
+        } catch (Throwable) {
+            return $runtime['specVersion'];
+        }
+    }
+}
+
 if (!function_exists('specForBlock')) {
     /**
      * Get the spec version for a matrixchain block.
@@ -132,7 +151,7 @@ if (!function_exists('specForBlock')) {
             ->filter(fn ($runtime) => $block >= $runtime['blockNumber'])
             ->first();
 
-        return $runtime['specVersion'] ?? cachedRuntimeConfig(PlatformCache::SPEC_VERSION, $network);
+        return cachedRuntimeConfig(PlatformCache::SPEC_VERSION, $network) ?? $runtime['specVersion'];
     }
 }
 
@@ -194,7 +213,6 @@ if (!function_exists('cachedRuntimeConfig')) {
     function cachedRuntimeConfig(PlatformCache $config, NetworkType $network): mixed
     {
         $value = Cache::get($config->key($network->value));
-
         if (!$value) {
             $value = Util::updateRuntimeVersion(null, $network);
 

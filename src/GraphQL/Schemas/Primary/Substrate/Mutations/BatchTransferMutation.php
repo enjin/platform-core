@@ -127,11 +127,12 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         );
 
         $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId'],
-            recipients: $recipients->toArray(),
-            continueOnFailure: $continueOnFailure
-        ));
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' :
+            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'), static::getEncodableParams(
+                collectionId: $args['collectionId'],
+                recipients: $recipients->toArray(),
+                continueOnFailure: $continueOnFailure
+            ));
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -148,13 +149,16 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
 
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
-                fn ($recipient) => $serializationService->encode('Transfer', [
-                    'recipient' => [
-                        'Id' => HexConverter::unPrefix($recipient['accountId']),
-                    ],
-                    'collectionId' => gmp_init($collectionId),
-                    'params' => $recipient['params']->toEncodable(),
-                ])
+                fn ($recipient) => $serializationService->encode(
+                    'Transfer' . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    [
+                        'recipient' => [
+                            'Id' => HexConverter::unPrefix($recipient['accountId']),
+                        ],
+                        'collectionId' => gmp_init($collectionId),
+                        'params' => $recipient['params']->toEncodable(),
+                    ]
+                )
             );
 
             return [

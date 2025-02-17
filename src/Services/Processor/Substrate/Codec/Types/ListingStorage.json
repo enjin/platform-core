@@ -4,7 +4,7 @@
     "storage": "u128",
     "listingId": "h256"
   },
-  "ListingStorageData": {
+  "ListingStorageDataV1013": {
     "creator": "AccountId",
     "makeAssetId": "MultiTokensAssetId",
     "takeAssetId": "MultiTokensAssetId",
@@ -18,6 +18,22 @@
     "data": "ListingData",
     "state": "ListingState"
   },
+  "ListingStorageData": {
+    "creator": "AccountId",
+    "makeAssetId": "MultiTokensAssetId",
+    "takeAssetId": "MultiTokensAssetId",
+    "amount": "Compact",
+    "price": "Compact",
+    "minReceived": "Compact",
+    "feeSide": "ListingFeeSide",
+    "creationBlock": "Compact",
+    "startBlock": "Option<Compact>",
+    "whitelistedAccountCount": "Option<u32>",
+    "deposit": "CreationDeposit",
+    "salt": "Bytes",
+    "data": "ListingDataV1020",
+    "state": "ListingState"
+  },
   "ListingData": {
     "_enum": {
       "FixedPrice": "Null",
@@ -25,8 +41,18 @@
       "Offer": "OfferData"
     }
   },
+  "ListingDataV1020": {
+    "_enum": {
+      "FixedPrice": "Null",
+      "Auction": "AuctionDataV1020",
+      "Offer": "OfferData"
+    }
+  },
   "AuctionData": {
     "startBlock": "Compact<u32>",
+    "endBlock": "Compact<u32>"
+  },
+  "AuctionDataV1020": {
     "endBlock": "Compact<u32>"
   },
   "OfferData": {

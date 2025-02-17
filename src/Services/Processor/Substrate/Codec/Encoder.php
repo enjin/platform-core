@@ -34,13 +34,20 @@ class Encoder
         'UnapproveToken' => 'MultiTokens.unapprove_token',
         'BatchSetAttribute' => 'MultiTokens.batch_set_attribute',
         'BatchTransfer' => 'MultiTokens.batch_transfer',
+        'BatchTransferV1013' => 'MultiTokens.batch_transfer',
         'Transfer' => 'MultiTokens.transfer',
+        'TransferV1013' => 'MultiTokens.transfer',
         'CreateCollection' => 'MultiTokens.create_collection',
+        'CreateCollectionV1013' => 'MultiTokens.create_collection',
         'DestroyCollection' => 'MultiTokens.destroy_collection',
         'MutateCollection' => 'MultiTokens.mutate_collection',
+        'MutateCollectionV1013' => 'MultiTokens.mutate_collection',
         'MutateToken' => 'MultiTokens.mutate_token',
+        'MutateTokenV1013' => 'MultiTokens.mutate_token',
         'Mint' => 'MultiTokens.mint',
+        'MintV1013' => 'MultiTokens.mint',
         'BatchMint' => 'MultiTokens.batch_mint',
+        'BatchMintV1013' => 'MultiTokens.batch_mint',
         'Burn' => 'MultiTokens.burn',
         'Infuse' => 'MultiTokens.infuse',
         'Freeze' => 'MultiTokens.freeze',
@@ -297,11 +304,9 @@ class Encoder
 
     public static function pendingCollectionTransfersStorageKey(string $collectionId): string
     {
-        $hasher = new Twox();
-
         $hexedNumber = HexConverter::uintToHex($collectionId, 32);
         $reversed = Hex::reverseEndian($hexedNumber);
-        $hashAndEncode = $hasher->ByHasherName('Twox64Concat', HexConverter::prefix($reversed));
+        $hashAndEncode = Twox::hash(HexConverter::prefix($reversed));
         $key = StorageType::PENDING_COLLECTION_TRANSFERS->value . $hashAndEncode;
 
         return HexConverter::prefix($key);

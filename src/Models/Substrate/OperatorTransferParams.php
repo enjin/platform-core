@@ -45,6 +45,19 @@ class OperatorTransferParams
      */
     public function toEncodable(): array
     {
+        if (currentSpec() >= 1020) {
+            // TODO: After v1020 we now have operatorPaysDeposit we will add support to it in the future
+            return [
+                'Operator' => [
+                    'tokenId' => gmp_init($this->tokenId),
+                    'source' => SS58Address::getPublicKey($this->source),
+                    'amount' => gmp_init($this->amount),
+                    'operatorPaysDeposit' => false,
+                    'depositor' => null,
+                ],
+            ];
+        }
+
         return [
             'Operator' => [
                 'tokenId' => gmp_init($this->tokenId),

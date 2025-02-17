@@ -20,7 +20,7 @@
     "symbol": "Bytes",
     "location": "Option<XcmV1MultiLocation>"
    },
-  "TokenStorageData": {
+  "TokenStorageDataV1013": {
     "supply": "Compact<u128>",
     "cap": "Option<TokenCap>",
     "freezeState": "Option<FreezeState>",
@@ -31,6 +31,23 @@
     "attributeCount": "Compact<u32>",
     "accountCount": "Compact<u32>",
     "marketBehavior": "Option<TokenMarketBehavior>",
+    "listingForbidden": "bool",
+    "metadata": "TokenMetadata",
+    "infusion": "u128",
+    "anyoneCanInfuse": "bool",
+    "groups": "Vec<u128>"
+  },
+  "TokenStorageData": {
+    "supply": "Compact<u128>",
+    "cap": "Option<TokenCap>",
+    "freezeState": "Option<FreezeState>",
+    "requiresDeposit": "bool",
+    "creationDeposit": "TokenCreationDeposit",
+    "ownerDeposit": "Compact<u128>",
+    "totalTokenAccountDeposit": "Compact<u128>",
+    "attributeCount": "Compact<u32>",
+    "accountCount": "Compact<u32>",
+    "marketBehavior": "Option<TokenMarketBehaviorV1020>",
     "listingForbidden": "bool",
     "metadata": "TokenMetadata",
     "infusion": "u128",
@@ -52,6 +69,12 @@
   "TokenMarketBehavior": {
     "_enum": {
       "HasRoyalty": "RoyaltyPolicyDescriptor",
+      "IsCurrency": "Null"
+    }
+  },
+  "TokenMarketBehaviorV1020": {
+    "_enum": {
+      "HasRoyalty": "DefaultRoyaltyV1020",
       "IsCurrency": "Null"
     }
   },

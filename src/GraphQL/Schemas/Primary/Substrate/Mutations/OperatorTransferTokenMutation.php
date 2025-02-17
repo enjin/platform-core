@@ -105,11 +105,14 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
         WalletService $walletService
     ): mixed {
         $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipientAccount: $targetWallet->public_key,
-            collectionId: $args['collectionId'],
-            operatorTransferParams: $blockchainService->getOperatorTransferParams($args['params'])
-        ));
+        $encodedData = $serializationService->encode(
+            $this->getMethodName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            static::getEncodableParams(
+                recipientAccount: $targetWallet->public_key,
+                collectionId: $args['collectionId'],
+                operatorTransferParams: $blockchainService->getOperatorTransferParams($args['params'])
+            )
+        );
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
