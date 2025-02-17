@@ -31,11 +31,7 @@ class Reserved extends Event implements PolkadartEvent
         $self->tokenId = $self->getValue($data, 'T::TokenId');
         $self->accountId = Account::parseAccount($self->getValue($data, 'T::AccountId'));
         $self->amount = $self->getValue($data, 'T::TokenBalance');
-        $self->reserveId = HexConverter::hexToString(
-            is_string($value = $self->getValue($data, 'Option<T::ReserveIdentifierType>'))
-                ? $value
-                : HexConverter::bytesToHex($value)
-        );
+        $self->reserveId = $self->getReserveId($data);
 
         return $self;
     }
@@ -51,66 +47,92 @@ class Reserved extends Event implements PolkadartEvent
             ['type' => 'reserve_id', 'value' => $this->reserveId],
         ];
     }
+
+    protected function getReserveId($data): string
+    {
+        $value = $this->getValue($data, 'Option<T::ReserveIdentifierType>');
+
+        if ($value !== null) {
+            $value = HexConverter::hexToString(
+                is_string($value)
+                    ? $value
+                    : HexConverter::bytesToHex($value)
+            );
+        } else {
+            // This is the new format after v1020
+            $value = array_key_first($this->getValue($data, 'T::RuntimeHoldReason'));
+
+            switch ($value) {
+                case 'Marketplace':
+                    $value = 'marktplc';
+
+                    break;
+                case 'MultiToken':
+                    $value = 'multoken';
+
+                    break;
+                case 'FuelTank':
+                    $value = 'fueltank';
+
+                    break;
+            }
+        }
+
+        return $value;
+    }
 }
 
 /* Example 1
-  [▼
-    "phase" => array:1 [▼
-      "ApplyExtrinsic" => 2
-    ]
-    "event" => array:1 [▼
-      "MultiTokens" => array:1 [▼
-        "Reserved" => array:5 [▼
-          "T::CollectionId" => "77160"
-          "T::TokenId" => "1"
-          "T::AccountId" => array:32 [▼
-            0 => 144
-            1 => 181
-            2 => 171
-            3 => 32
-            4 => 92
-            5 => 105
-            6 => 116
-            7 => 201
-            8 => 234
-            9 => 132
-            10 => 27
-            11 => 230
-            12 => 136
-            13 => 134
-            14 => 70
-            15 => 51
-            16 => 220
-            17 => 156
-            18 => 168
-            19 => 163
-            20 => 87
-            21 => 132
-            22 => 62
-            23 => 234
-            24 => 207
-            25 => 35
-            26 => 20
-            27 => 100
-            28 => 153
-            29 => 101
-            30 => 254
-            31 => 34
-          ]
-          "T::TokenBalance" => "10"
-          "Option<T::ReserveIdentifierType>" => array:8 [▼
-            0 => 109
-            1 => 97
-            2 => 114
-            3 => 107
-            4 => 116
-            5 => 112
-            6 => 108
-            7 => 99
-          ]
-        ]
-      ]
-    ]
-    "topics" => []
-  ]
+{
+  "event": {
+    "MultiTokens": {
+      "Reserved": {
+        "T::AccountId": [
+          212,
+          53,
+          147,
+          199,
+          21,
+          253,
+          211,
+          28,
+          97,
+          20,
+          26,
+          189,
+          4,
+          169,
+          159,
+          214,
+          130,
+          44,
+          133,
+          88,
+          133,
+          76,
+          205,
+          227,
+          154,
+          86,
+          132,
+          231,
+          165,
+          109,
+          162,
+          125
+        ],
+        "T::CollectionId": "100015",
+        "T::RuntimeHoldReason": {
+          "Marketplace": "Preimage"
+        },
+        "T::TokenBalance": "1",
+        "T::TokenId": "1"
+      }
+    }
+  },
+  "phase": {
+    "ApplyExtrinsic": 2
+  },
+  "topics": []
+}
 */

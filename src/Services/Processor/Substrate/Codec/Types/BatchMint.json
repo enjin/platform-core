@@ -2,10 +2,19 @@
   "BatchMint": {
     "callIndex": "(u8, u8)",
     "collectionId": "Compact<u128>",
+    "recipients": "Vec<MintRecipientV1020>"
+  },
+  "BatchMintV1013": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
     "recipients": "Vec<MintRecipient>"
   },
   "MintRecipient": {
     "accountId": "AccountId",
     "params": "MintParamsOf"
+  },
+  "MintRecipientV1020": {
+    "accountId": "AccountId",
+    "params": "MintParamsOfV1020"
   }
 }

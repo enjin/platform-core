@@ -5,17 +5,22 @@
     "hashCollectionId": "u128",
     "collectionId": "u128"
   },
-  "RoyaltyPolicy": {
-    "royalty": "Option<RoyaltyPolicyDescriptor>"
-  },
-  "TransferPolicy": {
-    "isFrozen": "bool"
-  },
-  "CollectionStorageData": {
+  "CollectionStorageDataV1013": {
     "owner": "AccountId",
     "policy": "CollectionPolicy",
     "tokenCount": "Compact",
     "attributeCount": "Compact",
+    "creationDeposit": "CreationDeposit",
+    "totalDeposit": "Compact",
+    "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
+    "totalInfusion": "Compact"
+  },
+  "CollectionStorageData": {
+    "owner": "AccountId",
+    "policy": "CollectionPolicyV1020",
+    "tokenCount": "Compact",
+    "attributeCount": "Compact",
+    "tokenGroupCount": "Compact",
     "creationDeposit": "CreationDeposit",
     "totalDeposit": "Compact",
     "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
@@ -28,6 +33,13 @@
     "attribute": "Null",
     "market": "RoyaltyPolicy"
   },
+  "CollectionPolicyV1020": {
+    "mint": "MintPolicy",
+    "burn": "Null",
+    "transfer": "TransferPolicy",
+    "attribute": "Null",
+    "market": "RoyaltyPolicyV1020"
+  },
   "MintPolicy": {
     "maxTokenCount": "Option<u64>",
     "maxTokenSupply": "Option<u128>",
@@ -36,5 +48,21 @@
   "CreationDeposit": {
     "depositor": "AccountId",
     "amount": "Compact<u128>"
+  },
+  "RoyaltyPolicyDescriptor": {
+    "beneficiary": "AccountId",
+    "percentage": "Compact<u32>"
+  },
+  "RoyaltyPolicy": {
+    "royalty": "Option<RoyaltyPolicyDescriptor>"
+  },
+  "RoyaltyPolicyV1020": {
+    "royalty": "Option<DefaultRoyaltyV1020>"
+  },
+  "TransferPolicy": {
+    "isFrozen": "bool"
+  },
+  "DefaultRoyaltyV1020": {
+    "beneficiaries": "Vec<RoyaltyPolicyDescriptor>"
   }
 }

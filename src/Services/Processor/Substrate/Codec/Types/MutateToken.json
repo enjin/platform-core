@@ -3,6 +3,12 @@
     "callIndex": "(u8, u8)",
     "collectionId": "Compact<u128>",
     "tokenId": "Compact<u128>",
+    "mutation": "TokenMutationV1020"
+  },
+  "MutateTokenV1013": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Compact<u128>",
     "mutation": "TokenMutation"
   },
   "TokenMutation": {
@@ -11,10 +17,22 @@
     "anyoneCanInfuse": "Option<bool>",
     "name": "Option<Bytes>"
   },
+  "TokenMutationV1020": {
+    "behavior": "BehaviorParamOfV1020",
+    "listingForbidden": "Option<bool>",
+    "anyoneCanInfuse": "Option<bool>",
+    "name": "Option<Bytes>"
+  },
   "BehaviorParamOf": {
     "_enum": {
       "NoMutation": "Null",
       "SomeMutation": "Option<TokenMarketBehavior>"
+    }
+  },
+  "BehaviorParamOfV1020": {
+    "_enum": {
+      "NoMutation": "Null",
+      "SomeMutation": "Option<TokenMarketBehaviorV1020>"
     }
   }
 }

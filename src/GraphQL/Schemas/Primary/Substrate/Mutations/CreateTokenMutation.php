@@ -103,11 +103,14 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
         WalletService $walletService
     ): mixed {
         $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
-        $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipientAccount: $recipientWallet->public_key,
-            collectionId: $args['collectionId'],
-            createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
-        ));
+        $encodedData = $serializationService->encode(
+            $this->getMethodName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            static::getEncodableParams(
+                recipientAccount: $recipientWallet->public_key,
+                collectionId: $args['collectionId'],
+                createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
+            )
+        );
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),

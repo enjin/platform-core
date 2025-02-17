@@ -43,6 +43,16 @@ class RoyaltyPolicyParams
      */
     public function toEncodable(): array
     {
+        if (currentSpec() >= 1020) {
+            // TODO: After v1020 we now have an array of beneficiaries for now we will just use the first one
+            return [
+                'beneficiaries' => [[
+                    'beneficiary' => HexConverter::unPrefix(SS58Address::getPublicKey($this->beneficiary)),
+                    'percentage' => (int) $this->percentage * 10 ** 7,
+                ]],
+            ];
+        }
+
         return [
             'beneficiary' => HexConverter::unPrefix(SS58Address::getPublicKey($this->beneficiary)),
             'percentage' => (int) $this->percentage * 10 ** 7,

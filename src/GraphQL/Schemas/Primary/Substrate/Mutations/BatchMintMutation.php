@@ -136,11 +136,12 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         // TODO: With the v1010 upgrade we run into a bug with the php-scale-codec lib where it cannot
         //  Encode the transaction with `0x` the solution here is to use Batch and within each call append the 0's
         $continueOnFailure = true;
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId'],
-            recipients: $recipients->toArray(),
-            continueOnFailure: $continueOnFailure
-        ));
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' :
+            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'), static::getEncodableParams(
+                collectionId: $args['collectionId'],
+                recipients: $recipients->toArray(),
+                continueOnFailure: $continueOnFailure
+            ));
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -157,13 +158,16 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
 
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
-                fn ($recipient) => $serializationService->encode('Mint', [
-                    'collectionId' => gmp_init($collectionId),
-                    'recipient' => [
-                        'Id' => HexConverter::unPrefix($recipient['accountId']),
-                    ],
-                    'params' => $recipient['params']->toEncodable(),
-                ])
+                fn ($recipient) => $serializationService->encode(
+                    'Mint' . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    [
+                        'collectionId' => gmp_init($collectionId),
+                        'recipient' => [
+                            'Id' => HexConverter::unPrefix($recipient['accountId']),
+                        ],
+                        'params' => $recipient['params']->toEncodable(),
+                    ]
+                )
             );
 
             return [
