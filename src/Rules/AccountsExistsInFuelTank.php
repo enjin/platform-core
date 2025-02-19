@@ -30,7 +30,7 @@ class AccountsExistsInFuelTank implements ValidationRule
             ->byWalletAccount($values)
             ->count() !== count($values)
         ) {
-            $fail('enjin-platform-fuel-tanks::validation.account_exists_in_fuel_tank')->translate();
+            $fail('enjin-platform::validation.account_exists_in_fuel_tank')->translate();
         }
     }
 }

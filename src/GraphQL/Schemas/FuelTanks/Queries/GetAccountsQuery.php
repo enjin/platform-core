@@ -27,7 +27,7 @@ class GetAccountsQuery extends Query
     {
         return [
             'name' => 'GetAccounts',
-            'description' => __('enjin-platform-fuel-tanks::query.get_fuel_accounts.description'),
+            'description' => __('enjin-platform::query.get_fuel_accounts.description'),
         ];
     }
 
@@ -48,7 +48,7 @@ class GetAccountsQuery extends Query
         return ConnectionInput::args([
             'tankId' => [
                 'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform-fuel-tanks::mutation.fuel_tank.args.tankId'),
+                'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
             ],
         ]);
     }

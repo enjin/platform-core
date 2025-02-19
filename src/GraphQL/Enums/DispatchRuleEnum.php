@@ -17,7 +17,7 @@ class DispatchRuleEnum extends EnumType implements PlatformGraphQlEnum
         return [
             'name' => 'DispatchRuleEnum',
             'values' => DispatchRule::caseNamesAsArray(),
-            'description' => __('enjin-platform-fuel-tanks::enum.dispatch_rule.description'),
+            'description' => __('enjin-platform::enum.dispatch_rule.description'),
         ];
     }
 }

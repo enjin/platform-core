@@ -23,7 +23,7 @@ class GetFuelTankQuery extends Query
     {
         return [
             'name' => 'GetFuelTank',
-            'description' => __('enjin-platform-fuel-tanks::query.get_fuel_tank.description'),
+            'description' => __('enjin-platform::query.get_fuel_tank.description'),
         ];
     }
 
@@ -44,11 +44,11 @@ class GetFuelTankQuery extends Query
         return [
             'name' => [
                 'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform-fuel-tanks::type.fuel_tank.field.name'),
+                'description' => __('enjin-platform::type.fuel_tank.field.name'),
             ],
             'tankId' => [
                 'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform-fuel-tanks::mutation.fuel_tank.args.tankId'),
+                'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
             ],
         ];
     }

@@ -41,7 +41,7 @@ class AddAccountMutation extends Mutation implements PlatformBlockchainTransacti
     {
         return [
             'name' => 'AddAccount',
-            'description' => __('enjin-platform-fuel-tanks::mutation.add_account.description'),
+            'description' => __('enjin-platform::mutation.add_account.description'),
         ];
     }
 
@@ -62,11 +62,11 @@ class AddAccountMutation extends Mutation implements PlatformBlockchainTransacti
         return [
             'tankId' => [
                 'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform-fuel-tanks::mutation.fuel_tank.args.tankId'),
+                'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
             ],
             'userId' => [
                 'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform-fuel-tanks::mutation.add_account.args.userId'),
+                'description' => __('enjin-platform::mutation.add_account.args.userId'),
             ],
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),

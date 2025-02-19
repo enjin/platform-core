@@ -17,7 +17,7 @@ class CoveragePolicyEnum extends EnumType implements PlatformGraphQlEnum
         return [
             'name' => 'CoveragePolicy',
             'values' => CoveragePolicy::caseNamesAsArray(),
-            'description' => __('enjin-platform-fuel-tanks::enum.coverage_policy.description'),
+            'description' => __('enjin-platform::enum.coverage_policy.description'),
         ];
     }
 }

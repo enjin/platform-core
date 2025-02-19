@@ -13,7 +13,7 @@ class DispatchSettingsInputType extends InputType
     {
         return [
             'name' => 'DispatchSettingsInputType',
-            'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_settings.description'),
+            'description' => __('enjin-platform::input_type.dispatch_settings.description'),
         ];
     }
 
@@ -25,11 +25,11 @@ class DispatchSettingsInputType extends InputType
         return [
             'paysRemainingFee' => [
                 'type' => GraphQL::type('Boolean!'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_settings.field.paysRemainingFee'),
+                'description' => __('enjin-platform::input_type.dispatch_settings.field.paysRemainingFee'),
             ],
             'signature' => [
                 'type' => GraphQL::type('ExpirableSignatureInputType'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_settings.field.signature'),
+                'description' => __('enjin-platform::input_type.dispatch_settings.field.signature'),
             ],
         ];
     }

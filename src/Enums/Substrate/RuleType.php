@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Enums\Substrate;
+namespace Enjin\Platform\Enums\Substrate;
 
 use Enjin\Platform\Traits\EnumExtensions;
 

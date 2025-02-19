@@ -17,7 +17,7 @@ class DispatchCallEnum extends EnumType implements PlatformGraphQlEnum
         return [
             'name' => 'DispatchCall',
             'values' => DispatchCall::caseNamesAsArray(),
-            'description' => __('enjin-platform-fuel-tanks::enum.dispatch_call.description'),
+            'description' => __('enjin-platform::enum.dispatch_call.description'),
         ];
     }
 }

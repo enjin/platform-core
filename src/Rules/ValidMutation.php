@@ -51,7 +51,7 @@ class ValidMutation implements DataAwareRule, ValidationRule
                 $node->definitions->offsetGet(0)?->selectionSet?->selections?->offsetGet(0)?->name?->value,
                 $names
             )) {
-                $fail('enjin-platform-fuel-tanks::validation.valid_mutation')->translate();
+                $fail('enjin-platform::validation.valid_mutation')->translate();
 
                 return;
             }
@@ -59,14 +59,14 @@ class ValidMutation implements DataAwareRule, ValidationRule
 
         $positon = strpos($query, 'encodedData');
         if ($positon === false || $query[$positon - 1] === '$') {
-            $fail('enjin-platform-fuel-tanks::validation.valid_mutation.encodedData')->translate();
+            $fail('enjin-platform::validation.valid_mutation.encodedData')->translate();
 
             return;
         }
 
         $positon = strpos($query, 'id');
         if ($positon === false || $query[$positon - 1] === '$') {
-            $fail('enjin-platform-fuel-tanks::validation.valid_mutation.encodedData')->translate();
+            $fail('enjin-platform::validation.valid_mutation.encodedData')->translate();
         }
     }
 }

@@ -46,7 +46,7 @@ class CanDispatch implements DataAwareRule, ValidationRule
         $ruleSetRules = $fuelTank->dispatchRules()->where('rule_set_id', Arr::get($this->data, 'ruleSetId'))->get();
 
         if ($ruleSetRules->isEmpty()) {
-            $fail(__('enjin-platform-fuel-tanks::validation.dispatch_rule_not_found'))->translate();
+            $fail(__('enjin-platform::validation.dispatch_rule_not_found'))->translate();
 
             return;
         }
@@ -59,7 +59,7 @@ class CanDispatch implements DataAwareRule, ValidationRule
         });
 
         if ($canDispatch->count() < $ruleSetRules->count()) {
-            $fail(__('enjin-platform-fuel-tanks::validation.dispatch_rule_requirements'))->translate();
+            $fail(__('enjin-platform::validation.dispatch_rule_requirements'))->translate();
         }
     }
 

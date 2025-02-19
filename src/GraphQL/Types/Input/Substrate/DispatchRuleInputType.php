@@ -13,7 +13,7 @@ class DispatchRuleInputType extends InputType
     {
         return [
             'name' => 'DispatchRuleInputType',
-            'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.description'),
+            'description' => __('enjin-platform::input_type.dispatch_rule.description'),
         ];
     }
 
@@ -25,35 +25,35 @@ class DispatchRuleInputType extends InputType
         return [
             'whitelistedCallers' => [
                 'type' => GraphQL::type('[String!]'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.field.whitelistedCallers'),
+                'description' => __('enjin-platform::input_type.dispatch_rule.field.whitelistedCallers'),
             ],
             'requireToken' => [
                 'type' => GraphQL::type('MultiTokenIdInput'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.field.requireToken'),
+                'description' => __('enjin-platform::input_type.dispatch_rule.field.requireToken'),
             ],
             'whitelistedCollections' => [
                 'type' => GraphQL::type('[BigInt!]'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.field.whitelistedCollections'),
+                'description' => __('enjin-platform::input_type.dispatch_rule.field.whitelistedCollections'),
             ],
             'maxFuelBurnPerTransaction' => [
                 'type' => GraphQL::type('BigInt'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.field.maxFuelBurnPerTransaction'),
+                'description' => __('enjin-platform::input_type.dispatch_rule.field.maxFuelBurnPerTransaction'),
             ],
             'userFuelBudget' => [
                 'type' => GraphQL::type('FuelBudgetInputType'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.field.userFuelBudget'),
+                'description' => __('enjin-platform::input_type.dispatch_rule.field.userFuelBudget'),
             ],
             'tankFuelBudget' => [
                 'type' => GraphQL::type('FuelBudgetInputType'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch_rule.field.tankFuelBudget'),
+                'description' => __('enjin-platform::input_type.dispatch_rule.field.tankFuelBudget'),
             ],
             'permittedExtrinsics' => [
                 'type' => GraphQL::type('[TransactionMethod!]'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.permitted_extrinsics.description'),
+                'description' => __('enjin-platform::input_type.permitted_extrinsics.description'),
             ],
             'requireSignature' => [
                 'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.require_signature.description'),
+                'description' => __('enjin-platform::input_type.require_signature.description'),
             ],
         ];
     }

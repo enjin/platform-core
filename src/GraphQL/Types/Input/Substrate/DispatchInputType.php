@@ -16,7 +16,7 @@ class DispatchInputType extends InputType implements PlatformGraphQlType
     {
         return [
             'name' => 'DispatchInputType',
-            'description' => __('enjin-platform-fuel-tanks::input_type.dispatch.description'),
+            'description' => __('enjin-platform::input_type.dispatch.description'),
         ];
     }
 
@@ -29,19 +29,19 @@ class DispatchInputType extends InputType implements PlatformGraphQlType
         return [
             'call' => [
                 'type' => GraphQL::type('DispatchCall!'),
-                'description' => __('enjin-platform-fuel-tanks::enum.dispatch_call.description'),
+                'description' => __('enjin-platform::enum.dispatch_call.description'),
             ],
             'query' => [
                 'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch.field.query'),
+                'description' => __('enjin-platform::input_type.dispatch.field.query'),
             ],
             'variables' => [
                 'type' => GraphQL::type('Object'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch.field.variables'),
+                'description' => __('enjin-platform::input_type.dispatch.field.variables'),
             ],
             'settings' => [
                 'type' => GraphQL::type('DispatchSettingsInputType'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.dispatch.field.settings'),
+                'description' => __('enjin-platform::input_type.dispatch.field.settings'),
             ],
         ];
     }

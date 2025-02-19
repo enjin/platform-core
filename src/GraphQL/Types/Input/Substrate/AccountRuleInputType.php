@@ -13,7 +13,7 @@ class AccountRuleInputType extends InputType
     {
         return [
             'name' => 'AccountRuleInputType',
-            'description' => __('enjin-platform-fuel-tanks::input_type.account_rule.description'),
+            'description' => __('enjin-platform::input_type.account_rule.description'),
         ];
     }
 
@@ -25,11 +25,11 @@ class AccountRuleInputType extends InputType
         return [
             'whitelistedCallers' => [
                 'type' => GraphQL::type('[String!]'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.account_rule.field.whitelistedCallers'),
+                'description' => __('enjin-platform::input_type.account_rule.field.whitelistedCallers'),
             ],
             'requireToken' => [
                 'type' => GraphQL::type('MultiTokenIdInput'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.account_rule.field.requireToken'),
+                'description' => __('enjin-platform::input_type.account_rule.field.requireToken'),
             ],
         ];
     }

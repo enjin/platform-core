@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Events\Substrate\FuelTanks;
+namespace Enjin\Platform\Events\Substrate\FuelTanks;
 
 use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;

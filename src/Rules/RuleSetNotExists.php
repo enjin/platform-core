@@ -35,7 +35,7 @@ class RuleSetNotExists implements DataAwareRule, ValidationRule
             fn ($query) => $query->where('rule_set_id', $value)
         )->where('public_key', SS58Address::getPublicKey($this->data['tankId']))->exists()
         ) {
-            $fail('enjin-platform-fuel-tanks::validation.rule_set_exist')->translate();
+            $fail('enjin-platform::validation.rule_set_exist')->translate();
         }
     }
 }

@@ -13,7 +13,7 @@ class FuelBudgetInputType extends InputType
     {
         return [
             'name' => 'FuelBudgetInputType',
-            'description' => __('enjin-platform-fuel-tanks::input_type.fuel_budget.description'),
+            'description' => __('enjin-platform::input_type.fuel_budget.description'),
         ];
     }
 
@@ -25,11 +25,11 @@ class FuelBudgetInputType extends InputType
         return [
             'amount' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.fuel_budget.field.amount'),
+                'description' => __('enjin-platform::input_type.fuel_budget.field.amount'),
             ],
             'resetPeriod' => [
                 'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.fuel_budget.field.resetPeriod'),
+                'description' => __('enjin-platform::input_type.fuel_budget.field.resetPeriod'),
             ],
         ];
     }

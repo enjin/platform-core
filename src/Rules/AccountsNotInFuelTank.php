@@ -26,7 +26,7 @@ class AccountsNotInFuelTank implements ValidationRule
         }
 
         if (FuelTankAccount::byFuelTankAccount($this->account)->byWalletAccount(Arr::wrap($value))->exists()) {
-            $fail('enjin-platform-fuel-tanks::validation.accounts_not_in_fuel_tank')->translate();
+            $fail('enjin-platform::validation.accounts_not_in_fuel_tank')->translate();
         }
     }
 }

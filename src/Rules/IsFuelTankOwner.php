@@ -32,7 +32,7 @@ class IsFuelTankOwner implements DataAwareRule, ValidationRule
         }
 
         if (!SS58Address::isSameAddress($fuelTank->owner->public_key, Arr::get($this->data, 'signingAccount') ?? Account::daemonPublicKey())) {
-            $fail('enjin-platform-fuel-tanks::validation.is_fuel_tank_owner')->translate();
+            $fail('enjin-platform::validation.is_fuel_tank_owner')->translate();
         }
     }
 }

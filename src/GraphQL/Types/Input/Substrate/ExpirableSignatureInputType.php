@@ -13,7 +13,7 @@ class ExpirableSignatureInputType extends InputType
     {
         return [
             'name' => 'ExpirableSignatureInputType',
-            'description' => __('enjin-platform-fuel-tanks::input_type.expirable_signature.description'),
+            'description' => __('enjin-platform::input_type.expirable_signature.description'),
         ];
     }
 
@@ -25,11 +25,11 @@ class ExpirableSignatureInputType extends InputType
         return [
             'signature' => [
                 'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.expirable_signature.field.signature'),
+                'description' => __('enjin-platform::input_type.expirable_signature.field.signature'),
             ],
             'expiryBlock' => [
                 'type' => GraphQL::type('Int!'),
-                'description' => __('enjin-platform-fuel-tanks::input_type.expirable_signature.field.expiryBlock'),
+                'description' => __('enjin-platform::input_type.expirable_signature.field.expiryBlock'),
             ],
         ];
     }
