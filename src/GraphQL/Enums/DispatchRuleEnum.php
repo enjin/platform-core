@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Enums;
 
-use Enjin\Platform\Enums\DispatchRule;
+use Enjin\Platform\Enums\Substrate\DispatchRule;
 use Enjin\Platform\Interfaces\PlatformGraphQlEnum;
 use Rebing\GraphQL\Support\EnumType;
 

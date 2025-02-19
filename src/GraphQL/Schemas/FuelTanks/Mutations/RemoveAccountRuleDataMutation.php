@@ -4,7 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Enums\DispatchRule;
+use Enjin\Platform\Enums\Substrate\DispatchRule;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries\HasFuelTankValidationRules;
 use Enjin\Platform\Rules\AccountsExistsInFuelTank;
 use Enjin\Platform\Rules\IsFuelTankOwner;

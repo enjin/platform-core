@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories;
 
-use Enjin\Platform\Enums\DispatchRule as DispatchRuleEnum;
+use Enjin\Platform\Enums\Substrate\DispatchRule as DispatchRuleEnum;
 use Enjin\Platform\Models\DispatchRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
