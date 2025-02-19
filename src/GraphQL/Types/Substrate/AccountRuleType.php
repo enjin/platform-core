@@ -6,8 +6,9 @@ use Enjin\Platform\FuelTanks\GraphQL\Traits\InFuelTanksSchema;
 use Enjin\Platform\Traits\HasSelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
+use Enjin\Platform\Interfaces\PlatformGraphQlType;
 
-class AccountRuleType extends Type
+class AccountRuleType extends Type implements PlatformGraphQlType
 {
     use HasSelectFields;
     use InFuelTanksSchema;

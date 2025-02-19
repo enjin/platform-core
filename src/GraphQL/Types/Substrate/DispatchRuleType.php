@@ -2,13 +2,16 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
+use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Traits\HasSelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
-class DispatchRuleType extends Type
+class DispatchRuleType extends Type implements PlatformGraphQlType
 {
     use HasSelectFields;
+    use InFuelTanksSchema;
 
     /**
      * Get the type's attributes.

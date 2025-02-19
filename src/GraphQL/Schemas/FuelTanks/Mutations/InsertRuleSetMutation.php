@@ -4,10 +4,10 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\FuelTanks\GraphQL\Traits\HasFuelTankValidationRules;
-use Enjin\Platform\FuelTanks\Models\Substrate\DispatchRulesParams;
-use Enjin\Platform\FuelTanks\Rules\IsFuelTankOwner;
-use Enjin\Platform\FuelTanks\Services\Blockchain\Implemetations\Substrate;
+use Enjin\Platform\GraphQL\Traits\HasFuelTankValidationRules;
+use Enjin\Platform\Models\Substrate\DispatchRulesParams;
+use Enjin\Platform\Rules\IsFuelTankOwner;
+use Enjin\Platform\Services\Blockchain\Implemetations\Substrate;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;

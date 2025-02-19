@@ -2,13 +2,19 @@
 
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Rebing\GraphQL\Support\InputType;
+use Enjin\Platform\Interfaces\PlatformGraphQlType;
 
-class DispatchRuleInputType extends InputType
+class DispatchRuleInputType extends InputType implements PlatformGraphQlType
 {
+    use InFuelTanksSchema;
+
     /**
      * Get the input type's attributes.
      */
+    #[\Override]
     public function attributes(): array
     {
         return [
@@ -20,6 +26,7 @@ class DispatchRuleInputType extends InputType
     /**
      * Get the input type's fields.
      */
+    #[\Override]
     public function fields(): array
     {
         return [

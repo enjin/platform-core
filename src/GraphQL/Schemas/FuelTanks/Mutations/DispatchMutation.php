@@ -4,12 +4,12 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\FuelTanks\Enums\DispatchCall;
-use Enjin\Platform\FuelTanks\Exceptions\FuelTanksException;
-use Enjin\Platform\FuelTanks\Rules\CanDispatch;
-use Enjin\Platform\FuelTanks\Rules\FuelTankExists;
-use Enjin\Platform\FuelTanks\Rules\RuleSetExists;
-use Enjin\Platform\FuelTanks\Rules\ValidMutation;
+use Enjin\Platform\Enums\DispatchCall;
+use Enjin\Platform\Exceptions\FuelTanksException;
+use Enjin\Platform\Rules\CanDispatch;
+use Enjin\Platform\Rules\FuelTankExists;
+use Enjin\Platform\Rules\RuleSetExists;
+use Enjin\Platform\Rules\ValidMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
