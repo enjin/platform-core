@@ -1,12 +1,12 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Services\Processor\Substrate\Events\Implementations\FuelTanks;
+namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\FuelTanks;
 
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\FuelTanks\Enums\CoveragePolicy;
-use Enjin\Platform\FuelTanks\Events\Substrate\FuelTanks\FuelTankMutated as FuelTankMutatedEvent;
-use Enjin\Platform\FuelTanks\Models\AccountRule;
-use Enjin\Platform\FuelTanks\Models\Substrate\AccountRulesParams;
+use Enjin\Platform\Enums\Substrate\CoveragePolicy;
+use Enjin\Platform\Events\Substrate\FuelTanks\FuelTankMutated as FuelTankMutatedEvent;
+use Enjin\Platform\Models\AccountRule;
+use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks\FuelTankMutated as FuelTankMutatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;

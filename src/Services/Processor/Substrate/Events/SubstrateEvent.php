@@ -4,7 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events;
 
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\FuelTanks\Models\FuelTank;
+use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;

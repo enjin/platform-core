@@ -1,8 +1,6 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Models;
-
-use Enjin\Platform\Models\ModelResolver;
+namespace Enjin\Platform\Models;
 
 class AccountRule extends ModelResolver
 {

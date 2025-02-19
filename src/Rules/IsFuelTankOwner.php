@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\FuelTanks\Models\FuelTank;
+use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;

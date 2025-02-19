@@ -1,10 +1,10 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Services\Processor\Substrate\Events\Implementations\FuelTanks;
+namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\FuelTanks;
 
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\FuelTanks\Events\Substrate\FuelTanks\RuleSetRemoved as RuleSetRemovedEvent;
-use Enjin\Platform\FuelTanks\Models\DispatchRule;
+use Enjin\Platform\Events\Substrate\FuelTanks\RuleSetRemoved as RuleSetRemovedEvent;
+use Enjin\Platform\Models\DispatchRule;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks\RuleSetRemoved as RuleSetRemovedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;

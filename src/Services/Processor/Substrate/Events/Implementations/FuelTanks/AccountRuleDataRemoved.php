@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Services\Processor\Substrate\Events\Implementations\FuelTanks;
+namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\FuelTanks;
 
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks\AccountRuleDataRemoved as AccountRuleDataPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;

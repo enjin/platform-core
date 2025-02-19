@@ -3,8 +3,8 @@
 namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
 use Closure;
-use Enjin\Platform\FuelTanks\Models\FuelTank;
-use Enjin\Platform\FuelTanks\Rules\FuelTankExists;
+use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Rules\FuelTankExists;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;

@@ -17,12 +17,12 @@ use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Implementations\Substrate;
-use Enjin\Platform\FuelTanks\Enums\AccountRule as AccountRuleEnum;
-use Enjin\Platform\FuelTanks\Enums\DispatchRule as DispatchRuleEnum;
-use Enjin\Platform\FuelTanks\Models\AccountRule;
-use Enjin\Platform\FuelTanks\Models\DispatchRule;
-use Enjin\Platform\FuelTanks\Models\FuelTank;
-use Enjin\Platform\FuelTanks\Models\FuelTankAccount;
+use Enjin\Platform\Enums\Substrate\AccountRule as AccountRuleEnum;
+use Enjin\Platform\Enums\Substrate\DispatchRule as DispatchRuleEnum;
+use Enjin\Platform\Models\AccountRule;
+use Enjin\Platform\Models\DispatchRule;
+use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\FuelTankAccount;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 

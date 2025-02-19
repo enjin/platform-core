@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Rules;
+namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;

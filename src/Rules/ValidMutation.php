@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\FuelTanks\Enums\DispatchCall;
+use Enjin\Platform\Enums\Substrate\DispatchCall;
 use GraphQL\Language\Parser;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;

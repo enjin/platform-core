@@ -1,9 +1,9 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Services\Processor\Substrate\Events\Implementations\FuelTanks;
+namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\FuelTanks;
 
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\FuelTanks\Events\Substrate\FuelTanks\CallDispatched as CallDispatchedEvent;
+use Enjin\Platform\Events\Substrate\FuelTanks\CallDispatched as CallDispatchedEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks\CallDispatched as CallDispatchedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;

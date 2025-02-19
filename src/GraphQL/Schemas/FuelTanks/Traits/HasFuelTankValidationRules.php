@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
-use Enjin\Platform\FuelTanks\Rules\TokenExistsInCollection;
+use Enjin\Platform\Rules\TokenExistsInCollection;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;

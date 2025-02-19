@@ -3,7 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
 use Closure;
-use Enjin\Platform\FuelTanks\Models\FuelTank;
+use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Rules\ValidSubstrateAddress;

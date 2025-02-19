@@ -1,11 +1,11 @@
 <?php
 
-namespace Enjin\Platform\FuelTanks\Services\Processor\Substrate\Events\Implementations\FuelTanks;
+namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\FuelTanks;
 
-use Enjin\Platform\FuelTanks\Enums\CoveragePolicy;
-use Enjin\Platform\FuelTanks\Events\Substrate\FuelTanks\FuelTankCreated as FuelTankCreatedEvent;
-use Enjin\Platform\FuelTanks\Models\Laravel\FuelTank;
-use Enjin\Platform\FuelTanks\Models\Substrate\AccountRulesParams;
+use Enjin\Platform\Enums\CoveragePolicy;
+use Enjin\Platform\Events\Substrate\FuelTanks\FuelTankCreated as FuelTankCreatedEvent;
+use Enjin\Platform\Models\Laravel\FuelTank;
+use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\FuelTanks\FuelTankCreated as FuelTankCreatedPolkadart;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Event;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
