@@ -4,7 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Enums\DispatchCall;
+use Enjin\Platform\Enums\Substrate\DispatchCall;
 use Enjin\Platform\Exceptions\FuelTanksException;
 use Enjin\Platform\Rules\CanDispatch;
 use Enjin\Platform\Rules\FuelTankExists;
