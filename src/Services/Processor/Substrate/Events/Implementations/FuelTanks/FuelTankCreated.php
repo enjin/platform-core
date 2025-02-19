@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\FuelTanks;
 
-use Enjin\Platform\Enums\CoveragePolicy;
+use Enjin\Platform\Enums\Substrate\CoveragePolicy;
 use Enjin\Platform\Events\Substrate\FuelTanks\FuelTankCreated as FuelTankCreatedEvent;
 use Enjin\Platform\Models\Laravel\FuelTank;
 use Enjin\Platform\Models\Substrate\AccountRulesParams;

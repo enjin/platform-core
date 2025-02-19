@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Enums;
 
-use Enjin\Platform\Enums\CoveragePolicy;
+use Enjin\Platform\Enums\Substrate\CoveragePolicy;
 use Enjin\Platform\Interfaces\PlatformGraphQlEnum;
 use Rebing\GraphQL\Support\EnumType;
 

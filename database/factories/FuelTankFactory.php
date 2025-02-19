@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories;
 
-use Enjin\Platform\Enums\CoveragePolicy;
+use Enjin\Platform\Enums\Substrate\CoveragePolicy;
 use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\Providers\Faker\SubstrateProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
