@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 
-use Enjin\Platform\FuelTanks\GraphQL\Traits\InFuelTanksSchema;
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
