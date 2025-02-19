@@ -5,7 +5,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\CoveragePolicy;
-use Enjin\Platform\GraphQL\Traits\HasFuelTankValidationRules;
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries\HasFuelTankValidationRules;
 use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Services\Blockchain\Implemetations\Substrate;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
