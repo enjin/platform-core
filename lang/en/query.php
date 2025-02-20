@@ -55,4 +55,7 @@ return [
     'verify_message.args.signature' => 'The signed message.',
     'verify_message.args.verificationId' => 'The verification ID to check.',
     'verify_message.description' => 'Verifies a message was signed with the public key provided.',
+    'get_fuel_tank.description' => 'Get the fuel tank.',
+    'get_fuel_tanks.description' => 'Get the fuel tanks.',
+    'get_fuel_accounts.description' => 'Get the fuel tank wallet accounts.',
 ];

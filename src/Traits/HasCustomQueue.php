@@ -6,6 +6,6 @@ trait HasCustomQueue
 {
     protected function setQueue(): void
     {
-        $this->onQueue(config('enjin-platform.queue'));
+        $this->onQueue(config('enjin-platform.core_queue'));
     }
 }

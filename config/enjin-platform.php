@@ -305,7 +305,17 @@ return [
     | Here you may set the dedicated queue for this package
     |
     */
-    'queue' => env('PLATFORM_CORE_QUEUE', 'default'),
+    'core_queue' => env('PLATFORM_CORE_QUEUE', 'default'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the dedicated queue for this package
+    |
+    */
+    'fuel_tanks_queue' => env('PLATFORM_FUEL_TANKS_QUEUE', 'default'),
 
     /*
     |--------------------------------------------------------------------------
@@ -316,4 +326,5 @@ return [
     |
     */
     'token_holder_snapshot_email' => env('TOKEN_HOLDER_SNAPSHOT_EMAIL'),
+
 ];

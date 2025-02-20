@@ -48,6 +48,16 @@ class StorageKey
         return new self(StorageType::SYSTEM_ACCOUNT, $value ?? StorageType::SYSTEM_ACCOUNT->value);
     }
 
+    public static function tanks(?string $value = null): self
+    {
+        return new self(StorageType::TANKS, $value ?? StorageType::TANKS->value);
+    }
+
+    public static function accounts(?string $value = null): self
+    {
+        return new self(StorageType::ACCOUNTS, $value ?? StorageType::ACCOUNTS->value);
+    }
+
     /**
      * Get the parser for this storage key.
      */
@@ -60,6 +70,10 @@ class StorageKey
             StorageType::TOKENS => 'tokensStorages',
             StorageType::TOKEN_ACCOUNTS => 'tokensAccountsStorages',
             StorageType::ATTRIBUTES => 'attributesStorages',
+            StorageType::TANKS => 'tanksStorages',
+            StorageType::ACCOUNTS => 'accountsStorages',
+            StorageType::TANKS => 'tanksStorages',
+            StorageType::ACCOUNTS => 'accountsStorages',
             default => throw new PlatformException('No parser for this storage key.'),
         };
     }
