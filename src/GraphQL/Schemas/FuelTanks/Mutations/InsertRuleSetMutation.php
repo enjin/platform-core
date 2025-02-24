@@ -7,7 +7,7 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
 use Enjin\Platform\Models\Substrate\DispatchRulesParams;
 use Enjin\Platform\Rules\IsFuelTankOwner;
-use Enjin\Platform\Services\Blockchain\Implemetations\Substrate;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;

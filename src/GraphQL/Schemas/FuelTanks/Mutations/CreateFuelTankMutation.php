@@ -6,7 +6,7 @@ use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\CoveragePolicy;
 use Enjin\Platform\Models\Substrate\AccountRulesParams;
-use Enjin\Platform\Services\Blockchain\Implemetations\Substrate;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
