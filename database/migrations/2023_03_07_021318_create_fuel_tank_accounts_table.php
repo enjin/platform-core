@@ -24,7 +24,7 @@ return new class () extends Migration {
                 ->cascadeOnDelete();
             $table->string('tank_deposit')->default('0');
             $table->string('user_deposit')->default('0');
-
+            $table->string('total_received')->default('0');
             $table->timestamps();
 
             $table->index(['fuel_tank_id', 'wallet_id']);

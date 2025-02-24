@@ -32,7 +32,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class DispatchMutation extends Mutation implements PlatformBlockchainTransaction
+class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasIdempotencyField;
     use HasSigningAccountField;

@@ -27,7 +27,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class ScheduleMutateFreezeStateMutation extends Mutation implements PlatformBlockchainTransaction
+class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasIdempotencyField;
     use HasSigningAccountField;

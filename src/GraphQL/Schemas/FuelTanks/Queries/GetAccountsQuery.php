@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class GetAccountsQuery extends Query
+class GetAccountsQuery extends FuelTanksQuery
 {
     protected $middleware = [
         ResolvePage::class,

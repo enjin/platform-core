@@ -83,7 +83,6 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('create_fuel_tanks_table')
             ->hasMigration('create_fuel_tank_accounts_table')
             ->hasMigration('create_fuel_tank_rules_table')
-            ->hasMigration('add_total_received_to_accounts_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)

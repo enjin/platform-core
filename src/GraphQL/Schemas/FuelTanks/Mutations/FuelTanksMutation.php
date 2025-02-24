@@ -6,7 +6,7 @@ use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Rebing\GraphQL\Support\Mutation as GraphQlMutation;
 
-abstract class Mutation extends GraphQlMutation implements PlatformGraphQlMutation
+abstract class FuelTanksMutation extends GraphQlMutation implements PlatformGraphQlMutation
 {
     use InFuelTanksSchema;
 

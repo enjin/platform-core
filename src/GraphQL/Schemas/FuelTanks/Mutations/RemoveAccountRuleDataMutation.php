@@ -5,7 +5,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\DispatchRule;
-use Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries\HasFuelTankValidationRules;
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
 use Enjin\Platform\Rules\AccountsExistsInFuelTank;
 use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -29,7 +29,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class RemoveAccountRuleDataMutation extends Mutation implements PlatformBlockchainTransaction
+class RemoveAccountRuleDataMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasFuelTankValidationRules;
     use HasIdempotencyField;

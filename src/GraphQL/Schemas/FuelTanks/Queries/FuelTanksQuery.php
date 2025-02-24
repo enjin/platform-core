@@ -6,7 +6,7 @@ use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Rebing\GraphQL\Support\Query as GraphQlQuery;
 
-abstract class Query extends GraphQlQuery implements PlatformGraphQlQuery
+abstract class FuelTanksQuery extends GraphQlQuery implements PlatformGraphQlQuery
 {
     use InFuelTanksSchema;
 

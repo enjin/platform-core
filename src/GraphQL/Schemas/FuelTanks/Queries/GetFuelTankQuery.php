@@ -13,7 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class GetFuelTankQuery extends Query
+class GetFuelTankQuery extends FuelTanksQuery
 {
     /**
      * Get the mutation's attributes.

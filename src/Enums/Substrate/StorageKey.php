@@ -72,8 +72,6 @@ class StorageKey
             StorageType::ATTRIBUTES => 'attributesStorages',
             StorageType::TANKS => 'tanksStorages',
             StorageType::ACCOUNTS => 'accountsStorages',
-            StorageType::TANKS => 'tanksStorages',
-            StorageType::ACCOUNTS => 'accountsStorages',
             default => throw new PlatformException('No parser for this storage key.'),
         };
     }

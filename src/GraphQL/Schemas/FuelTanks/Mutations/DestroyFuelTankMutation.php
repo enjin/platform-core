@@ -23,7 +23,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class DestroyFuelTankMutation extends Mutation implements PlatformBlockchainTransaction
+class DestroyFuelTankMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasIdempotencyField;
     use HasSigningAccountField;

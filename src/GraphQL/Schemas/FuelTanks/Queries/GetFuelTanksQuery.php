@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class GetFuelTanksQuery extends Query
+class GetFuelTanksQuery extends FuelTanksQuery
 {
     protected $middleware = [
         ResolvePage::class,

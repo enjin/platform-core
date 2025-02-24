@@ -24,7 +24,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class RemoveAccountMutation extends Mutation implements PlatformBlockchainTransaction
+class RemoveAccountMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasIdempotencyField;
     use HasSigningAccountField;

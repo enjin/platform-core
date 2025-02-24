@@ -5,9 +5,8 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\CoveragePolicy;
-use Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries\HasFuelTankValidationRules;
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
 use Enjin\Platform\Rules\FuelTankExists;
-use Enjin\Platform\Services\Blockchain\Implemetations\Substrate;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -24,8 +23,9 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 
-class MutateFuelTankMutation extends Mutation implements PlatformBlockchainTransaction
+class MutateFuelTankMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasFuelTankValidationRules;
     use HasIdempotencyField;

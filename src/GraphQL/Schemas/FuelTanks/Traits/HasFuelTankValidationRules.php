@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
+namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits;
 
 use Enjin\Platform\Rules\TokenExistsInCollection;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;

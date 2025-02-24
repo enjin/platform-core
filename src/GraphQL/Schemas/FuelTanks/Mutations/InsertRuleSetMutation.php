@@ -4,7 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries\HasFuelTankValidationRules;
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
 use Enjin\Platform\Models\Substrate\DispatchRulesParams;
 use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\Services\Blockchain\Implemetations\Substrate;
@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class InsertRuleSetMutation extends Mutation implements PlatformBlockchainTransaction
+class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
     use HasFuelTankValidationRules;
     use HasIdempotencyField;
