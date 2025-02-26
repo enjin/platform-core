@@ -317,6 +317,22 @@ return [
     */
     'fuel_tanks_queue' => env('PLATFORM_FUEL_TANKS_QUEUE', 'default'),
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the dedicated queue for this package
+    |
+    */
+    'marketplace_queue' => env('PLATFORM_MARKETPLACE_QUEUE', 'default'),
+
+    /**
+     * The block offset to use for validation when creating a listing.
+     */
+    'block_offset' => env('LISTING_BLOCK_OFFSET', 10),
+
     /*
     |--------------------------------------------------------------------------
     | Snapshot email

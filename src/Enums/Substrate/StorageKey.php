@@ -72,6 +72,7 @@ class StorageKey
             StorageType::ATTRIBUTES => 'attributesStorages',
             StorageType::TANKS => 'tanksStorages',
             StorageType::ACCOUNTS => 'accountsStorages',
+            StorageType::LISTINGS => 'listingsStorages',
             default => throw new PlatformException('No parser for this storage key.'),
         };
     }
@@ -79,5 +80,10 @@ class StorageKey
     public function parserFacade(): string
     {
         return '\Facades\Enjin\Platform\Services\Processor\Substrate\Parser';
+    }
+
+    public static function listings(?string $value = null): self
+    {
+        return new self(StorageType::LISTINGS, $value ?? StorageType::LISTINGS->value);
     }
 }

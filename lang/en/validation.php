@@ -11,7 +11,6 @@ return [
     'daemon_prohibited' => 'The :attribute cannot be set to the daemon account.',
     'distinct_attribute' => 'The :attribute must be an array of distinct attributes keys.',
     'distinct_multi_asset' => 'The :attribute must be an array of distinct multi assets.',
-    'future_block' => 'The :attribute must be at least :block.',
     'is_collection_owner' => 'The :attribute provided is not owned by you.',
     'is_collection_owner_or_approved' => 'The :attribute provided is not owned by you and you are not currently approved to use it.',
     'is_managed_wallet' => 'The :attribute is not a wallet managed by this platform.',
@@ -51,4 +50,8 @@ return [
     'rule_set_exist' => 'The rule set ID already exist.',
     'dispatch_rule_not_found' => 'The dispatch rule chosen was not found.',
     'dispatch_rule_requirements' => 'The dispatch rule requirements are not met.',
+    'future_block' => 'The :attribute must be at least :block.',
+    'enough_token_supply' => 'The token supply is not enough.',
+    'listing_not_cancelled' => 'The listing is already cancelled.',
+    'minimum_price' => 'The minimum bidding price must be greater than or equal to :price.',
 ];
