@@ -114,8 +114,8 @@ return [
                     'node' => env('SUBSTRATE_CANARY_RPC', 'wss://rpc.matrix.canary.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_CANARY_SS58_PREFIX', 9030),
                     'genesis-hash' => env('SUBSTRATE_CANARY_GENESIS_HASH', '0xa37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f'),
-                    'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1013),
-                    'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 10),
+                    'spec-version' => env('SUBSTRATE_CANARY_SPEC_VERSION', 1020),
+                    'transaction-version' => env('SUBSTRATE_CANARY_TRANSACTION_VERSION', 11),
                 ],
                 'canary' => $canary,
                 NetworkType::LOCAL_MATRIX->value => $local = [
