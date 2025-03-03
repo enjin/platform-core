@@ -107,7 +107,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * Broadcast the event with the given arguments.
      */
-    public static function broadcast(mixed $event, ?Model $transaction, ?array $extra, ?Model $model): PendingBroadcast
+    public static function broadcast(mixed $event = null, ?Model $transaction = null, ?array $extra = null, ?Model $model = null): PendingBroadcast
     {
         $event = new static($event, $transaction, $extra, $model);
         $event = $event->beforeBroadcast();

@@ -17,6 +17,13 @@ class Truncate
             'token_account_named_reserves',
             'attributes',
             'blocks',
+            'fuel_tanks',
+            'fuel_tank_account_rules',
+            'fuel_tank_dispatch_rules',
+            'fuel_tank_accounts',
+            'marketplace_listings',
+            'marketplace_bids',
+            'marketplace_states',
         ];
     }
 }

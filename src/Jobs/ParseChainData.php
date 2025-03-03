@@ -21,7 +21,7 @@ class ParseChainData implements ShouldQueue
      */
     public function __construct(protected $storageKey, protected $storageValue)
     {
-        $this->onQueue(config('enjin-platform.queue'));
+        $this->onQueue(config('enjin-platform.core_queue'));
     }
 
     /**

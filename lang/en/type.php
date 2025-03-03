@@ -165,4 +165,79 @@ return [
     'wallet.field.transactions' => 'The transactions performed by this wallet.',
     'wallet_link.field.code' => 'The code a user can input into the wallet app to link their account on the platform.',
     'integer_range.description' => "A string value that can be used to represent a range of integer numbers.  Use a double full stop to supply a range between 2 integers. \n\nExample \[\"1\",\"2\",\"3..8\"\]",
+    'fuel_tank.description' => 'A fuel tank.',
+    'fuel_tank.field.wallet' => 'The wallet account for the fuel tank.',
+    'fuel_tank.field.owner_wallet' => 'The wallet account that owns the fuel tank.',
+    'fuel_tank.field.name' => 'The fuel tank name.',
+    'fuel_tank.field.reservesExistentialDeposit' => '(DEPRECATED) The flag for existential deposit.',
+    'fuel_tank.field.reservesAccountCreationDeposit' => <<<'MD'
+Determines how accounts are added to the Fuel Tank User Accounts and whether the Fuel Tank covers the storage deposit costs. [Learn more](https://docs.enjin.io/docs/using-fuel-tanks#user-account-management).
+
+Options:
+1. **Not provided**
+   Only the Fuel Tank owner can add accounts to the Fuel Tank User Accounts.
+
+2. **Set to `false`**
+   Accounts can add themselves to the Fuel Tank User Accounts, but the Fuel Tank does not provide funds for the Tank User Account Storage Deposit.
+
+3. **Set to `true`**
+   Accounts can add themselves to the Fuel Tank User Accounts, and the Fuel Tank covers the required funds for the Tank User Account Storage Deposit.
+MD,
+    'fuel_tank.field.providesDeposit' => '(DEPRECATED) The flag for deposit.',
+    'fuel_tank.field.isFrozen' => 'The flag for frozen state.',
+    'fuel_tank.field.accountCount' => 'The number of accounts.',
+    'fuel_tank.field.accounts' => 'The fuel tank accounts.',
+    'fuel_tank.field.accountRules' => 'The fuel tank account rules.',
+    'fuel_tank.field.dispatchRules' => 'The fuel tank dispatch rules.',
+    'fuel_tank.field.coveragePolicy' => <<<'MD'
+Defines the coverage scope for the Fuel Tank. [Learn more](https://docs.enjin.io/docs/using-fuel-tanks#coverage-policy).
+
+Options:
+1. **FEES** *(Default)*
+   The Fuel Tank subsidizes only transaction fees.
+
+2. **FEES_AND_DEPOSIT**
+   The Fuel Tank covers both transaction fees and any storage deposit required by the dispatched call.
+MD,
+    'fuel_tank_rule.description' => 'The fuel tank rules.',
+    'fuel_tank_rule.field.rule' => 'The fuel tank rule.',
+    'fuel_tank_rule.field.value' => 'The rule values.',
+    'marketplace_listing.description' => 'A marketplace listing detail.',
+    'marketplace_listing.field.seller' => 'The account making the sale.',
+    'marketplace_listing.field.listingId' => 'The listing ID.',
+    'marketplace_listing.field.makeAssetId' => 'The collection and token ID of the asset being sold.',
+    'marketplace_listing.field.takeAssetId' => 'The collection and token ID of the asset being requested.',
+    'marketplace_listing.field.amount' => 'The number of units being sold.',
+    'marketplace_listing.field.price' => 'The requested price for each unit. If it’s an auction, this is the minimum bid.',
+    'marketplace_listing.field.minTakeValue' => 'The minimum value of the take asset received for the sale to be a success.',
+    'marketplace_listing.field.feeSide' => 'The side of the listing that is considered money and is used to pay fees.',
+    'marketplace_listing.field.creationBlock' => 'The block number the listing was created.',
+    'marketplace_listing.field.deposit' => 'The deposit that was reserved for this listing.',
+    'marketplace_listing.field.salt' => 'Can be used to differentiate listings.',
+    'marketplace_listing.field.type' => 'A type of listing.',
+    'marketplace_bid.field.id' => 'The internal ID.',
+    'asset.description' => 'A token asset.',
+    'asset.field.collectionId' => 'The asset collection ID.',
+    'asset.field.tokenId' => 'The asset token ID.',
+    'listing_state.description' => 'Mutable state of a listing.',
+    'fixed_price_state.description' => 'State of a fixed price listing.',
+    'fixed_price_state.field.amountFilled' => 'The amount of the listing that has been filled.',
+    'auction_state.description' => 'State of an auction listing.',
+    'auction_state.field.highestBid' => 'The highest bid.',
+    'auction_data.description' => 'Immutable data specifically for an auction.',
+    'auction_data.field.startBlock' => 'The block number the auction starts at.',
+    'auction_data.field.endBlock' => 'The block number the auction ends at.',
+    'marketplace_bid.description' => 'The auction bid.',
+    'marketplace_bid.field.bidder' => 'The account who placed the bid.',
+    'marketplace_sale.description' => 'The listing sale.',
+    'marketplace_state.description' => 'The state of the marketplace listing.',
+    'marketplace_state.field.height' => 'The block height.',
+    'listing_data.description' => 'The data for a listing.',
+    'listing_data.field.type' => 'The type of listing.',
+    'listing_data.field.auctionParams' => 'The parameters for an auction listing.',
+    'listing_data.field.offerParams' => 'The parameters for an offer.',
+    'offer_data.description' => 'The parameters for an offer.',
+    'offer_data.field.expiration' => 'The expiration time for the offer.',
+    'offer_state.description' => 'The state of an offer.',
+    'offer_state.field.counterOfferCount' => 'The number of counter offers.',
 ];
