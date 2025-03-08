@@ -177,7 +177,7 @@ class Encoder
                 'address' => SS58Address::encode($address),
                 'blockHash' => $blockHash,
                 'blockNumber' => '0x00000000',
-                'era' => HexConverter::prefix($era),
+                'era' => null, // HexConverter::prefix($era),
                 'genesisHash' => $genesisHash,
                 'method' => $call,
                 'nonce' => HexConverter::intToHexPrefixed($nonce),
