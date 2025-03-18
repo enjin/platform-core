@@ -28,7 +28,7 @@ trait HasIntegerRanges
                 return $range;
             })
             ->flatten()
-            ->transform(fn ($val) => (string) $val)
+            ->transform(fn ($val) => $val)
             ->unique()
             ->sort()
             ->all();
