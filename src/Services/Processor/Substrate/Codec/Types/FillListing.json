@@ -4,5 +4,10 @@
         "listingId": "h256",
         "amount": "Compact<u128>",
         "royaltyBeneficiaryCount": "u32"
+    },
+    "FillListingV1013": {
+        "callIndex": "(u8, u8)",
+        "listingId": "h256",
+        "amount": "Compact<u128>"
     }
 }
