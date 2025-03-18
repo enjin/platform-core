@@ -1,6 +1,11 @@
 {
     "FinalizeAuction": {
         "callIndex": "(u8, u8)",
+        "listingId": "h256",
+        "royaltyBeneficiaryCount": "u32"
+    },
+    "FinalizeAuctionV1013": {
+        "callIndex": "(u8, u8)",
         "listingId": "h256"
     }
 }
