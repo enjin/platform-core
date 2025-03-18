@@ -2,6 +2,7 @@
     "FillListing": {
         "callIndex": "(u8, u8)",
         "listingId": "h256",
-        "amount": "Compact<u128>"
+        "amount": "Compact<u128>",
+        "royaltyBeneficiaryCount": "u32"
     }
 }
