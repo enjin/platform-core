@@ -13,6 +13,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Request;
 use Throwable;
 
 class DecoderService
@@ -35,7 +36,7 @@ class DecoderService
         $result = $this->client->getClient()->post($this->host, [
             $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
             'network' => $this->network,
-            'spec_version' => specForBlock($blockNumber, $this->network),
+            'spec_version' => $specVersion = specForBlock($blockNumber, $this->network),
         ]);
 
         $data = $this->client->getResponse($result);
@@ -48,7 +49,12 @@ class DecoderService
 
         if (Arr::get($data, 'error')) {
             $data = is_string($bytes) ? $bytes : json_encode($bytes);
-            Log::critical("Decoder failed to decode {$type} at block {$blockNumber} from network {$this->network}: {$data}");
+            $command = Request::server('argv', null);
+            if (is_array($command)) {
+                $command = implode(' ', $command);
+            }
+
+            Log::critical("{$command} : Decoder failed to decode {$type} at block {$blockNumber} from network {$this->network} ({$specVersion}): {$data}");
 
             return null;
         }
