@@ -49,6 +49,8 @@ class TransactionChecker extends Command
      */
     public function handle(Substrate $client, Codec $codec): void
     {
+        return;
+        
         $this->codec = $codec;
         $this->client = $client;
 
