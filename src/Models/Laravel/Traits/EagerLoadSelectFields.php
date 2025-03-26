@@ -7,6 +7,7 @@ use Enjin\Platform\GraphQL\Types\Substrate\BlockType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountApprovalType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionType;
+use Enjin\Platform\GraphQL\Types\Substrate\DispatchRuleType;
 use Enjin\Platform\GraphQL\Types\Substrate\EventType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountApprovalType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountNamedReserveType;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Enjin\Platform\GraphQL\Types\Substrate\FuelTankType;
 
 trait EagerLoadSelectFields
 {
@@ -509,6 +511,17 @@ trait EagerLoadSelectFields
                 );
 
                 break;
+            case 'GetFuelTanks':
+            case 'GetFuelTank':
+                [$select, $with, $withCount] = static::loadFuelTank(
+                    $queryPlan,
+                    $query == 'GetFuelTanks' ? 'edges.fields.node.fields' : '',
+                    [],
+                    null,
+                    true
+                );
+
+                break;
         }
 
 
@@ -597,6 +610,7 @@ trait EagerLoadSelectFields
 
                 break;
             case 'wallet':
+            case 'accounts':
                 $relations = static::loadWallet(
                     $selections,
                     $attribute == 'royaltyBeneficiary'
@@ -787,8 +801,76 @@ trait EagerLoadSelectFields
                 $withs = array_merge($withs, $relations[1]);
 
                 break;
+            case 'accountRules':
+            case 'dispatchRules':
+                $fields = Arr::get($selections, $attribute . '.fields', $selections);
+                $select = collect(['id', 'fuel_tank_id', ...DispatchRuleType::getSelectFields(array_keys($fields))])
+                    ->filter()
+                    ->unique()
+                    ->toArray();
+                $withs = array_merge(
+                    $withs,
+                    [$key => fn ($query) => $query->select($select)]
+                );
+
+                break;
         }
 
         return $withs;
+    }
+
+    /**
+     * Load fuel tank's select and relationship fields.
+     */
+    public static function loadFuelTank(
+        array $selections,
+        string $attribute,
+        array $args = [],
+        ?string $key = null,
+        bool $isParent = false
+    ): array {
+        $fields = Arr::get($selections, $attribute, $selections);
+        $select = array_filter([
+            'id',
+            isset($fields['owner']) ? 'owner_wallet_id' : null,
+            isset($fields['tankId']) ? 'public_key' : null,
+            ...FuelTankType::getSelectFields($fieldKeys = array_keys($fields)),
+        ]);
+
+        $with = [];
+        $withCount = [];
+
+        if (!$isParent) {
+            $with = [
+                $key => function ($query) use ($select, $args): void {
+                    $query->select(array_unique($select))
+                        ->when($cursor = Cursor::fromEncoded(Arr::get($args, 'after')), fn ($q) => $q->where('id', '>', $cursor->parameter('id')))
+                        ->orderBy('fuel_tanks.id');
+                    // This must be done this way to load eager limit correctly.
+                    if ($limit = Arr::get($args, 'first')) {
+                        $query->limit($limit + 1);
+                    }
+                },
+            ];
+        }
+
+        foreach (FuelTankType::getRelationFields($fieldKeys) as $relation) {
+            if ($isParent && in_array($relation, ['accountRules', 'dispatchRules', 'accounts'])) {
+                $withCount[] = $relation;
+            }
+
+            $with = array_merge(
+                $with,
+                static::getRelationQuery(
+                    FuelTankType::class,
+                    $relation,
+                    $fields,
+                    $key,
+                    $with
+                )
+            );
+        }
+
+        return [$select, $with, $withCount];
     }
 }

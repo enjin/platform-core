@@ -24,7 +24,7 @@ class SyncMetadata implements ShouldQueue
      */
     public function __construct(protected int $attributeId)
     {
-        $this->onQueue(config('enjin-platform.queue'));
+        $this->onQueue(config('enjin-platform.core_queue'));
     }
 
     /**
