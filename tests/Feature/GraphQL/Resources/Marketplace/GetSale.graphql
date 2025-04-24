@@ -1,0 +1,16 @@
+query GetSale($id: BigInt!) {
+  GetSale(id: $id) {
+    id
+    price
+    amount
+    bidder {
+      account {
+        publicKey
+        address
+      }
+    }
+    listing {
+      listingId
+    }
+  }
+}

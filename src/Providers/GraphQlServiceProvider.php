@@ -37,7 +37,6 @@ class GraphQlServiceProvider extends ServiceProvider
         config(['graphql.pagination_type' => ConnectionType::class]);
 
         $this->setNetwork();
-
         $this->graphqlClasses = Package::getPackageClasses();
 
         $this->graphQlEnums();
@@ -48,6 +47,9 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->registerGraphQlExecutionMiddleware();
         $this->registerExternalResolverMiddleware();
         $this->registerGraphiqlEndpoints();
+
+        ray(config('graphql'));
+        ray(config('graphiql'));
     }
 
     /**
@@ -149,9 +151,11 @@ class GraphQlServiceProvider extends ServiceProvider
 
         // Schema specific Types
         $types = $this->graphqlClasses->filter(
-            fn ($className) => in_array(static::TYPE, class_implements($className))
-                && !empty($className::getSchemaName())
-                && $className::getSchemaNetwork() == chain()->value
+            function ($className) {
+                return in_array(static::TYPE, class_implements($className))
+                    && !empty($className::getSchemaName())
+                    && $className::getSchemaNetwork() == chain()->value;
+            }
         );
 
         $types->each(function ($type) use (&$schemas): void {
@@ -161,6 +165,8 @@ class GraphQlServiceProvider extends ServiceProvider
         foreach ($schemas as $schemaName => $schema) {
             config(["graphql.schemas.{$schemaName}" => array_merge_recursive($schemaDefaults, $schema)]);
         }
+
+        ray(config('graphql.schemas'));
 
         // Manually add UploadType after schema has been built.
         GraphQL::addType(UploadType::class);

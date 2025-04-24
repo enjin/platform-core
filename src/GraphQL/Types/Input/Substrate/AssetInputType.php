@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\GraphQL\Types\Input;
+namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 
 use Rebing\GraphQL\Support\Facades\GraphQL;
 

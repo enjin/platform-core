@@ -582,6 +582,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance),
+                operatorPaysDeposit: fake()->boolean(),
             ),
         ));
 

@@ -1,0 +1,16 @@
+query GetBid($id: BigInt!) {
+  GetBid(id: $id) {
+    id
+    price
+    height
+    bidder {
+      account {
+        publicKey
+        address
+      }
+    }
+    listing {
+      listingId
+    }
+  }
+}

@@ -42,6 +42,11 @@ class OperatorTransferParamsInputType extends InputType implements PlatformGraph
                 'description' => __('enjin-platform::mutation.batch_transfer.args.amount'),
 
             ],
+            'operatorPaysDeposit' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::mutation.batch_transfer.args.operatorPaysDeposit'),
+                'defaultValue' => false,
+            ],
             'keepAlive' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::mutation.operator_transfer_token.args.params.keepAlive'),

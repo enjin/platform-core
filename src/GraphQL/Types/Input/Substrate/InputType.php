@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\GraphQL\Types\Input;
+namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Traits\InMarketplaceSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;

@@ -1,0 +1,17 @@
+mutation FinalizeAuction($listingId: String!, $skipValidation: Boolean) {
+  FinalizeAuction(listingId: $listingId, skipValidation: $skipValidation) {
+    id
+    transactionId
+    transactionHash
+    state
+    encodedData
+    method
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+    idempotencyKey
+  }
+}

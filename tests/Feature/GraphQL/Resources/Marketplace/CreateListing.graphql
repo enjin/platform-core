@@ -1,0 +1,37 @@
+mutation CreateListing(
+  $makeAssetId: MultiTokenIdInput!
+  $takeAssetId: MultiTokenIdInput!
+  $amount: BigInt!
+  $price: BigInt!
+  $salt: String!
+  $startBlock: Int
+  $listingData: ListingDataInput!
+  $signingAccount: String
+  $skipValidation: Boolean
+) {
+  CreateListing(
+    makeAssetId: $makeAssetId
+    takeAssetId: $takeAssetId
+    amount: $amount
+    price: $price
+    salt: $salt
+    startBlock: $startBlock
+    listingData: $listingData
+    signingAccount: $signingAccount
+    skipValidation: $skipValidation
+  ) {
+    id
+    transactionId
+    transactionHash
+    state
+    encodedData
+    method
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+    idempotencyKey
+  }
+}

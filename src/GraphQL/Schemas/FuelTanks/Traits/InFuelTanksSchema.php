@@ -21,6 +21,6 @@ trait InFuelTanksSchema
      */
     public static function getSchemaNetwork(): string
     {
-        return '';
+        return 'substrate';
     }
 }

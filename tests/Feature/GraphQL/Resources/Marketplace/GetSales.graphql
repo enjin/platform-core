@@ -1,0 +1,27 @@
+query GetSales($accounts: [String!], $listingIds: [String!], $ids: [BigInt!]) {
+  GetSales(accounts: $accounts, listingIds: $listingIds, ids: $ids) {
+    totalCount
+    pageInfo {
+      startCursor
+      endCursor
+      hasPreviousPage
+      hasNextPage
+    }
+    edges {
+      node {
+        id
+        price
+        amount
+        bidder {
+          account {
+            publicKey
+            address
+          }
+        }
+        listing {
+          listingId
+        }
+      }
+    }
+  }
+}
