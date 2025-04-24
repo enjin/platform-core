@@ -46,7 +46,7 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->registerGraphQlHttpMiddleware();
         $this->registerGraphQlExecutionMiddleware();
         $this->registerExternalResolverMiddleware();
-//        $this->registerGraphiqlEndpoints();
+        //        $this->registerGraphiqlEndpoints();
     }
 
     /**
@@ -148,11 +148,9 @@ class GraphQlServiceProvider extends ServiceProvider
 
         // Schema specific Types
         $types = $this->graphqlClasses->filter(
-            function ($className) {
-                return in_array(static::TYPE, class_implements($className))
-                    && !empty($className::getSchemaName())
-                    && $className::getSchemaNetwork() == chain()->value;
-            }
+            fn ($className) => in_array(static::TYPE, class_implements($className))
+                && !empty($className::getSchemaName())
+                && $className::getSchemaNetwork() == chain()->value
         );
 
         $types->each(function ($type) use (&$schemas): void {
@@ -262,7 +260,6 @@ class GraphQlServiceProvider extends ServiceProvider
 
         $existingRoutes = collect(config('graphiql.routes'));
         config(['graphiql.routes' => $packageRoutes->merge($existingRoutes)->all()]);
-        ray(config('graphiql'));
     }
 
     /**

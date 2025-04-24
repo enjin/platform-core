@@ -148,7 +148,7 @@ class PlaceBidTest extends TestCaseGraphQL
             array_merge($data, ['price' => $price - 1]),
             true
         );
-        $expected = bcmul($price, 1.05);
+        $expected = bcmul((string) $price, 1.05);
         $this->assertArrayContainsArray(
             ['price' => ["The minimum bidding price must be greater than or equal to {$expected}."]],
             $response['error']

@@ -117,8 +117,6 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(GitHubServiceProvider::class);
 
-        ray(config('graphiql'));
-
         $this->app[Kernel::class]->pushMiddleware(Telemetry::class);
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('platform:send-telemetry-event')->daily();
@@ -173,9 +171,9 @@ class CoreServiceProvider extends PackageServiceProvider
         }));
     }
 
+    #[\Override]
     public function booted(Closure $callback)
     {
         parent::booted($callback);
-        ray(config('graphql'));
     }
 }
