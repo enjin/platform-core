@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform;
 
+use Closure;
 use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\RelayWatcher;
@@ -47,7 +48,7 @@ class CoreServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('enjin-platform')
-            ->hasConfigFile(['enjin-platform', 'enjin-runtime', 'graphql', 'telemetry'])
+            ->hasConfigFile(['enjin-platform', 'enjin-runtime', 'graphql', 'graphiql', 'telemetry'])
             ->hasMigration('create_wallets_table')
             ->hasMigration('create_collections_table')
             ->hasMigration('create_collection_accounts_table')
@@ -116,6 +117,8 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(GitHubServiceProvider::class);
 
+        ray(config('graphiql'));
+
         $this->app[Kernel::class]->pushMiddleware(Telemetry::class);
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('platform:send-telemetry-event')->daily();
@@ -168,5 +171,11 @@ class CoreServiceProvider extends PackageServiceProvider
 
             return $item;
         }));
+    }
+
+    public function booted(Closure $callback)
+    {
+        parent::booted($callback);
+        ray(config('graphql'));
     }
 }

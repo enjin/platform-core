@@ -46,10 +46,7 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->registerGraphQlHttpMiddleware();
         $this->registerGraphQlExecutionMiddleware();
         $this->registerExternalResolverMiddleware();
-        $this->registerGraphiqlEndpoints();
-
-        ray(config('graphql'));
-        ray(config('graphiql'));
+//        $this->registerGraphiqlEndpoints();
     }
 
     /**
@@ -166,8 +163,6 @@ class GraphQlServiceProvider extends ServiceProvider
             config(["graphql.schemas.{$schemaName}" => array_merge_recursive($schemaDefaults, $schema)]);
         }
 
-        ray(config('graphql.schemas'));
-
         // Manually add UploadType after schema has been built.
         GraphQL::addType(UploadType::class);
     }
@@ -267,6 +262,7 @@ class GraphQlServiceProvider extends ServiceProvider
 
         $existingRoutes = collect(config('graphiql.routes'));
         config(['graphiql.routes' => $packageRoutes->merge($existingRoutes)->all()]);
+        ray(config('graphiql'));
     }
 
     /**
