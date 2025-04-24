@@ -1,8 +1,8 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\Tests\Feature\GraphQL\Traits;
+namespace Enjin\Platform\Tests\Packages\Traits;
 
-use Enjin\Platform\Marketplace\Enums\ListingType;
+use Enjin\Platform\Enums\ListingType;
 
 trait CreateListingParameters
 {

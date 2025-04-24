@@ -1,13 +1,13 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Facades\TransactionSerializer;
-use Enjin\Platform\Marketplace\Enums\ListingState;
-use Enjin\Platform\Marketplace\GraphQL\Mutations\CancelListingMutation;
-use Enjin\Platform\Marketplace\Models\MarketplaceListing;
-use Enjin\Platform\Marketplace\Models\MarketplaceState;
-use Enjin\Platform\Marketplace\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Enums\ListingState;
+use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CancelListingMutation;
+use Enjin\Platform\Models\MarketplaceListing;
+use Enjin\Platform\Models\MarketplaceState;
+use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Str;
 
 class CancelListingTest extends TestCaseGraphQL

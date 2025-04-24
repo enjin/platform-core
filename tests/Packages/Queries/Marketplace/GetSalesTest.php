@@ -1,21 +1,21 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\Tests\Feature\GraphQL\Queries;
+namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use Enjin\Platform\Marketplace\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Providers\Faker\SubstrateProvider;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class GetBidsTest extends TestCaseGraphQL
+class GetSalesTest extends TestCaseGraphQL
 {
     /**
      * The graphql method.
      */
-    protected string $method = 'GetBids';
+    protected string $method = 'GetSales';
 
-    public function test_it_can_get_bids(): void
+    public function test_it_can_get_sales(): void
     {
         $listings = $this->createListing(fake()->numberBetween(1, 100));
         $response = $this->graphql(

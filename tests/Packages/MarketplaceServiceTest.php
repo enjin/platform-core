@@ -1,11 +1,11 @@
 <?php
 
-namespace Enjin\Platform\Tests\Unit;
+namespace Enjin\Platform\Tests\Packages;
 
-use Enjin\Platform\Marketplace\Models\Laravel\MarketplaceListing;
-use Enjin\Platform\Marketplace\Services\MarketplaceService;
-use Enjin\Platform\Marketplace\Tests\Feature\GraphQL\Traits\CreateCollectionData;
-use Enjin\Platform\Marketplace\Tests\TestCase;
+use Enjin\Platform\Models\Laravel\MarketplaceListing;
+use Enjin\Platform\Services\MarketplaceService;
+use Enjin\Platform\Tests\Packages\Traits\CreateCollectionData;
+use Enjin\Platform\Tests\TestCase;
 
 class MarketplaceServiceTest extends TestCase
 {

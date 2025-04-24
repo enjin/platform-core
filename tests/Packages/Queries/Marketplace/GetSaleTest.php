@@ -1,8 +1,8 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\Tests\Feature\GraphQL\Queries;
+namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use Enjin\Platform\Marketplace\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Support\Facades\Schema;
 

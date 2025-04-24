@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\Tests\Feature\GraphQL\Traits;
+namespace Enjin\Platform\Tests\Packages\Traits;
 
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;

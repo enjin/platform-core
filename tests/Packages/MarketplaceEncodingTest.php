@@ -1,17 +1,17 @@
 <?php
 
-namespace Enjin\Platform\Tests\Unit;
+namespace Enjin\Platform\Tests\Packages;
 
+use Enjin\Platform\Enums\Substrate\ListingType;
 use Enjin\Platform\Facades\TransactionSerializer;
-use Enjin\Platform\Marketplace\Enums\ListingType;
-use Enjin\Platform\Marketplace\GraphQL\Mutations\CancelListingMutation;
-use Enjin\Platform\Marketplace\GraphQL\Mutations\CreateListingMutation;
-use Enjin\Platform\Marketplace\GraphQL\Mutations\FillListingMutation;
-use Enjin\Platform\Marketplace\GraphQL\Mutations\FinalizeAuctionMutation;
-use Enjin\Platform\Marketplace\GraphQL\Mutations\PlaceBidMutation;
-use Enjin\Platform\Marketplace\Models\Substrate\MultiTokensTokenAssetIdParams;
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Marketplace\Tests\TestCase;
+use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CancelListingMutation;
+use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CreateListingMutation;
+use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\FillListingMutation;
+use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\FinalizeAuctionMutation;
+use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\PlaceBidMutation;
+use Enjin\Platform\Models\Substrate\MultiTokensTokenAssetIdParams;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Tests\TestCase;
 
 class MarketplaceEncodingTest extends TestCase
 {
