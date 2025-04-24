@@ -383,7 +383,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.create_collection', true);
         $this->assertEquals(
-            "0x{$callIndex}01ff0000000000000001adde00000000000000000000000000000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f0004000008106e616d653c44656d6f20436f6c6c656374696f6e2c6465736372697074696f6e484d792064656d6f20636f6c6c656374696f6e",
+            "0x{$callIndex}01ff0000000000000001adde0000000000000000000000000000010104301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f0004000008106e616d653c44656d6f20436f6c6c656374696f6e2c6465736372697074696f6e484d792064656d6f20636f6c6c656374696f6e",
             $data
         );
     }
@@ -440,7 +440,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_collection', true);
         $this->assertEquals(
-            "0x{$callIndex}411f000101301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f00",
+            "0x{$callIndex}411f00010104301cb3057d43941d5f631613aa1661be0354d39e34f23d4ef527396b10d2bb7a0208af2f00",
             $data
         );
     }
