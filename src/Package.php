@@ -111,8 +111,7 @@ class Package
     public static function getInstalledPlatformPackages(): Collection
     {
         return collect(InstalledVersions::getInstalledPackages())
-            ->filter(fn ($packageName) => preg_match("/^enjin\/platform-/", $packageName))
-            ->merge(['enjin/platform-marketplace', 'enjin/platform-fuel-tanks']);
+            ->filter(fn ($packageName) => preg_match("/^enjin\/platform-/", $packageName));
     }
 
     public static function getPackageClass($package): string

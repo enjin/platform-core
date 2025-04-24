@@ -172,7 +172,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000010052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000001000452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f000000000000000000",
             $data
         );
     }

@@ -301,7 +301,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.batch_transfer', true);
         $this->assertEquals(
-            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0104d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0400",
+            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0104d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d040000",
             $data
         );
     }
@@ -338,7 +338,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.transfer', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f01fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0400",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f01fd03d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d040000",
             $data
         );
     }
@@ -380,6 +380,8 @@ class EncodingTest extends TestCase
             explicitRoyaltyCurrencies: $explicitRoyaltyCurrencies,
             attributes: $attributes
         ));
+
+        dd($data);
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.create_collection', true);
         $this->assertEquals(
@@ -437,6 +439,8 @@ class EncodingTest extends TestCase
                 percentage: 20,
             )
         ));
+
+        dd($data);
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mutate_collection', true);
         $this->assertEquals(

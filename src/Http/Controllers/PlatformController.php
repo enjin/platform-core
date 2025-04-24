@@ -20,9 +20,12 @@ class PlatformController extends Controller
     public static function getPlatformPackages(): array
     {
         $installedPackages = Package::getInstalledPlatformPackages();
+        ray($installedPackages);
 
         return $installedPackages->mapWithKeys(function ($package) {
+            ray($package);
             $packageClass = Package::getPackageClass($package);
+            ray($packageClass);
 
             $info = [
                 'version' => InstalledVersions::getPrettyVersion($package),
@@ -62,6 +65,8 @@ class PlatformController extends Controller
             'release-diff' => static::getReleaseDiffData(true),
             'next-release' => static::getReleaseDiffData(),
         ];
+
+        ray($platformData);
 
         return response()
             ->json($platformData, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
