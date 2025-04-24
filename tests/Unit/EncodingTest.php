@@ -428,7 +428,7 @@ class EncodingTest extends TestCase
         );
     }
 
-    public function test_it_can_encode_mutate_collection_with_royalty(): never
+    public function test_it_can_encode_mutate_collection_with_royalty()
     {
         $data = TransactionSerializer::encode('MutateCollection', MutateCollectionMutation::getEncodableParams(
             collectionId: '2000',
