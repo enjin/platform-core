@@ -117,7 +117,7 @@ class Package
     public static function getPackageClass($package): string
     {
         $packageName = self::getPackageName($package);
-        if ($packageName == 'Core') {
+        if (in_array($packageName, ['Core', 'Marketplace', 'Fuel-Tanks'])) {
             $packageClass = self::class;
         } else {
             $packageClass = "Enjin\\Platform\\{$packageName}\\Package";

@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform;
 
+use Closure;
 use Enjin\Platform\Commands\ClearCache;
 use Enjin\Platform\Commands\Ingest;
 use Enjin\Platform\Commands\RelayWatcher;
@@ -80,6 +81,9 @@ class CoreServiceProvider extends PackageServiceProvider
             ->hasMigration('add_index_to_syncables_table')
             ->hasMigration('add_managed_to_transactions_table')
             ->hasMigration('create_settings_table')
+            ->hasMigration('create_fuel_tanks_table')
+            ->hasMigration('create_fuel_tank_accounts_table')
+            ->hasMigration('create_fuel_tank_rules_table')
             ->hasRoute('enjin-platform')
             ->hasCommand(Sync::class)
             ->hasCommand(Ingest::class)
@@ -165,5 +169,11 @@ class CoreServiceProvider extends PackageServiceProvider
 
             return $item;
         }));
+    }
+
+    #[\Override]
+    public function booted(Closure $callback)
+    {
+        parent::booted($callback);
     }
 }

@@ -1,0 +1,17 @@
+mutation CancelListing($listingId: String!, $skipValidation: Boolean) {
+  CancelListing(listingId: $listingId, skipValidation: $skipValidation) {
+    id
+    transactionId
+    transactionHash
+    state
+    encodedData
+    method
+    wallet {
+      account {
+        publicKey
+        address
+      }
+    }
+    idempotencyKey
+  }
+}

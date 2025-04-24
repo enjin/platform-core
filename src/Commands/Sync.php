@@ -249,10 +249,6 @@ class Sync extends Command
     {
         $storage = $this->getKeys();
 
-        if (class_exists($class = '\Enjin\Platform\FuelTanks\Enums\Substrate\StorageKey')) {
-            $storage = array_merge($storage, [$class::tanks(), $class::accounts()]);
-        }
-
         if (class_exists($class = '\Enjin\Platform\Marketplace\Enums\Substrate\StorageKey')) {
             $storage = array_merge($storage, [$class::listings()]);
         }
@@ -319,9 +315,6 @@ class Sync extends Command
     {
         $tables = Truncate::tables();
 
-        if (class_exists($truncate = '\Enjin\Platform\FuelTanks\Commands\contexts\Truncate')) {
-            $tables = array_merge($tables, $truncate::tables());
-        }
 
         if (class_exists($truncate = '\Enjin\Platform\Marketplace\Commands\contexts\Truncate')) {
             $tables = array_merge($tables, $truncate::tables());

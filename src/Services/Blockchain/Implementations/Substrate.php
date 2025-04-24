@@ -34,6 +34,19 @@ use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Enjin\Platform\Models\Substrate\AccountRulesParams;
+use Enjin\Platform\Models\Substrate\DispatchRulesParams;
+use Enjin\Platform\Models\Substrate\MaxFuelBurnPerTransactionParams;
+use Enjin\Platform\Models\Substrate\PermittedCallsParams;
+use Enjin\Platform\Models\Substrate\PermittedExtrinsicsParams;
+use Enjin\Platform\Models\Substrate\RequireSignatureParams;
+use Enjin\Platform\Models\Substrate\RequireTokenParams;
+use Enjin\Platform\Models\Substrate\TankFuelBudgetParams;
+use Enjin\Platform\Models\Substrate\UserAccountManagementParams;
+use Enjin\Platform\Models\Substrate\UserFuelBudgetParams;
+use Enjin\Platform\Models\Substrate\WhitelistedCallersParams;
+use Enjin\Platform\Models\Substrate\WhitelistedCollectionsParams;
+use Enjin\Platform\Models\Substrate\WhitelistedPalletsParams;
 
 class Substrate implements BlockchainServiceInterface
 {
@@ -435,6 +448,101 @@ class Substrate implements BlockchainServiceInterface
         } catch (Exception) {
             return false;
         }
+    }
+
+    /**
+     * Set user account management param object.
+     */
+    public function getUserAccountManagementParams(?array $args = null): ?UserAccountManagementParams
+    {
+        if (!is_null($creationDeposit = Arr::get($args, 'reservesAccountCreationDeposit'))) {
+            return new UserAccountManagementParams(
+                $creationDeposit ?? false
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * Set the dispatch rule params object.
+     */
+    public function getDispatchRulesParams(array $args): DispatchRulesParams
+    {
+        return new DispatchRulesParams(
+            0, // TODO: Add ruleSet
+            ($callers = Arr::get($args, 'whitelistedCallers'))
+                ? new WhitelistedCallersParams($callers)
+                : null,
+            ($requireToken = Arr::get($args, 'requireToken'))
+                ? new RequireTokenParams(Arr::get($requireToken, 'collectionId'), $this->encodeTokenId($requireToken))
+                : null,
+            ($collections = Arr::get($args, 'whitelistedCollections'))
+                ? new WhitelistedCollectionsParams($collections)
+                : null,
+            (!is_null($maxFuelBurnPerTransaction = Arr::get($args, 'maxFuelBurnPerTransaction')))
+                ? new MaxFuelBurnPerTransactionParams($maxFuelBurnPerTransaction)
+                : null,
+            (!is_null($userFuelBudget = Arr::get($args, 'userFuelBudget')))
+                ? new UserFuelBudgetParams(Arr::get($userFuelBudget, 'amount'), Arr::get($userFuelBudget, 'resetPeriod'))
+                : null,
+            (!is_null($tankFuelBudget = Arr::get($args, 'tankFuelBudget')))
+                ? new TankFuelBudgetParams(Arr::get($tankFuelBudget, 'amount'), Arr::get($tankFuelBudget, 'resetPeriod'))
+                : null,
+            ($permittedCalls = Arr::get($args, 'permittedCalls'))
+                ? new PermittedCallsParams(Arr::get($permittedCalls, 'calls'))
+                : null,
+            ($permittedExtrinsics = Arr::get($args, 'permittedExtrinsics'))
+                ? (new PermittedExtrinsicsParams())->fromMethods($permittedExtrinsics)
+                : null,
+            ($pallets = Arr::get($args, 'whitelistedPallets'))
+                ? new WhitelistedPalletsParams($pallets)
+                : null,
+            ($requireSignature = Arr::get($args, 'requireSignature'))
+                ? new RequireSignatureParams($requireSignature)
+                : null,
+        );
+    }
+
+    /**
+     * Set dispatch rules.
+     */
+    public function getDispatchRulesParamsArray(array $args): array
+    {
+        $dispatchRulesParams = [];
+        if ($rules = Arr::get($args, 'dispatchRules')) {
+            foreach ($rules as $rule) {
+                $dispatchRulesParams[] = $this->getDispatchRulesParams($rule);
+            }
+        }
+
+        return $dispatchRulesParams;
+    }
+
+    /**
+     * Set account rule params object.
+     */
+    public function getAccountRulesParams(?array $args = null): ?AccountRulesParams
+    {
+        if (is_null($args)) {
+            return null;
+        }
+
+        $accountRulesParams = null;
+        $callers = Arr::get($args, 'accountRules.whitelistedCallers');
+        $requireToken = Arr::get($args, 'accountRules.requireToken');
+        if ($callers || $requireToken) {
+            $accountRulesParams = new AccountRulesParams(
+                $callers
+                    ? new WhitelistedCallersParams($callers)
+                    : null,
+                $requireToken
+                    ? new RequireTokenParams(Arr::get($requireToken, 'collectionId'), $this->encodeTokenId($requireToken))
+                    : null
+            );
+        }
+
+        return $accountRulesParams;
     }
 
     /**

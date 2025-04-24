@@ -1,0 +1,112 @@
+query GetListings(
+  $ids: [BigInt!]
+  $listingIds: [String!]
+  $account: String
+  $makeAssetId: MultiTokenIdInput
+  $takeAssetId: MultiTokenIdInput
+  $collectionIds: [BigInt]
+  $states: [ListingStateEnum!]
+) {
+  GetListings(
+    ids: $ids
+    listingIds: $listingIds
+    account: $account
+    makeAssetId: $makeAssetId
+    takeAssetId: $takeAssetId
+    collectionIds: $collectionIds
+    states: $states
+  ) {
+    totalCount
+    pageInfo {
+      startCursor
+      endCursor
+      hasPreviousPage
+      hasNextPage
+    }
+    edges {
+      node {
+        listingId
+        makeAssetId {
+          collectionId
+          tokenId
+        }
+        takeAssetId {
+          collectionId
+          tokenId
+        }
+        amount
+        price
+        minTakeValue
+        feeSide
+        creationBlock
+        deposit
+        salt
+        state {
+          ... on FixedPriceState {
+            type
+            amountFilled
+          }
+          ... on AuctionState {
+            type
+          }
+          ... on OfferState {
+            type
+            counterOfferCount
+          }
+        }
+        data {
+          ... on FixedPriceData {
+            type
+          }
+          ... on AuctionData {
+            type
+            startBlock
+            endBlock
+          }
+          ... on OfferData {
+            type
+            expiration
+          }
+        }
+        seller {
+          account {
+            publicKey
+            address
+          }
+        }
+        sales {
+          edges {
+            node {
+              amount
+              price
+              bidder {
+                account {
+                  publicKey
+                  address
+                }
+              }
+            }
+          }
+        }
+        bids {
+          edges {
+            node {
+              price
+              bidder {
+                account {
+                  publicKey
+                  address
+                }
+              }
+              height
+            }
+          }
+        }
+        states {
+          state
+          height
+        }
+      }
+    }
+  }
+}

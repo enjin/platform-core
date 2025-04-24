@@ -23,7 +23,7 @@ class HotSync implements ShouldQueue
      */
     public function __construct(protected array $storageKeys, protected ?int $keysPerPage = 1000)
     {
-        $this->onQueue(config('enjin-platform.queue'));
+        $this->onQueue(config('enjin-platform.core_queue'));
     }
 
     /**

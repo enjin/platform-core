@@ -4,6 +4,7 @@ namespace Enjin\Platform\Services\Processor\Substrate\Events;
 
 use Enjin\Platform\Enums\Global\ModelType;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Laravel\Collection;
@@ -183,5 +184,19 @@ abstract class SubstrateEvent
             ->where('syncable_type', $model)
             ->where('syncable_id', $value)
             ->exists();
+    }
+
+    /**
+     * Get the fuel tank by the public key.
+     *
+     * @throws PlatformException
+     */
+    protected function getFuelTank(string $publicKey): Model
+    {
+        if (!$fuelTank = FuelTank::where(['public_key' => SS58Address::getPublicKey($publicKey)])->first()) {
+            throw new PlatformException(__('enjin-platform::traits.query_data_or_fail.unable_to_find_fuel_tank', ['class' => self::class, 'publicKey' => $publicKey]));
+        }
+
+        return $fuelTank;
     }
 }

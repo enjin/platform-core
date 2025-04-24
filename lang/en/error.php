@@ -61,4 +61,5 @@ return [
     'wallet_is_immutable' => 'The wallet account is immutable once set.',
     'too_many_requests' =>  'Too many requests. Retry in :num seconds.',
     'snapshot_email_not_configured' => 'The TOKEN_HOLDER_SNAPSHOT_EMAIL is not configured.',
+    'dispatch_query_error' => "There's an error with the query. Please check the query and try again.",
 ];

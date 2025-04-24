@@ -11,14 +11,14 @@ Defines the token's freeze state, determining if and how it can be frozen. Optio
 - **NEVER**: The token cannot be frozen, ensuring it remains transferable at all times.
 MD,
     'freezable_type.description' => <<<'MD'
-Configures the target of the operation, determining which tokens or token groups will have their transfer restrictions applied or removed. [Learn more](https://docs.enjin.io/docs/freezing-thawing).  
+Configures the target of the operation, determining which tokens or token groups will have their transfer restrictions applied or removed. [Learn more](https://docs.enjin.io/docs/freezing-thawing).
 
-Options include:  
+Options include:
 
-- **COLLECTION**: Applies or removes transfer restrictions for the entire collection.  
-- **COLLECTION_ACCOUNT**: Applies or removes transfer restrictions for all tokens in the collection for a specific account, affecting only that account's transfers.  
-- **TOKEN**: Applies or removes transfer restrictions for a specific token.  
-- **TOKEN_ACCOUNT**: Applies or removes transfer restrictions for a specific token held by a particular account, affecting only that account's ability to transfer the token.  
+- **COLLECTION**: Applies or removes transfer restrictions for the entire collection.
+- **COLLECTION_ACCOUNT**: Applies or removes transfer restrictions for all tokens in the collection for a specific account, affecting only that account's transfers.
+- **TOKEN**: Applies or removes transfer restrictions for a specific token.
+- **TOKEN_ACCOUNT**: Applies or removes transfer restrictions for a specific token held by a particular account, affecting only that account's ability to transfer the token.
 MD,
     'model_type.description' => 'The model type.',
     'network_type.description' => 'The network type.',
@@ -36,4 +36,10 @@ MD,
     'transaction_method.description' => 'The currently supported transactions.',
     'transaction_result.description' => 'The result status of a transaction.',
     'transaction_state.description' => "The states in a transaction's lifecycle.",
+    'dispatch_rule.description' => 'The dispatch rule options.',
+    'dispatch_call.description' => 'The dispatch call options.',
+    'coverage_policy.description' => 'The coverage policy options.',
+    'fee_side.description' => 'The side of the listing that is considered money and is used to pay fees.',
+    'listing_type.description' => 'A type of listing.',
+    'listing_state.description' => 'The marketplace listing state.',
 ];

@@ -76,7 +76,7 @@ return [
     //  ]
     //
     'schemas' => [
-        'primary' => [
+        'primary' => $baseSchemaConfig = [
             'query' => [
                 // ExampleQuery::class,
             ],
@@ -97,6 +97,8 @@ return [
             // An array of middlewares, overrides the global ones
             'execution_middleware' => null,
         ],
+        'marketplace' => $baseSchemaConfig,
+        'fuel-tanks'  => $baseSchemaConfig,
     ],
 
     // The global types available to all schemas.

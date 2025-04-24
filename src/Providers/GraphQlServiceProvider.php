@@ -37,7 +37,6 @@ class GraphQlServiceProvider extends ServiceProvider
         config(['graphql.pagination_type' => ConnectionType::class]);
 
         $this->setNetwork();
-
         $this->graphqlClasses = Package::getPackageClasses();
 
         $this->graphQlEnums();
