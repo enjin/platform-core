@@ -46,7 +46,7 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->registerGraphQlHttpMiddleware();
         $this->registerGraphQlExecutionMiddleware();
         $this->registerExternalResolverMiddleware();
-        //        $this->registerGraphiqlEndpoints();
+        $this->registerGraphiqlEndpoints();
     }
 
     /**
