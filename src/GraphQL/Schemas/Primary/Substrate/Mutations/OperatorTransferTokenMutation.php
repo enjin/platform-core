@@ -136,7 +136,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
                 'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0))->toEncodable(),
+            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0, false))->toEncodable(),
         ];
     }
 
