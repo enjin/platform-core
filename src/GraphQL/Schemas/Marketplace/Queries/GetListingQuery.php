@@ -12,7 +12,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
-class GetListingQuery extends MarketplaceQiery
+class GetListingQuery extends MarketplaceQuery
 {
     /**
      * Get the mutation's attributes.
