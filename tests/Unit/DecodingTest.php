@@ -37,7 +37,7 @@ final class DecodingTest extends TestCase
         );
     }
 
-    public function test_it_can_decode_create_collection()
+    public function test_it_can_decode_create_collection(): never
     {
         // TODO: FIX THIS
         $this->markTestSkipped('Come back here!');
@@ -60,7 +60,7 @@ final class DecodingTest extends TestCase
         );
     }
 
-    public function test_it_can_decode_create_collection_other()
+    public function test_it_can_decode_create_collection_other(): never
     {
         // TODO: FIX THIS
         $this->markTestSkipped('Come back here!');

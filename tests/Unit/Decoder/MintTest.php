@@ -139,7 +139,7 @@ class MintTest extends TestCase
         ], $data);
     }
 
-    public function test_it_decodes_with_behavior_has_royalty()
+    public function test_it_decodes_with_behavior_has_royalty(): never
     {
         // TODO: FIX THIS
         $this->markTestSkipped('Come back here!');
@@ -569,7 +569,7 @@ class MintTest extends TestCase
         ], $data);
     }
 
-    public function test_it_decodes_with_all_fields()
+    public function test_it_decodes_with_all_fields(): never
     {
         // TODO: FIX THIS
         $this->markTestSkipped('Come back here!');

@@ -104,7 +104,7 @@ final class StorageTest extends TestCase
     }
 
     // TODO: FIX THIS
-    public function test_it_can_decode_collection_storage_data()
+    public function test_it_can_decode_collection_storage_data(): never
     {
         $this->markTestSkipped('Come back here!');
 
@@ -216,7 +216,7 @@ final class StorageTest extends TestCase
     }
 
     // TODO: FIX THIS
-    public function test_it_can_decode_token_accounts_storage_with_named_reserves()
+    public function test_it_can_decode_token_accounts_storage_with_named_reserves(): never
     {
         $this->markTestSkipped('Come back here!');
 
