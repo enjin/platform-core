@@ -4,7 +4,7 @@ namespace Enjin\Platform\Events\Substrate\Marketplace;
 
 use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
-use Enjin\Platform\Marketplace\Traits\HasCustomQueue;
+use Enjin\Platform\Traits\HasCustomQueue;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Marketplace\AuctionFinalized as AuctionFinalizedPolkadart;
