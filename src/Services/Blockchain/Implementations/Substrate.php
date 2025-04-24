@@ -339,7 +339,7 @@ class Substrate implements BlockchainServiceInterface
             $this->encodeTokenId($args),
             $args['source'],
             $args['amount'],
-            $args['operatorPaysDeposit'],
+            Arr::get($args, 'operatorPaysDeposit', false),
         ];
 
         return new OperatorTransferParams(...$data);
