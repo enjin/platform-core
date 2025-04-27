@@ -194,9 +194,7 @@ class Decoder
 
     public function collectionStorageData(string $data): array
     {
-        $decoded = currentSpec() >= 1020
-            ? $this->codec->process('CollectionStorageData', new ScaleBytes($data))
-            : $this->codec->process('CollectionStorageDataV1013', new ScaleBytes($data));
+        $decoded = $this->codec->process('CollectionStorageData', new ScaleBytes($data));
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
