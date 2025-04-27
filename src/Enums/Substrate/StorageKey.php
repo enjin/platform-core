@@ -58,6 +58,11 @@ class StorageKey
         return new self(StorageType::ACCOUNTS, $value ?? StorageType::ACCOUNTS->value);
     }
 
+    public static function listings(?string $value = null): self
+    {
+        return new self(StorageType::LISTINGS, $value ?? StorageType::LISTINGS->value);
+    }
+
     /**
      * Get the parser for this storage key.
      */
@@ -80,10 +85,5 @@ class StorageKey
     public function parserFacade(): string
     {
         return '\Facades\Enjin\Platform\Services\Processor\Substrate\Parser';
-    }
-
-    public static function listings(?string $value = null): self
-    {
-        return new self(StorageType::LISTINGS, $value ?? StorageType::LISTINGS->value);
     }
 }

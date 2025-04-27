@@ -28,7 +28,7 @@
   "RoyaltyParamOfV1020": {
     "_enum": {
       "NoMutation": "Null",
-      "SomeMutation": "Option<DefaultRoyaltyV1020>"
+      "SomeMutation": "Option<DefaultRoyalty>"
     }
   }
 }

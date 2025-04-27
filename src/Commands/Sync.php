@@ -257,15 +257,9 @@ class Sync extends Command
 
     protected function getStorageKeys(string $blockHash): array
     {
-        $storage = $this->getKeys();
-
-        if (class_exists($class = '\Enjin\Platform\Marketplace\Enums\Substrate\StorageKey')) {
-            $storage = array_merge($storage, [$class::listings()]);
-        }
-
         return array_map(
             fn ($key) => [$key, $blockHash, $this->nodeUrl, $this->output],
-            $storage
+            $this->getKeys()
         );
     }
 

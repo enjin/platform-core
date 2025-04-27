@@ -29,7 +29,7 @@
   },
   "CollectionPolicyDescriptorV1020": {
     "mint": "MintPolicyDescriptor",
-    "market": "Option<DefaultRoyaltyV1020>"
+    "market": "Option<DefaultRoyalty>"
   },
   "MintPolicyDescriptor": {
     "maxTokenCount": "Option<u64>",
