@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models\Laravel;
 
-use Enjin\Platform\Marketplace\Database\Factories\MarketplaceStateFactory;
+use Enjin\Platform\Database\Factories\MarketplaceStateFactory;
 use Enjin\Platform\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

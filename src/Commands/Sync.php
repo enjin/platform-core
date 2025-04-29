@@ -303,7 +303,7 @@ class Sync extends Command
             Schema::disableForeignKeyConstraints();
             array_map(
                 fn ($table) => DB::table($table)->truncate(),
-                $this->tablesToTruncate()
+                Truncate::tables()
             );
         } catch (Exception) {
             Schema::enableForeignKeyConstraints();
@@ -313,17 +313,5 @@ class Sync extends Command
         Schema::enableForeignKeyConstraints();
 
         return true;
-    }
-
-    protected function tablesToTruncate(): array
-    {
-        $tables = Truncate::tables();
-
-
-        if (class_exists($truncate = '\Enjin\Platform\Marketplace\Commands\contexts\Truncate')) {
-            $tables = array_merge($tables, $truncate::tables());
-        }
-
-        return $tables;
     }
 }
