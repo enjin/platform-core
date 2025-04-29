@@ -78,14 +78,14 @@ class Substrate implements BlockchainServiceInterface
     {
         return [
             StorageKey::collections(),
-            StorageKey::pendingCollectionTransfers(),
+//            StorageKey::pendingCollectionTransfers(),
             StorageKey::collectionAccounts(),
             StorageKey::tokens(),
             StorageKey::tokenAccounts(),
-            StorageKey::attributes(),
-            StorageKey::tanks(),
-            StorageKey::accounts(),
-            StorageKey::listings(),
+//            StorageKey::attributes(),
+//            StorageKey::tanks(),
+//            StorageKey::accounts(),
+//            StorageKey::listings(),
         ];
     }
 

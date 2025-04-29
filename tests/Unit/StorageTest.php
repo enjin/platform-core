@@ -215,12 +215,16 @@ final class StorageTest extends TestCase
         );
     }
 
-    // TODO: FIX THIS
     public function test_it_can_decode_token_accounts_storage_with_named_reserves(): never
     {
-        $this->markTestSkipped('Come back here!');
+        $content = $this->codec->decoder()->tokenAccountStorageData('0x080400043200010000000000000000000000000000000000000005');
 
-        $content = $this->codec->decoder()->tokenAccountStorageData('0x140c00046d61726b74706c6303000000000000000000000000000000000000');
+        // 0x080400
+        //04
+        //32
+        //00
+        //010000000000000000000000000000000000000005
+
         $this->assertEquals(
             [
                 'balance' => '5',
