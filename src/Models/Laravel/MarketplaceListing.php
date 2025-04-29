@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models\Laravel;
 
-use Enjin\Platform\Marketplace\Database\Factories\MarketplaceListingFactory;
+use Enjin\Platform\Database\Factories\MarketplaceListingFactory;
 use Enjin\Platform\Models\BaseModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

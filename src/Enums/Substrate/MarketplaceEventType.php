@@ -1,13 +1,13 @@
 <?php
 
-namespace Enjin\Platform\Marketplace\Enums\Substrate;
+namespace Enjin\Platform\Enums\Substrate;
 
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Events\Implementations\Marketplace\AuctionFinalized;
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Events\Implementations\Marketplace\BidPlaced;
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingCancelled;
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingCreated;
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingFilled;
-use Enjin\Platform\Marketplace\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingRemovedUnderMinimum;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Marketplace\AuctionFinalized;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Marketplace\BidPlaced;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingCancelled;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingCreated;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingFilled;
+use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\Marketplace\ListingRemovedUnderMinimum;
 use Enjin\Platform\Services\Processor\Substrate\Events\SubstrateEvent;
 use Enjin\Platform\Traits\EnumExtensions;
 

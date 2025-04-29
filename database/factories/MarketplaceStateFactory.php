@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Database\Factories;
 
 use Enjin\Platform\Enums\Substrate\ListingState;
-use Enjin\Platform\Marketplace\Models\MarketplaceState;
+use Enjin\Platform\Models\MarketplaceState;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MarketplaceStateFactory extends Factory
