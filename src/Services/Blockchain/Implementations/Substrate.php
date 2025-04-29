@@ -83,6 +83,9 @@ class Substrate implements BlockchainServiceInterface
             StorageKey::tokens(),
             StorageKey::tokenAccounts(),
             StorageKey::attributes(),
+            StorageKey::tanks(),
+            StorageKey::accounts(),
+            StorageKey::listings(),
         ];
     }
 
@@ -95,6 +98,9 @@ class Substrate implements BlockchainServiceInterface
             StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
             StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),
             StorageKey::attributes(Encoder::attributeStorageKey($collectionId)),
+            StorageKey::tanks(),
+            StorageKey::accounts(),
+            StorageKey::listings(),
         ];
     }
 

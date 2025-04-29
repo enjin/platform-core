@@ -194,9 +194,7 @@ class Decoder
 
     public function collectionStorageData(string $data): array
     {
-        $decoded = currentSpec() >= 1020
-            ? $this->codec->process('CollectionStorageData', new ScaleBytes($data))
-            : $this->codec->process('CollectionStorageDataV1013', new ScaleBytes($data));
+        $decoded = $this->codec->process('CollectionStorageData', new ScaleBytes($data));
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
@@ -233,9 +231,7 @@ class Decoder
 
     public function tokenStorageData(string $data): array
     {
-        $decoded = currentSpec() >= 1020
-            ? $this->codec->process('TokenStorageData', new ScaleBytes($data))
-            : $this->codec->process('TokenStorageDataV1013', new ScaleBytes($data));
+        $decoded = $this->codec->process('TokenStorageData', new ScaleBytes($data));
 
         $cap = TokenMintCapType::tryFrom(collect(Arr::get($decoded, 'cap'))->keys()->first());
         $capSupply = Arr::get($decoded, 'cap.Supply') ?? Arr::get($decoded, 'cap.CollapsingSupply');
@@ -310,10 +306,7 @@ class Decoder
 
     public function tokenAccountStorageData(string $data): array
     {
-        $decoded = currentSpec() >= 1020
-            ? $this->codec->process('TokenAccountsStorageData', new ScaleBytes($data))
-            : $this->codec->process('TokenAccountsStorageDataV1013', new ScaleBytes($data));
-
+        $decoded = $this->codec->process('TokenAccountsStorageData', new ScaleBytes($data));
         $approvals = collect(Arr::get($decoded, 'approvals'))->map(
             fn ($approval, $account) => [
                 'accountId' => HexConverter::prefix($account),
@@ -322,18 +315,18 @@ class Decoder
             ]
         )->values()->toArray();
 
-        $namedReserves = collect(Arr::get($decoded, 'namedReserves'))->map(
-            fn ($reserve, $pallet) => [
-                'pallet' => PalletIdentifier::fromHex($pallet),
-                'amount' => gmp_strval($reserve),
-            ]
-        )->values()->toArray();
+        //        $namedReserves = collect(Arr::get($decoded, 'namedReserves'))->map(
+        //            fn ($reserve, $pallet) => [
+        //                'pallet' => PalletIdentifier::fromHex($pallet),
+        //                'amount' => gmp_strval($reserve),
+        //            ]
+        //        )->values()->toArray();
 
         return [
             'balance' => gmp_strval(Arr::get($decoded, 'balance')),
             'reservedBalance' => gmp_strval(Arr::get($decoded, 'reservedBalance')),
             'lockedBalance' => gmp_strval(Arr::get($decoded, 'lockedBalance')),
-            'namedReserves' => $namedReserves,
+            'namedReserves' => [], // $namedReserves, TODO: Fix this
             'approvals' => $approvals,
             'isFrozen' => Arr::get($decoded, 'isFrozen'),
             // TODO: To implement at v1010

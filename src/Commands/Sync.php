@@ -14,6 +14,7 @@ use Enjin\Platform\Events\Substrate\Commands\PlatformSynced;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncError;
 use Enjin\Platform\Events\Substrate\Commands\PlatformSyncing;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Http\Controllers\PlatformController;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Syncable;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -100,12 +101,21 @@ class Sync extends Command
     {
         Cache::forget(PlatformCache::CUSTOM_TYPES->key());
 
-        $this->info(__('enjin-platform::commands.sync.header'));
+        $packages = PlatformController::getPlatformPackages();
+        $version = Arr::get($packages, 'enjin/platform-core.version');
+
+        $this->info(__('enjin-platform::commands.sync.header', ['version' => $version]));
+        $this->info(__('enjin-platform::commands.sync.syncing', ['network' => isMainnet() ? 'Mainnet' : 'Canary']));
+        $this->info('** Matrixchain RPC: ' . currentMatrixUrl());
+        $this->info('** Relaychain RPC: ' . currentRelayUrl());
+
+        $block = $this->getCurrentBlock($rpc);
+        $this->info('***************************************************************');
+
         if (!$this->truncateTables()) {
             throw new PlatformException(__('enjin-platform::error.failed_to_truncate'));
         }
 
-        $block = $this->getCurrentBlock($rpc);
         $storages = $this->getStorageAt($block->hash);
         $this->parseStorages($block, $storages);
         $this->displayOverview($storages);
@@ -142,7 +152,7 @@ class Sync extends Command
         }
 
         $blockNumber = HexConverter::hexToUInt($blockNumber);
-        $this->info(__('enjin-platform::commands.sync.syncing', ['blockNumber' => $blockNumber]));
+        $this->info(__('enjin-platform::commands.sync.current_block', ['blockNumber' => $blockNumber]));
 
         return Block::create([
             'number' => $blockNumber,
@@ -247,15 +257,9 @@ class Sync extends Command
 
     protected function getStorageKeys(string $blockHash): array
     {
-        $storage = $this->getKeys();
-
-        if (class_exists($class = '\Enjin\Platform\Marketplace\Enums\Substrate\StorageKey')) {
-            $storage = array_merge($storage, [$class::listings()]);
-        }
-
         return array_map(
             fn ($key) => [$key, $blockHash, $this->nodeUrl, $this->output],
-            $storage
+            $this->getKeys()
         );
     }
 

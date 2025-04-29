@@ -9,39 +9,61 @@
     "hashAccountId": "u128",
     "accountId": "AccountId"
   },
-  "TokenAccountsStorageDataV1013": {
-    "balance": "Compact",
-    "reservedBalance": "Compact",
-    "lockedBalance": "Compact",
-    "namedReserves": "BTreeMap<[u8;8],u128>",
-    "locks": "BTreeMap<[u8;8],u128>",
-    "approvals": "BTreeMap<AccountId,TokenApproval>",
-    "isFrozen": "bool",
-    "deposits": "Option<CreationDeposit>"
-  },
   "TokenAccountsStorageData": {
     "balance": "Compact",
     "reservedBalance": "Compact",
     "lockedBalance": "Compact",
-    "holds": "Vec<TokenAccountReserveV1020>",
+    "holds": "Vec<TokenAccountReserve>",
     "locks": "BTreeMap<[u8;8],u128>",
     "approvals": "BTreeMap<AccountId,TokenApproval>",
     "isFrozen": "bool",
-    "deposits": "Option<CreationDeposit>",
+    "deposit": "Option<CreationDeposit>",
     "storageVersion": "u8"
   },
-  "TokenAccountReserveV1020": {
-    "reason": "RuntimeHoldReasonV1020",
+  "TokenAccountReserve": {
+    "reason": "HoldReason",
     "balance": "Compact"
   },
-  "RuntimeHoldReasonV1020": {
+  "RuntimeHoldReason": {
+    "index": "u8",
+    "value": "u8"
+  },
+  "HoldReason": {
     "_enum": {
-      "CollatorStaking": "null",
-      "FuelTanks": "null",
-      "Marketplace": "null",
-      "MultiTokens": "null",
-      "Preimage": "null",
-      "SafeMode": "null"
+      "CollatorStaking": "HoldReason_CollatorStaking",
+      "FuelTanks": "HoldReason_FuelTanks",
+      "Marketplace": "HoldReason_Marketplace",
+      "MultiTokens": "HoldReason_MultiTokens",
+      "Preimage": "HoldReason_Preimage",
+      "SafeMode": "HoldReason_SafeMode"
+    }
+  },
+  "HoldReason_CollatorStaking": {
+    "_enum": {
+      "CollatorStaking": null
+    }
+  },
+  "HoldReason_FuelTanks": {
+    "_enum": {
+      "FuelTanks": null
+    }
+  },
+  "HoldReason_Marketplace": {
+      "Marketplace": null
+  },
+  "HoldReason_MultiTokens": {
+    "_enum": {
+      "MultiTokens": null
+    }
+  },
+  "HoldReason_Preimage": {
+    "_enum": {
+      "Preimage": null
+    }
+  },
+  "HoldReason_SafeMode": {
+    "_enum": {
+      "EnterOrExtend": null
     }
   },
   "TokenApproval": {

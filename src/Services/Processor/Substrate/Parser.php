@@ -165,7 +165,6 @@ class Parser
         foreach ($data as [$key, $token]) {
             $tokenKey = $this->serializationService->decode('tokenStorageKey', $key);
             $tokenData = $this->serializationService->decode('tokenStorageData', $token);
-
             $collection = $this->getCachedCollection(
                 $tokenKey['collectionId'],
                 fn () => Collection::where('collection_chain_id', $tokenKey['collectionId'])->firstOrFail()
@@ -333,6 +332,7 @@ class Parser
         foreach ($data as [$key, $tokenAccount]) {
             $tokenAccountKey = $this->serializationService->decode('tokenAccountStorageKey', $key);
             $tokenAccountData = $this->serializationService->decode('tokenAccountStorageData', $tokenAccount);
+
             $wallet = $this->getCachedWallet(
                 $tokenAccountKey['accountId'],
                 fn () => $this->walletService->firstOrStore(['account' => $tokenAccountKey['accountId']])

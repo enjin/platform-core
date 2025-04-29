@@ -5,7 +5,6 @@ namespace Enjin\Platform\Tests\Unit;
 use Codec\Base;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
-use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\Twox;
@@ -209,30 +208,6 @@ final class StorageTest extends TestCase
                         'expiration' => '50000',
                     ],
                 ],
-                'isFrozen' => false,
-            ],
-            $content
-        );
-    }
-
-    // TODO: FIX THIS
-    public function test_it_can_decode_token_accounts_storage_with_named_reserves(): never
-    {
-        $this->markTestSkipped('Come back here!');
-
-        $content = $this->codec->decoder()->tokenAccountStorageData('0x140c00046d61726b74706c6303000000000000000000000000000000000000');
-        $this->assertEquals(
-            [
-                'balance' => '5',
-                'reservedBalance' => '3',
-                'lockedBalance' => '0',
-                'namedReserves' => [
-                    [
-                        'pallet' => PalletIdentifier::MARKETPLACE,
-                        'amount' => 3,
-                    ],
-                ],
-                'approvals' => [],
                 'isFrozen' => false,
             ],
             $content

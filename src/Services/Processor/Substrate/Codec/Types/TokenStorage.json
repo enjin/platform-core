@@ -74,7 +74,7 @@
   },
   "TokenMarketBehaviorV1020": {
     "_enum": {
-      "HasRoyalty": "DefaultRoyaltyV1020",
+      "HasRoyalty": "DefaultRoyalty",
       "IsCurrency": "Null"
     }
   },
