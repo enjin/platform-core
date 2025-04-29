@@ -315,12 +315,12 @@ class Decoder
             ]
         )->values()->toArray();
 
-//        $namedReserves = collect(Arr::get($decoded, 'namedReserves'))->map(
-//            fn ($reserve, $pallet) => [
-//                'pallet' => PalletIdentifier::fromHex($pallet),
-//                'amount' => gmp_strval($reserve),
-//            ]
-//        )->values()->toArray();
+        //        $namedReserves = collect(Arr::get($decoded, 'namedReserves'))->map(
+        //            fn ($reserve, $pallet) => [
+        //                'pallet' => PalletIdentifier::fromHex($pallet),
+        //                'amount' => gmp_strval($reserve),
+        //            ]
+        //        )->values()->toArray();
 
         return [
             'balance' => gmp_strval(Arr::get($decoded, 'balance')),

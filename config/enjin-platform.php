@@ -99,7 +99,7 @@ return [
                     'network-id' => 2000,
                     'testnet' => false,
                     'platform-id' => env('SUBSTRATE_ENJIN_PLATFORM_ID', 0),
-                    'node' => env('SUBSTRATE_ENJIN_RPC', 'wss://archive.matrix.blockchain.enjin.io'),
+                    'node' => env('SUBSTRATE_ENJIN_RPC', 'wss://rpc.matrix.blockchain.enjin.io'),
                     'ss58-prefix' => env('SUBSTRATE_ENJIN_SS58_PREFIX', 1110),
                     'genesis-hash' => env('SUBSTRATE_ENJIN_GENESIS_HASH', '0x3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615'),
                 ],

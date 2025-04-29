@@ -330,12 +330,8 @@ class Parser
         $insertApprovals = [];
 
         foreach ($data as [$key, $tokenAccount]) {
-            try {
-                $tokenAccountKey = $this->serializationService->decode('tokenAccountStorageKey', $key);
-                $tokenAccountData = $this->serializationService->decode('tokenAccountStorageData', $tokenAccount);
-            } catch (\Throwable $e) {
-                dd($tokenAccountKey);
-            }
+            $tokenAccountKey = $this->serializationService->decode('tokenAccountStorageKey', $key);
+            $tokenAccountData = $this->serializationService->decode('tokenAccountStorageData', $tokenAccount);
 
             $wallet = $this->getCachedWallet(
                 $tokenAccountKey['accountId'],
