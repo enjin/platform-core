@@ -2,7 +2,9 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
+use Carbon\Carbon;
 use Enjin\Platform\GraphQL\Schemas\Primary\Mutations\TokenHolderSnapshotMutation;
+use Enjin\Platform\Models\Block;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -13,6 +15,7 @@ class TokenHolderSnapshotTest extends TestCaseGraphQL
     protected string $method = 'TokenHolderSnapshot';
     protected Model $collection;
     protected Model $token;
+    protected Model $block;
 
     #[\Override]
     protected function setUp(): void
@@ -20,6 +23,7 @@ class TokenHolderSnapshotTest extends TestCaseGraphQL
         parent::setUp();
         $this->collection = Collection::factory()->create();
         $this->token = Token::factory()->create(['collection_id' => $this->collection->id]);
+        $this->block = Block::factory()->create(['created_at' => Carbon::now()]);
         TokenHolderSnapshotMutation::$bypassRateLimiting = true;
         config(['enjin-platform.token_holder_snapshot_email' => fake()->email]);
     }
@@ -40,6 +44,16 @@ class TokenHolderSnapshotTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,
             'tokenId' => $this->token->token_chain_id,
+        ]);
+        $this->assertEquals(
+            $response,
+            trans('enjin-platform::mutation.token_holder_snapshot.success')
+        );
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $this->collection->collection_chain_id,
+            'tokenId' => $this->token->token_chain_id,
+            'blockOrTimestamp' => $this->block->number,
         ]);
         $this->assertEquals(
             $response,
