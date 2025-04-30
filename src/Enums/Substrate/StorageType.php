@@ -31,6 +31,8 @@ enum StorageType: string
             StorageType::TOKEN_ACCOUNTS => 'tokensAccountsStorages',
             StorageType::ATTRIBUTES => 'attributesStorages',
             StorageType::LISTINGS => 'listingsStorages',
+            StorageType::TANKS => 'tanksStorages',
+            StorageType::ACCOUNTS => 'accountsStorages',
             default => throw new PlatformException('No parser for this storage key.'),
         };
     }

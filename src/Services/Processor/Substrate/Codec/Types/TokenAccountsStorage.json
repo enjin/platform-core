@@ -21,7 +21,7 @@
     "storageVersion": "u8"
   },
   "TokenAccountReserve": {
-    "reason": "HoldReason",
+    "reason": "u8",
     "balance": "Compact"
   },
   "RuntimeHoldReason": {
