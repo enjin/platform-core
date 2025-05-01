@@ -6,6 +6,7 @@ use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\FeeSide;
+use Enjin\Platform\Enums\Substrate\RuntimeHoldReason;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
@@ -316,18 +317,19 @@ class Decoder
             ]
         )->values()->toArray();
 
-        //        $namedReserves = collect(Arr::get($decoded, 'namedReserves'))->map(
-        //            fn ($reserve, $pallet) => [
-        //                'pallet' => PalletIdentifier::fromHex($pallet),
-        //                'amount' => gmp_strval($reserve),
-        //            ]
-        //        )->values()->toArray();
+        $namedReserves = array_map(
+            fn ($holdReason) => [
+                'pallet' => RuntimeHoldReason::fromIndex(Arr::get($holdReason, 'index')),
+                'amount' => gmp_strval(Arr::get($holdReason, 'balance')),
+            ],
+            Arr::get($decoded, 'holds')
+        );
 
         return [
             'balance' => gmp_strval(Arr::get($decoded, 'balance')),
             'reservedBalance' => gmp_strval(Arr::get($decoded, 'reservedBalance')),
             'lockedBalance' => gmp_strval(Arr::get($decoded, 'lockedBalance')),
-            'namedReserves' => [], // $namedReserves, TODO: Fix this
+            'namedReserves' => $namedReserves,
             'approvals' => $approvals,
             'isFrozen' => Arr::get($decoded, 'isFrozen'),
             // TODO: To implement at v1010
