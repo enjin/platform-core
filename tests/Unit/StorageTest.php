@@ -5,6 +5,7 @@ namespace Enjin\Platform\Tests\Unit;
 use Codec\Base;
 use Codec\ScaleBytes;
 use Codec\Types\ScaleInstance;
+use Enjin\Platform\Enums\Substrate\RuntimeHoldReason;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\Twox;
@@ -189,25 +190,19 @@ final class StorageTest extends TestCase
 
     public function test_it_can_decode_token_accounts_storage_data()
     {
-        $content = $this->codec->decoder()->tokenAccountStorageData('0x04000000000880f4bee67ab5c177239bfc89d9d307c65afaf10fb6d7d63487a9a2d9df8f460504009cc25de9d468a701b070397bc63b94a7aa5afb72c33cc2990ae004ce014ab333040150c3000000');
+        $content = $this->codec->decoder()->tokenAccountStorageData('0x0028000432000a000000000000000000000000000000000000010adc45aeb8f90dbda5e7ef1997d3071e4759482ec6c0dbab8ec267af7366f0740f0000c16ff2862305');
         $this->assertEquals(
             [
-                'balance' => '1',
-                'reservedBalance' => '0',
+                'balance' => '0',
+                'reservedBalance' => '10',
                 'lockedBalance' => '0',
-                'namedReserves' => [],
-                'approvals' => [
+                'namedReserves' => [
                     [
-                        'accountId' => '0x80f4bee67ab5c177239bfc89d9d307c65afaf10fb6d7d63487a9a2d9df8f4605',
-                        'amount' => '1',
-                        'expiration' => null,
-                    ],
-                    [
-                        'accountId' => '0x9cc25de9d468a701b070397bc63b94a7aa5afb72c33cc2990ae004ce014ab333',
-                        'amount' => '1',
-                        'expiration' => '50000',
+                        'pallet' => RuntimeHoldReason::MARKETPLACE,
+                        'amount' => '10',
                     ],
                 ],
+                'approvals' => [],
                 'isFrozen' => false,
             ],
             $content
