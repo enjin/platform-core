@@ -41,9 +41,9 @@
     "illuminate/contracts": "^11.0",
     "kevinrob/guzzle-cache-middleware": "^6.0",
     "laravel/pail": "^1.2",
-    "mll-lab/laravel-graphiql": "^3.2",
+    "mll-lab/laravel-graphiql": "dev-master",
     "phrity/websocket": "^1.7",
-    "rebing/graphql-laravel": "^9.7",
+    "rebing/graphql-laravel": "^9.9",
     "revolt/event-loop": "^1.0",
     "simplesoftwareio/simple-qrcode": "^4.2",
     "spatie/laravel-package-tools": "^1.18",
@@ -65,6 +65,16 @@
     "roave/security-advisories": "dev-latest",
     "spatie/ray": "^1.41"
   },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:enjin-forks/graphql-php.git"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:enjin-forks/laravel-graphiql.git"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Enjin\\Platform\\": "src",
