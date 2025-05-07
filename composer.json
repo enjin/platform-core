@@ -41,7 +41,7 @@
     "illuminate/contracts": "^11.0",
     "kevinrob/guzzle-cache-middleware": "^6.0",
     "laravel/pail": "^1.2",
-    "mll-lab/laravel-graphiql": "dev-master",
+    "mll-lab/laravel-graphiql": "^4.0.1",
     "phrity/websocket": "^1.7",
     "rebing/graphql-laravel": "^9.9",
     "revolt/event-loop": "^1.0",
@@ -69,10 +69,6 @@
     {
       "type": "vcs",
       "url": "git@github.com:enjin-forks/graphql-php.git"
-    },
-    {
-      "type": "vcs",
-      "url": "git@github.com:enjin-forks/laravel-graphiql.git"
     }
   ],
   "autoload": {
