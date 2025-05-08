@@ -8,7 +8,6 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -62,7 +61,6 @@ class SetMinRelayBalanceMutation extends Mutation implements PlatformGraphQlMuta
         $context,
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
-        WalletService $walletService
     ): mixed {
         Wallet::where('managed', true)->update([
             'min_relay_balance' =>  $args['amount'],
