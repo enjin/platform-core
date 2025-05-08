@@ -115,33 +115,38 @@ class RelayWatcher extends Command
         $this->fetchExtrinsics($blockHash, $blockNumber);
     }
 
-    protected function fetchExtrinsics(string $blockHash, $blockNumber): void
+    protected function parseExtrinsic(array $extrinsics, string $blockNumber): void
+    {
+        for ($i = 0; $i < count($extrinsics); $i++) {
+            $decodedExtrinsic = Arr::first($this->decoder->decode('Extrinsics', [$extrinsics[$i]], $blockNumber));
+            $module = $decodedExtrinsic?->module;
+            $call = $decodedExtrinsic?->call;
+
+            if ($module === 'XcmPallet' && $call === 'limited_teleport_assets') {
+                $hash = $decodedExtrinsic->hash;
+                $signer = $decodedExtrinsic->signer;
+                $tx = Transaction::firstWhere([
+                    'transaction_chain_hash' => $hash,
+                    'wallet_public_key' => $signer,
+                ]);
+
+                if ($tx) {
+                    $tx->transaction_chain_id = $blockNumber . '-' . $i;
+                    $tx->state = TransactionState::FINALIZED->name;
+                    $tx->save();
+
+                    $this->updateExtrinsicResult($blockNumber, $i, $tx->id, null);
+                }
+            }
+        }
+    }
+
+    protected function fetchExtrinsics(string $blockHash, string $blockNumber): void
     {
         $data = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
 
         if ($extrinsics = Arr::get($data, 'block.extrinsics')) {
-            for ($i = 0; $i < count($extrinsics); $i++) {
-                $decodedExtrinsic = Arr::first($this->decoder->decode('Extrinsics', [$extrinsics[$i]], $blockNumber));
-                $module = $decodedExtrinsic?->module;
-                $call = $decodedExtrinsic?->call;
-
-                if ($module === 'XcmPallet' && $call === 'limited_teleport_assets') {
-                    $hash = $decodedExtrinsic->hash;
-                    $signer = $decodedExtrinsic->signer;
-                    $tx = Transaction::firstWhere([
-                        'transaction_chain_hash' => $hash,
-                        'wallet_public_key' => $signer,
-                    ]);
-
-                    if ($tx) {
-                        $tx->transaction_chain_id = $blockNumber . '-' . $i;
-                        $tx->state = TransactionState::FINALIZED->name;
-                        $tx->save();
-
-                        $this->updateExtrinsicResult($blockNumber, $i, $tx->id, null);
-                    }
-                }
-            }
+            $this->parseExtrinsic($extrinsics, $blockNumber);
         }
     }
 
@@ -158,7 +163,7 @@ class RelayWatcher extends Command
         }
     }
 
-    protected function findEndowedAccounts(array $events, int $blockNumber): void
+    protected function findEndowedAccounts(array $events, string $blockNumber): void
     {
         array_filter(
             $events,
@@ -168,6 +173,14 @@ class RelayWatcher extends Command
                         $this->info(json_encode($event));
                         $this->createDaemonTransaction($account, $event->amount);
                     }
+                }
+
+                if ($event->module === 'Balances' && $event->name === 'Deposit') {
+                    if (in_array($account = HexConverter::prefix($event->who), Account::managedPublicKeys())) {
+                        $this->warn(json_encode($event));
+                        $this->createDaemonTransaction($account, $event->amount);
+                    }
+                    $this->info(json_encode($event));
                 }
 
                 if ($event->module === 'XcmPallet' && $event->name === 'Attempted') {
@@ -182,7 +195,7 @@ class RelayWatcher extends Command
         );
     }
 
-    protected function getBlockNumber($blockHash): int
+    protected function getBlockNumber($blockHash): string
     {
         while (true) {
             $block = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
@@ -243,9 +256,9 @@ class RelayWatcher extends Command
             'public_key' => $account,
         ]);
 
-        $transferableAmount = $this->codec->encoder()->compact(
-            gmp_strval(gmp_sub($amount, '201000000000000000'))
-        );
+        $minRelayBalance = $managedWallet->min_relay_balance ?? config('enjin-platform.teleport.keep_balance') ?? '201000000000000000';
+        $transferableAmount = $this->codec->encoder()->compact(gmp_strval(gmp_sub($amount, $minRelayBalance)));
+
         $call = '0x630903000100a10f0300010100' . HexConverter::unPrefix($managedWallet->public_key);
         $call .= '030400000000' . HexConverter::unPrefix($transferableAmount);
         $call .= '0000000000';

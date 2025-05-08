@@ -33,6 +33,7 @@ class Wallet extends BaseModel
         'public_key',
         'external_id',
         'managed',
+        'min_relay_balance',
         'verification_id',
         'network',
     ];

@@ -328,8 +328,13 @@ return [
     */
     'marketplace_queue' => env('PLATFORM_MARKETPLACE_QUEUE', 'default'),
 
-    /**
-     * The block offset to use for validation when creating a listing.
+    /*
+     |--------------------------------------------------------------------------
+     | Listings
+     |--------------------------------------------------------------------------
+     |
+     | The block offset to use for validation when creating a listing.
+     |
      */
     'block_offset' => env('LISTING_BLOCK_OFFSET', 10),
 
@@ -343,4 +348,16 @@ return [
     */
     'token_holder_snapshot_email' => env('TOKEN_HOLDER_SNAPSHOT_EMAIL'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Auto-teleport for managed wallets
+    |--------------------------------------------------------------------------
+    |
+    | Here you may set the minimum balance that should be kept in the managed
+    | wallet at the relaychain when making an auto-teleport
+    |
+    */
+    'teleport' => [
+        'keep_balance' => env('TELEPORT_KEEP_BALANCE', '201000000000000000'),
+    ],
 ];
