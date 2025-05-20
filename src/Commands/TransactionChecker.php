@@ -62,6 +62,8 @@ class TransactionChecker extends Command
         $transactions = collect(Transaction::whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
             ->where('network', currentMatrix()->name)
             ->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
+            // We only check transactions older than 100 blocks because ingest
+            // should be parsing and checking newer transactions
             ->where('signed_at_block', '<', $maxBlockToCheck)->get());
 
         if ($transactions->isEmpty()) {
