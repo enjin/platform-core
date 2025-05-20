@@ -3,7 +3,10 @@
 namespace Enjin\Platform\Commands;
 
 use Amp\Future;
+use Amp\Parallel\Context\ContextException;
 use Amp\Parallel\Context\ProcessContextFactory;
+use Amp\Serialization\SerializationException;
+use Amp\Sync\ChannelException;
 use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
@@ -21,7 +24,7 @@ use function Amp\async;
 
 class Transactions extends Command
 {
-    public const CONCURRENT_REQUESTS = 20;
+    public const int CONCURRENT_REQUESTS = 20;
 
     public $signature = 'platform:transactions {--from=} {--to=}';
 
@@ -42,6 +45,9 @@ class Transactions extends Command
         $this->start = now();
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function handle(SubstrateSocketClient $rpc): int
     {
         $fromBlock = $this->option('from');
@@ -92,7 +98,11 @@ class Transactions extends Command
         $this->progressBar->start();
 
         $extrinsics = Future\await(array_map(
-            fn ($request) => async(function () use ($request) {
+            fn ($request) => async(/**
+             * @throws ContextException
+             * @throws SerializationException
+             * @throws ChannelException
+             */ function () use ($request) {
                 $context = (new ProcessContextFactory())->start(__DIR__ . '/contexts/get_extrinsics.php');
                 $context->send($request);
                 $result = $context->join();
@@ -106,7 +116,7 @@ class Transactions extends Command
         $this->parseTransactions($extrinsics, $totalBlocks);
     }
 
-    protected function parseTransactions(array $extrinsics, int $totalBlocks)
+    protected function parseTransactions(array $extrinsics, int $totalBlocks): void
     {
         $this->displayMessageAboveBar(__('enjin-platform::commands.transactions.decoding'));
 

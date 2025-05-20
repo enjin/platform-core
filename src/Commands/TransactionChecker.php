@@ -59,10 +59,9 @@ class TransactionChecker extends Command
 
         $maxBlockToCheck = $syncedBlocks->last()->number;
 
-        $transactions = collect(Transaction::where([
-            'state' => TransactionState::BROADCAST,
-            'network' => currentMatrix()->name,
-        ])->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
+        $transactions = collect(Transaction::whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
+            ->where('network', currentMatrix()->name)
+            ->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
             ->where('signed_at_block', '<', $maxBlockToCheck)->get());
 
         if ($transactions->isEmpty()) {
@@ -148,7 +147,19 @@ class TransactionChecker extends Command
             }
         }
 
+        $this->setAbandonedState($hashes);
         $this->displayOverview($counter, $hashes);
+    }
+
+    protected function setAbandonedState($hashes): void
+    {
+        Transaction::whereIn('transaction_chain_hash', $hashes)
+            ->whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
+            ->where('network', currentMatrix()->name)
+            ->update([
+                'state' => TransactionState::ABANDONED,
+            ]);
+
     }
 
     protected function fetchExtrinsics($block, Substrate $client): mixed

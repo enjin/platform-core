@@ -35,7 +35,7 @@ class DecoderService
         $result = $this->client->getClient()->post($this->host, [
             $type === 'Extrinsics' ? 'extrinsics' : 'events' => $bytes,
             'network' => $this->network,
-            'spec_version' => specForBlock($blockNumber, $this->network),
+            'spec_version' => $spec = specForBlock($blockNumber, $this->network),
         ]);
 
         $data = $this->client->getResponse($result);
@@ -48,7 +48,7 @@ class DecoderService
 
         if (Arr::get($data, 'error')) {
             $data = is_string($bytes) ? $bytes : json_encode($bytes);
-            Log::critical("Decoder failed to decode {$type} at block {$blockNumber} from network {$this->network}: {$data}");
+            Log::critical("Decoder failed to decode {$type} at block {$blockNumber} ({$spec}) from network {$this->network}: {$data}");
 
             return null;
         }
