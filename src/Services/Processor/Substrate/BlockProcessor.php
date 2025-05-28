@@ -150,22 +150,25 @@ class BlockProcessor
     {
         Cache::forget(PlatformCache::CUSTOM_TYPES->key());
 
-        $lastBlock = $this->latestBlock();
-        $lastSyncedBlock = $this->lastSyncedBlock();
-        $lastSyncedHeight = $lastSyncedBlock?->number ?? 0;
-        $runtime = Util::updateRuntimeVersion($lastSyncedBlock?->hash);
-
         $this->info('================ Starting Substrate Ingest ================');
         $this->info('Connected to: ' . currentMatrix()->value);
+
+        $lastBlock = $this->latestBlock();
         $this->info("Current block on-chain: {$lastBlock}");
+
+        $lastSyncedBlock = $this->lastSyncedBlock();
+        $lastSyncedHeight = $lastSyncedBlock?->number ?? 0;
         $this->info("Continuing from block: {$lastSyncedHeight}");
+
+        $runtime = Util::updateRuntimeVersion($lastSyncedBlock?->hash);
         $this->info("Transaction version: {$runtime[0]}");
         $this->info("Spec version: {$runtime[1]}");
-        $this->info('=========================================================');
 
+        $this->info('=========================================================');
         $this->startIngest($lastSyncedHeight, $lastBlock);
 
-        $this->info('An error has occurred the ingest process has been stopped.');
+        // Start ingest is a non-stopping process, so the following line will run only if it has crashed
+        $this->error('An error has occurred the ingest process has been stopped.');
     }
 
     /**
