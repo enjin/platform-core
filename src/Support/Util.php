@@ -30,7 +30,7 @@ class Util
         $specVersion = Arr::get($runtime, 'specVersion');
         $transactionVersion = Arr::get($runtime, 'transactionVersion');
 
-        if (!$specVersion || !$transactionVersion) {
+        if ($specVersion === null || $transactionVersion === null) {
             throw new PlatformException(__('enjin-platform::error.runtime_version_not_found'));
         }
 
