@@ -5,7 +5,7 @@ return [
     'sync.truncating' => 'Truncating database for a fresh sync',
     'sync.decoding' => 'Decoding, parsing and saving chain data to the database',
     'sync.fetching' => 'Wait while we are fetching the storage from the RPC node',
-    'sync.syncing' => '** This platform is connected to Enjin :network',
+    'sync.syncing' => '** This platform is connected to :network',
     'sync.current_block' => '** Current block head is: #:blockNumber',
     'sync.overview' => '******************** Sync Overview ********************',
     'sync.header' => '******************** Enjin Platform :version ********************',

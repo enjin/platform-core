@@ -105,17 +105,16 @@ class Sync extends Command
         $version = Arr::get($packages, 'enjin/platform-core.version');
 
         $this->info(__('enjin-platform::commands.sync.header', ['version' => $version]));
-        $this->info(__('enjin-platform::commands.sync.syncing', ['network' => isMainnet() ? 'Mainnet' : 'Canary']));
+        $this->info(__('enjin-platform::commands.sync.syncing', ['network' => isMainnet() ? 'Enjin Matrixchain' : 'Canary Matrixchain']));
         $this->info('** Matrixchain RPC: ' . currentMatrixUrl());
         $this->info('** Relaychain RPC: ' . currentRelayUrl());
-
-        $block = $this->getCurrentBlock($rpc);
         $this->info('***************************************************************');
 
         if (!$this->truncateTables()) {
             throw new PlatformException(__('enjin-platform::error.failed_to_truncate'));
         }
 
+        $block = $this->getCurrentBlock($rpc);
         $storages = $this->getStorageAt($block->hash);
         $this->parseStorages($block, $storages);
         $this->displayOverview($storages);
@@ -140,6 +139,8 @@ class Sync extends Command
 
     /**
      * Get the current block.
+     *
+     * @throws PlatformException
      */
     protected function getCurrentBlock(SubstrateSocketClient $rpc): Block
     {

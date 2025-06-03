@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Support\Account;
