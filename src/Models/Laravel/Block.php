@@ -15,9 +15,8 @@ class Block extends BaseModel
     use HasFactory;
     use MassPrunable;
 
-
     /**
-     * The attributes that aren't mass assignable.
+     * The attributes that aren't mass-assignable.
      *
      * @var array<string>|bool
      */
