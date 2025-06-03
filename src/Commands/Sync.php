@@ -139,6 +139,7 @@ class Sync extends Command
 
     /**
      * Get the current block.
+     *
      * @throws PlatformException
      */
     protected function getCurrentBlock(SubstrateSocketClient $rpc): Block
