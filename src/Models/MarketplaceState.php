@@ -3,14 +3,13 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\MarketplaceStateFactory;
-use Enjin\Platform\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MarketplaceState extends BaseModel
 {
     use HasFactory;
-    use \Enjin\Platform\Models\Traits\EagerLoadSelectFields;
+    use Traits\EagerLoadSelectFields;
 
     /**
      * The attributes that aren't mass assignable.

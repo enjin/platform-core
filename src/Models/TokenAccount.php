@@ -58,7 +58,6 @@ class TokenAccount extends Model
     //        'is_frozen' => false,
     //    ];
 
-
     /**
      * The collection relationship.
      */

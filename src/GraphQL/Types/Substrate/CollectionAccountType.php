@@ -61,9 +61,7 @@ class CollectionAccountType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('[CollectionAccountApproval]'),
                 'description' => __('enjin-platform::type.collection_account.field.approvals'),
                 'is_relation' => false,
-                'resolve' => function ($c) {
-                    return [];
-                }
+                'resolve' => fn ($c) => [],
             ],
         ];
     }

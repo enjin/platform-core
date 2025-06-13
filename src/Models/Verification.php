@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\VerificationFactory;
-use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Traits\Verification as VerificationMethods;
 use Enjin\Platform\Support\SS58Address;

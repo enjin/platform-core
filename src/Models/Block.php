@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\BlockFactory;
-use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

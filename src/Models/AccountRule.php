@@ -3,15 +3,14 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\AccountRuleFactory;
-use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AccountRule extends BaseModel
 {
-    use HasFactory;
     use EagerLoadSelectFields;
+    use HasFactory;
 
     /**
      * The attributes that aren't mass assignable.

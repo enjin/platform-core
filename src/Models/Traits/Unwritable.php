@@ -2,7 +2,8 @@
 
 namespace Enjin\Platform\Models\Traits;
 
-trait Unwritable {
+trait Unwritable
+{
     public static function create(array $attributes = []): never
     {
         (new static())->halt(__FUNCTION__);

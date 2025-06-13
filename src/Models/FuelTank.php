@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\FuelTankFactory;
-use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class FuelTank extends BaseModel
 {
     use HasFactory;
-    use \Enjin\Platform\Models\Traits\EagerLoadSelectFields;
+    use Traits\EagerLoadSelectFields;
 
     /**
      * The attributes that aren't mass assignable.

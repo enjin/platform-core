@@ -4,7 +4,6 @@ namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\TransactionFactory;
 use Enjin\Platform\Enums\Global\TransactionState;
-use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Traits\Transaction as TransactionMethods;
 use Enjin\Platform\Support\Account;

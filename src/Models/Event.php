@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\EventFactory;
-use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Traits\Event as EventMethods;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

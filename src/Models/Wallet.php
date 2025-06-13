@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Wallet extends BaseModel
 {
     use EagerLoadSelectFields;
-    use WalletMethods;
     use Unwritable;
 
     public $incrementing = false;
@@ -35,18 +34,18 @@ class Wallet extends BaseModel
     ];
 
 
-//    /**
-//     * The attributes that are mass assignable.
-//     *
-//     * @var array<string>
-//     */
-//    public $fillable = [
-//        'public_key',
-//        'external_id',
-//        'managed',
-//        'verification_id',
-//        'network',
-//    ];
+    //    /**
+    //     * The attributes that are mass assignable.
+    //     *
+    //     * @var array<string>
+    //     */
+    //    public $fillable = [
+    //        'public_key',
+    //        'external_id',
+    //        'managed',
+    //        'verification_id',
+    //        'network',
+    //    ];
 
     /**
      * The model's attributes.
@@ -64,27 +63,6 @@ class Wallet extends BaseModel
     {
         return new Attribute(
             get: fn () => $this->tokenAccounts->pluck('token')
-        );
-    }
-
-    /**
-     * Bootstrap the model and its traits.
-     *
-     * @return void
-     */
-    #[\Override]
-    protected static function boot()
-    {
-        parent::boot();
-
-        self::observe(new WalletObserver());
-    }
-
-    #[\Override]
-    protected function pivotIdentifier(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->id,
         );
     }
 
@@ -150,5 +128,26 @@ class Wallet extends BaseModel
     public function tokenAccountApprovals(): HasMany
     {
         return $this->hasMany(TokenAccountApproval::class);
+    }
+
+    /**
+     * Bootstrap the model and its traits.
+     *
+     * @return void
+     */
+    #[\Override]
+    protected static function boot()
+    {
+        parent::boot();
+
+        self::observe(new WalletObserver());
+    }
+
+    #[\Override]
+    protected function pivotIdentifier(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->id,
+        );
     }
 }

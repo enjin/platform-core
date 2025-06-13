@@ -2,10 +2,8 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 
-use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
-use Enjin\Platform\Http\Resources\CollectionResource;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Collection;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -58,13 +56,13 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, SelectFields $fields): mixed
     {
-        $select = $fields->getSelect();
+        $fields->getSelect();
         $with = $fields->getRelations();
 
         return Collection::select('*')->with($with)->where('id', $args['collectionId'])->firstOrFail();
 
-//        return Collection::loadSelectFields($resolveInfo, $this->name)
-//            ->where('collection_id', $args['collectionId'])
-//            ->first();
+        //        return Collection::loadSelectFields($resolveInfo, $this->name)
+        //            ->where('collection_id', $args['collectionId'])
+        //            ->first();
     }
 }

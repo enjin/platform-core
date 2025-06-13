@@ -48,27 +48,27 @@ class Attribute extends BaseModel
     /**
      * The attribute value as String.
      */
-//    protected function valueString(): AttributeCasts
-//    {
-//        return AttributeCasts::make(
-//            get: function (?string $value, ?array $attributes) {
-//                $key = Hex::safeConvertToString($attributes['key']);
-//                $value = Hex::safeConvertToString($attributes['value']);
-//
-//                if ($key == 'uri' && str_contains($value, '{id}')) {
-//                    if (!$this->relationLoaded('collection')) {
-//                        $this->load('collection:id,collection_chain_id');
-//                    }
-//
-//                    if (!$this->relationLoaded('token')) {
-//                        $this->load('token:id,token_chain_id');
-//                    }
-//
-//                    return Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token?->token_chain_id}", $value);
-//                }
-//
-//                return $value;
-//            }
-//        );
-//    }
+    //    protected function valueString(): AttributeCasts
+    //    {
+    //        return AttributeCasts::make(
+    //            get: function (?string $value, ?array $attributes) {
+    //                $key = Hex::safeConvertToString($attributes['key']);
+    //                $value = Hex::safeConvertToString($attributes['value']);
+    //
+    //                if ($key == 'uri' && str_contains($value, '{id}')) {
+    //                    if (!$this->relationLoaded('collection')) {
+    //                        $this->load('collection:id,collection_chain_id');
+    //                    }
+    //
+    //                    if (!$this->relationLoaded('token')) {
+    //                        $this->load('token:id,token_chain_id');
+    //                    }
+    //
+    //                    return Str::replace('{id}', "{$this->collection->collection_chain_id}-{$this->token?->token_chain_id}", $value);
+    //                }
+    //
+    //                return $value;
+    //            }
+    //        );
+    //    }
 }
