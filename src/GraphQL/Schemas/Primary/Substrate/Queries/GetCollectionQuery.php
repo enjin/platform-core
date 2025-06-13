@@ -5,12 +5,14 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
+use Enjin\Platform\Http\Resources\CollectionResource;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Collection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
+use Rebing\GraphQL\Support\SelectFields;
 
 class GetCollectionQuery extends Query implements PlatformGraphQlQuery
 {
@@ -47,7 +49,6 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::query.get_collection.args.collectionId'),
-                'rules' => ['exists:collections,collection_chain_id'],
             ],
         ];
     }
@@ -55,10 +56,15 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     /**
      * Resolve the query's request.
      */
-    public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
+    public function resolve($root, $args, $context, ResolveInfo $resolveInfo, SelectFields $fields): mixed
     {
-        return Collection::loadSelectFields($resolveInfo, $this->name)
-            ->where('collection_chain_id', $args['collectionId'])
-            ->first();
+        $select = $fields->getSelect();
+        $with = $fields->getRelations();
+
+        return Collection::select('*')->with($with)->where('id', $args['collectionId'])->firstOrFail();
+
+//        return Collection::loadSelectFields($resolveInfo, $this->name)
+//            ->where('collection_id', $args['collectionId'])
+//            ->first();
     }
 }

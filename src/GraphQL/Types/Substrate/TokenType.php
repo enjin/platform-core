@@ -42,98 +42,105 @@ class TokenType extends Type implements PlatformGraphQlType
             'tokenId' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.token.field.tokenId'),
-                'alias' => 'token_chain_id',
+                'alias' => 'token_id',
             ],
             'supply' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.token.field.supply'),
             ],
-            'cap' => [
-                'type' => GraphQL::type('TokenMintCapType'),
-                'description' => __('enjin-platform::type.token.field.cap'),
-            ],
-            'capSupply' => [
-                'type' => GraphQL::type('BigInt'),
-                'description' => __('enjin-platform::type.token.field.cap'),
-                'alias' => 'cap_supply',
-            ],
+//            'cap' => [
+//                'type' => GraphQL::type('TokenMintCapType'),
+//                'description' => __('enjin-platform::type.token.field.cap'),
+//            ],
+//            'capSupply' => [
+//                'type' => GraphQL::type('BigInt'),
+//                'description' => __('enjin-platform::type.token.field.cap'),
+//                'alias' => 'cap_supply',
+//            ],
             'isFrozen' => [
                 'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.token.field.isFrozen'),
                 'alias' => 'is_frozen',
             ],
-            'isCurrency' => [
-                'type' => GraphQL::type('Boolean!'),
-                'description' => __('enjin-platform::type.token.field.isCurrency'),
-                'alias' => 'is_currency',
-            ],
-            'royalty' => [
-                'type' => GraphQL::type('Royalty'),
-                'description' => __('enjin-platform::type.token.field.royalty'),
-                'resolve' => function ($token) {
-                    if ($token->royaltyBeneficiary === null) {
-                        return;
-                    }
-
-                    return [
-                        'beneficiary' => $token->royaltyBeneficiary,
-                        'percentage' => $token->royalty_percentage,
-                    ];
-                },
-                'is_relation' => false,
-                'selectable' => false,
-                'always' => ['royalty_wallet_id', 'royalty_percentage'],
-            ],
+//            'isCurrency' => [
+//                'type' => GraphQL::type('Boolean!'),
+//                'description' => __('enjin-platform::type.token.field.isCurrency'),
+//                'alias' => 'is_currency',
+//            ],
+//            'royalty' => [
+//                'type' => GraphQL::type('Royalty'),
+//                'description' => __('enjin-platform::type.token.field.royalty'),
+//                'resolve' => function ($token) {
+//                    if ($token->royaltyBeneficiary === null) {
+//                        return;
+//                    }
+//
+//                    return [
+//                        'beneficiary' => $token->royaltyBeneficiary,
+//                        'percentage' => $token->royalty_percentage,
+//                    ];
+//                },
+//                'is_relation' => false,
+//                'selectable' => false,
+//                'always' => ['royalty_wallet_id', 'royalty_percentage'],
+//            ],
             'attributeCount' => [
                 'type' => GraphQL::type('Int!'),
                 'description' => __('enjin-platform::type.token.field.attributeCount'),
                 'alias' => 'attribute_count',
             ],
-            'requiresDeposit' => [
-                'type' => GraphQL::type('Boolean!'),
-                'description' => __('enjin-platform::type.token.field.requiresDeposit'),
-                'alias' => 'requires_deposit',
-            ],
-            'creationDeposit' => [
-                'type' => GraphQL::type('CreationDeposit!'),
-                'description' => __('enjin-platform::type.collection_type.field.creationDeposit'),
-                'resolve' => fn ($token) => [
-                    'depositor' => $token->creationDepositor,
-                    'amount' => $token->creation_deposit_amount,
-                ],
-                'is_relation' => false,
-                'selectable' => false,
-            ],
-            'ownerDeposit' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.token.field.ownerDeposit'),
-                'alias' => 'owner_deposit',
-            ],
-            'totalTokenAccountDeposit' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.token.field.totalTokenAccountDeposit'),
-                'alias' => 'total_token_account_deposit',
-            ],
+//            'requiresDeposit' => [
+//                'type' => GraphQL::type('Boolean!'),
+//                'description' => __('enjin-platform::type.token.field.requiresDeposit'),
+//                'alias' => 'requires_deposit',
+//            ],
+//            'creationDeposit' => [
+//                'type' => GraphQL::type('CreationDeposit!'),
+//                'description' => __('enjin-platform::type.collection_type.field.creationDeposit'),
+//                'resolve' => fn ($token) => [
+//                    'depositor' => $token->creationDepositor,
+//                    'amount' => $token->creation_deposit_amount,
+//                ],
+//                'is_relation' => false,
+//                'selectable' => false,
+//            ],
+//            'ownerDeposit' => [
+//                'type' => GraphQL::type('BigInt!'),
+//                'description' => __('enjin-platform::type.token.field.ownerDeposit'),
+//                'alias' => 'owner_deposit',
+//            ],
+//            'totalTokenAccountDeposit' => [
+//                'type' => GraphQL::type('BigInt!'),
+//                'description' => __('enjin-platform::type.token.field.totalTokenAccountDeposit'),
+//                'alias' => 'total_token_account_deposit',
+//            ],
             'infusion' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.token.field.infusion'),
-                'alias' => 'infusion',
             ],
             'anyoneCanInfuse' => [
                 'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.token.field.anyoneCanInfuse'),
                 'alias' => 'anyone_can_infuse',
             ],
-            'tokenMetadata' => [
-                'type' => GraphQL::type('TokenMetadata!'),
-                'description' => __('enjin-platform::type.token.field.tokenMetadata'),
-                'resolve' => fn ($token) => [
-                    'name' => $token->name,
-                    'symbol' => $token->symbol,
-                    'decimalCount' => $token->decimal_count,
-                ],
-                'is_relation' => false,
-                'selectable' => false,
+//            'tokenMetadata' => [
+//                'type' => GraphQL::type('TokenMetadata!'),
+//                'description' => __('enjin-platform::type.token.field.tokenMetadata'),
+//                'resolve' => fn ($token) => [
+//                    'name' => $token->name,
+//                    'symbol' => $token->symbol,
+//                    'decimalCount' => $token->decimal_count,
+//                ],
+//                'is_relation' => false,
+//                'selectable' => false,
+//            ],
+            'metadata' => [
+                'type' => GraphQL::type('Object'),
+            ],
+            'nonFungible' => [
+                'type' => GraphQL::type('Boolean'),
+                'description' => __('enjin-platform::type.token.field.nonFungible'),
+                'alias' => 'non_fungible',
             ],
 
             // Related
@@ -163,36 +170,24 @@ class TokenType extends Type implements PlatformGraphQlType
                 'is_relation' => true,
             ],
 
-            // Computed
-            'metadata' => [
-                'type' => GraphQL::type('Object'),
-                'selectable' => false,
-            ],
-            'nonFungible' => [
-                'type' => GraphQL::type('Boolean'),
-                'description' => __('enjin-platform::type.token.field.nonFungible'),
-                'alias' => 'non_fungible',
-                'selectable' => false,
-            ],
-
             // Deprecated
             'minimumBalance' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.token.field.minimumBalance'),
                 'deprecationReason' => __('enjin-platform::deprecated.token.field.minimumBalance'),
-                'selectable' => false,
+                'alias' => 'minimum_balance',
             ],
             'unitPrice' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.token.field.unitPrice'),
                 'deprecationReason' => __('enjin-platform::deprecated.token.field.unitPrice'),
-                'selectable' => false,
+                'alias' => 'unit_price',
             ],
             'mintDeposit' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.token.field.mintDeposit'),
                 'deprecationReason' => __('enjin-platform::deprecated.token.field.mintDeposit'),
-                'selectable' => false,
+                'alias' => 'mint_deposit',
             ],
         ];
     }

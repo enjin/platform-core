@@ -7,6 +7,22 @@ use Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter;
 // config for Platform/Core
 
 return [
+    'indexer' => [
+        'driver' => 'pgsql',
+        'url' => env('INDEXER_DB_URL'),
+        'host' => env('INDEXER_DB_HOST', '127.0.0.1'),
+        'port' => env('INDEXER_DB_PORT', '5432'),
+        'database' => env('INDEXER_DB_DATABASE', 'postgres'),
+        'username' => env('INDEXER_DB_USERNAME', 'postgres'),
+        'password' => env('INDEXER_DB_PASSWORD', 'postgres'),
+        'charset' => env('INDEXER_DB_CHARSET', 'utf8'),
+        'prefix' => '',
+        'prefix_indexes' => true,
+        'search_path' => 'public',
+        'sslmode' => 'prefer'
+    ],
+
+
     /*
     |--------------------------------------------------------------------------
     | Authentication

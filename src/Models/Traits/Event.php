@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Models\Laravel\Traits;
+namespace Enjin\Platform\Models\Traits;
 
 use Enjin\Platform\Models\Laravel\Transaction;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

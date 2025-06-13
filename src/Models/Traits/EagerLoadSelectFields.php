@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Models\Laravel\Traits;
+namespace Enjin\Platform\Models\Traits;
 
 use Enjin\Platform\GraphQL\Types\Global\PendingEventType;
 use Enjin\Platform\GraphQL\Types\Substrate\BlockType;
@@ -9,6 +9,7 @@ use Enjin\Platform\GraphQL\Types\Substrate\CollectionAccountType;
 use Enjin\Platform\GraphQL\Types\Substrate\CollectionType;
 use Enjin\Platform\GraphQL\Types\Substrate\DispatchRuleType;
 use Enjin\Platform\GraphQL\Types\Substrate\EventType;
+use Enjin\Platform\GraphQL\Types\Substrate\FuelTankType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountApprovalType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountNamedReserveType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountType;
@@ -26,7 +27,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Enjin\Platform\GraphQL\Types\Substrate\FuelTankType;
 
 trait EagerLoadSelectFields
 {
