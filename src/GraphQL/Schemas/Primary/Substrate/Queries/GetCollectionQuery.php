@@ -6,6 +6,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Wallet;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;

@@ -115,7 +115,6 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform::type.collection_type.field.owner'),
                 'is_relation' => true,
-                'resolve' => fn ($c) => null,
             ],
             'attributes' => [
                 'type' => GraphQL::type('[Attribute]'),

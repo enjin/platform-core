@@ -33,6 +33,13 @@ class Wallet extends BaseModel
         'image',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'balance' => 'array',
+        ];
+    }
+
 
     //    /**
     //     * The attributes that are mass assignable.
@@ -143,11 +150,11 @@ class Wallet extends BaseModel
         self::observe(new WalletObserver());
     }
 
-    #[\Override]
-    protected function pivotIdentifier(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->id,
-        );
-    }
+//    #[\Override]
+//    protected function pivotIdentifier(): Attribute
+//    {
+//        return Attribute::make(
+//            get: fn () => $this->id,
+//        );
+//    }
 }
