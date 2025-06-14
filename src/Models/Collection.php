@@ -47,7 +47,7 @@ class Collection extends BaseModel
      */
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(\Enjin\Platform\Models\Wallet::class, 'owner_id');
+        return $this->belongsTo(Wallet::class, 'owner_id');
     }
 
     /**
@@ -55,7 +55,7 @@ class Collection extends BaseModel
      */
     public function creationDepositor(): BelongsTo
     {
-        return $this->belongsTo(\Enjin\Platform\Models\Wallet::class, 'creation_depositor');
+        return $this->belongsTo(Wallet::class, 'creation_depositor');
     }
 
     /**
@@ -63,7 +63,7 @@ class Collection extends BaseModel
      */
     public function royaltyBeneficiary(): BelongsTo
     {
-        return $this->belongsTo(\Enjin\Platform\Models\Wallet::class, 'royalty_wallet_id');
+        return $this->belongsTo(Wallet::class, 'royalty_wallet_id');
     }
 
     /**
@@ -71,7 +71,7 @@ class Collection extends BaseModel
      */
     public function royaltyCurrencies(): HasMany
     {
-        return $this->hasMany(\Enjin\Platform\Models\CollectionRoyaltyCurrency::class);
+        return $this->hasMany(CollectionRoyaltyCurrency::class);
     }
 
     /**
@@ -79,7 +79,7 @@ class Collection extends BaseModel
      */
     public function tokens(): HasMany
     {
-        return $this->hasMany(\Enjin\Platform\Models\Token::class);
+        return $this->hasMany(Token::class);
     }
 
     /**
@@ -87,7 +87,7 @@ class Collection extends BaseModel
      */
     public function accounts(): HasMany
     {
-        return $this->hasMany(\Enjin\Platform\Models\CollectionAccount::class, 'collection_id');
+        return $this->hasMany(CollectionAccount::class, 'collection_id');
     }
 
     /**
@@ -137,11 +137,11 @@ class Collection extends BaseModel
     //    ];
 
     // TODO: This should probably be removed later
-//    #[\Override]
-//    protected function pivotIdentifier(): Attribute
-//    {
-//        return Attribute::make(
-//            get: fn () => $this->collection_chain_id,
-//        );
-//    }
+    //    #[\Override]
+    //    protected function pivotIdentifier(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn () => $this->collection_chain_id,
+    //        );
+    //    }
 }
