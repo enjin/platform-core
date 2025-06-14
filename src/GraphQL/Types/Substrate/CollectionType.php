@@ -6,6 +6,7 @@ use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Traits\HasSelectFields;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
@@ -68,23 +69,27 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'is_relation' => false,
                 'resolve' => fn ($c) => Arr::get($c->transfer_policy, 'isFrozen', false),
             ],
-            //            'royalty' => [
-            //                'type' => GraphQL::type('Royalty'),
-            //                'description' => __('enjin-platform::type.collection_type.field.royalty'),
-            //                'resolve' => function ($collection) {
-            //                    if ($collection->royaltyBeneficiary === null) {
-            //                        return;
-            //                    }
-            //
-            //                    return [
-            //                        'beneficiary' => $collection->royaltyBeneficiary,
-            //                        'percentage' => $collection->royalty_percentage,
-            //                    ];
-            //                },
-            //                'is_relation' => false,
-            //                'selectable' => false,
-            //                'always' => ['royalty_wallet_id', 'royalty_percentage'],
-            //            ],
+                        'royalty' => [
+                            'type' => GraphQL::type('Royalty'),
+                            'description' => __('enjin-platform::type.collection_type.field.royalty'),
+                            'resolve' => function ($c) {
+                            if (empty($beneficiary = Arr::get($c->market_policy, 'beneficiaries.0'))) {
+                                return null;
+                            }
+
+                            $wallet = Wallet::firstWhere('id', Arr::get($beneficiary, 'accountId'));
+                            if (!$wallet) {
+                                return null;
+                            }
+
+                                return [
+                                    'beneficiary' => $wallet,
+                                    'percentage' => Arr::get($beneficiary, 'percentage'),
+                                ];
+                            },
+                            'alias' => 'market_policy',
+                            'is_relation' => false,
+                        ],
             'totalDeposit' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.collection_type.field.totalDeposit'),
@@ -158,7 +163,8 @@ class CollectionType extends Type implements PlatformGraphQlType
             //                'is_relation' => true,
             //            ],
             //
-            //            // Deprecated
+
+            // Deprecated
             'forceSingleMint' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.collection_type.field.forceSingleMint'),
