@@ -69,27 +69,27 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'is_relation' => false,
                 'resolve' => fn ($c) => Arr::get($c->transfer_policy, 'isFrozen', false),
             ],
-                        'royalty' => [
-                            'type' => GraphQL::type('Royalty'),
-                            'description' => __('enjin-platform::type.collection_type.field.royalty'),
-                            'resolve' => function ($c) {
-                            if (empty($beneficiary = Arr::get($c->market_policy, 'beneficiaries.0'))) {
-                                return null;
-                            }
+            'royalty' => [
+                'type' => GraphQL::type('Royalty'),
+                'description' => __('enjin-platform::type.collection_type.field.royalty'),
+                'alias' => 'market_policy',
+                'is_relation' => false,
+                'resolve' => function ($c): ?array {
+                    if (empty($beneficiary = Arr::get($c->market_policy, 'beneficiaries.0'))) {
+                        return null;
+                    }
 
-                            $wallet = Wallet::firstWhere('id', Arr::get($beneficiary, 'accountId'));
-                            if (!$wallet) {
-                                return null;
-                            }
+                    $wallet = Wallet::firstWhere('id', Arr::get($beneficiary, 'accountId'));
+                    if (!$wallet) {
+                        return null;
+                    }
 
-                                return [
-                                    'beneficiary' => $wallet,
-                                    'percentage' => Arr::get($beneficiary, 'percentage'),
-                                ];
-                            },
-                            'alias' => 'market_policy',
-                            'is_relation' => false,
-                        ],
+                    return [
+                        'beneficiary' => $wallet,
+                        'percentage' => Arr::get($beneficiary, 'percentage'),
+                    ];
+                },
+            ],
             'totalDeposit' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.collection_type.field.totalDeposit'),
@@ -126,21 +126,21 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.collection_type.field.attributes'),
                 'is_relation' => true,
             ],
-            //            'accounts' => [
-            //                'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
-            //                'description' => __('enjin-platform::type.collection_type.field.accounts'),
-            //                'args' => ConnectionInput::args(),
-            //                'resolve' => fn ($collection, $args, $context, $info) => [
-            //                    'items' => new CursorPaginator(
-            //                        $collection?->accounts,
-            //                        $args['first'],
-            //                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-            //                        ['parameters' => ['id']]
-            //                    ),
-            //                    'total' => (int) $collection?->accounts_count,
-            //                ],
-            //                'is_relation' => true,
-            //            ],
+                        'accounts' => [
+                            'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
+                            'description' => __('enjin-platform::type.collection_type.field.accounts'),
+                            'args' => ConnectionInput::args(),
+                            'resolve' => fn ($collection, $args, $context, $info) => [
+                                'items' => new CursorPaginator(
+                                    $collection?->accounts,
+                                    $args['first'],
+                                    Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                                    ['parameters' => ['id']]
+                                ),
+                                'total' => (int) $collection?->accounts_count,
+                            ],
+                            'is_relation' => true,
+                        ],
             //            'tokens' => [
             //                'type' => GraphQL::paginate('Token', 'TokenConnection'),
             //                'description' => __('enjin-platform::type.collection_type.field.tokens'),
