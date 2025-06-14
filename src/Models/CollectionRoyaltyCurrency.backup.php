@@ -1,11 +1,10 @@
 <?php
 
-namespace Enjin\Platform\Models\Laravel;
+namespace Enjin\Platform\Models;
 
-use Enjin\Platform\Database\Factories\CollectionRoyaltyCurrencyFactory;
-use Enjin\Platform\Models\BaseModel;
-use Enjin\Platform\Models\Laravel\Traits\CollectionRoyaltyCurrency as CollectionRoyaltyCurrencyMethods;
-use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
+use Enjin\Platform\Models\Traits\CollectionRoyaltyCurrency as CollectionRoyaltyCurrencyMethods;
+use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
+use Enjin\Platform\Models\Traits\Unwritable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CollectionRoyaltyCurrency extends BaseModel
@@ -13,6 +12,7 @@ class CollectionRoyaltyCurrency extends BaseModel
     use CollectionRoyaltyCurrencyMethods;
     use EagerLoadSelectFields;
     use HasFactory;
+    use Unwritable;
 
     /**
      * The attributes that aren't mass assignable.
