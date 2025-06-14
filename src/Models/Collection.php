@@ -43,7 +43,7 @@ class Collection extends BaseModel
     ];
 
     /**
-     * The wallet owner relationship.
+     * The owner of the collection.
      */
     public function owner(): BelongsTo
     {
@@ -51,19 +51,11 @@ class Collection extends BaseModel
     }
 
     /**
-     * The creation depositor relationship.
+     * Who paid the deposit to create the collection.
      */
     public function creationDepositor(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'creation_depositor');
-    }
-
-    /**
-     * The royalty beneficiary relationship.
-     */
-    public function royaltyBeneficiary(): BelongsTo
-    {
-        return $this->belongsTo(Wallet::class, 'royalty_wallet_id');
     }
 
     /**
@@ -75,7 +67,7 @@ class Collection extends BaseModel
     }
 
     /**
-     * The tokens relationship.
+     * The tokens this collection has.
      */
     public function tokens(): HasMany
     {
@@ -83,7 +75,7 @@ class Collection extends BaseModel
     }
 
     /**
-     * The collection account relationsip.
+     * The accounts that have any token from this collection.
      */
     public function accounts(): HasMany
     {

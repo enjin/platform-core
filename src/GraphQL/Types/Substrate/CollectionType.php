@@ -126,21 +126,25 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.collection_type.field.attributes'),
                 'is_relation' => true,
             ],
-                        'accounts' => [
-                            'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
-                            'description' => __('enjin-platform::type.collection_type.field.accounts'),
-                            'args' => ConnectionInput::args(),
-                            'resolve' => fn ($collection, $args, $context, $info) => [
-                                'items' => new CursorPaginator(
-                                    $collection?->accounts,
-                                    $args['first'],
-                                    Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                                    ['parameters' => ['id']]
-                                ),
-                                'total' => (int) $collection?->accounts_count,
-                            ],
-                            'is_relation' => true,
-                        ],
+            'accounts' => [
+                'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
+                'description' => __('enjin-platform::type.collection_type.field.accounts'),
+                'args' => ConnectionInput::args(),
+                'is_relation' => false,
+                'resolve' => function ($collection, $args, $context, $info) {
+                    ray($collection);
+
+                return [
+                        'items' => new CursorPaginator(
+                            $collection?->accounts,
+                            $args['first'],
+                            Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+                            ['parameters' => ['id']]
+                        ),
+                        'total' => (int) $collection?->accounts_count,
+                    ];
+},
+            ],
             //            'tokens' => [
             //                'type' => GraphQL::paginate('Token', 'TokenConnection'),
             //                'description' => __('enjin-platform::type.collection_type.field.tokens'),

@@ -30,8 +30,6 @@ class CollectionAccount extends Model
         'collection_id',
     ];
 
-    // approvals = ['accountId' => '0x0', 'expiration' => 142321]
-
     /**
      * The collection relationship.
      */
