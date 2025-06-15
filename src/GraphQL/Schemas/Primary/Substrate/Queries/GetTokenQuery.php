@@ -54,7 +54,7 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
             'collectionId' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::query.get_token.args.collectionId'),
-                'rules' => ['exists:Enjin\Platform\Models\Collection,collection_chain_id'],
+                //                'rules' => ['exists:Enjin\Platform\Models\Collection,id'],
             ],
             ...$this->getTokenFields(__('enjin-platform::query.get_token.args.tokenId')),
         ];
@@ -65,21 +65,28 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Token::loadSelectFields($resolveInfo, $this->name)
-            ->whereHas('collection', fn ($query) => $query->where('collection_chain_id', $args['collectionId']))
-            ->where('token_chain_id', $this->encodeTokenId($args))
-            ->first();
+
+        $id = "{$args['collectionId']}-{$this->encodeTokenId($args)}";
+
+        return Token::select('*')->with(['collection', 'accounts', 'attributes'])->where('id', $id)->firstOrFail();
+
+
+
+        //        return Token::loadSelectFields($resolveInfo, $this->name)
+        //            ->whereHas('collection', fn ($query) => $query->where('collection_chain_id', $args['collectionId']))
+        //            ->where('token_chain_id', $this->encodeTokenId($args))
+        //            ->first();
     }
 
     /**
      * Get the validation rules.
      */
-    #[\Override]
-    protected function rules(array $args = []): array
-    {
-        return $this->getTokenFieldRules(
-            null,
-            [new TokenEncodeExists()]
-        );
-    }
+    //    #[\Override]
+    //    protected function rules(array $args = []): array
+    //    {
+    //        return $this->getTokenFieldRules(
+    //            null,
+    //            [new TokenEncodeExists()]
+    //        );
+    //    }
 }

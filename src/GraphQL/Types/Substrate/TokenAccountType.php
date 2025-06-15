@@ -50,6 +50,17 @@ class TokenAccountType extends Type implements PlatformGraphQlType
                 'alias' => 'is_frozen',
             ],
 
+            //             'approvals' => [
+            //                'type' => GraphQL::type('[TokenAccountApproval]'),
+            //                'description' => __('enjin-platform::type.collection_account.field.approvals'),
+            //                'is_relation' => true,
+            //            ],
+            //            'namedReserves' => [
+            //                'type' => GraphQL::type('[TokenAccountNamedReserve]'),
+            //                'description' => __('enjin-platform::type.collection_account.field.namedReserves'),
+            //                'is_relation' => true,
+            //            ],
+
             // Related
             'collection' => [
                 'type' => GraphQL::type('Collection!'),
@@ -64,16 +75,6 @@ class TokenAccountType extends Type implements PlatformGraphQlType
             'token' => [
                 'type' => GraphQL::type('Token!'),
                 'description' => __('enjin-platform::type.token_account.field.token'),
-                'is_relation' => true,
-            ],
-            'approvals' => [
-                'type' => GraphQL::type('[TokenAccountApproval]'),
-                'description' => __('enjin-platform::type.collection_account.field.approvals'),
-                'is_relation' => true,
-            ],
-            'namedReserves' => [
-                'type' => GraphQL::type('[TokenAccountNamedReserve]'),
-                'description' => __('enjin-platform::type.collection_account.field.namedReserves'),
                 'is_relation' => true,
             ],
         ];
