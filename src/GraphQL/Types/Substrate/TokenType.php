@@ -7,6 +7,7 @@ use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Traits\HasSelectFields;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
@@ -49,47 +50,52 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.token.field.supply'),
             ],
-                        'cap' => [
-                            'type' => GraphQL::type('TokenMintCapType'),
-                            'description' => __('enjin-platform::type.token.field.cap'),
-                            'resolve' => fn ($t) => match(Arr::get($t->cap, 'type')) {
-                                'Supply' => TokenMintCapType::SUPPLY,
-                                'SingleMint' => TokenMintCapType::COLLAPSING_SUPPLY,
-                                default => null,
-                            }
-                        ],
-                        'capSupply' => [
-                            'type' => GraphQL::type('BigInt'),
-                            'description' => __('enjin-platform::type.token.field.cap'),
-                            'resolve' => fn ($t) => Arr::get($t->cap, 'supply'),
-                        ],
+            'cap' => [
+                'type' => GraphQL::type('TokenMintCapType'),
+                'description' => __('enjin-platform::type.token.field.cap'),
+                'resolve' => fn ($t) => match(Arr::get($t->cap, 'type')) {
+                    'Supply' => TokenMintCapType::SUPPLY,
+                    'SingleMint' => TokenMintCapType::COLLAPSING_SUPPLY,
+                    default => null,
+                },
+            ],
+            'capSupply' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.token.field.cap'),
+                'resolve' => fn ($t) => Arr::get($t->cap, 'supply'),
+            ],
             'isFrozen' => [
                 'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.token.field.isFrozen'),
                 'alias' => 'is_frozen',
             ],
-                        'isCurrency' => [
-                            'type' => GraphQL::type('Boolean!'),
-                            'description' => __('enjin-platform::type.token.field.isCurrency'),
-                            'alias' => 'is_currency',
-                        ],
-            //            'royalty' => [
-            //                'type' => GraphQL::type('Royalty'),
-            //                'description' => __('enjin-platform::type.token.field.royalty'),
-            //                'resolve' => function ($token) {
-            //                    if ($token->royaltyBeneficiary === null) {
-            //                        return;
-            //                    }
-            //
-            //                    return [
-            //                        'beneficiary' => $token->royaltyBeneficiary,
-            //                        'percentage' => $token->royalty_percentage,
-            //                    ];
-            //                },
-            //                'is_relation' => false,
-            //                'selectable' => false,
-            //                'always' => ['royalty_wallet_id', 'royalty_percentage'],
-            //            ],
+            'isCurrency' => [
+                'type' => GraphQL::type('Boolean!'),
+                'description' => __('enjin-platform::type.token.field.isCurrency'),
+                'alias' => 'behavior',
+                'resolve' => fn ($t) => Arr::get($t->behavior, 'type') === 'IsCurrency',
+            ],
+            'royalty' => [
+                'type' => GraphQL::type('Royalty'),
+                'description' => __('enjin-platform::type.token.field.royalty'),
+                'alias' => 'behavior',
+                'is_relation' => false,
+                'resolve' => function ($t): ?array {
+                    if (empty($beneficiary = Arr::get($t->behavior, 'beneficiaries.0'))) {
+                        return null;
+                    }
+
+                    $wallet = Wallet::firstWhere('id', Arr::get($beneficiary, 'accountId'));
+                    if (!$wallet) {
+                        return null;
+                    }
+
+                    return [
+                        'beneficiary' => $wallet,
+                        'percentage' => Arr::get($beneficiary, 'percentage'),
+                    ];
+                },
+            ],
             'attributeCount' => [
                 'type' => GraphQL::type('Int!'),
                 'description' => __('enjin-platform::type.token.field.attributeCount'),
@@ -164,6 +170,7 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::paginate('TokenAccount', 'TokenAccountConnection'),
                 'description' => __('enjin-platform::type.token.field.accounts'),
                 'args' => ConnectionInput::args(),
+                'is_relation' => true,
                 'resolve' => fn ($token, $args) => [
                     'items' => new CursorPaginator(
                         $token?->accounts,
@@ -173,7 +180,6 @@ class TokenType extends Type implements PlatformGraphQlType
                     ),
                     'total' => (int) $token?->accounts_count,
                 ],
-                'is_relation' => true,
             ],
 
             // Deprecated

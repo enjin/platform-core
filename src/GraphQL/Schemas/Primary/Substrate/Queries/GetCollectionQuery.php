@@ -57,7 +57,7 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, SelectFields $fields): mixed
     {
         //        $fields->getSelect();
-        //$fields->getRelations();
+        // $fields->getRelations();
 
         return Collection::select('*')->with(['attributes', 'accounts', 'owner'])->where('id', $args['collectionId'])->firstOrFail();
 
