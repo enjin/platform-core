@@ -64,7 +64,7 @@ class Token extends Model
     }
 
     /**
-     * The royalty benificiary relationship.
+     * The royalty beneficiary relationship.
      */
     public function royaltyBeneficiary(): BelongsTo
     {

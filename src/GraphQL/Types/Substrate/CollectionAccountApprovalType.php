@@ -43,15 +43,15 @@ class CollectionAccountApprovalType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform::type.collection_account_approval.field.wallet'),
                 'is_relation' => true,
-                'resolve' => fn ($approval) => Wallet::firstWhere('id', Arr::get($approval, 'accountId'))
+                'resolve' => fn ($approval) => Wallet::firstWhere('id', Arr::get($approval, 'accountId')),
             ],
 
             // Related
-//            'account' => [
-//                'type' => GraphQL::type('CollectionAccount!'),
-//                'description' => __('enjin-platform::type.collection_account_approval.field.account'),
-//                'is_relation' => true,
-//            ],
+            //            'account' => [
+            //                'type' => GraphQL::type('CollectionAccount!'),
+            //                'description' => __('enjin-platform::type.collection_account_approval.field.account'),
+            //                'is_relation' => true,
+            //            ],
 
         ];
     }

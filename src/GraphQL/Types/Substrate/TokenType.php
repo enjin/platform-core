@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
@@ -48,25 +49,30 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.token.field.supply'),
             ],
-            //            'cap' => [
-            //                'type' => GraphQL::type('TokenMintCapType'),
-            //                'description' => __('enjin-platform::type.token.field.cap'),
-            //            ],
-            //            'capSupply' => [
-            //                'type' => GraphQL::type('BigInt'),
-            //                'description' => __('enjin-platform::type.token.field.cap'),
-            //                'alias' => 'cap_supply',
-            //            ],
+                        'cap' => [
+                            'type' => GraphQL::type('TokenMintCapType'),
+                            'description' => __('enjin-platform::type.token.field.cap'),
+                            'resolve' => fn ($t) => match(Arr::get($t->cap, 'type')) {
+                                'Supply' => TokenMintCapType::SUPPLY,
+                                'SingleMint' => TokenMintCapType::COLLAPSING_SUPPLY,
+                                default => null,
+                            }
+                        ],
+                        'capSupply' => [
+                            'type' => GraphQL::type('BigInt'),
+                            'description' => __('enjin-platform::type.token.field.cap'),
+                            'resolve' => fn ($t) => Arr::get($t->cap, 'supply'),
+                        ],
             'isFrozen' => [
                 'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.token.field.isFrozen'),
                 'alias' => 'is_frozen',
             ],
-            //            'isCurrency' => [
-            //                'type' => GraphQL::type('Boolean!'),
-            //                'description' => __('enjin-platform::type.token.field.isCurrency'),
-            //                'alias' => 'is_currency',
-            //            ],
+                        'isCurrency' => [
+                            'type' => GraphQL::type('Boolean!'),
+                            'description' => __('enjin-platform::type.token.field.isCurrency'),
+                            'alias' => 'is_currency',
+                        ],
             //            'royalty' => [
             //                'type' => GraphQL::type('Royalty'),
             //                'description' => __('enjin-platform::type.token.field.royalty'),

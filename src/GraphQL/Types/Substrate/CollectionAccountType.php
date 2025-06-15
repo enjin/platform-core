@@ -51,18 +51,18 @@ class CollectionAccountType extends Type implements PlatformGraphQlType
                 'is_relation' => false,
             ],
 
-//
-//            // Related
-//            'collection' => [
-//                'type' => GraphQL::type('Collection!'),
-//                'description' => __('enjin-platform::type.collection_account.field.collection'),
-//                'is_relation' => true,
-//            ],
-//            'wallet' => [
-//                'type' => GraphQL::type('Wallet'),
-//                'description' => __('enjin-platform::type.collection_account.field.wallet'),
-//                'is_relation' => true,
-//            ],
+            //
+            //            // Related
+            //            'collection' => [
+            //                'type' => GraphQL::type('Collection!'),
+            //                'description' => __('enjin-platform::type.collection_account.field.collection'),
+            //                'is_relation' => true,
+            //            ],
+            //            'wallet' => [
+            //                'type' => GraphQL::type('Wallet'),
+            //                'description' => __('enjin-platform::type.collection_account.field.wallet'),
+            //                'is_relation' => true,
+            //            ],
         ];
     }
 }
