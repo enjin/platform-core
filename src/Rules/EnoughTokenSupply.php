@@ -4,7 +4,7 @@ namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
-use Enjin\Platform\Enums\ListingState;
+use Enjin\Platform\Enums\Substrate\ListingState;
 use Enjin\Platform\Models\MarketplaceListing;
 use Enjin\Platform\Models\Token;
 use Illuminate\Contracts\Validation\DataAwareRule;

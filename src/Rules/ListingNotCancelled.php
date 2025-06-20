@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Enums\ListingState;
+use Enjin\Platform\Enums\Substrate\ListingState;
 use Enjin\Platform\Models\Laravel\MarketplaceListing;
 use Illuminate\Contracts\Validation\ValidationRule;
 
