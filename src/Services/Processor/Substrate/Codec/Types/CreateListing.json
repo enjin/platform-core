@@ -8,25 +8,8 @@
         "startBlock": "Option<u32>",
         "salt": "Bytes",
         "usesWhitelist": "bool",
-        "listingData": "ListingDataV1020",
-        "depositor": "Option<AccountId>"
-    },
-    "CreateListingV1013": {
-        "callIndex": "(u8, u8)",
-        "makeAssetId": "MultiTokensAssetId",
-        "takeAssetId": "MultiTokensAssetId",
-        "amount": "Compact<u128>",
-        "price": "Compact<u128>",
-        "salt": "Bytes",
         "listingData": "ListingData",
         "depositor": "Option<AccountId>"
-    },
-    "ListingDataV1020": {
-        "_enum": {
-            "FixedPrice": "Null",
-            "Auction": "AuctionDataV1020",
-            "Offer": "OfferData"
-        }
     },
     "ListingData": {
         "_enum": {
