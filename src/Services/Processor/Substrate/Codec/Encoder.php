@@ -72,7 +72,6 @@ class Encoder
         'Dispatch' => 'FuelTanks.dispatch',
         'DispatchAndTouch' => 'FuelTanks.dispatch_and_touch',
         'CreateListing' => 'Marketplace.create_listing',
-        'CreateListingV1013' => 'Marketplace.create_listing',
         'CancelListing' => 'Marketplace.cancel_listing',
         'FillListing' => 'Marketplace.fill_listing',
         'FillListingV1013' => 'Marketplace.fill_listing',

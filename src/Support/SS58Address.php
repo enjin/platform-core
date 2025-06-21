@@ -4,13 +4,15 @@ namespace Enjin\Platform\Support;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
+use Exception;
+use SodiumException;
 use Tuupola\Base58;
 
 class SS58Address
 {
-    public const CONTEXT = '53533538505245';
-    public const PREFIX = 1110;
-    public const ALLOWED_DECODED_LENGTHS = [
+    public const string CONTEXT = '53533538505245';
+    public const int PREFIX = 1110;
+    public const array ALLOWED_DECODED_LENGTHS = [
         1, 2, 4, 8, 32, 33,
     ];
 
@@ -21,7 +23,7 @@ class SS58Address
     {
         try {
             return self::getPublicKey($address1) === self::getPublicKey($address2);
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -37,13 +39,14 @@ class SS58Address
 
         try {
             return HexConverter::prefix(HexConverter::bytesToHex(self::decode($address)));
-        } catch (\Exception) {
+        } catch (Exception) {
             return null;
         }
     }
 
     /**
      * Decodes a given address with different format.
+     * @throws PlatformException
      */
     public static function decode(string|array $address, ?bool $ignoreChecksum = false, ?int $ss58Format = -1): array
     {
@@ -51,7 +54,7 @@ class SS58Address
             throw new PlatformException(__('enjin-platform::ss58_address.error.invalid_empty_address'));
         }
 
-        if (is_string($address) && ctype_xdigit($input = HexConverter::unPrefix($address))) {
+        if (is_string($address) && ctype_xdigit(HexConverter::unPrefix($address))) {
             return HexConverter::hexToBytes($address);
         }
 
@@ -67,7 +70,7 @@ class SS58Address
 
         try {
             $base58check = new Base58(['characters' => Base58::BITCOIN]);
-            $buffer = $base58check->decode($input);
+            $buffer = $base58check->decode(HexConverter::unPrefix($address));
             $array = unpack('C*', $buffer);
             $bytes = array_values($array);
 
@@ -82,13 +85,14 @@ class SS58Address
             }
 
             return array_slice($bytes, $ss58Length, $endPos - $ss58Length);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new PlatformException(__('enjin-platform::ss58_address.error.cannot_decode_address', ['address' => $address, 'message' => $e->getMessage()]));
         }
     }
 
     /**
      * Checks the checksum of the given decoded address.
+     * @throws SodiumException
      */
     public static function checkAddressChecksum(array $decoded): array
     {
@@ -98,7 +102,7 @@ class SS58Address
             ? $decoded[0]
             : (($decoded[0] & 0b00111111) << 2) | ($decoded[1] >> 6) | (($decoded[1] & 0b00111111) << 8);
 
-        // 32/33 bytes public + 2 bytes checksum + prefix
+        // 32/33 bytes public + 2 bytes checksum and prefix
         $isPublicKey = in_array(count($decoded), [34 + $ss58Length, 35 + $ss58Length]);
 
         $length = count($decoded) - ($isPublicKey ? 2 : 1);
@@ -106,7 +110,7 @@ class SS58Address
         // calculates the hash and do the checksum byte checks
         $hash = HexConverter::hexToBytes(bin2hex(sodium_crypto_generichash(
             hex2bin(self::CONTEXT . HexConverter::bytesToHex(array_slice($decoded, 0, $length))),
-            null,
+             '',
             64
         )));
 
@@ -128,13 +132,15 @@ class SS58Address
             self::encode(self::decode($address));
 
             return true;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
 
     /**
      * Encodes a given address to a SS58 format.
+     * @throws PlatformException
+     * @throws SodiumException
      */
     public static function encode(string|array|null $key, ?int $ss58Format = null): ?string
     {

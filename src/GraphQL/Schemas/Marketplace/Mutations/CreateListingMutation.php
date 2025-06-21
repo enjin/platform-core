@@ -159,7 +159,9 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
             'takeAssetId' => $takeAsset->toEncodable(),
             'amount' => gmp_init($amount),
             'price' => gmp_init($price),
+            'startBlock' => null,
             'salt' => HexConverter::stringToHexPrefixed($salt),
+            'usesWhitelist' => false,
             'listingData' => $listingData->toEncodable(),
             'depositor' => null,
         ];
