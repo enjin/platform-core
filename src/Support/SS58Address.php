@@ -46,6 +46,7 @@ class SS58Address
 
     /**
      * Decodes a given address with different format.
+     *
      * @throws PlatformException
      */
     public static function decode(string|array $address, ?bool $ignoreChecksum = false, ?int $ss58Format = -1): array
@@ -92,6 +93,7 @@ class SS58Address
 
     /**
      * Checks the checksum of the given decoded address.
+     *
      * @throws SodiumException
      */
     public static function checkAddressChecksum(array $decoded): array
@@ -110,7 +112,7 @@ class SS58Address
         // calculates the hash and do the checksum byte checks
         $hash = HexConverter::hexToBytes(bin2hex(sodium_crypto_generichash(
             hex2bin(self::CONTEXT . HexConverter::bytesToHex(array_slice($decoded, 0, $length))),
-             '',
+            '',
             64
         )));
 
@@ -139,6 +141,7 @@ class SS58Address
 
     /**
      * Encodes a given address to a SS58 format.
+     *
      * @throws PlatformException
      * @throws SodiumException
      */
