@@ -26,7 +26,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function defineEnvironment($app): void
     {
-        // Make sure, our .env file is loaded for local tests
+        // Make sure our .env file is loaded for local tests
         $app->useEnvironmentPath(__DIR__ . '/..');
         $app->useDatabasePath(__DIR__ . '/../database');
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
@@ -50,26 +50,6 @@ abstract class TestCase extends BaseTestCase
         if ($this->fakeEvents) {
             Event::fake();
         }
-    }
-
-    protected function usesNullDaemonAccount($app): void
-    {
-        $app->config->set('enjin-platform.chains.daemon-account', '0x0000000000000000000000000000000000000000000000000000000000000000');
-    }
-
-    protected function usesEnjinNetwork($app): void
-    {
-        $app->config->set('enjin-platform.chains.network', 'enjin');
-    }
-
-    protected function usesCanaryNetwork($app): void
-    {
-        $app->config->set('enjin-platform.chains.network', 'canary');
-    }
-
-    protected function usesLocalNetwork($app): void
-    {
-        $app->config->set('enjin-platform.chains.network', 'local');
     }
 
     protected function assertArrayContainsArray(array $expected, array $actual): void

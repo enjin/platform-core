@@ -50,7 +50,6 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpunit/php-code-coverage": "^12.2",
         "phpunit/phpunit": "^12.2",
         "rector/rector": "^2.0",
         "roave/security-advisories": "dev-latest",
@@ -86,7 +85,6 @@
         "dry-fix": "vendor/bin/rector process --dry-run && vendor/bin/pint --test --config ./pint.json",
         "fix": "vendor/bin/rector process && vendor/bin/pint --config ./pint.json",
         "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html ../../temp/coverage",
         "post-autoload-dump": [
             "@clear",
             "@prepare",

@@ -7,6 +7,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasConvertableObject;
 use Enjin\Platform\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
+use Override;
 use PHPUnit\Framework\ExpectationFailedException;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -18,7 +19,7 @@ class TestCaseGraphQL extends TestCase
     protected static bool $initialized = false;
     protected bool $fakeEvents = true;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

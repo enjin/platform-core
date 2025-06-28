@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Providers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -12,12 +13,16 @@ class GraphiQLRoutesServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
+     * @throws BindingResolutionException
      */
     public function boot(): void
     {
         $this->registerGraphiqlEndpoints();
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     protected function registerGraphiqlEndpoints(): void
     {
         $installedPackages = Package::getInstalledPlatformPackages();
@@ -25,7 +30,7 @@ class GraphiQLRoutesServiceProvider extends ServiceProvider
         $router = $this->app->make('router');
 
         // We register the endpoints directly into the router as otherwise it doesn't work
-        // correctly when testing the package using testbench
+        // correctly when testing the package using TestBench
         $installedPackages->each(function ($package) use ($schemas, $router): void {
             $endpoints = $this->buildEndpointsForPackage($package, $schemas);
             $this->registerRouteForPackage($router, $endpoints);

@@ -6,10 +6,12 @@ use Enjin\Platform\Observers\WalletObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Override;
 
 class Wallet extends UnwritableModel
 {
     protected $table = 'account';
+
     protected $visible = [
         'id',
         'address',
@@ -56,7 +58,7 @@ class Wallet extends UnwritableModel
     }
 
     /**
-     * The collections relationship.
+     * The collection relationship.
      */
     public function collections(): HasMany
     {
@@ -64,7 +66,7 @@ class Wallet extends UnwritableModel
     }
 
     /**
-     * The owned collections relationship.
+     * The owned collections' relationship.
      */
     public function ownedCollections()
     {
@@ -115,8 +117,8 @@ class Wallet extends UnwritableModel
      *
      * @return void
      */
-    #[\Override]
-    protected static function boot()
+    #[Override]
+    protected static function boot(): void
     {
         parent::boot();
 
