@@ -5,8 +5,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\CoveragePolicy;
-use Enjin\Platform\Models\Substrate\AccountRulesParams;
-use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
+use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -14,14 +13,15 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
+use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Rebing\GraphQL\Support\Facades\GraphQL;
-use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
 
 class CreateFuelTankMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {

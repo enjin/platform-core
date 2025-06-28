@@ -24,12 +24,12 @@ use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\TokenEncodeExists;
 use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {

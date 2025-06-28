@@ -4,8 +4,6 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Rules\AccountsNotInFuelTank;
-use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -14,8 +12,9 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\AccountsNotInFuelTank;
+use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -23,6 +22,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class AddAccountMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {

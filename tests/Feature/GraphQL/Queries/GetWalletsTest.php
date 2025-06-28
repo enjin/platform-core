@@ -13,7 +13,6 @@ use Enjin\Platform\Models\TokenAccountNamedReserve;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksSocketClient;

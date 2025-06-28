@@ -23,41 +23,6 @@ class TokenService
     public function __construct(protected WalletService $walletService) {}
 
     /**
-     * Create a new token.
-     */
-    public function store(array $data): Model
-    {
-        return Token::create($data);
-    }
-
-    /**
-     * Insert a new token.
-     */
-    public function insert(array $data): bool
-    {
-        return Token::insert($data);
-    }
-
-    /**
-     * Update or create a token.
-     */
-    public function updateOrStore(array $keys, array $data): Model
-    {
-        return Token::updateOrCreate($keys, $data);
-    }
-
-    /**
-     * Update ot insert a token.
-     */
-    public function updateOrInsert(array $keys, array $data)
-    {
-        return Token::updateOrInsert(
-            $keys,
-            $data
-        );
-    }
-
-    /**
      * Get the token balance for an account.
      */
     public function tokenBalanceForAccount(string $collectionId, string $tokenId, ?string $address = null): string

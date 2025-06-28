@@ -6,7 +6,6 @@ use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Hex;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
@@ -14,10 +13,6 @@ use Rebing\GraphQL\Support\InputType;
 class TransferBalanceParamsInputType extends InputType implements PlatformGraphQlType
 {
     use InSubstrateSchema;
-
-    public function __construct(
-        protected SerializationServiceInterface $serializationService
-    ) {}
 
     /**
      * Get the type's attributes.

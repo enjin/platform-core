@@ -12,9 +12,9 @@ use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Token;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokensQuery extends Query implements PlatformGraphQlQuery
@@ -53,15 +53,19 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
     public function args(): array
     {
         return ConnectionInput::args([
+            'ids' => [
+                'type' => GraphQL::type('[String]'),
+                'description' => '',
+            ],
             'collectionId' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::query.get_tokens.args.collectionId'),
-                'rules' => ['required_with:tokenIds', 'exists:Enjin\Platform\Models\Collection,collection_chain_id'],
+                'rules' => ['nullable', 'required_with:tokenIds'],
             ],
             'tokenIds' => [
                 'type' => GraphQL::type('[EncodableTokenIdInput]'),
                 'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
-                'rules' => ['nullable',  'bail', 'array', 'min:0', 'max:100', 'distinct'],
+                'rules' => ['nullable', 'array', 'min:0', 'max:100', 'distinct'],
             ],
         ]);
     }
@@ -71,22 +75,24 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        if (isset($args['tokenIds'])) {
-            $args['tokenIds'] = collect($args['tokenIds'])->map(fn ($tokenId) => $this->encodeTokenId(['tokenId' => $tokenId]))->all();
-        }
-
-        return Token::loadSelectFields($resolveInfo, $this->name)
-            ->addSelect(DB::raw('CONCAT(tokens.collection_id,tokens.id) AS identifier'))
-            ->when($collectionId = Arr::get($args, 'collectionId'), fn ($query) => $query->whereHas(
-                'collection',
-                fn ($query) => $query->where('collection_chain_id', $collectionId)
-            ))
-            ->when(Arr::get($args, 'tokenIds'), fn ($query) => $query->whereIn('token_chain_id', $args['tokenIds']))
-            ->cursorPaginateWithTotalDesc('identifier', $args['first']);
+        return Token::selectFields($getSelectFields)
+            ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('id', $args['ids']))
+            ->when(!empty($args['collectionId']) && empty($args['tokenIds']), fn (Builder $query) => $query->where('collection_id', $args['collectionId']))
+            ->when(
+                !empty($args['collectionId']) && !empty($args['tokenIds']),
+                fn (Builder $query) => $query
+                    ->where(
+                        'id',
+                        collect($args['tokenIds'])
+                            ->map(fn ($tokenId) => $args['collectionId'] . '-' . $this->encodeTokenId(['tokenId' => $tokenId]))
+                            ->all()
+                    )
+            )
+            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 
     /**
-     * Get the validatio rules.
+     * Get the validation rules.
      */
     #[\Override]
     protected function rules(array $args = []): array

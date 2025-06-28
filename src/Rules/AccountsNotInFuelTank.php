@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\FuelTankAccount;
+use Enjin\Platform\Models\TankUserAccount;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
 
@@ -25,7 +25,7 @@ class AccountsNotInFuelTank implements ValidationRule
             return;
         }
 
-        if (FuelTankAccount::byFuelTankAccount($this->account)->byWalletAccount(Arr::wrap($value))->exists()) {
+        if (TankUserAccount::byFuelTankAccount($this->account)->byWalletAccount(Arr::wrap($value))->exists()) {
             $fail('enjin-platform::validation.accounts_not_in_fuel_tank')->translate();
         }
     }

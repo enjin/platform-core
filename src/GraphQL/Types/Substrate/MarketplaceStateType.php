@@ -3,14 +3,12 @@
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Traits\InMarketplaceSchema;
-use Enjin\Platform\Traits\HasSelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Rebing\GraphQL\Support\Type;
 
 class MarketplaceStateType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InMarketplaceSchema;
 
     /**

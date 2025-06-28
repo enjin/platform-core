@@ -2,15 +2,14 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Arr;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
-use Enjin\Platform\Traits\HasSelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 
 class AccountRuleType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InFuelTanksSchema;
 
     /**
@@ -35,10 +34,12 @@ class AccountRuleType extends Type implements PlatformGraphQlType
             'rule' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.fuel_tank_rule.field.rule'),
+                'resolve' => fn ($r) => Arr::get($r->rule, 'isTypeOf'),
             ],
             'value' => [
                 'type' => GraphQL::type('Object!'),
                 'description' => __('enjin-platform::type.fuel_tank_rule.field.value'),
+                'resolve' => fn ($r) => Arr::except($r->rule, 'isTypeOf'),
             ],
         ];
     }

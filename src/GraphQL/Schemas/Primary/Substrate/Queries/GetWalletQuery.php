@@ -9,12 +9,10 @@ use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Rules\ValidVerificationId;
-use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -54,9 +52,14 @@ class GetWalletQuery extends Query implements PlatformGraphQlQuery
     {
         return [
             'id' => [
-                'type' => GraphQL::type('Int'),
+                'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::query.get_wallet.args.id'),
                 'rules' => ['nullable', 'filled'],
+            ],
+            'account' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::query.get_wallet.args.account'),
+                'rules' => ['nullable', 'filled', new ValidSubstrateAccount()],
             ],
             'externalId' => [
                 'type' => GraphQL::type('String'),
@@ -66,12 +69,7 @@ class GetWalletQuery extends Query implements PlatformGraphQlQuery
             'verificationId' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::query.get_wallet.args.verificationId'),
-                'rules' => ['bail', 'nullable', 'filled', new ValidVerificationId()],
-            ],
-            'account' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::query.get_wallet.args.account'),
-                'rules' => ['bail', 'nullable', 'filled', new ValidSubstrateAccount()],
+                'rules' => ['nullable', 'filled', new ValidVerificationId()],
             ],
         ];
     }
@@ -79,15 +77,13 @@ class GetWalletQuery extends Query implements PlatformGraphQlQuery
     /**
      * Resolve the query's request.
      */
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, BlockchainServiceInterface $blockchainService): mixed
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        $wallet = Wallet::loadSelectFields($resolveInfo, $this->name)
-            ->when(Arr::get($args, 'id'), fn (Builder $query) => $query->where('id', $args['id']))
-            ->when(Arr::get($args, 'externalId'), fn (Builder $query) => $query->where('external_id', $args['externalId']))
-            ->when(Arr::get($args, 'verificationId'), fn (Builder $query) => $query->where('verification_id', $args['verificationId']))
-            ->when(Arr::get($args, 'account'), fn (Builder $query) => $query->where('public_key', SS58Address::getPublicKey($args['account'])))
+        return Wallet::selectFields($getSelectFields)
+            ->when(!empty($args['id']), fn (Builder $query) => $query->where('id', $args['id']))
+            //            ->when(Arr::get($args, 'externalId'), fn (Builder $query) => $query->where('external_id', $args['externalId']))
+            //            ->when(Arr::get($args, 'verificationId'), fn (Builder $query) => $query->where('verification_id', $args['verificationId']))
+            ->when(!empty($args['account']), fn (Builder $query) => $query->where('id', SS58Address::getPublicKey($args['account'])))
             ->first();
-
-        return $blockchainService->walletWithBalanceAndNonce($wallet ?? Arr::get($args, 'account'));
     }
 }

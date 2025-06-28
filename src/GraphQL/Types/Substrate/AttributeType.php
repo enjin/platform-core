@@ -32,16 +32,13 @@ class AttributeType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
-            // Computed
             'key' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.key'),
-                'alias' => 'key_string',
             ],
             'value' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.value'),
-                'alias' => 'value_string',
             ],
         ];
     }

@@ -2,11 +2,11 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\Enums\ListingState;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CancelListingMutation;
-use Enjin\Platform\Models\MarketplaceListing;
-use Enjin\Platform\Models\MarketplaceState;
+use Enjin\Platform\Models\Listing;
+use Enjin\Platform\Models\Marketplace\MarketplaceState;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Str;
 
@@ -84,7 +84,7 @@ class CancelListingTest extends TestCaseGraphQL
             $response['error']
         );
 
-        $listing = MarketplaceListing::factory()->create(['seller_wallet_id' => $this->wallet->id]);
+        $listing = Listing::factory()->create(['seller_wallet_id' => $this->wallet->id]);
         MarketplaceState::create([
             'state' => ListingState::CANCELLED->name,
             'marketplace_listing_id' => $listing->id,

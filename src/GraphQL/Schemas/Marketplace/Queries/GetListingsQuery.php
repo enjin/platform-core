@@ -7,7 +7,7 @@ use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Models\MarketplaceListing;
+use Enjin\Platform\Models\Listing;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
@@ -16,6 +16,7 @@ use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetListingsQuery extends MarketplaceQuery
@@ -30,7 +31,7 @@ class GetListingsQuery extends MarketplaceQuery
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -42,7 +43,7 @@ class GetListingsQuery extends MarketplaceQuery
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::paginate('MarketplaceListing', 'MarketplaceListingConnection');
@@ -51,16 +52,17 @@ class GetListingsQuery extends MarketplaceQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
             'ids' => [
-                'type' => GraphQL::type('[BigInt!]'),
+                'type' => GraphQL::type('[String!]'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
             ],
             'listingIds' => [
                 'type' => GraphQL::type('[String!]'),
+                'deprecationReason' => '',
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.field.listingId'),
             ],
             'account' => [
@@ -90,14 +92,9 @@ class GetListingsQuery extends MarketplaceQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return MarketplaceListing::loadSelectFields($resolveInfo, $this->name)
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    {
+        return Listing::loadSelectFields($resolveInfo, $this->name)
             ->when(
                 $ids = Arr::get($args, 'ids'),
                 fn ($query) => $query->whereIn('id', $ids)
@@ -139,7 +136,7 @@ class GetListingsQuery extends MarketplaceQuery
     /**
      * Get the mutation's request validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [
@@ -149,18 +146,12 @@ class GetListingsQuery extends MarketplaceQuery
                 'prohibits:listingIds',
                 'max:1000',
             ],
-            'ids.*' => [
-                'bail',
-                new MinBigInt(),
-                new MaxBigInt(),
-            ],
             'listingIds' => [
                 'bail',
                 'array',
                 'prohibits:ids',
                 'max:1000',
             ],
-            'listingIds.*' => ['max:255'],
             'account' => [
                 'bail',
                 'max:255',

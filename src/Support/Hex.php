@@ -6,13 +6,13 @@ use Enjin\BlockchainTools\HexConverter;
 
 class Hex
 {
-    public const MIN_UINT = '0';
-    public const MAX_UINT8 = '255';
-    public const MAX_UINT16 = '65535';
-    public const MAX_UINT32 = '4294967295';
-    public const MAX_UINT64 = '18446744073709551615';
-    public const MAX_UINT128 = '340282366920938463463374607431768211455';
-    public const MAX_UINT256 = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+    public const string MIN_UINT = '0';
+    public const string MAX_UINT8 = '255';
+    public const string MAX_UINT16 = '65535';
+    public const string MAX_UINT32 = '4294967295';
+    public const string MAX_UINT64 = '18446744073709551615';
+    public const string MAX_UINT128 = '340282366920938463463374607431768211455';
+    public const string MAX_UINT256 = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
     /**
      * Checks if a given string is encoded as hexadecimal.

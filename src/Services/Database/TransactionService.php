@@ -7,7 +7,6 @@ use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 

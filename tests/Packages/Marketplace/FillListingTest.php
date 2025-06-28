@@ -2,12 +2,12 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\Enums\ListingState;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\FillListingMutation;
-use Enjin\Platform\Models\MarketplaceState;
-use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Enjin\Platform\Models\Marketplace\MarketplaceState;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Str;
 
 class FillListingTest extends TestCaseGraphQL

@@ -5,13 +5,11 @@ namespace Enjin\Platform\GraphQL\Types\Global;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Support\JSON;
-use Enjin\Platform\Traits\HasSelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type as GraphQLType;
 
 class PendingEventType extends GraphQLType implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InSubstrateSchema;
 
     /**

@@ -2,15 +2,15 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Arr;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Traits\HasSelectFields;
+use Enjin\Platform\Models\FuelTank;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
 class FuelTankType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InFuelTanksSchema;
 
     /**
@@ -22,6 +22,7 @@ class FuelTankType extends Type implements PlatformGraphQlType
         return [
             'name' => 'FuelTank',
             'description' => __('enjin-platform::type.fuel_tank.description'),
+            'model' => FuelTank::class,
         ];
     }
 
@@ -32,12 +33,15 @@ class FuelTankType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
+            # Properties
+            'id' => [
+                'type' => GraphQL::type('String!'),
+                'description' => '',
+            ],
             'tankId' => [
                 'type' => GraphQL::type('Account'),
                 'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
-                'resolve' => fn ($tank) => ['publicKey' => $tank->public_key, 'address' => $tank->address],
-                'is_relation' => false,
-                'selectable' => false,
+                'deprecationReason' => '',
             ],
             'name' => [
                 'type' => GraphQL::type('String!'),
@@ -46,13 +50,15 @@ class FuelTankType extends Type implements PlatformGraphQlType
             'reservesAccountCreationDeposit' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.fuel_tank.field.reservesAccountCreationDeposit'),
-                'alias' => 'reserves_account_creation_deposit',
+                'alias' => 'user_account_management',
+                'is_relation' => false,
+                'resolve' => fn ($t) => Arr::get($t->user_account_management, 'tankReservesAccountCreationDeposit'),
             ],
-            'coveragePolicy' => [
-                'type' => GraphQL::type('CoveragePolicy!'),
-                'description' => __('enjin-platform::type.fuel_tank.field.coveragePolicy'),
-                'alias' => 'coverage_policy',
-            ],
+            //            'coveragePolicy' => [
+            //                'type' => GraphQL::type('CoveragePolicy!'),
+            //                'description' => __('enjin-platform::type.fuel_tank.field.coveragePolicy'),
+            //                'alias' => 'coverage_policy',
+            //            ],
             'isFrozen' => [
                 'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.fuel_tank.field.isFrozen'),
@@ -66,7 +72,6 @@ class FuelTankType extends Type implements PlatformGraphQlType
             'owner' => [
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform::type.fuel_tank.field.wallet'),
-                'is_relation' => true,
             ],
             'accounts' => [
                 'type' => GraphQL::type('[Wallet]'),
@@ -76,27 +81,27 @@ class FuelTankType extends Type implements PlatformGraphQlType
             'accountRules' => [
                 'type' => GraphQL::type('[AccountRule]'),
                 'description' => __('enjin-platform::type.fuel_tank.field.accountRules'),
-                'is_relation' => true,
             ],
-            'dispatchRules' => [
-                'type' => GraphQL::type('[DispatchRule]'),
-                'description' => __('enjin-platform::type.fuel_tank.field.dispatchRules'),
-                'is_relation' => true,
-            ],
+            //            'dispatchRules' => [
+            //                'type' => GraphQL::type('[DispatchRule]'),
+            //                'description' => __('enjin-platform::type.fuel_tank.field.dispatchRules'),
+            //                'is_relation' => true,
+            //            ],
+
             // Deprecated
             'reservesExistentialDeposit' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.fuel_tank.field.reservesExistentialDeposit'),
                 'deprecationReason' => __('enjin-platform::deprecated.fuel_tank.field.reservesExistentialDeposit'),
-                'selectable' => false,
-                'resolve' => fn () => null,
+                'alias' => 'user_account_management',
+                'is_relation' => false,
+                'resolve' => fn ($t) => Arr::get($t->user_account_management, 'tankReservesExistentialDeposit'),
             ],
             'providesDeposit' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.fuel_tank.field.providesDeposit'),
                 'deprecationReason' => __('enjin-platform::deprecated.fuel_tank.field.providesDeposit'),
-                'selectable' => false,
-                'resolve' => fn () => null,
+                'alias' => 'provides_deposit',
             ],
         ];
     }

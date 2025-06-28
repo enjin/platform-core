@@ -24,10 +24,10 @@ use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MutateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation

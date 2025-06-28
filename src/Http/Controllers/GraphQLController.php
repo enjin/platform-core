@@ -162,7 +162,7 @@ class GraphQLController extends GraphQLGraphQLController
     }
 
     /**
-     * Check if query is doing introspection.
+     * Check if a query is doing introspection.
      */
     protected function isIntrospection(Request $request, RequestParser $parser): bool
     {

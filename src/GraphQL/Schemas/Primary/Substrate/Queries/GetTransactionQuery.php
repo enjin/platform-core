@@ -62,6 +62,7 @@ class GetTransactionQuery extends Query implements PlatformGraphQlQuery
             'transactionId' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::query.get_transaction.args.transactionId'),
+                'deprecationReason' => '',
                 'rules' => ['bail', 'filled', new ValidSubstrateTransactionId()],
             ],
             'transactionHash' => [
@@ -69,11 +70,11 @@ class GetTransactionQuery extends Query implements PlatformGraphQlQuery
                 'description' => __('enjin-platform::query.get_transaction.args.transactionHash'),
                 'rules' => ['bail', 'filled', new ValidHex(32)],
             ],
-            'idempotencyKey' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::query.get_transaction.args.idempotencyKey'),
-                'rules' => ['bail', 'filled', 'min:36', 'max:255'],
-            ],
+//            'idempotencyKey' => [
+//                'type' => GraphQL::type('String'),
+//                'description' => __('enjin-platform::query.get_transaction.args.idempotencyKey'),
+//                'rules' => ['bail', 'filled', 'min:36', 'max:255'],
+//            ],
         ];
     }
 
@@ -82,11 +83,11 @@ class GetTransactionQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Transaction::loadSelectFields($resolveInfo, $this->name)
+        return  Transaction::selectFields($getSelectFields)
             ->when(Arr::get($args, 'id'), fn (Builder $query) => $query->where('id', $args['id']))
             ->when(Arr::get($args, 'transactionId'), fn (Builder $query) => $query->where('transaction_chain_id', $args['transactionId']))
             ->when(Arr::get($args, 'transactionHash'), fn (Builder $query) => $query->where('transaction_chain_hash', $args['transactionHash']))
-            ->when(Arr::get($args, 'idempotencyKey'), fn (Builder $query) => $query->where('idempotency_key', $args['idempotencyKey']))
+//            ->when(Arr::get($args, 'idempotencyKey'), fn (Builder $query) => $query->where('idempotency_key', $args['idempotencyKey']))
             ->first();
     }
 }

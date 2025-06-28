@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\FuelTankAccount;
+use Enjin\Platform\Models\TankUserAccount;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
 
@@ -26,7 +26,7 @@ class AccountsExistsInFuelTank implements ValidationRule
         }
 
         $values = Arr::wrap($value);
-        if (FuelTankAccount::byFuelTankAccount($this->account)
+        if (TankUserAccount::byFuelTankAccount($this->account)
             ->byWalletAccount($values)
             ->count() !== count($values)
         ) {

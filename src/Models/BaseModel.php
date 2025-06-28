@@ -7,17 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseModel extends Model
 {
-    protected function pivotIdentifier(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => '',
-        );
-    }
-
-    protected function ownerId(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->owner_wallet_id,
-        );
-    }
+    //    protected function pivotIdentifier(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn () => '',
+    //        );
+    //    }
+    //
+    //    protected function ownerId(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn () => $this->owner_wallet_id,
+    //        );
+    //    }
 }

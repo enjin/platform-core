@@ -59,7 +59,7 @@ final class WalletTest extends TestCase
         ]);
     }
 
-    public function test_it_returns_zero_balance_when_there_is_a_saved_wallet_and_no_storage()
+    public function test_it_returns_zero_balance_when_there_is_a_saved_wallet_and_no_storage(): never
     {
         $this->mockHttpClientSequence([
             StorageMock::null_account_storage(),
@@ -116,7 +116,7 @@ final class WalletTest extends TestCase
         ]);
     }
 
-    public function test_it_returns_a_balance_when_there_is_saved_wallet_and_has_storage()
+    public function test_it_returns_a_balance_when_there_is_saved_wallet_and_has_storage(): never
     {
         $this->mockHttpClientSequence([
             StorageMock::account_with_balance(),

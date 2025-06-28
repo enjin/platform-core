@@ -14,20 +14,4 @@ class TankService
     {
         return FuelTank::where($column, '=', $index)->firstOrFail();
     }
-
-    /**
-     * Create a new collection.
-     */
-    public function store(array $data): Model
-    {
-        return FuelTank::create($data);
-    }
-
-    /**
-     * Insert a new collection.
-     */
-    public function insert(array $data): bool
-    {
-        return FuelTank::insert($data);
-    }
 }

@@ -8,7 +8,6 @@ return [
         'prefix' => 'graphql',
 
         // The controller/method to use in GraphQL request.
-        // Also supported array syntax: `[\Rebing\GraphQL\GraphQLController::class, 'query']`
         'controller' => Enjin\Platform\Http\Controllers\GraphQLController::class . '@query',
 
         // Any middleware for the graphql route group

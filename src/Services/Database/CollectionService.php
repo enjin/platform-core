@@ -6,8 +6,6 @@ use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Models\CollectionAccountApproval;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,33 +22,6 @@ class CollectionService
     public function get(string $index, string $column = 'collection_chain_id'): Model
     {
         return Collection::where($column, '=', $index)->firstOrFail();
-    }
-
-    /**
-     * Create a new collection.
-     */
-    public function store(array $data): Model
-    {
-        return Collection::create($data);
-    }
-
-    /**
-     * Insert a new collection.
-     */
-    public function insert(array $data): bool
-    {
-        return Collection::insert($data);
-    }
-
-    /**
-     * Update ot insert a collection.
-     */
-    public function updateOrInsert(array $keys, array $data)
-    {
-        return Collection::updateOrInsert(
-            $keys,
-            $data
-        );
     }
 
     /**
@@ -80,28 +51,28 @@ class CollectionService
     /**
      * Check if the approval exists in the collection.
      */
-    public function approvalExistsInCollection(
-        string $collectionId,
-        string $operator,
-        bool $hasAccountForDaemon = true,
-    ): bool {
-        $operatorWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($operator)]);
-
-        $collectionAccount = CollectionAccount::withoutGlobalScopes()->with(['collection', 'wallet'])
-            ->whereRelation('collection', 'collection_chain_id', $collectionId)
-            ->when(
-                $hasAccountForDaemon,
-                fn ($query) => $query->where('wallet_id', '=', Account::daemon()->id)
-            )
-            ->get();
-
-        if ($collectionAccount->isEmpty()) {
-            return false;
-        }
-
-        return CollectionAccountApproval::withoutGlobalScopes()->with(['account', 'wallet'])
-            ->whereBelongsTo($collectionAccount, 'account')
-            ->whereBelongsTo($operatorWallet, 'wallet')
-            ->exists();
-    }
+    //    public function approvalExistsInCollection(
+    //        string $collectionId,
+    //        string $operator,
+    //        bool $hasAccountForDaemon = true,
+    //    ): bool {
+    //        $operatorWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($operator)]);
+    //
+    //        $collectionAccount = CollectionAccount::withoutGlobalScopes()->with(['collection', 'wallet'])
+    //            ->whereRelation('collection', 'collection_chain_id', $collectionId)
+    //            ->when(
+    //                $hasAccountForDaemon,
+    //                fn ($query) => $query->where('wallet_id', '=', Account::daemon()->id)
+    //            )
+    //            ->get();
+    //
+    //        if ($collectionAccount->isEmpty()) {
+    //            return false;
+    //        }
+    //
+    //        return CollectionAccountApproval::withoutGlobalScopes()->with(['account', 'wallet'])
+    //            ->whereBelongsTo($collectionAccount, 'account')
+    //            ->whereBelongsTo($operatorWallet, 'wallet')
+    //            ->exists();
+    //    }
 }

@@ -7,7 +7,7 @@ use Enjin\BlockchainTools\HexConverter;
 class Blake2
 {
     /**
-     * Hashes a number to a 128 bit length.
+     * Hashes a number to a 128-bit length.
      */
     public static function hashU128(string $number, ?int $bitLength = 128): string
     {

@@ -11,7 +11,6 @@ use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;

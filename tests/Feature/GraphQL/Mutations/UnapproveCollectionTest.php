@@ -11,7 +11,6 @@ use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;

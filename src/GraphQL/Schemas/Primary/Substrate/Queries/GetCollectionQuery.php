@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 
 use Closure;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
@@ -16,6 +17,10 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
 {
     use HasAdhocRules;
     use InPrimarySubstrateSchema;
+
+    protected $middleware = [
+        SingleFilterOnly::class,
+    ];
 
     /**
      * Get the query's attributes.
@@ -34,7 +39,7 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
      */
     public function type(): Type
     {
-        return GraphQL::type('Collection!');
+        return GraphQL::type('Collection');
     }
 
     /**
@@ -44,10 +49,15 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     public function args(): array
     {
         return [
+            'id' => [
+                'type' => GraphQL::type('String'),
+                'description' => '',
+                'singleFilter' => true,
+            ],
             'collectionId' => [
-                'type' => GraphQL::type('BigInt!'),
+                'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::query.get_collection.args.collectionId'),
-                'rules' => ['exists:collections,collection_chain_id'],
+                'singleFilter' => true,
             ],
         ];
     }
@@ -57,8 +67,8 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Collection::loadSelectFields($resolveInfo, $this->name)
-            ->where('collection_chain_id', $args['collectionId'])
+        return Collection::selectFields($getSelectFields)
+            ->where('id', $args['id'] ?? $args['collectionId'])
             ->first();
     }
 }

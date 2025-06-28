@@ -8,7 +8,6 @@ use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\InfuseMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;

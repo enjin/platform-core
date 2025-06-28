@@ -17,6 +17,7 @@ use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -29,7 +30,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
         SingleFilterOnly::class,
     ];
 
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -49,12 +50,17 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
-            'numbers' => [
+            'ids' => [
                 'type' => GraphQL::type('[String]'),
+                'description' => '',
+                'singleFilter' => true,
+            ],
+            'numbers' => [
+                'type' => GraphQL::type('[Int]'),
                 'description' => __('enjin-platform::query.get_blocks.args.number'),
                 'singleFilter' => true,
             ],
@@ -71,21 +77,23 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Block::loadSelectFields($resolveInfo, $this->name)
-            ->when(!empty($args['numbers']), fn (Builder $query) => $query->whereIn('number', $args['numbers']))
-            ->when(!empty($args['hashes']), fn (Builder $query) => $query->whereIn('hash', $args['hashes']))
-            ->cursorPaginateWithTotalDesc('number', $args['first']);
+        return Block::selectFields($getSelectFields)
+            ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('block_hash', $args['ids']))
+            ->when(!empty($args['numbers']), fn (Builder $query) => $query->whereIn('block_number', $args['numbers']))
+            ->when(!empty($args['hashes']), fn (Builder $query) => $query->whereIn('block_hash', $args['hashes']))
+            ->cursorPaginateWithTotalDesc('block_number', $args['first']);
     }
 
     /**
-     * Get the validatio rules.
+     * Get the validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [
-            'numbers' => ['nullable', 'bail', 'max:100', 'distinct', new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
-            'hashes' => ['nullable', 'bail', 'max:100', 'distinct', new ValidHex(32)],
+            'ids' => ['nullable', 'max:100', 'distinct', new ValidHex(32)],
+            'numbers' => ['nullable', 'max:100', 'distinct', new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
+            'hashes' => ['nullable', 'max:100', 'distinct', new ValidHex(32)],
         ];
     }
 }

@@ -5,13 +5,11 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
-use Enjin\Platform\Traits\HasSelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
 class TokenAccountNamedReserveType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InSubstrateSchema;
 
     /**

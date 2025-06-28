@@ -10,7 +10,7 @@ namespace Illuminate\Database\Eloquent {
      */
     class Builder
     {
-        public function cursorPaginateWithTotal(string $orderBy, int $perPage, bool $cache = true)
+        public function cursorPaginateWithTotal(string $orderBy, int $perPage, bool $cache = true, bool $desc = false)
         {
             return $this;
         }

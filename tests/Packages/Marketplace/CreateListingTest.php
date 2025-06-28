@@ -2,16 +2,16 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use Enjin\Platform\Facades\TransactionSerializer;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Enums\ListingType;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CreateListingMutation;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Block;
 use Enjin\Platform\Models\Substrate\ListingDataParams;
 use Enjin\Platform\Models\Substrate\MultiTokensTokenAssetIdParams;
-use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Enjin\Platform\Models\Block;
 use Enjin\Platform\Providers\Faker\SubstrateProvider;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 

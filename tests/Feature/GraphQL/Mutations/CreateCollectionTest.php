@@ -12,7 +12,6 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Token;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;

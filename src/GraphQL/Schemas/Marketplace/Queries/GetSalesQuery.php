@@ -4,21 +4,21 @@ namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Queries;
 
 use Closure;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Models\MarketplaceSale;
-use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Models\Sale;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Builder;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetSalesQuery extends MarketplaceQuery
 {
     protected $middleware = [
         ResolvePage::class,
+        SingleFilterOnly::class,
     ];
 
     /**
@@ -50,16 +50,19 @@ class GetSalesQuery extends MarketplaceQuery
     {
         return ConnectionInput::args([
             'ids' => [
-                'type' => GraphQL::type('[BigInt!]'),
+                'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
+                'singleFilter' => true,
             ],
             'accounts' => [
                 'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform-marketplace::query.get_listings.args.account'),
+                'singleFilter' => true,
             ],
             'listingIds' => [
                 'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.field.listingId'),
+                'singleFilter' => true,
             ],
         ]);
     }
@@ -67,33 +70,13 @@ class GetSalesQuery extends MarketplaceQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return MarketplaceSale::loadSelectFields($resolveInfo, $this->name)
-            ->when(
-                $ids = Arr::get($args, 'ids'),
-                fn ($query) => $query->whereIn('id', $ids)
-            )->when(
-                $accounts = Arr::get($args, 'accounts'),
-                fn ($query) => $query->whereHas(
-                    'bidder',
-                    fn ($query) => $query->whereIn(
-                        'public_key',
-                        collect($accounts)->map(fn ($account) => SS58Address::getPublicKey($account))->toArray()
-                    )
-                )
-            )->when(
-                $listingIds = Arr::get($args, 'listingIds'),
-                fn ($query) => $query->whereHas(
-                    'listing',
-                    fn ($query) => $query->whereIn('listing_chain_id', $listingIds)
-                )
-            )->cursorPaginateWithTotalDesc('marketplace_sales.id', $args['first']);
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
+    {
+        return Sale::selectFields($getSelectFields)
+            ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('id', $args['ids']))
+            ->when(!empty($args['accounts']), fn (Builder $query) => $query->whereIn('buyer_id', collect($args['accounts'])->map(fn ($account) => SS58Address::getPublicKey($account))->toArray()))
+            ->when(!empty($args['listingIds']), fn (Builder $query) => $query->whereIn('listing_id', $args['listingIds']))
+            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 
     /**
@@ -103,20 +86,11 @@ class GetSalesQuery extends MarketplaceQuery
     protected function rules(array $args = []): array
     {
         return [
-            'ids' => ['bail', 'nullable', 'array', 'max:1000'],
-            'ids.*' => [
-                'bail',
-                new MinBigInt(),
-                new MaxBigInt(),
-            ],
-            'listingIds' => ['bail', 'nullable', 'array', 'max:1000'],
+            'ids' => ['nullable', 'array', 'max:1000'],
+            'listingIds' => ['nullable', 'array', 'max:1000'],
             'listingIds.*' => ['max:255'],
-            'accounts' => ['bail', 'nullable', 'array', 'max:1000'],
-            'accounts.*' => [
-                'bail',
-                'max:255',
-                Arr::get($args, 'accounts') ? new ValidSubstrateAddress() : '',
-            ],
+            'accounts' => ['nullable', 'array', 'max:1000'],
+            'accounts.*' => [new ValidSubstrateAddress()],
         ];
     }
 }

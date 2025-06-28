@@ -2,10 +2,10 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\Enums\ListingState;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\FinalizeAuctionMutation;
-use Enjin\Platform\Models\MarketplaceState;
+use Enjin\Platform\Models\Marketplace\MarketplaceState;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Str;
 

@@ -6,7 +6,6 @@ use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Traits\HasSelectFields;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
@@ -16,7 +15,6 @@ use Rebing\GraphQL\Support\Type as GraphQLType;
 
 class TransactionType extends GraphQLType implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InSubstrateSchema;
 
     /**
@@ -40,18 +38,19 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
     {
         return [
             'id' => [
-                'type' => GraphQL::type('Int'),
+                'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::query.get_transaction.args.id'),
             ],
             'transactionId' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::type.transaction.field.transactionId'),
-                'alias' => 'transaction_chain_id',
+                'deprecationReason' => '',
+                'alias' => 'id',
             ],
             'transactionHash' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::type.transaction.field.transactionHash'),
-                'alias' => 'transaction_chain_hash',
+                'alias' => 'hash',
             ],
             'method' => [
                 'type' => GraphQL::type('TransactionMethod'),
