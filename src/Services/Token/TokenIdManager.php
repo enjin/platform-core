@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Throwable;
 
 class TokenIdManager
 {
@@ -30,7 +31,7 @@ class TokenIdManager
         $encodableTokenId = $parameters['tokenId'] ?? null;
 
         if (!isset($encodableTokenId)) {
-            return;
+            return null;
         }
 
         $data = Arr::first($encodableTokenId);
@@ -107,7 +108,7 @@ class TokenIdManager
 
         try {
             return new $driverClass($config);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             throw new InvalidArgumentException(__('enjin-platform::error.token_id_encoder.encoder_not_supported', ['driverClass' => $driverClass]));
         }
     }

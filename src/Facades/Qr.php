@@ -2,18 +2,19 @@
 
 namespace Enjin\Platform\Facades;
 
+use Enjin\Platform\Services\Qr\Interfaces\QrAdapterInterface;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Enjin\Platform\Services\Qr\Interfaces\QrAdapterInterface
+ * @see QrAdapterInterface
  */
 class Qr extends Facade
 {
     /**
      * Get the registered name of the component.
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
-        return \Enjin\Platform\Services\Qr\Interfaces\QrAdapterInterface::class;
+        return QrAdapterInterface::class;
     }
 }

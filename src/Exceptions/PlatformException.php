@@ -2,9 +2,10 @@
 
 namespace Enjin\Platform\Exceptions;
 
+use Exception;
 use GraphQL\Error\ClientAware;
 
-class PlatformException extends \Exception implements ClientAware
+class PlatformException extends Exception implements ClientAware
 {
     /**
      * Determine if the exception is safe to be displayed to the user.
@@ -15,9 +16,9 @@ class PlatformException extends \Exception implements ClientAware
     }
 
     /**
-     * Get exception category.
+     * Get an exception category.
      */
-    public function getCategory()
+    public function getCategory(): string
     {
         return 'Platform Core';
     }

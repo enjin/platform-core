@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Support;
 
 use Enjin\BlockchainTools\HexConverter;
+use Exception;
 
 class Hex
 {
@@ -20,8 +21,6 @@ class Hex
      * This function removes the '0x' prefix if it exists and then checks if the remaining string
      * consists only of valid hexadecimal characters (0-9, a-f, A-F).
      *
-     * @param  string|null  $input  The input string to check.
-     * @return bool Returns true if the input string is a valid hexadecimal, false otherwise.
      */
     public static function isHexEncoded(?string $input = null): bool
     {
@@ -59,7 +58,7 @@ class Hex
             }
 
             return $stringValue;
-        } catch (\Exception) {
+        } catch (Exception) {
             return $value;
         }
     }

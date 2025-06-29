@@ -13,7 +13,7 @@ trait InGlobalSchema
     }
 
     /**
-     * Get schmea network.
+     * Get schema network.
      */
     public static function getSchemaNetwork(): string
     {

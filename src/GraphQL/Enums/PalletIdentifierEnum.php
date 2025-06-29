@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Enums;
 
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
 use Enjin\Platform\Interfaces\PlatformGraphQlEnum;
+use Override;
 use Rebing\GraphQL\Support\EnumType;
 
 class PalletIdentifierEnum extends EnumType implements PlatformGraphQlEnum
@@ -11,7 +12,7 @@ class PalletIdentifierEnum extends EnumType implements PlatformGraphQlEnum
     /**
      * Get the enum's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [

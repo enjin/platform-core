@@ -10,7 +10,10 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\SS58Address;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Random\RandomException;
+use SodiumException;
 
 class VerificationService
 {
@@ -31,7 +34,7 @@ class VerificationService
     }
 
     /**
-     * Get a verification by column and value.
+     * Get verification by column and value.
      */
     public function get(string $key, string $column = 'verification_id'): Model
     {
@@ -44,7 +47,7 @@ class VerificationService
     }
 
     /**
-     * Create a new verification.
+     * Create new verification.
      */
     public function store(array $data): Model
     {
@@ -63,6 +66,7 @@ class VerificationService
 
     /**
      * Verify a verification.
+     * @throws SodiumException|PlatformException
      */
     public function verify(string $verificationId, string $signature, string $address, string $cryptoSignatureType): bool
     {
@@ -95,6 +99,8 @@ class VerificationService
 
     /**
      * Generate a readable string using all upper case letters that are easy to recognize.
+     * @throws PlatformException
+     * @throws RandomException
      */
     public function generate(): array
     {
@@ -112,7 +118,7 @@ class VerificationService
     }
 
     /**
-     * Generate a QR code for a verification.
+     * Generate a QR code for verification.
      */
     public function qr(string $data, int $size = 512): string
     {
@@ -121,6 +127,7 @@ class VerificationService
 
     /**
      * Generate a random verification ID.
+     * @throws PlatformException
      */
     private function generateVerificationId(): string
     {
@@ -132,13 +139,14 @@ class VerificationService
             $hexed = sodium_bin2hex($key);
 
             return HexConverter::prefix($hexed);
-        } catch (\Exception) {
+        } catch (Exception) {
             throw new PlatformException(__('enjin-platform::error.verification.unable_to_generate_verification_id'));
         }
     }
 
     /**
      * Generate a random code.
+     * @throws RandomException
      */
     private function generateCode(): string
     {

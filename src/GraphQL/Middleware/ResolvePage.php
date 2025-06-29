@@ -5,6 +5,7 @@ namespace Enjin\Platform\GraphQL\Middleware;
 use Closure;
 use Enjin\Platform\Traits\HasFieldPagination;
 use GraphQL\Type\Definition\ResolveInfo;
+use Override;
 use Rebing\GraphQL\Support\Middleware;
 
 class ResolvePage extends Middleware
@@ -14,7 +15,7 @@ class ResolvePage extends Middleware
     /**
      * Process the middleware.
      */
-    #[\Override]
+    #[Override]
     public function handle($root, array $args, $context, ResolveInfo $info, Closure $next)
     {
         $this->resolveCurrentPageForPagination($args['after']);

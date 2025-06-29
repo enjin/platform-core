@@ -13,7 +13,7 @@ trait InSubstrateSchema
     }
 
     /**
-     * Get schmea network.
+     * Get schema network.
      */
     public static function getSchemaNetwork(): string
     {

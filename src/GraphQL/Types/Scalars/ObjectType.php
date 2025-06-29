@@ -19,20 +19,17 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
 
     /**
      * Serializes an internal value to include in a response.
-     *
-     * @param  mixed  $value
      */
-    public function serialize($value)
+    public function serialize($value): object
     {
         return (object) $value;
     }
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
-     *
-     * @param  mixed  $value
+     * @throws PlatformException
      */
-    public function parseValue($value)
+    public function parseValue($value): object
     {
         if (!is_array($value) && !is_object($value)) {
             throw new PlatformException(__('enjin-platform::error.cannot_represent_object') . Utils::printSafeJson($value));
@@ -43,8 +40,7 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
-     *
-     * @param  mixed  $valueNode
+     * @throws Error
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -58,7 +54,7 @@ class ObjectType extends ScalarType implements PlatformGraphQlType, TypeConverti
     }
 
     /**
-     * Createt instance.
+     * Create an instance.
      */
     public function toType(): Type
     {

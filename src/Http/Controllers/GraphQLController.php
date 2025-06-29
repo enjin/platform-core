@@ -2,14 +2,17 @@
 
 namespace Enjin\Platform\Http\Controllers;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
+use GraphQL\Server\RequestError;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\TypeKind;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use JsonException;
 use Laragraph\Utils\RequestParser;
 use Rebing\GraphQL\GraphQL;
 use Rebing\GraphQL\GraphQLController as GraphQLGraphQLController;
@@ -163,6 +166,9 @@ class GraphQLController extends GraphQLGraphQLController
 
     /**
      * Check if a query is doing introspection.
+     * @throws RequestError
+     * @throws SyntaxError
+     * @throws JsonException
      */
     protected function isIntrospection(Request $request, RequestParser $parser): bool
     {

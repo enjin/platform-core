@@ -5,6 +5,8 @@ namespace Enjin\Platform\GraphQL\Types\Unions;
 use Enjin\Platform\Enums\Substrate\ListingType;
 use Enjin\Platform\Interfaces\PlatformGraphQlUnion;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\UnionType;
 
@@ -13,7 +15,7 @@ class ListingDataUnion extends UnionType implements PlatformGraphQlUnion
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -25,7 +27,7 @@ class ListingDataUnion extends UnionType implements PlatformGraphQlUnion
     /**
      * The possible types that this union can be.
      */
-    #[\Override]
+    #[Override]
     public function types(): array
     {
         return [
@@ -38,7 +40,7 @@ class ListingDataUnion extends UnionType implements PlatformGraphQlUnion
     /**
      * Resolves concrete ObjectType for given object value.
      */
-    public function resolveType($objectValue, $context, ResolveInfo $info)
+    public function resolveType($objectValue, $context, ResolveInfo $info): ?Type
     {
         return match ($objectValue?->type) {
             ListingType::FIXED_PRICE->name => GraphQL::type('FixedPriceData'),

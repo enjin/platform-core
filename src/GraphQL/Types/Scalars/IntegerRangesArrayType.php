@@ -5,6 +5,7 @@ namespace Enjin\Platform\GraphQL\Types\Scalars;
 use Enjin\Platform\GraphQL\Types\Scalars\Traits\HasIntegerRanges;
 use Enjin\Platform\GraphQL\Types\Traits\InGlobalSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -32,6 +33,7 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
+     * @throws Error
      */
     public function parseValue($value): array
     {
@@ -44,10 +46,12 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
+     * @throws Error
+     * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null): array
     {
-        if (!in_array($valueNode->kind, ['ListValue'])) {
+        if ($valueNode->kind != 'ListValue') {
             throw new Error(__('enjin-platform::error.not_valid_integer_ranges_array'), [$valueNode]);
         }
 

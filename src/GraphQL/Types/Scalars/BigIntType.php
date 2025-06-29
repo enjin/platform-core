@@ -15,14 +15,14 @@ class BigIntType extends ScalarType implements PlatformGraphQlType, TypeConverti
 {
     use InGlobalSchema;
 
-    public const REGEX = '/^-?(?!0{2,})\d+$/';
+    public const string REGEX = '/^-?(?!0{2,})\d+$/';
 
-    public const MIN_UINT = '0';
+    public const string MIN_UINT = '0';
 
-    public const MAX_UINT = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+    public const string MAX_UINT = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
     /**
-     * Create new big int type instance.
+     * Create a new big int type instance.
      */
     public function __construct()
     {
@@ -39,8 +39,7 @@ class BigIntType extends ScalarType implements PlatformGraphQlType, TypeConverti
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
-     *
-     * @param  mixed  $value
+     * @throws Error
      */
     public function parseValue($value)
     {
@@ -53,8 +52,7 @@ class BigIntType extends ScalarType implements PlatformGraphQlType, TypeConverti
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
-     *
-     * @param  mixed  $valueNode
+     * @throws Error
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {

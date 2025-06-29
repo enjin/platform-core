@@ -9,6 +9,7 @@ use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
@@ -59,8 +60,9 @@ class Substrate implements BlockchainServiceInterface
 
     /**
      * Call the method in the client service.
+     * @throws PlatformException
      */
-    public function callMethod(string $name, array $args = [], ?bool $raw = false): mixed
+    public function callMethod(string $name, array $args = [], ?bool $raw = false): string|array|null
     {
         return $this->client->send($name, $args, $raw);
     }
@@ -101,7 +103,7 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Get mint or create params object.
+     * Get mint or create a params object.
      */
     public function getMintOrCreateParams(array $args): CreateTokenParams|MintParams
     {

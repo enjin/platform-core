@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class NullAuth implements Authenticator
 {
     /**
-     * Authenticate user by request.
+     * Authenticate a user by request.
      */
     public function authenticate(Request $request): bool
     {
@@ -17,7 +17,7 @@ class NullAuth implements Authenticator
     }
 
     /**
-     * Get authorization token.
+     * Get an authorization token.
      */
     public function getToken(): string
     {
@@ -34,7 +34,7 @@ class NullAuth implements Authenticator
         return new static();
     }
 
-    private function isProduction()
+    private function isProduction(): bool
     {
         return Str::lower(config('app.env')) === 'production';
     }

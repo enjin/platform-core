@@ -82,11 +82,6 @@ class PhoneHomeService
 
     protected function platformPackages(): array
     {
-        $packages = [];
-        foreach (PlatformController::getPlatformPackages() as $package => $info) {
-            $packages[$package] = $info['version'];
-        }
-
-        return $packages;
+        return array_map(fn ($info) => $info['version'], PlatformController::getPlatformPackages());
     }
 }

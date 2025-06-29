@@ -25,6 +25,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
+     * @throws Error
      */
     public function parseValue($value): string
     {
@@ -37,6 +38,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
+     * @throws Error
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -48,7 +50,7 @@ class DateTimeType extends ScalarType implements PlatformGraphQlType, TypeConver
     }
 
     /**
-     * Create new type.
+     * Create a new type.
      */
     public function toType(): Type
     {
