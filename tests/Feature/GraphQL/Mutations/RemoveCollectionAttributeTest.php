@@ -5,7 +5,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveCollectionAttributeMutation;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
@@ -18,8 +19,8 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class RemoveCollectionAttributeTest extends TestCaseGraphQL
 {
@@ -27,11 +28,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveCollectionAttribute';
     protected Codec $codec;
-    protected Model $collection;
-    protected Model $attribute;
-    protected Model $wallet;
+    protected Collection $collection;
+    protected Attribute $attribute;
+    protected Wallet $wallet;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

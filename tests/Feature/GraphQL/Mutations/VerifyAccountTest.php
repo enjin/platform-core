@@ -10,7 +10,7 @@ use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
+use Override;
 use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class VerifyAccountTest extends TestCaseGraphQL
@@ -18,9 +18,9 @@ class VerifyAccountTest extends TestCaseGraphQL
     use HasHttp;
 
     protected string $method = 'VerifyAccount';
-    protected Model $verification;
+    protected Verification $verification;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

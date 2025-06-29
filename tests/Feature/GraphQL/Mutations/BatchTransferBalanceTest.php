@@ -4,7 +4,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferBalanceMutation;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
@@ -14,6 +15,7 @@ use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Faker\Generator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class BatchTransferBalanceTest extends TestCaseGraphQL
 {
@@ -25,7 +27,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
 
     protected string $defaultAccount;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,7 +36,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
         $this->defaultAccount = Account::daemonPublicKey();
     }
 
-    public static function getInputData(...$data)
+    public static function getInputData(...$data): array
     {
         $signingAccount = '0x6802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02';
         $recipientAccount = '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e';

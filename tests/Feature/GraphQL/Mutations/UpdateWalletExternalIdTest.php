@@ -6,14 +6,14 @@ use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class UpdateWalletExternalIdTest extends TestCaseGraphQL
 {
     protected string $method = 'UpdateWalletExternalId';
-    protected Model $wallet;
+    protected Wallet $wallet;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

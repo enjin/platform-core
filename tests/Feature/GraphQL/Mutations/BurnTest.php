@@ -4,7 +4,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BurnMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\BurnParams;
@@ -21,22 +22,22 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class BurnTest extends TestCaseGraphQL
 {
     use MocksHttpClient;
 
-    protected $method = 'Burn';
+    protected string $method = 'Burn';
     protected Codec $codec;
-    protected Model $wallet;
-    protected Model $collection;
-    protected Model $token;
+    protected Wallet $wallet;
+    protected Collection $collection;
+    protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Model $tokenAccount;
+    protected TokenAccount $tokenAccount;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

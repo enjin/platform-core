@@ -32,8 +32,6 @@ class Collection extends UnwritableModel
         'stats',
         'owner_id',
     ];
-
-
     // For reference from a previous model
     //    protected $fillable = [
     //        'collection_chain_id',

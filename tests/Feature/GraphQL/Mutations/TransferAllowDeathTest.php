@@ -4,7 +4,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Account;
@@ -14,6 +15,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class TransferAllowDeathTest extends TestCaseGraphQL
 {
@@ -24,7 +26,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     protected string $defaultAccount;
     protected array $fee;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

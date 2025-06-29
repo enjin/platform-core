@@ -4,7 +4,10 @@ namespace Enjin\Platform\Tests\Support;
 
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+use JsonException;
 use Mockery;
+use Random\RandomException;
+use ReflectionException;
 use WebSocket\Client;
 
 trait MocksSocketClient
@@ -21,7 +24,9 @@ trait MocksSocketClient
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
+     * @throws RandomException
+     * @throws ReflectionException
      */
     protected function mockWebsocketClient(string $method, array $params, string $responseJson, bool $anyParam = false): void
     {
@@ -51,6 +56,9 @@ trait MocksSocketClient
         });
     }
 
+    /**
+     * @throws ReflectionException
+     */
     protected function mockWebsocketClientSequence(array $responseSequence): void
     {
         app()->bind(function () use ($responseSequence): Client {

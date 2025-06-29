@@ -39,7 +39,7 @@ class GetTokenTest extends TestCaseGraphQL
         $this->wallet = Wallet::factory()->create();
         $this->collectionOwner = Wallet::factory()->create();
         $this->collection = Collection::factory([
-            'owner_wallet_id' => $this->collectionOwner,
+            'owner_id' => $this->collectionOwner,
             'token_count' => 1,
         ])->create();
         $this->token = Token::factory([

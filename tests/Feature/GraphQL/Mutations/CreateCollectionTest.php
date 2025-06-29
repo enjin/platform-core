@@ -6,7 +6,8 @@ use Cache;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
@@ -22,6 +23,7 @@ use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class CreateCollectionTest extends TestCaseGraphQL
 {
@@ -33,7 +35,7 @@ class CreateCollectionTest extends TestCaseGraphQL
     protected string $defaultAccount;
     protected Encoder $tokenIdEncoder;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

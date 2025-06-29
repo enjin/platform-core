@@ -9,6 +9,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Faker\Generator;
 use Illuminate\Support\Collection;
+use Override;
 
 class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 {
@@ -18,7 +19,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
     protected string $method = 'MarkAndListPendingTransactions';
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -28,7 +29,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
         $this->transactions = $this->generateTransactions();
     }
 
-    #[\Override]
+    #[Override]
     protected function tearDown(): void
     {
         Transaction::destroy($this->transactions);

@@ -12,6 +12,7 @@ use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class SendTransactionTest extends TestCaseGraphQL
 {
@@ -24,7 +25,7 @@ class SendTransactionTest extends TestCaseGraphQL
     protected string $signature;
     protected string $hash;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

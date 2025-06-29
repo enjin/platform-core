@@ -4,7 +4,8 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\OperatorTransferTokenMutation;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
@@ -22,8 +23,8 @@ use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class OperatorTransferTokenTest extends TestCaseGraphQL
 {
@@ -32,15 +33,15 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     protected string $method = 'OperatorTransferToken';
     protected Codec $codec;
-    protected Model $wallet;
-    protected Model $collection;
-    protected Model $collectionAccount;
-    protected Model $token;
+    protected Wallet $wallet;
+    protected Collection $collection;
+    protected CollectionAccount $collectionAccount;
+    protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Model $tokenAccount;
-    protected Model $recipient;
+    protected TokenAccount $tokenAccount;
+    protected Wallet $recipient;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

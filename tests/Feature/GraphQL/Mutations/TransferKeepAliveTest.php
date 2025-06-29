@@ -4,15 +4,15 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
-use Enjin\Platform\Tests\Support\Mocks\StorageMock;
 use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Http;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class TransferKeepAliveTest extends TransferAllowDeathTest
 {
@@ -21,18 +21,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     protected string $method = 'TransferKeepAlive';
     protected array $fee;
 
-    #[\Override]
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->mockHttpClientSequence([
-            StorageMock::account_with_balance(),
-            StorageMock::fee($this->fee = app(Generator::class)->fee_details()),
-        ]);
-    }
-
-    #[\Override]
+    #[Override]
     public function test_it_can_skip_validation(): void
     {
         Wallet::factory([
