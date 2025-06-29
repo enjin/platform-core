@@ -25,7 +25,7 @@ class TokenFactory extends Factory
             'collection_id' => $collection = Collection::factory()->create(),
             'token_id' => (string) $tokenId = fake()->unique()->numberBetween(),
 
-            'id' => $collection->id . "-$tokenId",
+            'id' => $collection->id . "-{$tokenId}",
             'supply' => (string) fake()->numberBetween(1),
             'is_frozen' => false,
             'freeze_state' => null,

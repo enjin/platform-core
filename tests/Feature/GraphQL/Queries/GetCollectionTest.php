@@ -45,7 +45,7 @@ class GetCollectionTest extends TestCaseGraphQL
             'collection_id' => $this->collection,
             'account_id' => $this->wallet,
             'account_count' => 1,
-            'approvals' => [['accountId' => $this->collectionOwner->id]]
+            'approvals' => [['accountId' => $this->collectionOwner->id]],
         ])->create();
         $this->tokenAccount = TokenAccount::factory([
             'collection_id' => $this->collection,
@@ -145,7 +145,7 @@ class GetCollectionTest extends TestCaseGraphQL
         $collection = Collection::factory([
             'mint_policy' => [
                 'maxTokenSupply' => (string) fake()->randomNumber(),
-                "forceSingleMint" => fake()->boolean()
+                'forceSingleMint' => fake()->boolean(),
             ],
         ])->create();
 
@@ -164,7 +164,7 @@ class GetCollectionTest extends TestCaseGraphQL
         $collection = Collection::factory([
             'mint_policy' => [
                 'maxTokenCount' => (string) fake()->randomNumber(),
-                "forceSingleMint" => fake()->boolean()
+                'forceSingleMint' => fake()->boolean(),
             ],
         ])->create();
 
@@ -190,15 +190,15 @@ class GetCollectionTest extends TestCaseGraphQL
     }
 
     /**
-     * Tests for unhappy paths
+     * Tests for unhappy paths.
      */
     public function test_it_will_fail_with_no_args(): void
     {
         $response = $this->graphql($this->method, [], true);
 
         $this->assertArrayContainsArray([
-          "id" => ["The id field is required when collection id is not present."],
-          "collectionId" => ["The collection id field is required when id is not present."]
+            'id' => ['The id field is required when collection id is not present.'],
+            'collectionId' => ['The collection id field is required when id is not present.'],
         ], $response['error']);
     }
 
@@ -232,8 +232,8 @@ class GetCollectionTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArrayContainsArray([
-           'id' => ['The id field is required when collection id is not present.'],
-            'collectionId' => ['The collection id field is required when id is not present.']
+            'id' => ['The id field is required when collection id is not present.'],
+            'collectionId' => ['The collection id field is required when id is not present.'],
         ], $response['error']);
     }
 
@@ -255,7 +255,7 @@ class GetCollectionTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArrayContainsArray([
-            'id' => ['The id is too large, the maximum value it can be is 340282366920938463463374607431768211455.']
+            'id' => ['The id is too large, the maximum value it can be is 340282366920938463463374607431768211455.'],
         ], $response['error']);
     }
 }

@@ -4,7 +4,6 @@ namespace Enjin\Platform\Database\Factories\Unwritable;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Indexer\Attribute;
-use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

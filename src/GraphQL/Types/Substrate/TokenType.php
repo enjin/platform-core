@@ -8,8 +8,6 @@ use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Wallet;
-use Illuminate\Pagination\Cursor;
-use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Support\Arr;
 use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -114,17 +112,17 @@ class TokenType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.token.field.anyoneCanInfuse'),
                 'alias' => 'anyone_can_infuse',
             ],
-                        'tokenMetadata' => [
-                            'type' => GraphQL::type('TokenMetadata!'),
-                            'description' => __('enjin-platform::type.token.field.tokenMetadata'),
-                            'resolve' => fn ($token) => [
-                                'name' => $token->name,
-                                'symbol' => $token->symbol,
-                                'decimalCount' => $token->decimal_count,
-                            ],
-                            'is_relation' => false,
-                            'selectable' => false,
-                        ],
+            'tokenMetadata' => [
+                'type' => GraphQL::type('TokenMetadata!'),
+                'description' => __('enjin-platform::type.token.field.tokenMetadata'),
+                'resolve' => fn ($token) => [
+                    'name' => $token->name,
+                    'symbol' => $token->symbol,
+                    'decimalCount' => $token->decimal_count,
+                ],
+                'is_relation' => false,
+                'selectable' => false,
+            ],
             'nonFungible' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.token.field.nonFungible'),
@@ -146,16 +144,8 @@ class TokenType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::paginate('TokenAccount', 'TokenAccountConnection'),
                 'description' => __('enjin-platform::type.token.field.accounts'),
                 'args' => ConnectionInput::args(),
-                'is_relation' => true,
-                'resolve' => fn ($token, $args) => [
-                    'items' => new CursorPaginator(
-                        $token?->tokenAccounts,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $token?->accounts_count,
-                ],
+                'alias' => 'tokenAccounts',
+                'resolve' => fn ($token, $args) => $token?->tokenAccounts()->cursorPaginateWithTotal('id', $args['first']),
             ],
 
             // Deprecated

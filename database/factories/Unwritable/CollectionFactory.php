@@ -27,9 +27,9 @@ class CollectionFactory extends Factory
             'id' => (string) $collectionId,
             'owner_id' => Wallet::factory(),
             'mint_policy' => [
-                "maxTokenCount" => (string) fake()->numberBetween(1),
-                "maxTokenSupply" => (string) fake()->numberBetween(1),
-                "forceSingleMint" => fake()->boolean()
+                'maxTokenCount' => (string) fake()->numberBetween(1),
+                'maxTokenSupply' => (string) fake()->numberBetween(1),
+                'forceSingleMint' => fake()->boolean(),
             ],
             'market_policy' => null,
             'burn_policy' => null,

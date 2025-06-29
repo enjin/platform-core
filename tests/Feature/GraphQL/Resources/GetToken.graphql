@@ -2,8 +2,8 @@ query GetToken(
   $id: String
   $collectionId: BigInt
   $tokenId: EncodableTokenIdInput
-#  $accountsCursor: String
-#  $accountsLimit: Int
+  $accountsCursor: String
+  $accountsLimit: Int
 ) {
   GetToken(
     id: $id
@@ -32,42 +32,42 @@ query GetToken(
       key
       value
     }
-#    accounts(after: $accountsCursor, first: $accountsLimit) {
-#      totalCount
-#      pageInfo {
-#        hasNextPage
-#        hasPreviousPage
-#        startCursor
-#        endCursor
-#      }
-#      edges {
-#        cursor
-#        node {
-#          balance
-#          reservedBalance
-#          isFrozen
+    accounts(after: $accountsCursor, first: $accountsLimit) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          balance
+          reservedBalance
+          isFrozen
 #          wallet {
 #            account {
 #              publicKey
 #              address
 #            }
 #          }
-#          approvals {
-#            amount
-#            expiration
+          approvals {
+            amount
+            expiration
 #            wallet {
 #              account {
 #                publicKey
 #                address
 #              }
 #            }
-#          }
-#          namedReserves {
-#            pallet
-#            amount
-#          }
-#        }
-#      }
-#    }
+          }
+          namedReserves {
+            pallet
+            amount
+          }
+        }
+      }
+    }
   }
 }

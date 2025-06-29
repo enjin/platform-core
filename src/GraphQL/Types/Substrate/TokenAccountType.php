@@ -48,19 +48,17 @@ class TokenAccountType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.token_account.field.isFrozen'),
                 'alias' => 'is_frozen',
             ],
-
-                         'approvals' => [
-                            'type' => GraphQL::type('[TokenAccountApproval]'),
-                            'description' => __('enjin-platform::type.collection_account.field.approvals'),
-                             'selectable' => false,
-                             'resolve' => fn () => [],
-                        ],
-                        'namedReserves' => [
-                            'type' => GraphQL::type('[TokenAccountNamedReserve]'),
-                            'description' => __('enjin-platform::type.collection_account.field.namedReserves'),
-                            'selectable' => false,
-                            'resolve' => fn () => [],
-                        ],
+            'approvals' => [
+                'type' => GraphQL::type('[TokenAccountApproval]'),
+                'description' => __('enjin-platform::type.collection_account.field.approvals'),
+                'is_relation' => false,
+            ],
+            'namedReserves' => [
+                'type' => GraphQL::type('[TokenAccountNamedReserve]'),
+                'description' => __('enjin-platform::type.collection_account.field.namedReserves'),
+                'alias' => 'named_reserves',
+                'is_relation' => false,
+            ],
 
             // Related
             'collection' => [

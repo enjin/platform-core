@@ -146,21 +146,21 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
             ],
 
             // Related
-//            'events' => [
-//                'type' => GraphQL::paginate('Event', 'EventConnection'),
-//                'description' => __('enjin-platform::type.transaction.field.events'),
-//                'args' => ConnectionInput::args(),
-//                'resolve' => fn ($transaction, $args) => [
-//                    'items' => new CursorPaginator(
-//                        $transaction?->events,
-//                        $args['first'],
-//                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-//                        ['parameters' => ['id']]
-//                    ),
-//                    'total' => (int) $transaction?->events_count,
-//                ],
-//                'is_relation' => true,
-//            ],
+            //            'events' => [
+            //                'type' => GraphQL::paginate('Event', 'EventConnection'),
+            //                'description' => __('enjin-platform::type.transaction.field.events'),
+            //                'args' => ConnectionInput::args(),
+            //                'resolve' => fn ($transaction, $args) => [
+            //                    'items' => new CursorPaginator(
+            //                        $transaction?->events,
+            //                        $args['first'],
+            //                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+            //                        ['parameters' => ['id']]
+            //                    ),
+            //                    'total' => (int) $transaction?->events_count,
+            //                ],
+            //                'is_relation' => true,
+            //            ],
         ];
     }
 }

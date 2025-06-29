@@ -51,8 +51,6 @@ class CreateCollectionTest extends TestCaseGraphQL
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams());
         $response = $this->graphql($this->method);
 
-        ray($response);
-
         $this->assertArrayContainsArray([
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,

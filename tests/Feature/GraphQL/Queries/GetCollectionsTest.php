@@ -201,9 +201,8 @@ class GetCollectionsTest extends TestCaseGraphQL
     }
 
     /**
-     * Tests for unhappy paths
+     * Tests for unhappy paths.
      */
-
     public function test_it_will_fail_with_collection_id_negative(): void
     {
         $response = $this->graphql($this->method, [
@@ -244,8 +243,8 @@ class GetCollectionsTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArrayContainsArray([
-                'ids.0' => ['The ids.0 is too large, the maximum value it can be is 340282366920938463463374607431768211455.'],
-            ], $response['error']);
+            'ids.0' => ['The ids.0 is too large, the maximum value it can be is 340282366920938463463374607431768211455.'],
+        ], $response['error']);
     }
 
     protected function generateCollections(?int $numberOfTransactions = 5): array
@@ -272,7 +271,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'collection_id' => $collection,
             'account_id' => $this->wallet,
             'account_count' => 1,
-            'approvals' => [['accountId' => $this->wallet->id]]
+            'approvals' => [['accountId' => $this->wallet->id]],
         ])->create();
 
         TokenAccount::factory([

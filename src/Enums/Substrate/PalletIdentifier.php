@@ -9,9 +9,9 @@ enum PalletIdentifier: string
 {
     use EnumExtensions;
 
-    case MARKETPLACE = 'marktplc';
-    case MULTI_TOKENS = 'multoken';
-    case FUEL_TANK = 'fueltank';
+    case MARKETPLACE = 'Marketplace';
+    case MULTI_TOKENS = 'MultiTokens';
+    case FUEL_TANK = 'FuelTank';
 
     /**
      * Get the pallet identifier from a hex string.

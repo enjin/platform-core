@@ -71,8 +71,6 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        ray($getSelectFields);
-
         return Token::selectFields($getSelectFields)
             ->where('id', $args['id'] ?? "{$args['collectionId']}-{$this->encodeTokenId($args)}")
             ->first();
@@ -81,13 +79,13 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the validation rules.
      */
-        #[Override]
-        protected function rules(array $args = []): array
-        {
-            return [
-                'id' => ['nullable', 'required_without_all::collectionId,tokenId'],
-                'collectionId' => ['nullable', 'required_without:id', 'present_with:tokenId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
-                ...$this->getTokenFieldRules(null, ['required_without:id', 'present_with:collectionId'])
-            ];
-        }
+    #[Override]
+    protected function rules(array $args = []): array
+    {
+        return [
+            'id' => ['nullable', 'required_without_all:collectionId,tokenId'],
+            'collectionId' => ['nullable', 'required_without:id', 'present_with:tokenId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getOptionalTokenFieldRules(null, ['required_without:id', 'present_with:collectionId']),
+        ];
+    }
 }

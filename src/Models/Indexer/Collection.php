@@ -40,34 +40,6 @@ class Collection extends UnwritableModel
         'stats',
         'owner_id',
     ];
-    // For reference from a previous model
-    //    protected $fillable = [
-    //        'collection_chain_id',
-    //        'owner_wallet_id',
-    //        'pending_transfer',
-    //        'max_token_count',
-    //        'max_token_supply',
-    //        'force_collapsing_supply',
-    //        'is_frozen',
-    //        'royalty_wallet_id',
-    //        'royalty_percentage',
-    //        'token_count',
-    //        'attribute_count',
-    //        'creation_depositor',
-    //        'creation_deposit_amount',
-    //        'total_deposit',
-    //        'total_infusion',
-    //        'network',
-    //        'created_at',
-    //        'updated_at',
-    //    ];
-
-    protected function network(): CastAttribute
-    {
-        return new CastAttribute(
-            get: fn ($value) => currentMatrix()->name,
-        );
-    }
 
     /**
      * The account this collection belongs to.
@@ -99,6 +71,34 @@ class Collection extends UnwritableModel
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class, 'collection_id')->whereNull('token_id');
+    }
+    // For reference from a previous model
+    //    protected $fillable = [
+    //        'collection_chain_id',
+    //        'owner_wallet_id',
+    //        'pending_transfer',
+    //        'max_token_count',
+    //        'max_token_supply',
+    //        'force_collapsing_supply',
+    //        'is_frozen',
+    //        'royalty_wallet_id',
+    //        'royalty_percentage',
+    //        'token_count',
+    //        'attribute_count',
+    //        'creation_depositor',
+    //        'creation_deposit_amount',
+    //        'total_deposit',
+    //        'total_infusion',
+    //        'network',
+    //        'created_at',
+    //        'updated_at',
+    //    ];
+
+    protected function network(): CastAttribute
+    {
+        return new CastAttribute(
+            get: fn ($value) => currentMatrix()->name,
+        );
     }
 
     protected function casts(): array

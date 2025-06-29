@@ -80,13 +80,13 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the validation rules.
      */
-        #[Override]
-        protected function rules(array $args = []): array
-        {
-            return [
-                'id' => ['nullable', 'required_without:collectionId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
-                // TODO: Remove when the collectionId argument is removed
-                'collectionId' => ['nullable', 'required_without:id', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
-            ];
-        }
+    #[Override]
+    protected function rules(array $args = []): array
+    {
+        return [
+            'id' => ['nullable', 'required_without:collectionId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            // TODO: Remove when the collectionId argument is removed
+            'collectionId' => ['nullable', 'required_without:id', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+        ];
+    }
 }
