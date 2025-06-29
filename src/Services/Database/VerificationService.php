@@ -99,24 +99,26 @@ class VerificationService
     }
 
     /**
-     * Generate a readable string using all upper case letters that are easy to recognize.
-     *
-     * @throws PlatformException
-     * @throws RandomException
+     * Generate a readable string using all upper case letters that are straightforward to recognize.
      */
     public function generate(): array
     {
-        $verificationId = $this->generateVerificationId();
-
-        while (Verification::firstWhere(['verification_id' => $verificationId])) {
-            // TODO: Should report this as in theory this should not happen.
+        try {
             $verificationId = $this->generateVerificationId();
+
+            if (Verification::where(['verification_id' => $verificationId])->exists()) {
+                $this->generate();
+            }
+
+            return [
+                'verification_id' => $verificationId,
+                'code' => $this->generateCode(),
+            ];
+        } catch (Exception) {
+            $this->generate();
         }
 
-        return [
-            'verification_id' => $verificationId,
-            'code' => $this->generateCode(),
-        ];
+        return [];
     }
 
     /**

@@ -17,8 +17,6 @@ class SaleFactory extends Factory
 
     /**
      * Define the model's default state.
-     *
-     * @return array<string, mixed>
      */
     public function definition(): array
     {

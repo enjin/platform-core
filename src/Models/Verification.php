@@ -2,30 +2,20 @@
 
 namespace Enjin\Platform\Models;
 
-use Enjin\Platform\Database\Factories\Unwritable\VerificationFactory;
-use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
+use Enjin\Platform\Database\Factories\VerificationFactory;
 use Enjin\Platform\Models\Traits\Verification as VerificationMethods;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Verification extends BaseModel
+class Verification extends Model
 {
-    use EagerLoadSelectFields;
     use HasFactory;
     use VerificationMethods;
 
     /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array<string>|bool
-     */
-    public $guarded = [];
-
-    /**
      * The attributes that are mass assignable.
-     *
-     * @var array<string>
      */
     public $fillable = [
         'verification_id',
@@ -35,8 +25,6 @@ class Verification extends BaseModel
 
     /**
      * The accessors to append to the model's array form.
-     *
-     * @var array
      */
     protected $appends = ['address'];
 

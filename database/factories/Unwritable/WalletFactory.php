@@ -25,8 +25,6 @@ class WalletFactory extends Factory
      *
      * @throws PlatformException
      * @throws SodiumException
-     *
-     * @return array<string, mixed>
      */
     public function definition(): array
     {
