@@ -33,6 +33,30 @@ class Collection extends UnwritableModel
         'owner_id',
     ];
 
+
+    // For reference from a previous model
+    //    protected $fillable = [
+    //        'collection_chain_id',
+    //        'owner_wallet_id',
+    //        'pending_transfer',
+    //        'max_token_count',
+    //        'max_token_supply',
+    //        'force_collapsing_supply',
+    //        'is_frozen',
+    //        'royalty_wallet_id',
+    //        'royalty_percentage',
+    //        'token_count',
+    //        'attribute_count',
+    //        'creation_depositor',
+    //        'creation_deposit_amount',
+    //        'total_deposit',
+    //        'total_infusion',
+    //        'network',
+    //        'created_at',
+    //        'updated_at',
+    //    ];
+
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'owner_id');
@@ -68,28 +92,6 @@ class Collection extends UnwritableModel
             'stats' => 'array',
         ];
     }
-
-    // For reference from a previous model
-    //    protected $fillable = [
-    //        'collection_chain_id',
-    //        'owner_wallet_id',
-    //        'pending_transfer',
-    //        'max_token_count',
-    //        'max_token_supply',
-    //        'force_collapsing_supply',
-    //        'is_frozen',
-    //        'royalty_wallet_id',
-    //        'royalty_percentage',
-    //        'token_count',
-    //        'attribute_count',
-    //        'creation_depositor',
-    //        'creation_deposit_amount',
-    //        'total_deposit',
-    //        'total_infusion',
-    //        'network',
-    //        'created_at',
-    //        'updated_at',
-    //    ];
 
     /**
      * Create a new factory instance for the model.

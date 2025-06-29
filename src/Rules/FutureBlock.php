@@ -6,6 +6,7 @@ use Closure;
 use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class FutureBlock implements ValidationRule
 {
@@ -17,7 +18,7 @@ class FutureBlock implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

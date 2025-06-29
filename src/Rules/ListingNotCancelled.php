@@ -4,20 +4,21 @@ namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\Enums\Substrate\ListingState;
-use Enjin\Platform\Models\Laravel\MarketplaceListing;
+use Enjin\Platform\Models\Listing;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class ListingNotCancelled implements ValidationRule
 {
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     #[\Override]
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$listing = MarketplaceListing::where('listing_chain_id', $value)->with('state')->first()) {
+        if (!$listing = Listing::where('listing_chain_id', $value)->with('state')->first()) {
             $fail('validation.exists')->translate();
 
             return;

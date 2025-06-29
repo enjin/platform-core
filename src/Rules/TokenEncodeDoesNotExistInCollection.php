@@ -10,6 +10,7 @@ use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class TokenEncodeDoesNotExistInCollection implements DataAwareRule, ValidationRule
 {
@@ -37,7 +38,7 @@ class TokenEncodeDoesNotExistInCollection implements DataAwareRule, ValidationRu
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

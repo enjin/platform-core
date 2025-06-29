@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Override;
 
 class Transaction extends UnwritableModel
 {
@@ -68,7 +69,7 @@ class Transaction extends UnwritableModel
         parent::__construct($attributes);
     }
 
-    #[\Override]
+    #[Override]
     public static function boot(): void
     {
         parent::boot();
@@ -91,7 +92,7 @@ class Transaction extends UnwritableModel
     }
 
     /**
-     * The events relationship.
+     * The events' relationship.
      */
     public function events(): HasMany
     {

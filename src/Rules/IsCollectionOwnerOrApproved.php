@@ -7,6 +7,7 @@ use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Support\Account;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class IsCollectionOwnerOrApproved implements ValidationRule
 {
@@ -23,7 +24,7 @@ class IsCollectionOwnerOrApproved implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

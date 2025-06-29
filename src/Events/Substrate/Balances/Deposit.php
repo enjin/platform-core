@@ -4,6 +4,7 @@ namespace Enjin\Platform\Events\Substrate\Balances;
 
 use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
+use Enjin\Platform\Models\Transaction;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Deposit as DepositPolkadart;
@@ -16,7 +17,7 @@ class Deposit extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(DepositPolkadart $event, ?Model $transaction = null)
+    public function __construct(DepositPolkadart $event, ?Transaction $transaction = null)
     {
         parent::__construct();
 

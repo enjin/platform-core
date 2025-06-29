@@ -5,6 +5,7 @@ namespace Enjin\Platform\Rules;
 use Closure;
 use Enjin\Platform\Support\Hex;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class MaxBigInt implements ValidationRule
 {
@@ -21,7 +22,7 @@ class MaxBigInt implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

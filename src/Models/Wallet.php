@@ -26,12 +26,6 @@ class Wallet extends UnwritableModel
         'image',
     ];
 
-
-    //    /**
-    //     * The attributes that are mass assignable.
-    //     *
-    //     * @var array<string>
-    //     */
     //    public $fillable = [
     //        'public_key',
     //        'external_id',
@@ -92,7 +86,7 @@ class Wallet extends UnwritableModel
     }
 
     /**
-     * The transactions relationship.
+     * The transaction relationship.
      */
     public function transactions(): HasMany
     {

@@ -9,17 +9,18 @@ use Enjin\Platform\Support\Account;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class IsCollectionOwner implements DataAwareRule, ValidationRule
 {
     use HasDataAwareRule;
 
-    public static $bypass = false;
+    public static bool $bypass = false;
 
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
