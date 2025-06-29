@@ -15,6 +15,7 @@ query GetTokens(
     edges {
       cursor
       node {
+        id
         tokenId
         supply
         cap

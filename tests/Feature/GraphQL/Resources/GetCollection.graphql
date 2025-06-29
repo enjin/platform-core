@@ -12,15 +12,6 @@ query GetCollection(
     maxTokenSupply
     forceCollapsingSupply
     frozen
-    creationDeposit {
-      depositor {
-        account {
-          publicKey
-          address
-        }
-      }
-      amount
-    }
     totalDeposit
     totalInfusion
     network

@@ -41,14 +41,14 @@ class GetCollectionsTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method);
 
-        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertNotEmpty($response['edges']);
     }
 
     public function test_it_can_fetch_with_empty_args(): void
     {
         $response = $this->graphql($this->method, []);
 
-        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertNotEmpty($response['edges']);
     }
 
     public function test_it_can_fetch_with_null_collection_ids(): void
@@ -57,7 +57,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'ids' => null,
         ]);
 
-        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertNotEmpty($response['edges']);
     }
 
     public function test_it_can_fetch_with_empty_collection_ids(): void
@@ -66,7 +66,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'ids' => [],
         ]);
 
-        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertNotEmpty($response['edges']);
     }
 
     public function test_it_can_fetch_with_null_after(): void
@@ -75,7 +75,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'after' => null,
         ]);
 
-        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertNotEmpty($response['edges']);
         $this->assertFalse($response['pageInfo']['hasPreviousPage']);
     }
 
@@ -85,7 +85,7 @@ class GetCollectionsTest extends TestCaseGraphQL
             'first' => null,
         ]);
 
-        $this->assertTrue(count($response['edges']) > 0);
+        $this->assertNotEmpty($response['edges']);
     }
 
     public function test_it_can_filter_by_collection_id(): void
