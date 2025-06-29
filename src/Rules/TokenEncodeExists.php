@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Token\TokenIdManager;
 use Illuminate\Contracts\Validation\DataAwareRule;

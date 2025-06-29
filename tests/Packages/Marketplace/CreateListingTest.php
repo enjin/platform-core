@@ -6,7 +6,7 @@ use Enjin\Platform\Enums\ListingType;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CreateListingMutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
-use Enjin\Platform\Models\Block;
+use Enjin\Platform\Models\Indexer\Block;
 use Enjin\Platform\Models\Substrate\ListingDataParams;
 use Enjin\Platform\Models\Substrate\MultiTokensTokenAssetIdParams;
 use Enjin\Platform\Providers\Faker\SubstrateProvider;

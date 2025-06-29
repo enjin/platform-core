@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Services;
 
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Listing;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Listing;
+use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Database\Eloquent\Model;
 
 class MarketplaceService

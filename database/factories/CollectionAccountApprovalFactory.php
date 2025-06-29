@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\Database\Factories;
 
-use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

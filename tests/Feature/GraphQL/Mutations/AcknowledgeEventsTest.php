@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\PendingEvent;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\MultiTokens\CollectionCreated as CollectionCreatedPolkadart;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;

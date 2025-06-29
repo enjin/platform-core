@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models\Traits;
 
-use Enjin\Platform\Models\Laravel\Wallet;
+use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 trait Verification

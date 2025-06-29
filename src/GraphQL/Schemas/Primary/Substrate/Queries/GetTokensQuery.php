@@ -9,7 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Token;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;

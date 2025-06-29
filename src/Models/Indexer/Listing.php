@@ -1,16 +1,24 @@
 <?php
 
-namespace Enjin\Platform\Models;
+namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\ListingFactory;
+use Enjin\Platform\Models\MarketplaceState;
+use Enjin\Platform\Models\Wallet;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Listing extends UnwritableModel
 {
+    /**
+     * The table name in the indexer database.
+     */
     protected $table = 'listing';
 
+    /**
+     * The columns from the table.
+     */
     protected $visible = [
         'id',
         'amount',
@@ -59,31 +67,49 @@ class Listing extends UnwritableModel
     //        'amount_filled',
     //    ];
 
+    /**
+     * The account this listing belongs to.
+     */
     public function seller(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'seller_id');
     }
 
+    /**
+     * The sales this listing has.
+     */
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class, 'listing_chain_id', 'listing_chain_id');
     }
 
+    /**
+     * The bids this listing has.
+     */
     public function bids(): HasMany
     {
         return $this->hasMany(Bid::class);
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function states(): HasMany
     {
         return $this->hasMany(MarketplaceState::class);
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function highestBid()
     {
         return $this->hasOne(Bid::class)->ofMany('price', 'max');
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function state()
     {
         return $this->hasOne(MarketplaceState::class)->latestOfMany();

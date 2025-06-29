@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
-use Enjin\Platform\Models\Bid;
+use Enjin\Platform\Models\Indexer\Bid;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

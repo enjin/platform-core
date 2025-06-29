@@ -3,9 +3,9 @@
 namespace Enjin\Platform\Services\Database;
 
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Models\Attribute;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Attribute;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Model;
 

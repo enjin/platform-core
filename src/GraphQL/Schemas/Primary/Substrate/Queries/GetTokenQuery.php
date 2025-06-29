@@ -10,7 +10,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Token;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Override;

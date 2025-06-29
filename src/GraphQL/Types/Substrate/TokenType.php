@@ -6,7 +6,7 @@ use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Wallet;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;

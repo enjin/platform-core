@@ -4,7 +4,7 @@ namespace Enjin\Platform\Database\Factories\Unwritable;
 
 use Enjin\Platform\Enums\Substrate\FeeSide;
 use Enjin\Platform\Enums\Substrate\ListingType;
-use Enjin\Platform\Models\Listing;
+use Enjin\Platform\Models\Indexer\Listing;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -3,9 +3,9 @@
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Traits\InMarketplaceSchema;
-use Enjin\Platform\Models\Bid;
-use Rebing\GraphQL\Support\Facades\GraphQL;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Enjin\Platform\Models\Indexer\Bid;
+use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
 class MarketplaceBidType extends Type implements PlatformGraphQlType

@@ -1,17 +1,26 @@
 <?php
 
-namespace Enjin\Platform\Models;
+namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\FuelTankFactory;
+use Enjin\Platform\Models\AccountRule;
+use Enjin\Platform\Models\DispatchRule;
+use Enjin\Platform\Models\Wallet;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FuelTank extends UnwritableModel
 {
+    /**
+     * The table name in the indexer database.
+     */
     protected $table = 'fuel_tank';
 
+    /**
+     * The columns from the table.
+     */
     protected $visible = [
         'id',
         'name',
@@ -45,21 +54,33 @@ class FuelTank extends UnwritableModel
     //     */
     //    protected $appends = ['address'];
 
+    /**
+     * The account this fuel tank belongs to.
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'owner_id');
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function accountRules(): HasMany
     {
         return $this->hasMany(AccountRule::class, 'tank_id');
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function dispatchRules(): HasMany
     {
         return $this->hasMany(DispatchRule::class);
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function accounts(): BelongsToMany
     {
         return $this->belongsToMany(Wallet::class, 'fuel_tank_accounts');

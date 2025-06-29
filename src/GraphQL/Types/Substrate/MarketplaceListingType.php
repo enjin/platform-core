@@ -4,12 +4,9 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 
 use Enjin\Platform\Enums\Substrate\FeeSide;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Traits\InMarketplaceSchema;
-use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Models\Listing;
-use Illuminate\Pagination\Cursor;
-use Illuminate\Pagination\CursorPaginator;
-use Illuminate\Support\Arr;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Enjin\Platform\Models\Indexer\Listing;
+use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 

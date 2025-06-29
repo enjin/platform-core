@@ -3,7 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Queries;
 
 use Closure;
-use Enjin\Platform\Models\Bid;
+use Enjin\Platform\Models\Indexer\Bid;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Override;

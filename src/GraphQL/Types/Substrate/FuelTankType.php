@@ -5,7 +5,7 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 use Arr;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 

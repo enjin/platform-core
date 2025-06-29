@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\TankUserAccount;
+use Enjin\Platform\Models\Indexer\TankUserAccount;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
 use Illuminate\Translation\PotentiallyTranslatedString;

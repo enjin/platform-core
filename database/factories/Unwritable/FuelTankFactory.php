@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
 use Enjin\Platform\Enums\Substrate\CoveragePolicy;
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Enjin\Platform\Providers\Faker\SubstrateProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

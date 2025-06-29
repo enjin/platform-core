@@ -3,10 +3,10 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Enums\Substrate\ListingState;
-use Enjin\Platform\Models\Listing;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Indexer\Listing;
+use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;

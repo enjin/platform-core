@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models\Traits;
 
-use Enjin\Platform\Models\Laravel\Transaction;
+use Enjin\Platform\Models\Transaction;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait Event

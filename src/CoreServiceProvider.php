@@ -11,6 +11,7 @@ use Enjin\Platform\Http\Middleware\Telemetry;
 use Enjin\Platform\Providers\AuthServiceProvider;
 use Enjin\Platform\Providers\Deferred\BlockchainServiceProvider;
 use Enjin\Platform\Providers\Deferred\QrServiceProvider;
+use Enjin\Platform\Providers\Deferred\SerializationServiceProvider;
 use Enjin\Platform\Providers\Deferred\WebsocketClientProvider;
 use Enjin\Platform\Providers\FakerServiceProvider;
 use Enjin\Platform\Providers\GitHubServiceProvider;
@@ -61,6 +62,7 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'enjin-platform');
 
         $this->app->register(QrServiceProvider::class);
+        $this->app->register(SerializationServiceProvider::class);
         $this->app->register(BlockchainServiceProvider::class);
         $this->app->register(WebsocketClientProvider::class);
         $this->app->register(GraphQlServiceProvider::class);

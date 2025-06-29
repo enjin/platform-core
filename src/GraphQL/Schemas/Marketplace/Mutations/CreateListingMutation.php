@@ -14,7 +14,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Substrate\AuctionDataParams;
 use Enjin\Platform\Models\Substrate\ListingDataParams;
 use Enjin\Platform\Models\Substrate\MultiTokensTokenAssetIdParams;

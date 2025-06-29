@@ -7,7 +7,7 @@ use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Override;

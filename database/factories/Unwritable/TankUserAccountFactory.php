@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
-use Enjin\Platform\Models\TankUserAccount;
+use Enjin\Platform\Models\Indexer\TankUserAccount;
 use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

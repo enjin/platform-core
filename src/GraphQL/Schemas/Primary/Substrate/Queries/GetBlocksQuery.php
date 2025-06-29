@@ -9,7 +9,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Interfaces\PlatformPublicGraphQlOperation;
-use Enjin\Platform\Models\Block;
+use Enjin\Platform\Models\Indexer\Block;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidHex;

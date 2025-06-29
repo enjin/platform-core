@@ -8,7 +8,7 @@ use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Support\Hex;

@@ -5,7 +5,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use Enjin\Platform\Enums\ListingState;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations\CancelListingMutation;
-use Enjin\Platform\Models\Listing;
+use Enjin\Platform\Models\Indexer\Listing;
 use Enjin\Platform\Models\Marketplace\MarketplaceState;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Str;

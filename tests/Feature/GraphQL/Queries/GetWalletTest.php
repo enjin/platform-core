@@ -2,12 +2,12 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use Enjin\Platform\Models\Attribute;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Models\Indexer\Attribute;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\TokenAccountApproval;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
 use Enjin\Platform\Models\Transaction;

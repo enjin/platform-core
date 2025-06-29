@@ -7,7 +7,7 @@ use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Models\Listing;
+use Enjin\Platform\Models\Indexer\Listing;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAddress;

@@ -19,8 +19,8 @@ return new class () extends Migration {
         $existingIndexes = collect(array_filter(explode(',', env('INDEX_COLLECTIONS', ''))));
         $existingIndexes->each(function (string $index) {
             Illuminate\Support\Facades\DB::table('syncables')->updateOrInsert(
-                ['syncable_id' => $index, 'syncable_type' => Enjin\Platform\Models\Collection::class],
-                ['syncable_id' => $index, 'syncable_type' => Enjin\Platform\Models\Collection::class],
+                ['syncable_id' => $index, 'syncable_type' => \Enjin\Platform\Models\Indexer\Collection::class],
+                ['syncable_id' => $index, 'syncable_type' => \Enjin\Platform\Models\Indexer\Collection::class],
             );
         });
     }

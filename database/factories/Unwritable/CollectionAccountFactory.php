@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

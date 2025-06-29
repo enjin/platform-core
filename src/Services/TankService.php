@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services;
 
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Illuminate\Database\Eloquent\Model;
 
 class TankService

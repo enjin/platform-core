@@ -4,9 +4,9 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Carbon\Carbon;
 use Enjin\Platform\GraphQL\Schemas\Primary\Mutations\TokenHolderSnapshotMutation;
-use Enjin\Platform\Models\Block;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Block;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Override;
 

@@ -6,7 +6,7 @@ use Closure;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Models\Bid;
+use Enjin\Platform\Models\Indexer\Bid;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;

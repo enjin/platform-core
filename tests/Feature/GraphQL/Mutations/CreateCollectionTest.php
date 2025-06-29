@@ -6,13 +6,13 @@ use Cache;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Account;
@@ -49,8 +49,9 @@ class CreateCollectionTest extends TestCaseGraphQL
     public function test_create_collection_no_args(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams());
-
         $response = $this->graphql($this->method);
+
+        ray($response);
 
         $this->assertArrayContainsArray([
             'method' => $this->method,

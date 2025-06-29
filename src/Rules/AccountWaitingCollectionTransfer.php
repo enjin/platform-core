@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\DataAwareRule;

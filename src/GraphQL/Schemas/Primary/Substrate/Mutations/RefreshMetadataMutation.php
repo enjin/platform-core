@@ -12,7 +12,7 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Interfaces\PlatformPublicGraphQlOperation;
-use Enjin\Platform\Models\Attribute;
+use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Database\MetadataService;

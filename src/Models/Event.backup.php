@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Models\Indexer\UnwritableModel;
+
 class Event extends UnwritableModel
 {
     protected $table = 'event';

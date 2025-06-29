@@ -1,15 +1,22 @@
 <?php
 
-namespace Enjin\Platform\Models;
+namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\TokenAccountFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TokenAccount extends UnwritableModel
 {
+    /**
+     * The table name in the indexer database.
+     */
     protected $table = 'token_account';
 
+    /**
+     * The columns from the table.
+     */
     protected $visible = [
         'id',
         'total_balance',
@@ -38,16 +45,25 @@ class TokenAccount extends UnwritableModel
     //        'updated_at',
     //    ];
 
+    /**
+     * The collection this token account belongs to.
+     */
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
     }
 
+    /**
+     * The token this token account belongs to.
+     */
     public function token(): BelongsTo
     {
         return $this->belongsTo(Token::class);
     }
 
+    /**
+     * The account this token account belongs to.
+     */
     public function wallet(): BelongsTo
     {
         return $this->belongsTo(Wallet::class);

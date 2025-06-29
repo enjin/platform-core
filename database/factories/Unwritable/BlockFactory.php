@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
-use Enjin\Platform\Models\Block;
+use Enjin\Platform\Models\Indexer\Block;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

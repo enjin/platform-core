@@ -6,7 +6,7 @@ use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Block;
+use Enjin\Platform\Models\Indexer\Block;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;

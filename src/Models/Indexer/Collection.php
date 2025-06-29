@@ -1,16 +1,23 @@
 <?php
 
-namespace Enjin\Platform\Models;
+namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\CollectionFactory;
+use Enjin\Platform\Models\Wallet;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Collection extends UnwritableModel
 {
+    /**
+     * The table name in the indexer database.
+     */
     protected $table = 'collection';
 
+    /**
+     * The columns from the table.
+     */
     protected $visible = [
         'id',
         'collection_id',
@@ -54,21 +61,33 @@ class Collection extends UnwritableModel
     //        'updated_at',
     //    ];
 
+    /**
+     * The account this collection belongs to.
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'owner_id');
     }
 
+    /**
+     * The tokens this collection has.
+     */
     public function tokens(): HasMany
     {
         return $this->hasMany(Token::class);
     }
 
+    /**
+     * The collection accounts this collection has.
+     */
     public function collectionAccounts(): HasMany
     {
         return $this->hasMany(CollectionAccount::class, 'collection_id');
     }
 
+    /**
+     * The attributes this collection has.
+     */
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class, 'collection_id')->whereNull('token_id');

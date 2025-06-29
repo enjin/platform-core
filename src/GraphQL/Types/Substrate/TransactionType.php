@@ -10,6 +10,7 @@ use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type as GraphQLType;
 
@@ -20,7 +21,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -33,7 +34,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [
@@ -145,21 +146,21 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
             ],
 
             // Related
-            'events' => [
-                'type' => GraphQL::paginate('Event', 'EventConnection'),
-                'description' => __('enjin-platform::type.transaction.field.events'),
-                'args' => ConnectionInput::args(),
-                'resolve' => fn ($transaction, $args) => [
-                    'items' => new CursorPaginator(
-                        $transaction?->events,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $transaction?->events_count,
-                ],
-                'is_relation' => true,
-            ],
+//            'events' => [
+//                'type' => GraphQL::paginate('Event', 'EventConnection'),
+//                'description' => __('enjin-platform::type.transaction.field.events'),
+//                'args' => ConnectionInput::args(),
+//                'resolve' => fn ($transaction, $args) => [
+//                    'items' => new CursorPaginator(
+//                        $transaction?->events,
+//                        $args['first'],
+//                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+//                        ['parameters' => ['id']]
+//                    ),
+//                    'total' => (int) $transaction?->events_count,
+//                ],
+//                'is_relation' => true,
+//            ],
         ];
     }
 }

@@ -3,6 +3,10 @@
 namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\Unwritable\WalletFactory;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\TokenAccount;
+use Enjin\Platform\Models\Indexer\UnwritableModel;
 use Enjin\Platform\Observers\WalletObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\Factory;

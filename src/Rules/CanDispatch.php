@@ -4,7 +4,7 @@ namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\Enums\Substrate\DispatchRule;
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Enjin\Platform\Models\Substrate\MaxFuelBurnPerTransactionParams;
 use Enjin\Platform\Models\Substrate\PermittedCallsParams;
 use Enjin\Platform\Models\Substrate\PermittedExtrinsicsParams;

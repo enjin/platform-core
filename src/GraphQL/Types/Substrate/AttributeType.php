@@ -4,7 +4,7 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\Attribute;
+use Enjin\Platform\Models\Indexer\Attribute;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 

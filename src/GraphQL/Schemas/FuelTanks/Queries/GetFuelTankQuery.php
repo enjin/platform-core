@@ -4,7 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
 use Closure;
 use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;

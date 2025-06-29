@@ -7,55 +7,40 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Override;
 
-class Transaction extends UnwritableModel
+class Transaction extends Model
 {
-    protected $table = 'extrinsic';
+    use HasFactory;
 
-    protected $visible = [
-        'id',
-        'hash',
-        'block_number',
-        'block_hash',
-        'success',
-        'pallet',
+    /**
+     * The attributes that are mass assignable.
+     */
+    public $fillable = [
+        'transaction_chain_id',
+        'wallet_public_key',
+        'transaction_chain_hash',
         'method',
-        'args',
-        'nonce',
-        'tip',
+        'state',
+        'result',
+        'events',
+        'encoded_data',
         'fee',
-        'error',
+        'deposit',
+        'network',
+        'idempotency_key',
+        'signed_at_block',
         'created_at',
-        'participants',
-        'fuel_tank',
-        'signer_id',
+        'updated_at',
     ];
-    //    public $fillable = [
-    //        'transaction_chain_id',
-    //        'wallet_public_key',
-    //        'transaction_chain_hash',
-    //        'method',
-    //        'state',
-    //        'result',
-    //        'events',
-    //        'encoded_data',
-    //        'fee',
-    //        'deposit',
-    //        'network',
-    //        'idempotency_key',
-    //        'signed_at_block',
-    //        'created_at',
-    //        'updated_at',
-    //    ];
 
     /**
      * The accessors to append to the model's array form.
-     *
-     * @var array
      */
     protected $appends = ['wallet_address'];
 

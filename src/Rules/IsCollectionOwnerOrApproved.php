@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Services\Database\CollectionService;
 use Enjin\Platform\Support\Account;
 use Illuminate\Contracts\Validation\ValidationRule;

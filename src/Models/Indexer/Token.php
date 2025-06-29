@@ -1,16 +1,22 @@
 <?php
 
-namespace Enjin\Platform\Models;
+namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\TokenFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Token extends UnwritableModel
 {
+    /**
+     * The table name in the indexer database.
+     */
     protected $table = 'token';
 
+    /**
+     * The columns from the table.
+     */
     protected $visible = [
         'id',
         'token_id',
@@ -39,16 +45,25 @@ class Token extends UnwritableModel
         'last_sale_id',
     ];
 
+    /**
+     * The collection this token belongs to.
+     */
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
     }
 
+    /**
+     * The token accounts this token has.
+     */
     public function tokenAccounts(): HasMany
     {
         return $this->hasMany(TokenAccount::class);
     }
 
+    /**
+     * The attributes this token has.
+     */
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class, 'token_id');

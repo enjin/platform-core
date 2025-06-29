@@ -3,8 +3,8 @@
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
 use Enjin\Platform\BlockchainConstant;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

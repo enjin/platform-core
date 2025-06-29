@@ -1,15 +1,22 @@
 <?php
 
-namespace Enjin\Platform\Models;
+namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\TankUserAccountFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TankUserAccount extends UnwritableModel
 {
+    /**
+     * The table name in the indexer database.
+     */
     protected $table = 'fuel_tank_user_accounts';
 
+    /**
+     * The columns from the table.
+     */
     protected $visible = [
         'id',
         'tank_deposit',
@@ -26,11 +33,17 @@ class TankUserAccount extends UnwritableModel
     //        'total_received',
     //    ];
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function fuelTank(): BelongsTo
     {
         return $this->belongsTo(FuelTank::class);
     }
 
+    /**
+     * The collection this attribute belongs to.
+     */
     public function wallet(): BelongsTo
     {
         return $this->belongsTo(Wallet::class);

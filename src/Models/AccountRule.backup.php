@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Models\Indexer\FuelTank;
+use Enjin\Platform\Models\Indexer\UnwritableModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AccountRule extends UnwritableModel
