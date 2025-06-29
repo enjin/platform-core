@@ -18,23 +18,22 @@ class AttributeFactory extends Factory
      */
     protected $model = Attribute::class;
 
-    public function __construct($count = null, ?\Illuminate\Support\Collection $states = null, ?\Illuminate\Support\Collection $has = null, ?\Illuminate\Support\Collection $for = null, ?\Illuminate\Support\Collection $afterMaking = null, ?\Illuminate\Support\Collection $afterCreating = null, $connection = null, ?\Illuminate\Support\Collection $recycle = null)
-    {
-        parent::__construct($count, $states, $has, $for, $afterMaking, $afterCreating, $connection, $recycle);
-
-        $this->model = Attribute::resolveClassFqn();
-    }
-
     /**
      * Define the model's default state.
      */
     public function definition(): array
     {
         return [
-            'collection_id' => Collection::factory(),
-            'token_id' => Token::factory(),
-            'key' => HexConverter::stringToHexPrefixed(fake()->unique()->word()),
-            'value' => HexConverter::stringToHexPrefixed(fake()->text()),
+            // TODO: Right now we are always creating token Attributes
+            'token_id' => $token = Token::factory()->create(),
+            'collection_id' => $token->collection_id,
+            'key' => $key = fake()->unique()->word(),
+
+            'id' => $token->id . '-' . HexConverter::stringToHexPrefixed($key),
+            'value' => fake()->text(),
+            'deposit' => fake()->randomNumber(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

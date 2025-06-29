@@ -140,30 +140,6 @@ class Token extends UnwritableModel
     //        );
     //    }
     //
-    //    /**
-    //     * Create a new factory instance for the model.
-    //     */
-    //    protected static function newFactory(): TokenFactory
-    //    {
-    //        return TokenFactory::new();
-    //    }
-    //
-    //    #[\Override]
-    //    protected function pivotIdentifier(): Attribute
-    //    {
-    //        if (!$this->relationLoaded('collection')) {
-    //            $this->load('collection:id,collection_chain_id');
-    //        }
-    //
-    //        if (!$collection = $this->collection) {
-    //            throw new PlatformException(__('enjin-platform::error.no_collection', ['tokenId' => $this->token_chain_id]));
-    //        }
-    //
-    //        return Attribute::make(
-    //            get: fn () => "{$collection->collection_chain_id}:{$this->token_chain_id}",
-    //        );
-    //    }
-    //
     //    #[\Override]
     //    protected function ownerId(): Attribute
     //    {

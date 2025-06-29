@@ -16,9 +16,9 @@
         <testsuite name="Mutations">
             <directory>tests/Feature/GraphQL/Mutations</directory>
         </testsuite>
-<!--        <testsuite name="Queries">-->
-<!--            <directory>tests/Feature/GraphQL/Queries</directory>-->
-<!--        </testsuite>-->
+        <testsuite name="Queries">
+            <directory>tests/Feature/GraphQL/Queries</directory>
+        </testsuite>
     </testsuites>
 
     <php>

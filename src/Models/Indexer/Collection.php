@@ -7,6 +7,7 @@ use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute as CastAttribute;
 
 class Collection extends UnwritableModel
 {
@@ -61,6 +62,13 @@ class Collection extends UnwritableModel
     //        'updated_at',
     //    ];
 
+    protected function network(): CastAttribute
+    {
+        return new CastAttribute(
+            get: fn ($value) => currentMatrix()->name,
+        );
+    }
+
     /**
      * The account this collection belongs to.
      */
@@ -99,13 +107,7 @@ class Collection extends UnwritableModel
             'mint_policy' => 'array',
             'market_policy' => 'array',
             'transfer_policy' => 'array',
-            'metadata' => 'array',
             'created_at' => 'timestamp',
-            'flags' => 'array',
-            'socials' => 'array',
-            'verified_at' => 'timestamp',
-            'hidden' => 'boolean',
-            'stats' => 'array',
         ];
     }
 

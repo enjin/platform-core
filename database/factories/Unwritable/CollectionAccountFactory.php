@@ -23,10 +23,15 @@ class CollectionAccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'collection_id' => Collection::factory(),
-            'wallet_id' => Wallet::factory(),
+            'account_id' => $wallet = Wallet::factory()->create(),
+            'collection_id' => $collection = Collection::factory()->create(),
+
+            'id' => $wallet->id . '-' . $collection->id,
             'is_frozen' => false,
             'account_count' => 0,
+            'approvals' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

@@ -24,14 +24,21 @@ class TokenAccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'wallet_id' => Wallet::factory(),
-            'collection_id' => $collectionFactory = Collection::factory()->create(),
-            'token_id' => Token::factory([
-                'collection_id' => $collectionFactory,
-            ]),
-            'balance' => (string) fake()->numberBetween(1),
-            'reserved_balance' => '0',
+            'account_id' => $account = Wallet::factory()->create(),
+            'token_id' => $token = Token::factory()->create(),
+            'collection_id' => $token->collection_id,
+
+            'id' => $account->id . '-' . $token->id,
+            'total_balance' => $balance = fake()->numberBetween(1),
+            'balance' => $balance,
+            'reserved_balance' => 0,
+            'locked_balance' => 0,
+            'named_reserves' => null,
+            'locks' => null,
+            'approvals' => null,
             'is_frozen' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

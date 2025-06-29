@@ -22,19 +22,37 @@ class CollectionFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => (string) $collectionId = fake()->unique()->numberBetween(2000),
-            'collection_id' => $collectionId,
+            'collection_id' => $collectionId = fake()->unique()->numberBetween(2000),
+
+            'id' => (string) $collectionId,
             'owner_id' => Wallet::factory(),
-            //            'pending_transfer' => null,
-            //            'max_token_count' => fake()->numberBetween(1),
-            //            'max_token_supply' => (string) fake()->numberBetween(1),
-            //            'force_collapsing_supply' => fake()->boolean(),
-            //            'is_frozen' => false,
-            //            'token_count' => '0',
-            //            'attribute_count' => '0',
-            //            'total_deposit' => '0',
-            //            'total_infusion' => '0',
-            //            'network' => 'local',
+            'mint_policy' => [
+                "maxTokenCount" => (string) fake()->numberBetween(1),
+                "maxTokenSupply" => (string) fake()->numberBetween(1),
+                "forceSingleMint" => fake()->boolean()
+            ],
+            'market_policy' => null,
+            'burn_policy' => null,
+            'transfer_policy' => [
+                'isFrozen' => false,
+            ],
+            'attribute_policy' => null,
+            'attribute_count' => 0,
+            'total_deposit' => 0,
+            'created_at' => now(),
+            // Fields from the indexer that we might not need
+            'name' => null,
+            'metadata' => null,
+            'flags' => json_encode([]),
+            'socials' => json_encode([]),
+            'category' => null,
+            'verified_at' => null,
+            'hidden' => false,
+            'stats' => null,
+            // TODO: Verify if the following are needed
+            // 'pending_transfer' => null,
+            // 'token_count' => '0',
+            // 'network' => 'local',
         ];
     }
 }

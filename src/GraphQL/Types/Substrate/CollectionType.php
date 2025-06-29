@@ -44,7 +44,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.collection_type.field.collectionId'),
             ],
             'maxTokenCount' => [
-                'type' => GraphQL::type('Int'),
+                'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.collection_type.field.maxTokenCount'),
                 'alias' => 'mint_policy',
                 'resolve' => fn ($c) => Arr::get($c->mint_policy, 'maxTokenCount'),
@@ -97,7 +97,6 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.collection_type.field.network'),
                 'selectable' => false,
-                'resolve' => fn () => currentMatrix()->name,
             ],
 
             // Relationships

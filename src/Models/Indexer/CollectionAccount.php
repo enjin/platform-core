@@ -28,15 +28,6 @@ class CollectionAccount extends UnwritableModel
         'collection_id',
     ];
 
-    //    public $fillable = [
-    //        'collection_id',
-    //        'wallet_id',
-    //        'is_frozen',
-    //        'account_count',
-    //        'created_at',
-    //        'updated_at',
-    //    ];
-
     /**
      * The collection this collection account belongs to.
      */
@@ -50,7 +41,7 @@ class CollectionAccount extends UnwritableModel
      */
     public function wallet(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class);
+        return $this->belongsTo(Wallet::class, 'account_id');
     }
 
     protected function casts(): array

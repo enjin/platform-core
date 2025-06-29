@@ -56,7 +56,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
         return ConnectionInput::args([
             'ids' => [
                 'type' => GraphQL::type('[String]'),
-                'description' => '',
+                'description' => __('enjin-platform::query.get_blocks.args.hashes'),
                 'singleFilter' => true,
             ],
             'numbers' => [
@@ -67,6 +67,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
             'hashes' => [
                 'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform::query.get_blocks.args.hashes'),
+                'deprecationReason' => '',
                 'singleFilter' => true,
             ],
         ]);
@@ -93,6 +94,7 @@ class GetBlocksQuery extends Query implements PlatformGraphQlQuery, PlatformPubl
         return [
             'ids' => ['nullable', 'max:100', 'distinct', new ValidHex(32)],
             'numbers' => ['nullable', 'max:100', 'distinct', new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
+            // TODO: Remove when the hashes argument is removed
             'hashes' => ['nullable', 'max:100', 'distinct', new ValidHex(32)],
         ];
     }

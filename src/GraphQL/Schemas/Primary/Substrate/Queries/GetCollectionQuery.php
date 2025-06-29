@@ -8,6 +8,9 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSc
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Override;
@@ -52,12 +55,13 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
         return [
             'id' => [
                 'type' => GraphQL::type('String'),
-                'description' => '',
+                'description' =>  __('enjin-platform::query.get_collection.args.collectionId'),
                 'singleFilter' => true,
             ],
             'collectionId' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::query.get_collection.args.collectionId'),
+                'deprecationReason' => '',
                 'singleFilter' => true,
             ],
         ];
@@ -72,4 +76,17 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
             ->where('id', $args['id'] ?? $args['collectionId'])
             ->first();
     }
+
+    /**
+     * Get the validation rules.
+     */
+        #[Override]
+        protected function rules(array $args = []): array
+        {
+            return [
+                'id' => ['nullable', 'required_without:collectionId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+                // TODO: Remove when the collectionId argument is removed
+                'collectionId' => ['nullable', 'required_without:id', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            ];
+        }
 }
