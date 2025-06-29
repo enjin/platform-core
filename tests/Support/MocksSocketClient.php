@@ -27,7 +27,7 @@ trait MocksSocketClient
     {
         $expectedRpcRequest = Util::createJsonRpc($method, $params);
 
-        app()->bind(Client::class, function () use ($expectedRpcRequest, $responseJson, $anyParam) {
+        app()->bind(function () use ($expectedRpcRequest, $responseJson, $anyParam): Client {
             $mock = Mockery::mock(Client::class);
             if ($anyParam) {
                 $mock->shouldReceive('send')
@@ -53,7 +53,7 @@ trait MocksSocketClient
 
     protected function mockWebsocketClientSequence(array $responseSequence): void
     {
-        app()->bind(Client::class, function () use ($responseSequence) {
+        app()->bind(function () use ($responseSequence): Client {
             $mock = Mockery::mock(Client::class);
 
             $mock->shouldReceive('isConnected')

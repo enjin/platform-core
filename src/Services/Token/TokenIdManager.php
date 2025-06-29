@@ -31,7 +31,7 @@ class TokenIdManager
         $encodableTokenId = $parameters['tokenId'] ?? null;
 
         if (!isset($encodableTokenId)) {
-            return null;
+            return;
         }
 
         $data = Arr::first($encodableTokenId);

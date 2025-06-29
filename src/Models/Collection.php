@@ -56,7 +56,6 @@ class Collection extends UnwritableModel
     //        'updated_at',
     //    ];
 
-
     public function owner(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'owner_id');

@@ -10,8 +10,8 @@ use Override;
 
 abstract class UnwritableModel extends Model
 {
-    use SelectFields;
     use HasFactory;
+    use SelectFields;
 
     public $incrementing = false;
     public $timestamps = false;

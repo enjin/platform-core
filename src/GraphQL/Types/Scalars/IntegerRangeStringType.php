@@ -23,6 +23,7 @@ class IntegerRangeStringType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Serializes an internal value to include in a response.
+     *
      * @throws Error
      */
     public function serialize($value): string
@@ -38,6 +39,7 @@ class IntegerRangeStringType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
+     *
      * @throws Error
      */
     public function parseValue($value): string
@@ -51,6 +53,7 @@ class IntegerRangeStringType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
+     *
      * @throws Error
      */
     public function parseLiteral($valueNode, ?array $variables = null): string

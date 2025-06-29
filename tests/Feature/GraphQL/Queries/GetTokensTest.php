@@ -14,7 +14,6 @@ use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
 

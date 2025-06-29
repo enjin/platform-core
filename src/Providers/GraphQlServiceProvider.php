@@ -229,7 +229,6 @@ class GraphQlServiceProvider extends ServiceProvider
         config(['graphql.resolver_middleware' => array_merge($graphQlResolverMiddleware, $resolverMiddlewares)]);
     }
 
-
     /**
      * Set the network for the graphql.
      */

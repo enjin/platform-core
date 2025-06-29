@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Laravel\MarketplaceListing;
 use Enjin\Platform\Models\Listing;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;

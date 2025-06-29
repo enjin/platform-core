@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Queries;
 
-use Arr;
 use Closure;
 use Enjin\Platform\Models\Bid;
 use GraphQL\Type\Definition\ResolveInfo;

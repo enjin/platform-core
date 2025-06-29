@@ -17,7 +17,7 @@ class FakerServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->singleton(Generator::class, function () {
+        $this->app->singleton(function (): Generator {
             $faker = Factory::create();
 
             $faker->addProvider(new SubstrateProvider($faker));

@@ -12,6 +12,7 @@ class SingleFilterOnly extends Middleware
 {
     /**
      * Process the middleware.
+     *
      * @throws PlatformException
      */
     #[Override]

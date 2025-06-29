@@ -7,7 +7,6 @@ use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Traits\HasCustomQueue;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Model;
 
 class Teleport extends PlatformBroadcastEvent
 {

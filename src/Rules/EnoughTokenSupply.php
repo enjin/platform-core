@@ -6,7 +6,6 @@ use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Enums\Substrate\ListingState;
 use Enjin\Platform\Models\Listing;
-use Enjin\Platform\Models\MarketplaceListing;
 use Enjin\Platform\Models\Token;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;

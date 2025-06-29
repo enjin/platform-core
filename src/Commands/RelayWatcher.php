@@ -26,15 +26,13 @@ class RelayWatcher extends Command
 {
     public $signature = 'platform:relay-watcher';
 
-    public $description;
+    public $description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
 
     protected Substrate $rpc;
 
     public function __construct()
     {
         parent::__construct();
-
-        $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->rpc = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
     }
 

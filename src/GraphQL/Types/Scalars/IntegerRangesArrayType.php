@@ -33,6 +33,7 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
+     *
      * @throws Error
      */
     public function parseValue($value): array
@@ -46,6 +47,7 @@ class IntegerRangesArrayType extends ScalarType implements PlatformGraphQlType, 
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
+     *
      * @throws Error
      * @throws Exception
      */

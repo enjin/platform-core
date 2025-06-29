@@ -66,6 +66,7 @@ class VerificationService
 
     /**
      * Verify a verification.
+     *
      * @throws SodiumException|PlatformException
      */
     public function verify(string $verificationId, string $signature, string $address, string $cryptoSignatureType): bool
@@ -99,6 +100,7 @@ class VerificationService
 
     /**
      * Generate a readable string using all upper case letters that are easy to recognize.
+     *
      * @throws PlatformException
      * @throws RandomException
      */
@@ -127,6 +129,7 @@ class VerificationService
 
     /**
      * Generate a random verification ID.
+     *
      * @throws PlatformException
      */
     private function generateVerificationId(): string
@@ -146,6 +149,7 @@ class VerificationService
 
     /**
      * Generate a random code.
+     *
      * @throws RandomException
      */
     private function generateCode(): string

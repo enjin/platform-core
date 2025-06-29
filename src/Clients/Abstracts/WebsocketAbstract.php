@@ -36,6 +36,7 @@ abstract class WebsocketAbstract
 
     /**
      * Send a request to the websocket server.
+     *
      * @throws PlatformException
      */
     public function send(string $method, array $params = [], bool $rawResponse = false): array|string|null
@@ -43,6 +44,7 @@ abstract class WebsocketAbstract
         try {
             $json = Util::createJsonRpc($method, $params);
             $response = $this->sendRaw($json);
+
             return $rawResponse ? $response : $response['result'] ?? null;
 
         } catch (BadOpcodeException|JsonException|RandomException $e) {
@@ -52,6 +54,7 @@ abstract class WebsocketAbstract
 
     /**
      * Send a raw request to the websocket server.
+     *
      * @throws BadOpcodeException
      */
     public function sendRaw(string $payload): ?array

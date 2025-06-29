@@ -7,8 +7,7 @@ use Enjin\Platform\Models\CollectionAccountApproval;
 use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class
-CollectionAccountApprovalFactory extends Factory
+class CollectionAccountApprovalFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.

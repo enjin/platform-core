@@ -71,13 +71,15 @@ class GetFuelTanksQuery extends FuelTanksQuery
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
         return FuelTank::selectFields($getSelectFields)
-            ->when(!empty($args['ids']),
+            ->when(
+                !empty($args['ids']),
                 fn ($query) => $query->whereIn(
                     'id',
                     collect($args['ids'])->map(fn ($publicKey) => SS58Address::getPublicKey($publicKey))
                 )
             )
-            ->when(!empty($args['tankIds']),
+            ->when(
+                !empty($args['tankIds']),
                 fn ($query) => $query->whereIn(
                     'id',
                     collect($args['tankIds'])->map(fn ($publicKey) => SS58Address::getPublicKey($publicKey))

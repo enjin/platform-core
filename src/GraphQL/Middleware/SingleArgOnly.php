@@ -12,6 +12,7 @@ class SingleArgOnly extends Middleware
 {
     /**
      * Process the middleware.
+     *
      * @throws PlatformException
      */
     #[Override]

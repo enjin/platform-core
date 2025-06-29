@@ -166,6 +166,7 @@ class GraphQLController extends GraphQLGraphQLController
 
     /**
      * Check if a query is doing introspection.
+     *
      * @throws RequestError
      * @throws SyntaxError
      * @throws JsonException

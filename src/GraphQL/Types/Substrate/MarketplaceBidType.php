@@ -32,7 +32,7 @@ class MarketplaceBidType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
-            # Properties
+            // Properties
             'id' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
@@ -46,7 +46,7 @@ class MarketplaceBidType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform-marketplace::type.marketplace_state.field.height'),
             ],
 
-            # Relationship
+            // Relationship
             'bidder' => [
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.bidder'),

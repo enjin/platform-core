@@ -23,9 +23,10 @@ class WalletFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
      * @throws PlatformException
      * @throws SodiumException
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
@@ -38,12 +39,12 @@ class WalletFactory extends Factory
             'address' => SS58Address::encode($pk),
             'nonce' => $this->faker->randomNumber(),
             'balance' => json_encode([
-                "free" => $free = $this->faker->randomNumber(),
-                "transferable" => $free,
-                "frozen" => "0",
-                "reserved" => "0",
-                "feeFrozen" => "0",
-                "miscFrozen" => "0",
+                'free' => $free = $this->faker->randomNumber(),
+                'transferable' => $free,
+                'frozen' => '0',
+                'reserved' => '0',
+                'feeFrozen' => '0',
+                'miscFrozen' => '0',
             ]),
             'verified' => false,
             // 'external_id' => fake()->unique()->uuid(),

@@ -33,7 +33,7 @@ class FuelTankType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
-            # Properties
+            // Properties
             'id' => [
                 'type' => GraphQL::type('String!'),
                 'description' => '',

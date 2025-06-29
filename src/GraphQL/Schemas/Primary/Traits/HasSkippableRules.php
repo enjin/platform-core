@@ -24,6 +24,7 @@ trait HasSkippableRules
 
     /**
      * Get the validation rules.
+     *
      * @throws PlatformException
      */
     protected function rules(array $args = []): array
@@ -33,6 +34,7 @@ trait HasSkippableRules
 
     /**
      * Get all validation rules.
+     *
      * @throws PlatformException
      */
     protected function getAllRules(array $args): array

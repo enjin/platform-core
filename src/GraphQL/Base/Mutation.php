@@ -28,6 +28,7 @@ abstract class Mutation extends BaseMutation
 
     /**
      * Validate arguments base from the rules.
+     *
      * @throws ValidationError
      */
     #[Override]

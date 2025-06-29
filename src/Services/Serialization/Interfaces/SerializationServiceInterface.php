@@ -10,5 +10,4 @@ interface SerializationServiceInterface
      * Encode the given data.
      */
     public function encode(string $method, array $data, ?string $address = null): string;
-
 }

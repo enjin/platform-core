@@ -19,6 +19,7 @@ class Blake2
 
     /**
      * Hashes a number to a specified bit length.
+     *
      * @throws SodiumException
      */
     public static function hash(string $data, ?int $bitLength = 256): string
@@ -34,6 +35,7 @@ class Blake2
 
     /**
      * Hashes a number to a 128-bit length and encodes it.
+     *
      * @throws SodiumException
      */
     public static function hashAndEncode(string $number): string

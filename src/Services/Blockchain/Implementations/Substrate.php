@@ -60,6 +60,7 @@ class Substrate implements BlockchainServiceInterface
 
     /**
      * Call the method in the client service.
+     *
      * @throws PlatformException
      */
     public function callMethod(string $name, array $args = [], ?bool $raw = false): string|array|null

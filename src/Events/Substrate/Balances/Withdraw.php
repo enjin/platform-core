@@ -6,7 +6,6 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Models\Transaction;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Withdraw as WithdrawPolkadart;
 use Enjin\Platform\Traits\HasCustomQueue;
 

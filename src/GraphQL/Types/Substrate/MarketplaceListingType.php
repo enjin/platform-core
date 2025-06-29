@@ -37,7 +37,7 @@ class MarketplaceListingType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
-            # Properties
+            // Properties
             'id' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
@@ -115,7 +115,7 @@ class MarketplaceListingType extends Type implements PlatformGraphQlType
             //                'resolve' => fn ($listing) => $listing,
             //            ],
 
-            # Relationships
+            // Relationships
             'seller' => [
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.field.seller'),

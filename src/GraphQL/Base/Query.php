@@ -12,6 +12,7 @@ abstract class Query extends BaseQuery
 {
     /**
      * Validate arguments base from the rules.
+     *
      * @throws ValidationError
      */
     #[Override]

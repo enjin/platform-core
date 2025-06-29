@@ -16,7 +16,7 @@ class ValidHex implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): PotentiallyTranslatedString $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

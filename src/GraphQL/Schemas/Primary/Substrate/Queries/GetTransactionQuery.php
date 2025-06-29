@@ -71,11 +71,11 @@ class GetTransactionQuery extends Query implements PlatformGraphQlQuery
                 'description' => __('enjin-platform::query.get_transaction.args.transactionHash'),
                 'rules' => ['bail', 'filled', new ValidHex(32)],
             ],
-//            'idempotencyKey' => [
-//                'type' => GraphQL::type('String'),
-//                'description' => __('enjin-platform::query.get_transaction.args.idempotencyKey'),
-//                'rules' => ['bail', 'filled', 'min:36', 'max:255'],
-//            ],
+            //            'idempotencyKey' => [
+            //                'type' => GraphQL::type('String'),
+            //                'description' => __('enjin-platform::query.get_transaction.args.idempotencyKey'),
+            //                'rules' => ['bail', 'filled', 'min:36', 'max:255'],
+            //            ],
         ];
     }
 

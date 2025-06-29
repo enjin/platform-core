@@ -20,7 +20,6 @@ class Hex
      *
      * This function removes the '0x' prefix if it exists and then checks if the remaining string
      * consists only of valid hexadecimal characters (0-9, a-f, A-F).
-     *
      */
     public static function isHexEncoded(?string $input = null): bool
     {

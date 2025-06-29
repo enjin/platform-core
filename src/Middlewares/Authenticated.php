@@ -51,6 +51,7 @@ class Authenticated
 
     /**
      * Handle an incoming request.
+     *
      * @throws RequestError
      * @throws SyntaxError
      * @throws JsonException

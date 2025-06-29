@@ -34,14 +34,14 @@ class Wallet extends UnwritableModel
     //        'network',
     //    ];
 
-//    /**
-//     * The model's attributes.
-//     *
-//     * @var array
-//     */
-//    protected $attributes = [
-//        'managed' => false,
-//    ];
+    //    /**
+    //     * The model's attributes.
+    //     *
+    //     * @var array
+    //     */
+    //    protected $attributes = [
+    //        'managed' => false,
+    //    ];
 
     /**
      * The tokens attribute accessor.
@@ -110,8 +110,6 @@ class Wallet extends UnwritableModel
 
     /**
      * Bootstrap the model and its traits.
-     *
-     * @return void
      */
     #[Override]
     protected static function boot(): void

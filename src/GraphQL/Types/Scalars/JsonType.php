@@ -34,7 +34,7 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
-     * In the case of an invalid value this method must throw an Exception
+     * In the case of an invalid value this method must throw an Exception.
      */
     public function parseValue($value): mixed
     {
@@ -58,7 +58,8 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
-     * In the case of an invalid node or value, this method must throw an Exception
+     * In the case of an invalid node or value, this method must throw an Exception.
+     *
      * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null): mixed

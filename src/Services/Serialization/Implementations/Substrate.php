@@ -20,6 +20,7 @@ class Substrate implements SerializationServiceInterface
 
     /**
      * Encode the given data.
+     *
      * @throws PlatformException
      */
     public function encode(string $method, array $data, $address = null): string

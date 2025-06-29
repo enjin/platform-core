@@ -10,7 +10,6 @@ use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as CollectionSupport;
 use Illuminate\Support\Facades\Cache;

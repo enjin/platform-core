@@ -75,8 +75,10 @@ class GetBidsQuery extends MarketplaceQuery
     {
         return Bid::selectFields($getSelectFields)
             ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('id', $args['ids']))
-            ->when(!empty($args['accounts']),
-                fn (Builder $query) => $query->whereIn('bidder_id',
+            ->when(
+                !empty($args['accounts']),
+                fn (Builder $query) => $query->whereIn(
+                    'bidder_id',
                     collect($args['accounts'])
                         ->map(fn ($account) => SS58Address::getPublicKey($account))
                         ->toArray()

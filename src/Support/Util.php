@@ -44,6 +44,7 @@ class Util
 
     /**
      * Create a JSON-RPC encoded string.
+     *
      * @throws JsonException
      * @throws RandomException
      */

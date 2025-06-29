@@ -6,7 +6,6 @@ use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Models\Transaction;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Endowed as EndowedPolkadart;
 use Enjin\Platform\Traits\HasCustomQueue;
 

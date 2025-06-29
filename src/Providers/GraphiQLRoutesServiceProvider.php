@@ -13,6 +13,7 @@ class GraphiQLRoutesServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
+     *
      * @throws BindingResolutionException
      */
     public function boot(): void
@@ -46,8 +47,8 @@ class GraphiQLRoutesServiceProvider extends ServiceProvider
         $graphiQlEndpoint = config('graphql.graphiql.prefix', 'graphiql');
 
         if ($packageName !== 'Core' && $schemas->contains($packageName)) {
-            $graphQlEndpoint .= '/'.$packageName;
-            $graphiQlEndpoint .= '/'.$packageName;
+            $graphQlEndpoint .= '/' . $packageName;
+            $graphiQlEndpoint .= '/' . $packageName;
         }
 
         return [

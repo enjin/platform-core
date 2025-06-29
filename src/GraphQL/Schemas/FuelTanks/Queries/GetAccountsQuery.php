@@ -64,9 +64,9 @@ class GetAccountsQuery extends FuelTanksQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-//        return Wallet::selectFields($getSelectFields)
-//            ->whereHas('fuelTanks', fn ($query) => $query->where('public_key', SS58Address::getPublicKey($args['tankId'])))
-//            ->cursorPaginateWithTotalDesc('id', $args['first']);
+        //        return Wallet::selectFields($getSelectFields)
+        //            ->whereHas('fuelTanks', fn ($query) => $query->where('public_key', SS58Address::getPublicKey($args['tankId'])))
+        //            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 
     /**

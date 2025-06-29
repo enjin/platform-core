@@ -49,7 +49,8 @@ class GetSaleQuery extends MarketplaceQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields) {
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    {
         return Sale::selectFields($getSelectFields)
             ->where('id', $args['id'])
             ->first();

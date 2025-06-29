@@ -101,6 +101,7 @@ class SubstrateProvider extends Base
 
     /**
      * Get a random substrate address with a signed message using sr25519.
+     *
      * @throws SodiumException|PlatformException
      */
     public function sr25519_signature(string $message, ?bool $isCode = false): array
@@ -120,6 +121,7 @@ class SubstrateProvider extends Base
 
     /**
      * Sign a message using the provided keypair.
+     *
      * @throws SodiumException
      */
     public function sign(string $message, string $keypair): string
@@ -131,6 +133,7 @@ class SubstrateProvider extends Base
 
     /**
      * Sign a code using the provided keypair.
+     *
      * @throws SodiumException
      */
     public function signWithCode(string $code, ?string $keypair = null): string
@@ -143,6 +146,7 @@ class SubstrateProvider extends Base
 
     /**
      * Sign a message using the provided keypair.
+     *
      * @throws SodiumException
      */
     public function signWithMessage(string $message, ?string $keypair = null): string
