@@ -54,8 +54,8 @@ class GetTokenTest extends TestCaseGraphQL
             'account_id' => $this->wallet,
             'approvals' => ['accountId' => '0x00'],
             'named_reserves' => [
-                ['pallet' => 'Marketplace', 'amount' => '1']
-            ]
+                ['pallet' => 'Marketplace', 'amount' => '1'],
+            ],
         ])->create();
 
         $this->tokenAttribute = Attribute::factory([
@@ -95,26 +95,26 @@ class GetTokenTest extends TestCaseGraphQL
                             'balance' => (string) $this->tokenAccount->balance,
                             'reservedBalance' => (string) $this->tokenAccount->reserved_balance,
                             'isFrozen' => $this->tokenAccount->is_frozen,
-//                            'wallet' => [
-//                                'account' => [
-//                                    'publicKey' => $this->wallet->id,
-//                                ],
-//                            ],
-//                            'approvals' => [
-//                                [
-//                                    'amount' => $this->tokenAccountApproval->amount,
-//                                    'expiration' => $this->tokenAccountApproval->expiration,
-//                                    'wallet' => [
-//                                        'account' => [
-//                                            'publicKey' => $this->collectionOwner->id,
-//                                        ],
-//                                    ],
-//                                ],
-//                            ],
+                            //                            'wallet' => [
+                            //                                'account' => [
+                            //                                    'publicKey' => $this->wallet->id,
+                            //                                ],
+                            //                            ],
+                            //                            'approvals' => [
+                            //                                [
+                            //                                    'amount' => $this->tokenAccountApproval->amount,
+                            //                                    'expiration' => $this->tokenAccountApproval->expiration,
+                            //                                    'wallet' => [
+                            //                                        'account' => [
+                            //                                            'publicKey' => $this->collectionOwner->id,
+                            //                                        ],
+                            //                                    ],
+                            //                                ],
+                            //                            ],
                             'namedReserves' => [
                                 [
                                     'pallet' => PalletIdentifier::tryFrom($this->tokenAccount->named_reserves[0]['pallet'])->name,
-                                    'amount' => $this->tokenAccount->named_reserves[0]['amount']
+                                    'amount' => $this->tokenAccount->named_reserves[0]['amount'],
                                 ],
                             ],
                         ],

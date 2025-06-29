@@ -37,12 +37,12 @@ class TokenAccountNamedReserveType extends Type implements PlatformGraphQlType
             'pallet' => [
                 'type' => GraphQL::type('PalletIdentifier!'),
                 'description' => __('enjin-platform::type.token_account_named_reserve.args.pallet'),
-                'resolve' => fn($p) => PalletIdentifier::tryFrom(Arr::get($p, 'pallet')),
+                'resolve' => fn ($p) => PalletIdentifier::tryFrom(Arr::get($p, 'pallet')),
             ],
             'amount' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.token_account_named_reserve.args.amount'),
-                'resolve' => fn($p) => Arr::get($p, 'amount'),
+                'resolve' => fn ($p) => Arr::get($p, 'amount'),
             ],
         ];
     }

@@ -42,16 +42,16 @@ class TokenAccountApprovalType extends Type implements PlatformGraphQlType
             ],
 
             // Related
-//            'account' => [
-//                'type' => GraphQL::type('TokenAccount!'),
-//                'description' => __('enjin-platform::type.token_account_approval.field.account'),
-//                'is_relation' => true,
-//            ],
-//            'wallet' => [
-//                'type' => GraphQL::type('Wallet!'),
-//                'description' => __('enjin-platform::type.collection_account_approval.field.wallet'),
-//                'is_relation' => true,
-//            ],
+            //            'account' => [
+            //                'type' => GraphQL::type('TokenAccount!'),
+            //                'description' => __('enjin-platform::type.token_account_approval.field.account'),
+            //                'is_relation' => true,
+            //            ],
+            //            'wallet' => [
+            //                'type' => GraphQL::type('Wallet!'),
+            //                'description' => __('enjin-platform::type.collection_account_approval.field.wallet'),
+            //                'is_relation' => true,
+            //            ],
         ];
     }
 }
