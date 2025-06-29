@@ -20,7 +20,7 @@ class TransactionMethodEnum extends EnumType implements PlatformGraphQlEnum
         $mutationNames = collect(['LimitedTeleportAssets']);
         foreach (get_declared_classes() as $className) {
             if (in_array(PlatformBlockchainTransaction::class, class_implements($className))) {
-                $mutationNames->add(new $className()->getMutationName());
+                $mutationNames->add((new $className())->getMutationName());
             }
         }
 
