@@ -14,7 +14,7 @@ class Account
 {
     public static string $publicKey;
     public static array $walletAccounts = [];
-    private static Wallet $account;
+    private static $account;
 
     public static function existentialDeposit(): GMP
     {
