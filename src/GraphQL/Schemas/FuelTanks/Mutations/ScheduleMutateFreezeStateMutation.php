@@ -25,6 +25,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -39,7 +40,7 @@ class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements Pla
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -59,7 +60,7 @@ class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements Pla
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -101,7 +102,7 @@ class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements Pla
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
@@ -120,7 +121,7 @@ class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements Pla
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'MutateFreezeState';

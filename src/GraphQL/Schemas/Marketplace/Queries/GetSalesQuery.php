@@ -12,6 +12,7 @@ use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetSalesQuery extends MarketplaceQuery
@@ -24,7 +25,7 @@ class GetSalesQuery extends MarketplaceQuery
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -36,7 +37,7 @@ class GetSalesQuery extends MarketplaceQuery
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::paginate('MarketplaceSale', 'MarketplaceSaleConnection');
@@ -45,7 +46,7 @@ class GetSalesQuery extends MarketplaceQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
@@ -82,7 +83,7 @@ class GetSalesQuery extends MarketplaceQuery
     /**
      * Get the mutation's request validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [

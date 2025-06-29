@@ -26,6 +26,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -40,7 +41,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -60,7 +61,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -91,7 +92,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
         ];
     }
 
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'ForceSetConsumption';
@@ -116,7 +117,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());

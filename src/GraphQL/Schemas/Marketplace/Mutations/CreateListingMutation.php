@@ -31,6 +31,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateListingMutation extends MarketplaceMutation implements PlatformBlockchainTransaction
@@ -46,7 +47,7 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -58,7 +59,7 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::type('Transaction!');
@@ -67,7 +68,7 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -133,7 +134,7 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $makeAsset = Arr::get($params, 'makeAssetId', new MultiTokensTokenAssetIdParams('0', '0'));

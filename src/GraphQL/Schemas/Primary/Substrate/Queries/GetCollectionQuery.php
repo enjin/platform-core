@@ -10,6 +10,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Collection;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -25,7 +26,7 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -45,7 +46,7 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [

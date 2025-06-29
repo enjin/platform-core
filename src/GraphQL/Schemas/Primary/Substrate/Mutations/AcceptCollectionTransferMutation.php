@@ -25,6 +25,7 @@ use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class AcceptCollectionTransferMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -40,7 +41,7 @@ class AcceptCollectionTransferMutation extends Mutation implements PlatformBlock
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -60,7 +61,7 @@ class AcceptCollectionTransferMutation extends Mutation implements PlatformBlock
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [

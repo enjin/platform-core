@@ -10,6 +10,7 @@ use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetFuelTanksQuery extends FuelTanksQuery
@@ -22,7 +23,7 @@ class GetFuelTanksQuery extends FuelTanksQuery
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -42,7 +43,7 @@ class GetFuelTanksQuery extends FuelTanksQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([

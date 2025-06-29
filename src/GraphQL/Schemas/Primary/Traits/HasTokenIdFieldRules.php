@@ -55,7 +55,7 @@ trait HasTokenIdFieldRules
     }
 
     /**
-     * Get token fields with exist rule.
+     * Get token fields with exists rule.
      */
     public function getTokenFieldRulesExist(
         ?string $attribute = null,
@@ -111,7 +111,7 @@ trait HasTokenIdFieldRules
     }
 
     /**
-     * Get token ID rules with exist.
+     * Get token ID rules with exists.
      */
     public function getEncodeTokenIdRuleExist(?string $attribute = null, array $extraRules = [], ?bool $isOptional = false): array
     {

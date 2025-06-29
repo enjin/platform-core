@@ -15,6 +15,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokensQuery extends Query implements PlatformGraphQlQuery
@@ -29,7 +30,7 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -49,7 +50,7 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
@@ -94,7 +95,7 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [

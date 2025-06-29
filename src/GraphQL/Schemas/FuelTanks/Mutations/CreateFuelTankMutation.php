@@ -21,6 +21,7 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateFuelTankMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -36,7 +37,7 @@ class CreateFuelTankMutation extends FuelTanksMutation implements PlatformBlockc
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -56,7 +57,7 @@ class CreateFuelTankMutation extends FuelTanksMutation implements PlatformBlockc
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -147,7 +148,7 @@ class CreateFuelTankMutation extends FuelTanksMutation implements PlatformBlockc
         return $splitData[0] . $permittedExtrinsics . $splitData[1] . $splitData[2];
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $name = Arr::get($params, 'name', '');

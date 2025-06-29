@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class PlaceBidMutation extends MarketplaceMutation implements PlatformBlockchainTransaction
@@ -36,7 +37,7 @@ class PlaceBidMutation extends MarketplaceMutation implements PlatformBlockchain
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -48,7 +49,7 @@ class PlaceBidMutation extends MarketplaceMutation implements PlatformBlockchain
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::type('Transaction!');
@@ -57,7 +58,7 @@ class PlaceBidMutation extends MarketplaceMutation implements PlatformBlockchain
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -94,7 +95,7 @@ class PlaceBidMutation extends MarketplaceMutation implements PlatformBlockchain
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         return [

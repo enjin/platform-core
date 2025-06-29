@@ -28,6 +28,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -43,7 +44,7 @@ class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockch
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -63,7 +64,7 @@ class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockch
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -127,7 +128,7 @@ class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockch
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());

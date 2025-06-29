@@ -3,12 +3,20 @@
 namespace Enjin\Platform\GraphQL\Schemas\Traits;
 
 use Enjin\Platform\Middlewares\OperationDefinitionNodeStore;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
+use GraphQL\Server\RequestError;
 use Illuminate\Support\Arr;
+use JsonException;
 use Laragraph\Utils\RequestParser;
 
 trait HasAuthorizableFields
 {
+    /**
+     * @throws SyntaxError
+     * @throws RequestError
+     * @throws JsonException
+     */
     public function getFields(): array
     {
         $fields = parent::getFields();

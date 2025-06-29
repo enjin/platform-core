@@ -26,6 +26,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
@@ -42,7 +43,7 @@ class RemoveAccountRuleDataMutation extends FuelTanksMutation implements Platfor
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -62,7 +63,7 @@ class RemoveAccountRuleDataMutation extends FuelTanksMutation implements Platfor
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -108,7 +109,7 @@ class RemoveAccountRuleDataMutation extends FuelTanksMutation implements Platfor
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());

@@ -6,7 +6,7 @@ trait HasContextSensitiveRules
 {
     public static array $contextSensitiveRules = [];
 
-    public static function addContextSensitiveRule(string $context, array $rules)
+    public static function addContextSensitiveRule(string $context, array $rules): void
     {
         static::$contextSensitiveRules[$context] = $rules;
     }

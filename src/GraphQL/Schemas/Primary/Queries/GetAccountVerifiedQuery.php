@@ -13,6 +13,7 @@ use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -23,7 +24,7 @@ class GetAccountVerifiedQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -43,7 +44,7 @@ class GetAccountVerifiedQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [

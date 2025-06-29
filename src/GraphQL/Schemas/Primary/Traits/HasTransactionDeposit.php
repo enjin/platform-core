@@ -15,7 +15,7 @@ trait HasTransactionDeposit
 
     protected function getDeposit($args): ?string
     {
-        return match ((new \ReflectionClass($this))->getShortName()) {
+        return match (new \ReflectionClass($this)->getShortName()) {
             'CreateCollectionMutation' => $this->getCreateCollectionDeposit($args),
             'CreateTokenMutation' => $this->getCreateTokenDeposit($args),
             'MintTokenMutation' => $this->getMintTokenDeposit($args),

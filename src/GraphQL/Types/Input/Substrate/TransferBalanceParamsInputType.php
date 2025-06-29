@@ -7,6 +7,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Support\Hex;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 
@@ -17,7 +18,7 @@ class TransferBalanceParamsInputType extends InputType implements PlatformGraphQ
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -29,7 +30,7 @@ class TransferBalanceParamsInputType extends InputType implements PlatformGraphQ
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [

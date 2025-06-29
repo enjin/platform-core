@@ -7,6 +7,7 @@ use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\Models\Listing;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetListingQuery extends MarketplaceQuery
@@ -18,7 +19,7 @@ class GetListingQuery extends MarketplaceQuery
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -30,7 +31,7 @@ class GetListingQuery extends MarketplaceQuery
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::type('MarketplaceListing');
@@ -39,7 +40,7 @@ class GetListingQuery extends MarketplaceQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [

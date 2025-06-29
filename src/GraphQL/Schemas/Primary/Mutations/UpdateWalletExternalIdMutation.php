@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 
@@ -30,7 +31,7 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -50,7 +51,7 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [

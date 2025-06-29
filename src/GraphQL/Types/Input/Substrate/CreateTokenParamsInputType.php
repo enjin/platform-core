@@ -8,6 +8,7 @@ use Enjin\Platform\Rules\DistinctAttributes;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Support\Hex;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 
@@ -19,7 +20,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -31,7 +32,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [
