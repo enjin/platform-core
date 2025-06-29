@@ -2,11 +2,14 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\TankUserAccountFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TankUserAccount extends UnwritableModel
 {
     protected $table = 'fuel_tank_user_accounts';
+
     protected $visible = [
         'id',
         'tank_deposit',
@@ -61,4 +64,12 @@ class TankUserAccount extends UnwritableModel
     //    {
     //        return FuelTankAccountFactory::new();
     //    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|TankUserAccountFactory
+    {
+        return TankUserAccountFactory::new();
+    }
 }

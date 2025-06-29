@@ -2,29 +2,51 @@
 
 namespace Enjin\Platform\Models\Traits;
 
+use BadMethodCallException;
+use Override;
+
 trait Unwritable
 {
-    public static function create(array $attributes = []): never
+    public static function create(array $attributes = []): mixed
     {
-        (new static())->halt(__FUNCTION__);
+        if (!app()->runningUnitTests()) {
+            new static()->halt(__FUNCTION__);
+        }
+
+        return parent::query()->create($attributes);
     }
 
-    public function delete(): never
+    #[Override]
+    public function delete(): ?bool
     {
-        $this->halt(__FUNCTION__);
+        if (!app()->runningUnitTests()) {
+            $this->halt(__FUNCTION__);
+        }
+
+        return parent::delete();
     }
 
-    public function save(array $options = []): never
+    #[Override]
+    public function save(array $options = []): bool
     {
-        $this->halt(__FUNCTION__);
+        if (!app()->runningUnitTests()) {
+            $this->halt(__FUNCTION__);
+        }
+
+        return parent::save($options);
     }
 
-    public function update(array $attributes = [], array $options = []): never
+    #[Override]
+    public function update(array $attributes = [], array $options = []): bool
     {
-        $this->halt(__FUNCTION__);
+        if (!app()->runningUnitTests()) {
+            $this->halt(__FUNCTION__);
+        }
+
+        return parent::update($attributes);
     }
 
-    private function halt(string $method): never
+    protected function halt(string $method): never
     {
         throw new BadMethodCallException(sprintf("Disallowed '%s' operation. %s is a read-only model.", $method, static::class));
     }

@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models;
 
-use Enjin\Platform\Database\Factories\PendingEventFactory;
+use Enjin\Platform\Database\Factories\Unwritable\PendingEventFactory;
 use Enjin\Platform\Models\Traits\EagerLoadSelectFields;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

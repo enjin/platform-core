@@ -2,8 +2,10 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\WalletFactory;
 use Enjin\Platform\Observers\WalletObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Override;
@@ -38,14 +40,14 @@ class Wallet extends UnwritableModel
     //        'network',
     //    ];
 
-    /**
-     * The model's attributes.
-     *
-     * @var array
-     */
-    protected $attributes = [
-        'managed' => false,
-    ];
+//    /**
+//     * The model's attributes.
+//     *
+//     * @var array
+//     */
+//    protected $attributes = [
+//        'managed' => false,
+//    ];
 
     /**
      * The tokens attribute accessor.
@@ -132,4 +134,12 @@ class Wallet extends UnwritableModel
     //            get: fn () => $this->id,
     //        );
     //    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|WalletFactory
+    {
+        return WalletFactory::new();
+    }
 }

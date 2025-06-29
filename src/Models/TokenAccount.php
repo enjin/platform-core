@@ -2,11 +2,14 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\TokenAccountFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TokenAccount extends UnwritableModel
 {
     protected $table = 'token_account';
+
     protected $visible = [
         'id',
         'total_balance',
@@ -58,5 +61,13 @@ class TokenAccount extends UnwritableModel
             'approvals' => 'array',
             'is_frozen' => 'boolean',
         ];
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|TokenAccountFactory
+    {
+        return TokenAccountFactory::new();
     }
 }

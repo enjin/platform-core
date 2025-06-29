@@ -2,8 +2,10 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\CollectionFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Collection extends UnwritableModel
 {
@@ -88,4 +90,12 @@ class Collection extends UnwritableModel
     //        'created_at',
     //        'updated_at',
     //    ];
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|CollectionFactory
+    {
+        return CollectionFactory::new();
+    }
 }

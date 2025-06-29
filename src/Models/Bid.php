@@ -2,7 +2,9 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\BidFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Bid extends UnwritableModel
 {
@@ -26,5 +28,13 @@ class Bid extends UnwritableModel
     public function listing(): BelongsTo
     {
         return $this->belongsTo(Listing::class, 'listing_id');
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|BidFactory
+    {
+        return BidFactory::new();
     }
 }

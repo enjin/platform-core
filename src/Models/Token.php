@@ -2,8 +2,10 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\TokenFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Token extends UnwritableModel
 {
@@ -169,4 +171,12 @@ class Token extends UnwritableModel
     //            ->filter(fn ($attribute) => $attribute->key == 'uri' || $attribute->key == HexConverter::stringToHexPrefixed('uri'))
     //            ->first();
     //    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|TokenFactory
+    {
+        return TokenFactory::new();
+    }
 }

@@ -2,11 +2,14 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\CollectionAccountFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CollectionAccount extends UnwritableModel
 {
     protected $table = 'collection_account';
+
     protected $visible = [
         'id',
         'is_frozen',
@@ -43,5 +46,13 @@ class CollectionAccount extends UnwritableModel
             'is_frozen' => 'boolean',
             'approvals' => 'array',
         ];
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|CollectionAccountFactory
+    {
+        return CollectionAccountFactory::new();
     }
 }

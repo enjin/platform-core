@@ -32,29 +32,29 @@ class GetWalletTest extends TestCaseGraphQL
     protected Codec $codec;
 
     protected Model $verification;
-    protected Model $wallet;
-    protected Model $transaction;
+    protected Wallet $wallet;
+    protected Transaction $transaction;
 
-    protected Model $anotherWallet;
-    protected Model $approvedWallet;
+    protected Wallet $anotherWallet;
+    protected Wallet $approvedWallet;
 
-    protected Model $collection;
-    protected Model $collectionAccount;
+    protected Collection $collection;
+    protected CollectionAccount $collectionAccount;
     protected Model $collectionAccountApproval;
-    protected Model $collectionAttribute;
+    protected Attribute $collectionAttribute;
 
-    protected Model $token;
-    protected Model $tokenAccount;
+    protected Token $token;
+    protected TokenAccount $tokenAccount;
     protected Model $tokenAccountApproval;
     protected Model $tokenAccountNamedReserve;
-    protected Model $tokenAttribute;
+    protected Attribute $tokenAttribute;
 
-    protected Model $anotherCollection;
-    protected Model $anotherCollectionAccount;
+    protected Collection $anotherCollection;
+    protected CollectionAccount $anotherCollectionAccount;
     protected Model $anotherCollectionAccountApprovedToWallet;
 
-    protected Model $anotherToken;
-    protected Model $anotherTokenAccount;
+    protected Token $anotherToken;
+    protected TokenAccount $anotherTokenAccount;
     protected Model $anotherTokenAccountApprovedToWallet;
 
     #[\Override]

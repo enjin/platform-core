@@ -5,7 +5,6 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Models\CollectionAccountApproval;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
@@ -19,7 +18,7 @@ use Illuminate\Support\Facades\Cache;
 class GetCollectionsTest extends TestCaseGraphQL
 {
     protected string $method = 'GetCollections';
-    protected Model $wallet;
+    protected Wallet $wallet;
     protected CollectionSupport $collections;
 
     #[\Override]

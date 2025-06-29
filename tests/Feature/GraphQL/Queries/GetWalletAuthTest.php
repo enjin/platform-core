@@ -20,7 +20,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
     protected string $method = 'GetWallet';
     protected Codec $codec;
     protected Model $verification;
-    protected Model $wallet;
+    protected Wallet $wallet;
     protected string $token;
 
     #[\Override]

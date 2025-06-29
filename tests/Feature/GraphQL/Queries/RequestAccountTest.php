@@ -4,13 +4,14 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
 use Enjin\Platform\Facades\Qr;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
+use Override;
 
 class RequestAccountTest extends TestCaseGraphQL
 {
     protected string $method = 'RequestAccount';
     protected string $callback;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

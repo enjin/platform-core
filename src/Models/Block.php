@@ -2,6 +2,9 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\BlockFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
 class Block extends UnwritableModel
 {
     protected $table = 'chain_info';
@@ -18,4 +21,12 @@ class Block extends UnwritableModel
         'validator',
         'marketplace',
     ];
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|BlockFactory
+    {
+        return BlockFactory::new();
+    }
 }

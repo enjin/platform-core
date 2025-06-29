@@ -2,9 +2,11 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\FuelTankFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FuelTank extends UnwritableModel
 {
@@ -87,4 +89,12 @@ class FuelTank extends UnwritableModel
     //    {
     //        return FuelTankFactory::new();
     //    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|FuelTankFactory
+    {
+        return FuelTankFactory::new();
+    }
 }

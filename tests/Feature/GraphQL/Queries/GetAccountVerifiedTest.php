@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class GetAccountVerifiedTest extends TestCaseGraphQL
 {
     protected string $method = 'GetAccountVerified';
+
     protected Model $verification;
 
     #[\Override]

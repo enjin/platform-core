@@ -2,13 +2,15 @@
 
 namespace Enjin\Platform\Models;
 
-use Enjin\Platform\Models\Marketplace\MarketplaceState;
+use Enjin\Platform\Database\Factories\Unwritable\ListingFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Listing extends UnwritableModel
 {
     protected $table = 'listing';
+
     protected $visible = [
         'id',
         'amount',
@@ -85,5 +87,13 @@ class Listing extends UnwritableModel
     public function state()
     {
         return $this->hasOne(MarketplaceState::class)->latestOfMany();
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|ListingFactory
+    {
+        return ListingFactory::new();
     }
 }

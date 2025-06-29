@@ -10,6 +10,7 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Collection;
+use Override;
 
 class GetTransactionsTest extends TestCaseGraphQL
 {
@@ -17,7 +18,7 @@ class GetTransactionsTest extends TestCaseGraphQL
     protected string $defaultAccount;
     protected Collection $transactions;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -32,7 +33,7 @@ class GetTransactionsTest extends TestCaseGraphQL
         $this->transactions = $this->generateTransactions();
     }
 
-    #[\Override]
+    #[Override]
     protected function tearDown(): void
     {
         Transaction::destroy($this->transactions);

@@ -64,7 +64,8 @@
     "autoload": {
         "psr-4": {
             "Enjin\\Platform\\": "src",
-            "Enjin\\Platform\\Database\\Factories\\": "database/factories"
+            "Enjin\\Platform\\Database\\Factories\\": "database/factories",
+            "Enjin\\Platform\\Database\\Factories\\Unwritable": "database/factories/Unwritable"
         },
         "files": [
             "src/Support/helpers.php"

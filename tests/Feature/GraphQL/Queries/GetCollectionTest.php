@@ -5,28 +5,29 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Models\CollectionAccountApproval;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class GetCollectionTest extends TestCaseGraphQL
 {
     protected string $method = 'GetCollection';
-    protected Model $wallet;
-    protected Model $collectionOwner;
-    protected Model $collection;
-    protected Model $token;
-    protected Model $collectionAccount;
-    protected Model $collectionAccountApproval;
-    protected Model $tokenAccount;
-    protected Model $collectionAttribute;
-    protected Model $tokenAttribute;
 
-    #[\Override]
+    protected Wallet $wallet;
+    protected Wallet $collectionOwner;
+    protected Collection $collection;
+    protected Token $token;
+    protected CollectionAccount $collectionAccount;
+    protected Model $collectionAccountApproval;
+    protected TokenAccount $tokenAccount;
+    protected Attribute $collectionAttribute;
+    protected Attribute $tokenAttribute;
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

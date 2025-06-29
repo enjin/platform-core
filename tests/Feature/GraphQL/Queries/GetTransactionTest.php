@@ -10,14 +10,15 @@ use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class GetTransactionTest extends TestCaseGraphQL
 {
     protected string $method = 'GetTransaction';
     protected string $defaultAccount;
-    protected Model $transaction;
+    protected Transaction $transaction;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

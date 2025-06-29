@@ -21,8 +21,8 @@ use Illuminate\Support\Collection as CollectionSupport;
 class GetTokensTest extends TestCaseGraphQL
 {
     protected string $method = 'GetTokens';
-    protected Model $wallet;
-    protected Model $collection;
+    protected Wallet $wallet;
+    protected Collection $collection;
     protected CollectionSupport $tokens;
     protected Encoder $tokenIdEncoder;
 

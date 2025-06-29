@@ -21,15 +21,15 @@ use Illuminate\Support\Facades\Http;
 class GetTokenTest extends TestCaseGraphQL
 {
     protected string $method = 'GetToken';
-    protected Model $wallet;
-    protected Model $collectionOwner;
-    protected Model $collection;
-    protected Model $token;
+    protected Wallet $wallet;
+    protected Wallet $collectionOwner;
+    protected Collection $collection;
+    protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Model $tokenAccount;
+    protected TokenAccount $tokenAccount;
     protected Model $tokenAccountApproval;
     protected Model $tokenAccountNamedReserve;
-    protected Model $tokenAttribute;
+    protected Attribute $tokenAttribute;
 
     #[\Override]
     protected function setUp(): void

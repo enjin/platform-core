@@ -5,6 +5,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Faker\Generator;
+use Override;
 use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 class VerifyMessageTest extends TestCaseGraphQL
@@ -12,7 +13,7 @@ class VerifyMessageTest extends TestCaseGraphQL
     protected string $method = 'VerifyMessage';
     protected string $message;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

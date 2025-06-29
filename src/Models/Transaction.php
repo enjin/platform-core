@@ -2,16 +2,19 @@
 
 namespace Enjin\Platform\Models;
 
+use Enjin\Platform\Database\Factories\Unwritable\TransactionFactory;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Transaction extends UnwritableModel
 {
     protected $table = 'extrinsic';
+
     protected $visible = [
         'id',
         'hash',
@@ -120,4 +123,12 @@ class Transaction extends UnwritableModel
     //    {
     //        return TransactionFactory::new();
     //    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory|TransactionFactory
+    {
+        return TransactionFactory::new();
+    }
 }
