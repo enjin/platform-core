@@ -17,7 +17,7 @@ class DaemonProhibited implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (isset($wallet) && SS58Address::isSameAddress($value, Address::daemonPublicKey())) {
+        if (SS58Address::isSameAddress($value, Address::daemonPublicKey())) {
             $fail('enjin-platform::validation.daemon_prohibited')->translate();
         }
     }

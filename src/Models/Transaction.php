@@ -4,6 +4,7 @@ namespace Enjin\Platform\Models;
 
 use Enjin\Platform\Database\Factories\Unwritable\TransactionFactory;
 use Enjin\Platform\Enums\Global\TransactionState;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Wallet;
 use Enjin\Platform\Models\Traits\SelectFields;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -78,7 +79,7 @@ class Transaction extends Model
      */
     public function signer(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'signer_id');
+        return $this->belongsTo(Account::class, 'signer_id');
     }
     //
     //    /**

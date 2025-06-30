@@ -16,9 +16,8 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Rules\CollectionHasTokens;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\FutureBlock;
+use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
@@ -34,7 +33,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     use HasSigningAccountField;
     use HasSimulateField;
     use HasSkippableRules;
-    //    use HasTransactionDeposit;
+    use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
 
@@ -95,10 +94,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        // $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
             operator: $args['operator'],
@@ -123,10 +119,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => [
-                // new IsCollectionOwner(),
-                new CollectionHasTokens(),
-            ],
+            'collectionId' => [new IsCollectionOwner(), new CollectionHasTokens()],
             'operator' => ['filled', new ValidSubstrateAccount(), new DaemonProhibited()],
             'expiration' => ['nullable', 'integer', new FutureBlock()],
         ];

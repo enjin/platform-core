@@ -13,7 +13,7 @@ use SodiumException;
 /**
  * @extends Factory<Account>
  */
-class WalletFactory extends Factory
+class AccountFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.

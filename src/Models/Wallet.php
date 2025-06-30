@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Models\Indexer;
 
-use Enjin\Platform\Database\Factories\Unwritable\WalletFactory;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Observers\WalletObserver;

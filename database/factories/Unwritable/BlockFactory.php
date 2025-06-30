@@ -21,8 +21,16 @@ class BlockFactory extends Factory
     public function definition(): array
     {
         return [
-            'number' => $this->faker->numberBetween(1, 1000000),
-            'hash' => $this->faker->unique()->public_key(),
+            'id' => $id = $this->faker->unique()->public_key(),
+            'spec_version' => $this->faker->randomNumber(),
+            'transaction_version' => $this->faker->randomNumber(),
+            'genesis_hash' => $this->faker->unique()->public_key(),
+            'block_hash' => $id,
+            'block_number' => $this->faker->randomNumber(),
+            'existential_deposit' => $this->faker->randomNumber(),
+            'timestamp' => now(),
+            'validator' => null,
+            'marketplace' => null,
         ];
     }
 }

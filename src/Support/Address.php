@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Cache;
 
 class Address
 {
-    public static string $publicKey;
-    public static array $walletAccounts = [];
+    public static $publicKey;
+    public static $walletAccounts = [];
     private static $account;
 
     public static function existentialDeposit(): GMP

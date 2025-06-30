@@ -24,7 +24,7 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$collection = Collection::firstWhere('collection_chain_id', '=', $value)) {
+        if (!$collection = Collection::find($value)) {
             $fail('validation.exists')->translate();
 
             return;
@@ -32,7 +32,7 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
 
         if (!static::$bypass &&
             (!$collection->owner || !Address::isAccountOwner(
-                $collection->owner->public_key,
+                $collection->owner->id,
                 Arr::get($this->data, 'signingAccount') ?: Address::daemonPublicKey()
             ))
         ) {
@@ -49,7 +49,7 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
     }
 
     /**
-     * Unbypass the validation rule.
+     * Removes the bypass of the validation rule.
      */
     public static function unBypass(): void
     {

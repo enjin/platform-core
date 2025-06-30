@@ -182,7 +182,8 @@ class GetTokensTest extends TestCaseGraphQL
 
     public function test_it_can_use_a_big_int_for_collection_id(): void
     {
-        Collection::where('id', '=', $collectionId = Hex::MAX_UINT128)->delete();
+        Token::where('collection_id', $collectionId = Hex::MAX_UINT128)?->delete();
+        Collection::find(Hex::MAX_UINT128)?->delete();
         Collection::factory([
             'id' => $collectionId,
         ])->create();

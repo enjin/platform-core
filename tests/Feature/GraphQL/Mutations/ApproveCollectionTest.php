@@ -77,9 +77,10 @@ class ApproveCollectionTest extends TestCaseGraphQL
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'operator' => fake()->text(),
         ], true);
+
         $this->assertEquals(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
@@ -90,6 +91,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
+
         $this->assertEquals(
             ['operator' => ['The operator is not a valid substrate account.']],
             $response['error']
@@ -100,14 +102,15 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_simulate(): void
     {
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => $operator = app(Generator::class)->public_key(),
             'simulate' => true,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $this->collection->id,
             operator: $operator
         ));
 
@@ -116,7 +119,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'fee' => $feeDetails['fakeSum'],
+            'fee' => (string) $feeDetails['fakeSum'],
             'deposit' => null,
             'wallet' => null,
         ], $response);
@@ -127,13 +130,13 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_approve_a_collection_with_any_operator(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => $operator = app(Generator::class)->public_key(),
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $this->collection->id,
             operator: $operator,
         ));
 
@@ -154,19 +157,21 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_approve_with_signing_account_ss58(): void
     {
         $newOwner = Account::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
+
         Token::factory([
             'collection_id' => $collection = Collection::factory(['owner_id' => $newOwner])->create(),
         ])->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'operator' => $operator = app(Generator::class)->public_key(),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
+            collectionId: $collection->id,
             operator: $operator
         ));
 
@@ -187,19 +192,21 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_approve_with_public_key(): void
     {
         $newOwner = Account::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
+
         Token::factory([
             'collection_id' => $collection = Collection::factory(['owner_id' => $newOwner])->create(),
         ])->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'operator' => $operator = app(Generator::class)->public_key(),
             'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
+            collectionId: $collection->id,
             operator: $operator,
         ));
 
@@ -217,76 +224,16 @@ class ApproveCollectionTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
-    public function test_it_can_approve_a_collection_with_operator_that_exists_locally(): void
-    {
-        $operator = Account::factory()->create();
-
-        $this->assertDatabaseHas('wallets', [
-            'public_key' => $operator->public_key,
-        ]);
-
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($operator->public_key),
-        ]);
-
-        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
-            operator: $operator->public_key
-        ));
-
-        $this->assertArrayContainsArray([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'wallet' => null,
-        ], $response);
-
-        Event::assertDispatched(TransactionCreated::class);
-    }
-
-    public function test_it_can_approve_a_collection_with_operator_that_doesnt_exists_locally_and_creates_it(): void
-    {
-        Account::where('public_key', '=', $operator = app(Generator::class)->public_key())?->delete();
-
-        $this->assertDatabaseMissing('wallets', [
-            'public_key' => $operator,
-        ]);
-
-        $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($operator),
-        ]);
-
-        $this->assertDatabaseHas('wallets', [
-            'public_key' => $operator,
-        ]);
-
-        $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
-            operator: $operator
-        ));
-
-        $this->assertArrayContainsArray([
-            'method' => $this->method,
-            'state' => TransactionState::PENDING->name,
-            'encodedData' => $encodedData,
-            'wallet' => null,
-        ], $response);
-
-        Event::assertDispatched(TransactionCreated::class);
-    }
-
     public function test_it_can_approve_a_collection_with_expiration(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => SS58Address::encode($operator = app(Generator::class)->public_key()),
             'expiration' => $expiration = fake()->numberBetween(1),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $this->collection->id,
             operator: $operator,
             expiration: $expiration
         ));
@@ -303,29 +250,32 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_collection_with_bigint(): void
     {
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)->delete();
+        Token::where('collection_id', Hex::MAX_UINT128)?->delete();
+        Collection::find(Hex::MAX_UINT128)?->delete();
 
         $collection = Collection::factory()->create([
-            'collection_chain_id' => Hex::MAX_UINT128,
+            'id' => Hex::MAX_UINT128,
+            'collection_id' => Hex::MAX_UINT128,
             'owner_id' => $this->owner->id,
         ]);
+
         Token::factory(fake()->numberBetween(1, 10))->create([
             'collection_id' => $collection->id,
         ]);
 
-        $this->assertDatabaseHas('collections', [
+        $this->assertDatabaseHas('collection', [
             'id' => $collection->id,
-            'collection_chain_id' => $collection->collection_chain_id,
+            'collection_id' => $collection->id,
             'owner_id' => $this->owner->id,
-        ]);
+        ], 'indexer');
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'operator' => SS58Address::encode($operator = app(Generator::class)->public_key()),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
+            collectionId: $collection->id,
             operator: $operator
         ));
 
@@ -338,17 +288,17 @@ class ApproveCollectionTest extends TestCaseGraphQL
         Event::assertDispatched(TransactionCreated::class);
     }
 
-    // Exception Path
-
+    /**
+     * Tests for unhappy paths.
+     */
     public function test_it_will_fail_with_empty_tokens(): void
     {
         $collection = Collection::factory()->create([
-            'collection_chain_id' => fake()->numberBetween(5000, 1000),
             'owner_id' => $this->owner->id,
         ]);
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'operator' => app(Generator::class)->public_key(),
         ], true);
 
@@ -386,7 +336,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_simulate_invalid(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => app(Generator::class)->public_key(),
             'simulate' => 'invalid',
         ], true);
@@ -402,7 +352,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_no_operator(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
         ], true);
 
         $this->assertEquals(
@@ -416,7 +366,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_null_operator(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => null,
         ], true);
 
@@ -431,7 +381,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_invalid_operator(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => 'not_a_substrate_address',
         ], true);
 
@@ -446,7 +396,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_invalid_expiration(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => app(Generator::class)->public_key(),
             'expiration' => 'abc',
         ], true);
@@ -462,17 +412,18 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_negative_expiration(): void
     {
         Block::truncate();
+
         $block = Block::factory()->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => app(Generator::class)->public_key(),
             'expiration' => -1,
         ], true);
 
-        $this->assertArrayContainsArray(
-            ['expiration' => ["The expiration must be at least {$block->number}."]],
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'expiration' => ["The expiration must be at least {$block->block_number}."],
+        ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
     }
@@ -480,7 +431,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_overlimit_expiration(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => app(Generator::class)->public_key(),
             'expiration' => Hex::MAX_UINT128,
         ], true);
@@ -495,7 +446,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_fail_with_collection_id_that_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(1))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(1))?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -513,21 +464,20 @@ class ApproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_if_passing_daemon_as_operator(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'operator' => Account::daemonPublicKey(),
+            'collectionId' => $this->collection->id,
+            'operator' => Address::daemonPublicKey(),
         ], true);
 
-        $this->assertArrayContainsArray(
-            ['operator' => ['The operator cannot be set to the daemon account.']],
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'operator' => ['The operator cannot be set to the daemon account.'],
+        ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
     public function test_it_will_fail_with_collection_id_non_existent(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

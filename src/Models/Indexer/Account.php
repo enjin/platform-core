@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models\Indexer;
 
-use Enjin\Platform\Database\Factories\Unwritable\WalletFactory;
+use Enjin\Platform\Database\Factories\Unwritable\AccountFactory;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Observers\WalletObserver;
@@ -27,23 +27,6 @@ class Account extends UnwritableModel
         'verified',
         'image',
     ];
-
-    //    public $fillable = [
-    //        'public_key',
-    //        'external_id',
-    //        'managed',
-    //        'verification_id',
-    //        'network',
-    //    ];
-
-    //    /**
-    //     * The model's attributes.
-    //     *
-    //     * @var array
-    //     */
-    //    protected $attributes = [
-    //        'managed' => false,
-    //    ];
 
     /**
      * The tokens attribute accessor.
@@ -121,19 +104,11 @@ class Account extends UnwritableModel
         self::observe(new WalletObserver());
     }
 
-    //    #[\Override]
-    //    protected function pivotIdentifier(): Attribute
-    //    {
-    //        return Attribute::make(
-    //            get: fn () => $this->id,
-    //        );
-    //    }
-
     /**
      * Create a new factory instance for the model.
      */
-    protected static function newFactory(): Factory|WalletFactory
+    protected static function newFactory(): Factory|AccountFactory
     {
-        return WalletFactory::new();
+        return AccountFactory::new();
     }
 }

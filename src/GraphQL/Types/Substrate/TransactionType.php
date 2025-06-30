@@ -39,7 +39,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
     {
         return [
             'id' => [
-                'type' => GraphQL::type('String!'),
+                'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::query.get_transaction.args.id'),
             ],
             'extrinsicId' => [
@@ -69,51 +69,51 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.transaction.field.encodedData'),
                 'alias' => 'encoded_data',
             ],
-            //            'signingPayload' => [
-            //                'type' => GraphQL::type('String'),
-            //                'description' => __('enjin-platform::type.transaction.field.signingPayload'),
-            //                'args' => [
-            //                    'nonce' => [
-            //                        'type' => GraphQL::type('Int'),
-            //                        'description' => __('enjin-platform::type.transaction.field.signingPayload.nonce'),
-            //                        'defaultValue' => 0,
-            //                    ],
-            //                    'tip' => [
-            //                        'type' => GraphQL::type('BigInt'),
-            //                        'description' => __('enjin-platform::type.transaction.field.signingPayload.tip'),
-            //                        'defaultValue' => '0',
-            //                    ],
-            //                ],
-            //                'resolve' => fn ($transaction, $args) => Substrate::getSigningPayload($transaction['encoded_data'], $args),
-            //                'selectable' => false,
-            //            ],
-            //            'signingPayloadJson' => [
-            //                'type' => GraphQL::type('Json'),
-            //                'description' => __('enjin-platform::type.transaction.field.signingPayload'),
-            //                'args' => [
-            //                    'nonce' => [
-            //                        'type' => GraphQL::type('Int'),
-            //                        'description' => __('enjin-platform::type.transaction.field.signingPayload.nonce'),
-            //                        'defaultValue' => 0,
-            //                    ],
-            //                    'tip' => [
-            //                        'type' => GraphQL::type('BigInt'),
-            //                        'description' => __('enjin-platform::type.transaction.field.signingPayload.tip'),
-            //                        'defaultValue' => '0',
-            //                    ],
-            //                ],
-            //                'resolve' => fn ($transaction, $args) => Substrate::getSigningPayloadJSON($transaction, $args),
-            //                'selectable' => false,
-            //            ],
-            //            'fee' => [
-            //                'type' => GraphQL::type('BigInt'),
-            //                'description' => __('enjin-platform::type.transaction.field.fee'),
-            //                'resolve' => fn ($transaction) => isset($transaction['idempotency_key']) ? Arr::get($transaction, 'fee') : Substrate::getFee($transaction['encoded_data']),
-            //            ],
-            //            'deposit' => [
-            //                'type' => GraphQL::type('BigInt'),
-            //                'description' => __('enjin-platform::type.transaction.field.deposit'),
-            //            ],
+            'signingPayload' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::type.transaction.field.signingPayload'),
+                'args' => [
+                    'nonce' => [
+                        'type' => GraphQL::type('Int'),
+                        'description' => __('enjin-platform::type.transaction.field.signingPayload.nonce'),
+                        'defaultValue' => 0,
+                    ],
+                    'tip' => [
+                        'type' => GraphQL::type('BigInt'),
+                        'description' => __('enjin-platform::type.transaction.field.signingPayload.tip'),
+                        'defaultValue' => '0',
+                    ],
+                ],
+                'resolve' => fn ($transaction, $args) => Substrate::getSigningPayload($transaction['encoded_data'], $args),
+                'selectable' => false,
+            ],
+            'signingPayloadJson' => [
+                'type' => GraphQL::type('Json'),
+                'description' => __('enjin-platform::type.transaction.field.signingPayload'),
+                'args' => [
+                    'nonce' => [
+                        'type' => GraphQL::type('Int'),
+                        'description' => __('enjin-platform::type.transaction.field.signingPayload.nonce'),
+                        'defaultValue' => 0,
+                    ],
+                    'tip' => [
+                        'type' => GraphQL::type('BigInt'),
+                        'description' => __('enjin-platform::type.transaction.field.signingPayload.tip'),
+                        'defaultValue' => '0',
+                    ],
+                ],
+                'resolve' => fn ($transaction, $args) => Substrate::getSigningPayloadJSON($transaction, $args),
+                'selectable' => false,
+            ],
+            'fee' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.transaction.field.fee'),
+                'resolve' => fn ($transaction) => isset($transaction['idempotency_key']) ? Arr::get($transaction, 'fee') : Substrate::getFee($transaction['encoded_data']),
+            ],
+            'deposit' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::type.transaction.field.deposit'),
+            ],
             'network' => [
                 'type' => GraphQL::type('NetworkType!'),
                 'description' => __('enjin-platform::type.transaction.field.network'),
@@ -138,7 +138,7 @@ class TransactionType extends GraphQLType implements PlatformGraphQlType
             'wallet' => [
                 'type' => GraphQL::type('Wallet'),
                 'description' => __('enjin-platform::type.transaction.field.wallet'),
-                'alias' => 'signer_id',
+                'alias' => 'signer',
             ],
             //            'events' => [
             //                'type' => GraphQL::paginate('Event', 'EventConnection'),

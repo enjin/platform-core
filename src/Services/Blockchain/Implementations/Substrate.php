@@ -5,6 +5,8 @@ namespace Enjin\Platform\Services\Blockchain\Implementations;
 use Crypto\sr25519;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Abstracts\WebsocketAbstract;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
@@ -33,22 +35,33 @@ use Enjin\Platform\Models\Substrate\UserFuelBudgetParams;
 use Enjin\Platform\Models\Substrate\WhitelistedCallersParams;
 use Enjin\Platform\Models\Substrate\WhitelistedCollectionsParams;
 use Enjin\Platform\Models\Substrate\WhitelistedPalletsParams;
+use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Exception;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 class Substrate implements BlockchainServiceInterface
 {
     use HasEncodableTokenId;
 
     /**
+     * The code service.
+     */
+    protected Codec $codec;
+
+    /**
      * Create a new Substrate instance.
      */
     public function __construct(
         protected WebsocketAbstract $client,
-    ) {}
+    ) {
+        $this->codec = new Codec();
+    }
 
     /**
      * Get the client.
@@ -66,6 +79,76 @@ class Substrate implements BlockchainServiceInterface
     public function callMethod(string $name, array $args = [], ?bool $raw = false): string|array|null
     {
         return $this->client->send($name, $args, $raw);
+    }
+
+    public function createExtrinsic(
+        string $signer,
+        string $signature,
+        string $call,
+        ?string $nonce = '00',
+        ?string $era = '00',
+        ?string $tip = '00',
+        ?string $mode = '00',
+    ): string {
+        return $this->codec->encoder()->addSignature(
+            signer: $signer,
+            signature: $signature,
+            call: $call,
+            nonce: $nonce,
+            era: $era,
+            tip: $tip,
+            mode: $mode
+        );
+    }
+
+    /**
+     * @throws PlatformException
+     */
+    public function getSigningPayload(string $call, array $args): string
+    {
+        return $this->codec->encoder()->signingPayload(
+            call: $call,
+            nonce: Arr::get($args, 'nonce'),
+            blockHash: networkConfig('genesis-hash'),
+            genesisHash: networkConfig('genesis-hash'),
+            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION, currentMatrix()),
+            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION, currentMatrix()),
+            tip: Arr::get($args, 'tip'),
+        );
+    }
+
+    /**
+     * @throws PlatformException
+     */
+    public function getSigningPayloadJSON(Transaction $transaction, array $args): array
+    {
+        return $this->codec->encoder()->signingPayloadJSON(
+            call: $transaction['encoded_data'],
+            address: $transaction['wallet_public_key'] ?? Address::daemonPublicKey(),
+            nonce: Arr::get($args, 'nonce'),
+            blockHash: networkConfig('genesis-hash'),
+            genesisHash: networkConfig('genesis-hash'),
+            specVersion: cachedRuntimeConfig(PlatformCache::SPEC_VERSION, currentMatrix()),
+            txVersion: cachedRuntimeConfig(PlatformCache::TRANSACTION_VERSION, currentMatrix()),
+            tip: Arr::get($args, 'tip'),
+        );
+    }
+
+    public function getFee(string $call): string
+    {
+        return Cache::remember(PlatformCache::FEE->key($call), now()->addWeek(), function () use ($call) {
+            $extrinsic = $this->codec->encoder()->addFakeSignature($call);
+            $result = new SubstrateHttpClient()
+                ->jsonRpc('payment_queryFeeDetails', [
+                    $extrinsic,
+                ]);
+
+            $baseFee = gmp_init(Arr::get($result, 'inclusionFee.baseFee'));
+            $lenFee = gmp_init(Arr::get($result, 'inclusionFee.lenFee'));
+            $adjustedWeightFee = gmp_init(Arr::get($result, 'inclusionFee.adjustedWeightFee'));
+
+            return gmp_strval(gmp_add($baseFee, gmp_add($lenFee, $adjustedWeightFee)));
+        });
     }
 
     /**

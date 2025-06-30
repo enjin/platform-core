@@ -16,7 +16,7 @@ class FutureBlock implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $blockNumber = Block::max('block_number')?->block_number ?? 0;
+        $blockNumber = Block::max('block_number') ?? 0;
 
         if ($blockNumber >= $value) {
             $fail('enjin-platform::validation.future_block')

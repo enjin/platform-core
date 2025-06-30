@@ -22,8 +22,7 @@ trait StoresTransactions
                 'method' => $this->getMutationName(),
                 'encoded_data' => $encodedData,
                 'idempotency_key' => $args['idempotencyKey'] ?? Str::uuid()->toString(),
-                // TODO: Fix this
-                // 'deposit' => $this->getDeposit($args),
+                'deposit' => $this->getDeposit($args),
                 'simulate' => $args['simulate'],
             ],
             signingWallet: $this->getSigningAccount($args),

@@ -17,7 +17,7 @@ class CollectionHasTokens implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!Token::where('collection_id', $value)->exists()) {
-            $fail('validation.exists')->translate();
+            $fail('enjin-platform::validation.collection_has_tokens')->translate();
         }
     }
 }
