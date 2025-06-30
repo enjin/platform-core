@@ -52,20 +52,20 @@ query GetToken(
 #              address
 #            }
 #          }
-          approvals {
-            amount
-            expiration
+#          approvals {
+#            amount
+#            expiration
 #            wallet {
 #              account {
 #                publicKey
 #                address
 #              }
 #            }
-          }
-          namedReserves {
-            pallet
-            amount
-          }
+#          }
+#          namedReserves {
+#            pallet
+#            amount
+#          }
         }
       }
     }

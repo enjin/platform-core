@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;

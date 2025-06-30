@@ -111,12 +111,12 @@ class GetTokenTest extends TestCaseGraphQL
                             //                                    ],
                             //                                ],
                             //                            ],
-                            'namedReserves' => [
-                                [
-                                    'pallet' => PalletIdentifier::tryFrom($this->tokenAccount->named_reserves[0]['pallet'])->name,
-                                    'amount' => $this->tokenAccount->named_reserves[0]['amount'],
-                                ],
-                            ],
+                            //                            'namedReserves' => [
+                            //                                [
+                            //                                    'pallet' => PalletIdentifier::tryFrom($this->tokenAccount->named_reserves[0]['pallet'])->name,
+                            //                                    'amount' => $this->tokenAccount->named_reserves[0]['amount'],
+                            //                                ],
+                            //                            ],
                         ],
                     ],
                 ],

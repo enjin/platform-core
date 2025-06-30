@@ -104,10 +104,12 @@ class GetCollectionsTest extends TestCaseGraphQL
     public function test_it_can_get_a_single_collection_with_all_data(): void
     {
         $token = Token::firstWhere('collection_id', '=', ($collection = fake()->randomElement($this->collections))->id);
+
         $attribute = Attribute::factory([
             'collection_id' => $collection->id,
             'token_id' => null,
         ])->create();
+
         $collectionAccount = CollectionAccount::firstWhere([
             'collection_id' => $collection->id,
             'account_id' => $this->wallet->id,

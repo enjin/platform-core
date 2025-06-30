@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Support\SS58Address;

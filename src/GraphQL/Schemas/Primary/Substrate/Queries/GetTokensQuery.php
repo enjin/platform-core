@@ -5,16 +5,18 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 use Closure;
 use Enjin\Platform\GraphQL\Base\Query;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
 use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\Cursor;
-use Illuminate\Support\Arr;
 use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -24,6 +26,7 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
     use InPrimarySubstrateSchema;
 
     protected $middleware = [
+        SingleFilterOnly::class,
         ResolvePage::class,
     ];
 
@@ -57,16 +60,16 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
             'ids' => [
                 'type' => GraphQL::type('[String]'),
                 'description' => '',
+                'singleFilter' => true,
             ],
             'collectionId' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::query.get_tokens.args.collectionId'),
-                'rules' => ['nullable', 'required_with:tokenIds'],
+                'singleFilter' => true,
             ],
             'tokenIds' => [
                 'type' => GraphQL::type('[EncodableTokenIdInput]'),
                 'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
-                'rules' => ['nullable', 'array', 'min:0', 'max:100', 'distinct'],
             ],
         ]);
     }
@@ -99,15 +102,12 @@ class GetTokensQuery extends Query implements PlatformGraphQlQuery
     protected function rules(array $args = []): array
     {
         return [
-            'after' => [
-                'nullable',
-                function (string $attribute, mixed $value, Closure $fail): void {
-                    if (!Arr::get(Cursor::fromEncoded($value)?->toArray(), 'identifier')) {
-                        $fail('enjin-platform::validation.invalid_after')->translate();
-                    }
-
-                },
-            ],
+            // If ids are present, collectionId and tokenIds should not be present
+            'ids' => ['nullable', 'max:100', 'distinct'],
+            // If collectionId is present, ids should not be present
+            'collectionId' => ['nullable', 'required_with:tokenIds', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            // If tokenIds is present, ids should not be present and collectionId should be present
+            'tokenIds' => ['nullable', 'max:100', 'distinct'],
         ];
     }
 }

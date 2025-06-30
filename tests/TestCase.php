@@ -54,7 +54,14 @@ abstract class TestCase extends BaseTestCase
 
     protected function assertArrayContainsArray(array $expected, array $actual): void
     {
-        $keys = array_keys($expected = Arr::sort(Arr::dot($expected)));
-        $this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys($expected, Arr::sort(Arr::dot($actual)), $keys);
+        $keys = array_keys(Arr::dot($expected));
+
+        $expected = Arr::dot($expected);
+        $actual = Arr::only(Arr::dot($actual), $keys);
+
+        ksort($actual);
+        ksort($expected);
+
+        $this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys($expected, $actual, $keys);
     }
 }

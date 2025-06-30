@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\Models\CollectionAccountApproval;
 use Enjin\Platform\Models\Indexer\Attribute;
@@ -15,6 +15,7 @@ use Enjin\Platform\Models\Verification;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
+use Enjin\Platform\Tests\Feature\GraphQL\Queries\Codec;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Enjin\Platform\Tests\Support\MocksSocketClient;

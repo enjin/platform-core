@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;

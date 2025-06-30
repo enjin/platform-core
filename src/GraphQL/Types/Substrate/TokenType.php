@@ -112,17 +112,17 @@ class TokenType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.token.field.anyoneCanInfuse'),
                 'alias' => 'anyone_can_infuse',
             ],
-            'tokenMetadata' => [
-                'type' => GraphQL::type('TokenMetadata!'),
-                'description' => __('enjin-platform::type.token.field.tokenMetadata'),
-                'resolve' => fn ($token) => [
-                    'name' => $token->name,
-                    'symbol' => $token->symbol,
-                    'decimalCount' => $token->decimal_count,
-                ],
-                'is_relation' => false,
-                'selectable' => false,
-            ],
+            //            'tokenMetadata' => [
+            //                'type' => GraphQL::type('TokenMetadata!'),
+            //                'description' => __('enjin-platform::type.token.field.tokenMetadata'),
+            //                'resolve' => fn ($token) => [
+            //                    'name' => $token->name,
+            //                    'symbol' => $token->symbol,
+            //                    'decimalCount' => $token->decimal_count,
+            //                ],
+            //                'is_relation' => false,
+            //                'selectable' => false,
+            //            ],
             'nonFungible' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.token.field.nonFungible'),

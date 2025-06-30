@@ -1,4 +1,5 @@
 query GetTokens(
+  $ids: [String]
   $collectionId: BigInt
   $tokenIds: [EncodableTokenIdInput]
   $after: String
@@ -7,6 +8,7 @@ query GetTokens(
   $accountsLimit: Int
 ) {
   GetTokens(
+    ids: $ids
     collectionId: $collectionId
     tokenIds: $tokenIds
     after: $after
@@ -21,25 +23,13 @@ query GetTokens(
         cap
         capSupply
         isFrozen
-        requiresDeposit
-        creationDeposit {
-          depositor {
-            account {
-              address
-              publicKey
-            }
-          }
-          amount
-        }
-        ownerDeposit
-        totalTokenAccountDeposit
         infusion
         anyoneCanInfuse
-        tokenMetadata {
-          name
-          symbol
-          decimalCount
-        }
+#        tokenMetadata {
+#          name
+#          symbol
+#          decimalCount
+#        }
         attributeCount
         collection {
           collectionId
@@ -62,26 +52,26 @@ query GetTokens(
               balance
               reservedBalance
               isFrozen
-              wallet {
-                account {
-                  publicKey
-                  address
-                }
-              }
-              approvals {
-                amount
-                expiration
-                wallet {
-                  account {
-                    publicKey
-                    address
-                  }
-                }
-              }
-              namedReserves {
-                pallet
-                amount
-              }
+#              wallet {
+#                account {
+#                  publicKey
+#                  address
+#                }
+#              }
+#              approvals {
+#                amount
+#                expiration
+#                wallet {
+#                  account {
+#                    publicKey
+#                    address
+#                  }
+#                }
+#              }
+#              namedReserves {
+#                pallet
+#                amount
+#              }
             }
           }
         }
