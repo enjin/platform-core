@@ -5,7 +5,6 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\AcceptCollectionTransferMutation;
-use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Address;

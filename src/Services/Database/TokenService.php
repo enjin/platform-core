@@ -9,7 +9,6 @@ use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

@@ -15,7 +15,6 @@ use Enjin\Platform\Events\Substrate\Balances\Teleport;
 use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\JSON;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;

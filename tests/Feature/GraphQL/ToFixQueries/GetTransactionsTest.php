@@ -4,7 +4,6 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
-use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\JSON;

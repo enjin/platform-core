@@ -28,7 +28,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     protected string $method = 'ApproveCollection';
     protected Codec $codec;
-    
+
     protected Account $owner;
     protected Collection $collection;
 
@@ -54,8 +54,6 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'skipValidation' => true,
             'simulate' => null,
         ]);
-
-        ray($response);
 
         $encodedData = TransactionSerializer::encode($this->method, ApproveCollectionMutation::getEncodableParams(
             collectionId: $collectionId,

@@ -2,6 +2,8 @@
 
 namespace Enjin\Platform\Services\Database;
 
+use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
@@ -16,6 +18,7 @@ class TransactionService
 
     /**
      * Get a transaction by column and value.
+     *
      * @throws PlatformException
      */
     public function get(string $key, string $column = 'id'): Transaction
@@ -49,11 +52,12 @@ class TransactionService
             return Transaction::make($data);
         }
 
-//        TransactionCreated::safeBroadcast(
-//            transaction: $transaction,
-//        );
+        $transaction = Transaction::create($data);
+        TransactionCreated::safeBroadcast(
+            transaction: $transaction,
+        );
 
-        return Transaction::create($data);
+        return $transaction;
     }
 
     /**
@@ -63,13 +67,9 @@ class TransactionService
     {
         $transaction->fill($data)->save();
 
-
-        // TODO: Fix this
-//        TransactionUpdated::safeBroadcast(
-//            event: null,
-//            transaction: $transaction->refresh(),
-//            extra: null,
-//        );
+        TransactionUpdated::safeBroadcast(
+            transaction: $transaction->refresh(),
+        );
 
         return $transaction->wasChanged();
     }

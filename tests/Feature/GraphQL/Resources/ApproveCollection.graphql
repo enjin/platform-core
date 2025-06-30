@@ -5,8 +5,8 @@ mutation ApproveCollection(
   $skipValidation: Boolean
   $simulate: Boolean
   $signingAccount: String
-  $nonce: Int
-  $tip: BigInt
+#  $nonce: Int
+#  $tip: BigInt
 ) {
   ApproveCollection(
     collectionId: $collectionId
@@ -22,9 +22,9 @@ mutation ApproveCollection(
     method
     state
     encodedData
-    signingPayload(nonce: $nonce, tip: $tip)
-    fee
-    deposit
+#    signingPayload(nonce: $nonce, tip: $tip)
+#    fee
+#    deposit
     wallet {
       account {
         publicKey

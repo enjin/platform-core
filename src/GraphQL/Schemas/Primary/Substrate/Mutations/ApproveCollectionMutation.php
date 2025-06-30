@@ -34,7 +34,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     use HasSigningAccountField;
     use HasSimulateField;
     use HasSkippableRules;
-//    use HasTransactionDeposit;
+    //    use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
 
@@ -124,8 +124,8 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     {
         return [
             'collectionId' => [
-                //new IsCollectionOwner(),
-                 new CollectionHasTokens()
+                // new IsCollectionOwner(),
+                new CollectionHasTokens(),
             ],
             'operator' => ['filled', new ValidSubstrateAccount(), new DaemonProhibited()],
             'expiration' => ['nullable', 'integer', new FutureBlock()],
