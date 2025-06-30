@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Models\Traits;
 
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 trait Verification
@@ -12,6 +12,6 @@ trait Verification
      */
     public function wallet(): HasOne
     {
-        return $this->hasOne(Wallet::class);
+        return $this->hasOne(Account::class);
     }
 }

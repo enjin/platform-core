@@ -18,7 +18,7 @@ use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\RuleSetExists;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -120,7 +120,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
     #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
         $userId = Arr::get($params, 'userId', null);
         $ruleSetId = Arr::get($params, 'ruleSetId', 0);
         $totalConsumed = Arr::get($params, 'totalConsumed', 0);

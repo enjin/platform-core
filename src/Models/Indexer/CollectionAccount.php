@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\CollectionAccountFactory;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -41,7 +40,7 @@ class CollectionAccount extends UnwritableModel
      */
     public function wallet(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'account_id');
+        return $this->belongsTo(Account::class, 'account_id');
     }
 
     protected function casts(): array

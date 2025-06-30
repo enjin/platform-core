@@ -4,17 +4,17 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetCollectionAttributeMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -27,23 +27,23 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     protected string $method = 'SetCollectionAttribute';
     protected Codec $codec;
     protected Collection $collection;
-    protected Wallet $wallet;
+    protected Address $wallet;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->wallet = Address::daemon();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
     }
 
     // Happy Path
 
     public function test_it_can_bypass_ownership(): void
     {
-        $signingWallet = Wallet::factory()->create();
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $signingWallet = Address::factory()->create();
+        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
         Token::factory([
             'collection_id' => $collection,
         ])->create();
@@ -100,10 +100,10 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_ss58_signing_account(): void
     {
-        $signingWallet = Wallet::factory()->create([
+        $signingWallet = Address::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,
             'key' => $key = fake()->word(),
@@ -134,10 +134,10 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
     {
-        $signingWallet = Wallet::factory()->create([
+        $signingWallet = Address::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->collection_chain_id,
             'key' => $key = fake()->word(),

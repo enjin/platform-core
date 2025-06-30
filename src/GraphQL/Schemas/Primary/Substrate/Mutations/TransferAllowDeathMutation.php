@@ -21,7 +21,7 @@ use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -111,7 +111,7 @@ class TransferAllowDeathMutation extends Mutation implements PlatformBlockchainT
     {
         return [
             'dest' => [
-                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'value' => gmp_init(Arr::get($params, 'value', 0)),
         ];

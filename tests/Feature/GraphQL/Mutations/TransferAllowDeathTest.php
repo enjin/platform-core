@@ -4,11 +4,11 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
-use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -32,7 +32,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
+        $this->defaultAccount = Address::daemonPublicKey();
 
         if (static::class === self::class) {
             $this->mockFee($this->fee = app(Generator::class)->fee_details());
@@ -42,7 +42,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        Wallet::factory([
+        Address::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => false,
         ])->create();
@@ -148,7 +148,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_to_a_wallet_that_doesnt_exists(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Address::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey,
@@ -183,7 +183,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_to_a_wallet_that_exists(): void
     {
-        Wallet::factory([
+        Address::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
@@ -216,7 +216,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_another_signing_wallet(): void
     {
-        Wallet::factory([
+        Address::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => true,
         ])->create();

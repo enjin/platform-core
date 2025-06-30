@@ -15,7 +15,7 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AccountsNotInFuelTank;
 use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -98,7 +98,7 @@ class BatchAddAccountMutation extends FuelTanksMutation implements PlatformBlock
     #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
         $userIds = collect(Arr::get($params, 'userIds', []));
 
         return [

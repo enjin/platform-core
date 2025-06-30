@@ -6,8 +6,8 @@ use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Token;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Support\Arr;
 use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -87,7 +87,7 @@ class TokenType extends Type implements PlatformGraphQlType
                         return null;
                     }
 
-                    $wallet = Wallet::firstWhere('id', Arr::get($beneficiary, 'accountId'));
+                    $wallet = Account::firstWhere('id', Arr::get($beneficiary, 'accountId'));
                     if (!$wallet) {
                         return null;
                     }
@@ -180,7 +180,7 @@ class TokenType extends Type implements PlatformGraphQlType
                 'deprecationReason' => '',
                 'selectable' => false,
                 'resolve' => fn () => [
-                    'depositor' => Wallet::first(),
+                    'depositor' => Account::first(),
                     'amount' => 0,
                 ],
             ],

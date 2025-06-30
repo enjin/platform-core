@@ -4,23 +4,23 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\OperatorTransferTokenMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -33,22 +33,22 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     protected string $method = 'OperatorTransferToken';
     protected Codec $codec;
-    protected Wallet $wallet;
+    protected Address $wallet;
     protected Collection $collection;
     protected CollectionAccount $collectionAccount;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
     protected TokenAccount $tokenAccount;
-    protected Wallet $recipient;
+    protected Address $recipient;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->recipient = Wallet::factory()->create();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->wallet = Address::daemon();
+        $this->recipient = Address::factory()->create();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'collection_id' => $this->collection,
@@ -66,7 +66,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Address::factory([
             'managed' => false,
         ])->create();
 
@@ -186,8 +186,8 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $signingWallet = Wallet::factory()->create();
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $signingWallet = Address::factory()->create();
+        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $signingWallet,
@@ -273,10 +273,10 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_ss58_signing_account(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $signingWallet,
@@ -334,10 +334,10 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_public_key_signing_account(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $signingWallet,
@@ -434,10 +434,10 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_signing_wallet(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Address::factory([
             'managed' => true,
         ])->create();
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $signingWallet,
@@ -573,7 +573,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_recipient_that_doesnt_exists(): void
     {
-        Wallet::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
+        Address::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
 
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $address,
@@ -621,7 +621,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -675,7 +675,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_bigint_token_id(): void
     {
-        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $this->wallet,

@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\ExtrinsicFactory;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -41,7 +40,7 @@ class Extrinsic extends UnwritableModel
      */
     public function signer(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'signer_id');
+        return $this->belongsTo(Account::class, 'signer_id');
     }
 
     /**

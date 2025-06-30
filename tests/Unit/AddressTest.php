@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Tests\Unit;
 
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\TestCase;
 
@@ -18,7 +18,7 @@ class AddressTest extends TestCase
 
     public function test_it_can_get_daemon_account()
     {
-        $address = HexConverter::unPrefix(Account::daemonPublicKey());
+        $address = HexConverter::unPrefix(Address::daemonPublicKey());
 
         $this->assertEquals('6a03b1a3d40d7e344dfb27157931b14b59fe2ff11d7352353321fe400e956802', $address);
     }

@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Faker\Generator;
@@ -20,7 +20,7 @@ class GetPendingWalletsTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
-        $this->wallet = Wallet::factory([
+        $this->wallet = Account::factory([
             'managed' => true,
             'public_key' => null,
         ])->create();
@@ -63,7 +63,7 @@ class GetPendingWalletsTest extends TestCaseGraphQL
 
     public function test_it_will_not_appear_just_created_wallet_that_is_not_managed(): void
     {
-        Wallet::factory([
+        Account::factory([
             'managed' => false,
             'public_key' => null,
         ])->create();
@@ -78,8 +78,8 @@ class GetPendingWalletsTest extends TestCaseGraphQL
 
     public function test_it_will_not_appear_a_just_created_managed_wallet_with_address(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
-        Wallet::factory([
+        Account::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::factory([
             'managed' => true,
             'public_key' => $publicKey,
         ])->create();

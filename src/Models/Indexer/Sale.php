@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\SaleFactory;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -31,7 +30,7 @@ class Sale extends UnwritableModel
      */
     public function buyer(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'buyer_id');
+        return $this->belongsTo(Account::class, 'buyer_id');
     }
 
     /**

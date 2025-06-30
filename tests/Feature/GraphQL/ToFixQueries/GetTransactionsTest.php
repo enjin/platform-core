@@ -4,9 +4,9 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Models\Event;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Collection;
@@ -23,9 +23,9 @@ class GetTransactionsTest extends TestCaseGraphQL
     {
         parent::setUp();
 
-        $this->defaultAccount = Account::daemonPublicKey();
-        if (Wallet::where('public_key', $this->defaultAccount)->doesntExist()) {
-            Wallet::factory([
+        $this->defaultAccount = Address::daemonPublicKey();
+        if (Address::where('public_key', $this->defaultAccount)->doesntExist()) {
+            Address::factory([
                 'public_key' => $this->defaultAccount,
             ])->create();
         }

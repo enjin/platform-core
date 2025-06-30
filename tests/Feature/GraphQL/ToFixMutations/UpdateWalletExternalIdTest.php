@@ -1,8 +1,8 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Faker\Generator;
@@ -11,13 +11,13 @@ use Override;
 class UpdateWalletExternalIdTest extends TestCaseGraphQL
 {
     protected string $method = 'UpdateWalletExternalId';
-    protected Wallet $wallet;
+    protected Account $wallet;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->wallet = Wallet::factory([
+        $this->wallet = Account::factory([
             'external_id' => fake()->uuid(),
             'public_key' =>  app(Generator::class)->public_key,
             'managed' => false,
@@ -108,7 +108,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_managed_wallet(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'external_id' => null,
             'managed' => true,
         ])->create();
@@ -223,7 +223,7 @@ class UpdateWalletExternalIdTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_existing_external_id(): void
     {
-        $otherWallet = Wallet::factory([
+        $otherWallet = Account::factory([
             'external_id' => fake()->uuid(),
         ])->create();
 

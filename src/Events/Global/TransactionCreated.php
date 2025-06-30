@@ -4,7 +4,7 @@ namespace Enjin\Platform\Events\Global;
 
 use Enjin\Platform\Events\PlatformBroadcastEvent;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Traits\HasCustomQueue;
 use Illuminate\Broadcasting\Channel;
 
@@ -28,7 +28,7 @@ class TransactionCreated extends PlatformBroadcastEvent
             'idempotencyKey' => $transaction->idempotency_key,
         ];
 
-        $publicKey = $transaction->wallet?->public_key ?? Account::daemonPublicKey();
+        $publicKey = $transaction->wallet?->public_key ?? Address::daemonPublicKey();
 
         if ($publicKey == null) {
             return;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
@@ -99,7 +99,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
     public function test_it_doesnt_return_a_processing_transaction(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'managed' => true,
             'public_key' => app(Generator::class)->public_key(),
         ])->create();
@@ -161,7 +161,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
     public function test_it_fetches_managed_wallets_tx_without_passing_their_address(): void
     {
         Transaction::query()->delete();
-        Wallet::factory([
+        Account::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => true,
         ])->create();
@@ -182,7 +182,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
     public function test_it_can_filter_transactions_by_address(): void
     {
-        Wallet::factory([
+        Account::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => true,
         ])->create();
@@ -206,7 +206,7 @@ class MarkAndListPendingTransactionsTest extends TestCaseGraphQL
 
     public function test_it_not_txs_will_appear_with_address_that_has_no_tx(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql('MarkAndListPendingTransactions', [
             'accounts' => [SS58Address::encode($publicKey)],

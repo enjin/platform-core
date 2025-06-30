@@ -24,7 +24,7 @@ use Enjin\Platform\Rules\TokenEncodeExists;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -118,7 +118,7 @@ class UnapproveTokenMutation extends Mutation implements PlatformBlockchainTrans
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
-            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
+            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Address::daemonPublicKey())),
         ];
     }
 

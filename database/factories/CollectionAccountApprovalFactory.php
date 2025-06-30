@@ -3,8 +3,8 @@
 namespace Enjin\Platform\Database\Factories;
 
 use Enjin\Platform\Models\CollectionAccountApproval;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CollectionAccountApprovalFactory extends Factory
@@ -25,7 +25,7 @@ class CollectionAccountApprovalFactory extends Factory
     {
         return [
             'collection_account_id' => CollectionAccount::factory(),
-            'wallet_id' => Wallet::factory(),
+            'wallet_id' => Account::factory(),
             'expiration' => fake()->numberBetween(1),
         ];
     }

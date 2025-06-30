@@ -4,24 +4,24 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
 use Enjin\Platform\Models\Substrate\SimpleTransferParams;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Arr;
@@ -34,13 +34,13 @@ class BatchTransferTest extends TestCaseGraphQL
 
     protected string $method = 'BatchTransfer';
     protected Codec $codec;
-    protected Wallet $wallet;
+    protected Account $wallet;
     protected Collection $collection;
     protected CollectionAccount $collectionAccount;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
     protected TokenAccount $tokenAccount;
-    protected Wallet $recipient;
+    protected Account $recipient;
 
     #[Override]
     protected function setUp(): void
@@ -49,8 +49,8 @@ class BatchTransferTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->wallet = Account::daemon();
-        $this->recipient = Wallet::factory()->create();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
+        $this->recipient = Account::factory()->create();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet->id]);
         $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
@@ -69,7 +69,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Account::factory([
             'managed' => false,
         ])->create();
 
@@ -282,7 +282,7 @@ class BatchTransferTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $token = Token::factory([
-            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+            'collection_id' => $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]),
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
@@ -314,7 +314,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_simple_single_transfer_with_public_key_signing_account(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Account::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
@@ -322,7 +322,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $signingWallet,
+            'owner_id' => $signingWallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -636,7 +636,7 @@ class BatchTransferTest extends TestCaseGraphQL
                 ($value = fake()->randomNumber(1, $this->tokenAccount->balance)) < 10 ? $value : 9
             )
         )->map(fn ($x) => [
-            'accountId' => Wallet::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->public_key,
             'params' => new SimpleTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance)
@@ -689,7 +689,7 @@ class BatchTransferTest extends TestCaseGraphQL
                 ($value = fake()->randomNumber(1, $this->tokenAccount->balance)) < 10 ? $value : 9
             )
         )->map(fn ($x) => [
-            'accountId' => Wallet::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->public_key,
             'params' => new SimpleTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 amount: fake()->numberBetween(1, $this->tokenAccount->balance)
@@ -740,7 +740,7 @@ class BatchTransferTest extends TestCaseGraphQL
                 ($value = fake()->randomNumber(1, $this->tokenAccount->balance)) < 10 ? $value : 9
             )
         )->map(fn ($x) => [
-            'accountId' => Wallet::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->public_key,
             'params' => new OperatorTransferParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 source: $this->wallet->public_key,
@@ -792,7 +792,7 @@ class BatchTransferTest extends TestCaseGraphQL
             )
         )->map(fn ($x) => [
             'accountId' => fake()->randomElement([
-                Wallet::factory()->create()->public_key, app(Generator::class)->public_key(),
+                Account::factory()->create()->public_key, app(Generator::class)->public_key(),
             ]),
             'params' => fake()->randomElement([
                 new SimpleTransferParams(
@@ -851,7 +851,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_transfer_with_signing_wallet_simple_transfer(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Account::factory([
             'managed' => true,
         ])->create();
 
@@ -859,7 +859,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $signingWallet,
+            'owner_id' => $signingWallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -925,14 +925,14 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_transfer_with_signing_wallet_operator_transfer(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Account::factory([
             'managed' => true,
         ])->create();
 
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $signingWallet,
+            'owner_id' => $signingWallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -1000,7 +1000,7 @@ class BatchTransferTest extends TestCaseGraphQL
     public function test_it_can_batch_transfer_with_null_signing_wallet(): void
     {
         $recipient = [
-            'accountId' => Wallet::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->public_key,
             'params' => fake()->randomElement([
                 new SimpleTransferParams(
                     tokenId: $this->tokenIdEncoder->encode(),
@@ -1062,7 +1062,7 @@ class BatchTransferTest extends TestCaseGraphQL
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
@@ -1079,7 +1079,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ])->create();
 
         $recipient = [
-            'accountId' => Wallet::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->public_key,
             'params' => fake()->randomElement([
                 new SimpleTransferParams(
                     tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
@@ -1137,7 +1137,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_transfer_with_big_int_token_id(): void
     {
-        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         CollectionAccount::factory([
             'collection_id' => $collection,
             'wallet_id' => $this->wallet,
@@ -1156,7 +1156,7 @@ class BatchTransferTest extends TestCaseGraphQL
         ])->create();
 
         $recipient = [
-            'accountId' => Wallet::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->public_key,
             'params' => fake()->randomElement([
                 new SimpleTransferParams(
                     tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
@@ -1214,7 +1214,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_can_batch_transfer_with_recipient_that_doesnt_exists(): void
     {
-        Wallet::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
 
         $recipient = [
             'accountId' => $address,
@@ -2132,7 +2132,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_fail_with_source_doesnt_exists_in_operator(): void
     {
-        Wallet::where('public_key', '=', $source = app(Generator::class)->public_key())?->delete();
+        Account::where('public_key', '=', $source = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->collection_chain_id,

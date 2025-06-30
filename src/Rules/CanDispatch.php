@@ -15,7 +15,7 @@ use Enjin\Platform\Models\Substrate\WhitelistedCallersParams;
 use Enjin\Platform\Models\Substrate\WhitelistedCollectionsParams;
 use Enjin\Platform\Models\Substrate\WhitelistedPalletsParams;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -43,7 +43,7 @@ class CanDispatch implements DataAwareRule, ValidationRule
             return;
         }
 
-        $caller = SS58Address::getPublicKey(Arr::get($this->data, 'signingAccount') ?? Account::daemonPublicKey());
+        $caller = SS58Address::getPublicKey(Arr::get($this->data, 'signingAccount') ?? Address::daemonPublicKey());
         $ruleSetRules = $fuelTank->dispatchRules()->where('rule_set_id', Arr::get($this->data, 'ruleSetId'))->get();
 
         if ($ruleSetRules->isEmpty()) {

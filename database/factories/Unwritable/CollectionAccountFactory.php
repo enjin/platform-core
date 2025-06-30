@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +23,7 @@ class CollectionAccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => $wallet = Wallet::factory()->create(),
+            'account_id' => $wallet = Account::factory()->create(),
             'collection_id' => $collection = Collection::factory()->create(),
 
             'id' => $wallet->id . '-' . $collection->id,

@@ -19,7 +19,7 @@ use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -112,8 +112,8 @@ class RemoveAccountRuleDataMutation extends FuelTanksMutation implements Platfor
     #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
-        $userId = Arr::get($params, 'userId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
+        $userId = Arr::get($params, 'userId', Address::daemonPublicKey());
         $ruleSetId = Arr::get($params, 'ruleSetId', 0);
         $ruleKind = DispatchRule::getEnumCase(Arr::get($params, 'rule'))->value;
 

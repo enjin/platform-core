@@ -4,22 +4,22 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BurnMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\Substrate\BurnParams;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -31,7 +31,7 @@ class BurnTest extends TestCaseGraphQL
 
     protected string $method = 'Burn';
     protected Codec $codec;
-    protected Wallet $wallet;
+    protected Address $wallet;
     protected Collection $collection;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
@@ -43,8 +43,8 @@ class BurnTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
+        $this->wallet = Address::daemon();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet->id]);
         $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
             'wallet_id' => $this->wallet,
@@ -201,7 +201,7 @@ class BurnTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $token = Token::factory([
-            'collection_id' => $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]),
+            'collection_id' => $collection = Collection::factory()->create(['owner_id' => Address::factory()->create()]),
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
@@ -233,13 +233,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_ss58_signing_account(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
         ])->create();
 
         $token = Token::factory([
@@ -294,13 +294,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_can_burn_a_token_with_public_key_signing_account(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
         ])->create();
 
         $token = Token::factory([
@@ -471,13 +471,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_it_can_burn_a_token_without_being_collection_owner(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([
@@ -572,7 +572,7 @@ class BurnTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => fake()->numberBetween(2000),
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([
@@ -623,7 +623,7 @@ class BurnTest extends TestCaseGraphQL
     {
         $collection = Collection::factory([
             'collection_chain_id' => fake()->numberBetween(2000),
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([
@@ -945,13 +945,13 @@ class BurnTest extends TestCaseGraphQL
 
     public function test_it_fails_burn_a_token_with_remove_storage_without_being_collection_owner(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
 
         $token = Token::factory([

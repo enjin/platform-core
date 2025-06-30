@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\Models\CollectionAccountApproval;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
@@ -12,7 +13,6 @@ use Enjin\Platform\Models\TokenAccountApproval;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Verification;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\Queries\Codec;
@@ -33,11 +33,11 @@ class GetWalletTest extends TestCaseGraphQL
     protected Codec $codec;
 
     protected Model $verification;
-    protected Wallet $wallet;
+    protected Account $wallet;
     protected Transaction $transaction;
 
-    protected Wallet $anotherWallet;
-    protected Wallet $approvedWallet;
+    protected Account $anotherWallet;
+    protected Account $approvedWallet;
 
     protected Collection $collection;
     protected CollectionAccount $collectionAccount;
@@ -67,7 +67,7 @@ class GetWalletTest extends TestCaseGraphQL
         $this->verification = Verification::factory([
             'public_key' => $address = app(Generator::class)->public_key(),
         ])->create();
-        $this->wallet = Wallet::factory([
+        $this->wallet = Account::factory([
             'public_key' => $address,
             'verification_id' => $this->verification->verification_id,
         ])->create();
@@ -75,8 +75,8 @@ class GetWalletTest extends TestCaseGraphQL
             'wallet_public_key' => $this->wallet->public_key,
         ])->create();
 
-        $this->anotherWallet = Wallet::factory()->create();
-        $this->approvedWallet = Wallet::factory()->create();
+        $this->anotherWallet = Account::factory()->create();
+        $this->approvedWallet = Account::factory()->create();
 
         $this->collection = Collection::factory([
             'owner_wallet_id' => $this->wallet,
@@ -483,7 +483,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_will_not_get_any_transactions_for_a_wallet_that_doesnt_have_an_address(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'public_key' => null,
         ])->create();
 
@@ -497,7 +497,7 @@ class GetWalletTest extends TestCaseGraphQL
 
     public function test_it_will_have_null_balance_and_nonce_for_a_wallet_that_doesnt_have_an_address(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'public_key' => null,
         ])->create();
 

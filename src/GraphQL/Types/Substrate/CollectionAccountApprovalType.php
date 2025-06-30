@@ -5,7 +5,7 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 use Arr;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
@@ -42,7 +42,7 @@ class CollectionAccountApprovalType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform::type.collection_account_approval.field.wallet'),
                 'is_relation' => true,
-                'resolve' => fn ($approval) => Wallet::firstWhere('id', Arr::get($approval, 'accountId')),
+                'resolve' => fn ($approval) => Account::firstWhere('id', Arr::get($approval, 'accountId')),
             ],
 
             // Related

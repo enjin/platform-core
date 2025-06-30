@@ -1,8 +1,8 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
@@ -14,13 +14,13 @@ class SetWalletAccountTest extends TestCaseGraphQL
     use HasHttp;
 
     protected string $method = 'SetWalletAccount';
-    protected Wallet $wallet;
+    protected Account $wallet;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->wallet = Wallet::factory([
+        $this->wallet = Account::factory([
             'external_id' => fake()->uuid(),
             'public_key' => null,
             'managed' => true,
@@ -30,7 +30,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_update_wallet_with_id_without_auth(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key)?->delete();
+        Account::where('public_key', '=', $publicKey = app(Generator::class)->public_key)?->delete();
 
         $response = $this->httpGraphql(
             $this->method,
@@ -47,7 +47,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
 
     public function test_it_can_update_wallet_with_id(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'id' => $this->wallet->id,
@@ -65,7 +65,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
 
     public function test_it_can_update_wallet_with_external_id(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'externalId' => $this->wallet->external_id,
@@ -85,7 +85,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_no_id_and_external_id(): void
     {
-        $wallet = Wallet::factory()->create();
+        $wallet = Account::factory()->create();
         $response = $this->graphql($this->method, [
             'account' => $wallet->public_key,
         ], true);
@@ -152,7 +152,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_duplicated_address(): void
     {
-        Wallet::factory([
+        Account::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
@@ -169,7 +169,7 @@ class SetWalletAccountTest extends TestCaseGraphQL
 
     public function test_it_will_fail_if_another_address_has_been_set(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'public_key' => app(Generator::class)->unique()->public_key(),
         ])->create();
 

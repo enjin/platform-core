@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
 use Enjin\Platform\Events\Substrate\MultiTokens\CollectionCreated;
 use Enjin\Platform\Models\Indexer\Collection;

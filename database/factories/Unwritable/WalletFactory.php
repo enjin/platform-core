@@ -4,21 +4,21 @@ namespace Enjin\Platform\Database\Factories\Unwritable;
 
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Cache;
 use SodiumException;
 
 /**
- * @extends Factory<Wallet>
+ * @extends Factory<Account>
  */
 class WalletFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      */
-    protected $model = Wallet::class;
+    protected $model = Account::class;
 
     /**
      * Define the model's default state.

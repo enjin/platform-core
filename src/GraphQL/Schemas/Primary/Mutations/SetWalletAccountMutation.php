@@ -6,7 +6,7 @@ use Closure;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Support\SS58Address;
@@ -56,7 +56,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                     'required_without:externalId',
                     'prohibits:externalId',
                     function (string $attribute, mixed $value, Closure $fail): void {
-                        if (!Wallet::where('id', $value)->exists()) {
+                        if (!Account::where('id', $value)->exists()) {
                             $fail('validation.exists')->translate();
                         }
                     },
@@ -69,7 +69,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                     'required_without:id',
                     'prohibits:id',
                     function (string $attribute, mixed $value, Closure $fail): void {
-                        if (!Wallet::where('external_id', $value)->exists()) {
+                        if (!Account::where('external_id', $value)->exists()) {
                             $fail('validation.exists')->translate();
                         }
                     },
@@ -93,7 +93,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
         Closure $getSelectFields,
         WalletService $walletService
     ): mixed {
-        if (Wallet::firstWhere('public_key', '=', SS58Address::getPublicKey($args['account']))) {
+        if (Account::firstWhere('public_key', '=', SS58Address::getPublicKey($args['account']))) {
             throw new PlatformException(__('enjin-platform::error.account_already_taken'));
         }
 
@@ -119,7 +119,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
                 'filled',
                 new ValidSubstrateAccount(),
                 function (string $attribute, mixed $value, Closure $fail): void {
-                    if (Wallet::where('public_key', SS58Address::getPublicKey($value))
+                    if (Account::where('public_key', SS58Address::getPublicKey($value))
                         ->withoutGlobalScopes()->exists()
                     ) {
                         $fail('validation.unique')->translate();

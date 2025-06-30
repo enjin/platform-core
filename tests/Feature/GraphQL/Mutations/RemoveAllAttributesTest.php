@@ -4,21 +4,21 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveAllAttributesMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -34,15 +34,15 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     protected Token $token;
     protected Encoder $tokenIdEncoder;
     protected Attribute $attribute;
-    protected Wallet $wallet;
+    protected Address $wallet;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->wallet = Address::daemon();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory(['collection_id' => $this->collection])->create();
         $this->attribute = Attribute::factory()->create([
             'collection_id' => $this->collection,
@@ -114,8 +114,8 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $signingWallet = Wallet::factory()->create();
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $signingWallet = Address::factory()->create();
+        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
         $token = Token::factory([
             'collection_id' => $collection,
         ])->create();
@@ -174,11 +174,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_ss58_signing_account(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
         $collection = Collection::factory([
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
         ])->create();
         $token = Token::factory([
@@ -226,11 +226,11 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_public_key_signing_account(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
         $collection = Collection::factory([
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
             'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
         ])->create();
         $token = Token::factory([
@@ -340,7 +340,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     public function test_it_can_remove_an_attribute_with_bigint_collection_id(): void
     {
         Collection::where('collection_chain_id', Hex::MAX_UINT128)->update(['collection_chain_id' => fake()->numberBetween()]);
-        $collection = Collection::factory(['collection_chain_id' => Hex::MAX_UINT128, 'owner_wallet_id' => $this->wallet->id])->create();
+        $collection = Collection::factory(['collection_chain_id' => Hex::MAX_UINT128, 'owner_id' => $this->wallet->id])->create();
         $collectionId = $collection->collection_chain_id;
 
         $token = Token::factory(['collection_id' => $collection])->create();
@@ -377,7 +377,7 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_bigint_token_id(): void
     {
-        $collection = Collection::factory(['owner_wallet_id' => $this->wallet->id, 'collection_chain_id' => $collectionId = fake()->numberBetween(2000)])->create();
+        $collection = Collection::factory(['owner_id' => $this->wallet->id, 'collection_chain_id' => $collectionId = fake()->numberBetween(2000)])->create();
         Token::where('token_chain_id', Hex::MAX_UINT128)->update(['token_chain_id' => random_int(1, 1000)]);
         $token = Token::factory(['collection_id' => $collection, 'token_chain_id' => $tokenId = Hex::MAX_UINT128])->create();
         Attribute::factory(['collection_id' => $collection, 'token_id' => $token])->create();

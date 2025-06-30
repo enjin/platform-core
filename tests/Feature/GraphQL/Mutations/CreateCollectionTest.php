@@ -15,7 +15,7 @@ use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -41,7 +41,7 @@ class CreateCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
+        $this->defaultAccount = Address::daemonPublicKey();
         $this->tokenIdEncoder = new Integer();
     }
 
@@ -1364,7 +1364,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'mintPolicy' => [
                 'forceCollapsingSupply' => fake()->boolean(),
             ],
-            'signingAccount' => Account::daemonPublicKey(),
+            'signingAccount' => Address::daemonPublicKey(),
         ], true);
 
         $this->assertArrayContainsArray(

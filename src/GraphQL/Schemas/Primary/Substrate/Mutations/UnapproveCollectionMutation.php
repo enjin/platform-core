@@ -20,7 +20,7 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -108,7 +108,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
     {
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
+            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Address::daemonPublicKey())),
         ];
     }
 

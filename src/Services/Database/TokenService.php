@@ -4,12 +4,12 @@ namespace Enjin\Platform\Services\Database;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
-use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +27,7 @@ class TokenService
     public function tokenBalanceForAccount(string $collectionId, string $tokenId, ?string $address = null): string
     {
         $publicKey = !empty($address) ? SS58Address::getPublicKey($address) : Account::daemon()->public_key;
-        if (!($accountWallet = Wallet::withoutGlobalScopes()->firstWhere(['public_key' => $publicKey]))
+        if (!($accountWallet = Account::withoutGlobalScopes()->firstWhere(['public_key' => $publicKey]))
             || !($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
             || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
         ) {

@@ -6,8 +6,8 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -77,7 +77,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                         return null;
                     }
 
-                    $wallet = Wallet::firstWhere('id', Arr::get($beneficiary, 'accountId'));
+                    $wallet = Account::firstWhere('id', Arr::get($beneficiary, 'accountId'));
                     if (!$wallet) {
                         return null;
                     }
@@ -163,7 +163,7 @@ class CollectionType extends Type implements PlatformGraphQlType
                 'selectable' => false,
                 'is_relation' => false,
                 'resolve' => fn () => [
-                    'depositor' => Wallet::first(),
+                    'depositor' => Account::first(),
                     'amount' => 0,
                 ],
             ],

@@ -7,7 +7,7 @@ use Enjin\Platform\GraphQL\Middleware\ResolvePage;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -81,7 +81,7 @@ class GetWalletsQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, BlockchainServiceInterface $blockchainService): mixed
     {
-        return Wallet::selectFields($getSelectFields)
+        return Account::selectFields($getSelectFields)
             ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('id', $args['ids']))
             // ->when($ids = Arr::get($args, 'ids'), fn (Builder $query) => $query->whereIn('id', $ids))
             // ->when($externalIds = Arr::get($args, 'externalIds'), fn (Builder $query) => $query->whereIn('external_id', $externalIds))

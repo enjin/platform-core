@@ -6,7 +6,7 @@ use Closure;
 use Enjin\Platform\GraphQL\Middleware\SingleArgOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Rules\ValidVerificationId;
 use Enjin\Platform\Support\SS58Address;
@@ -80,7 +80,7 @@ class GetWalletQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Wallet::selectFields($getSelectFields)
+        return Account::selectFields($getSelectFields)
             ->when(!empty($args['id']), fn (Builder $query) => $query->where('id', $args['id']))
             //            ->when(Arr::get($args, 'externalId'), fn (Builder $query) => $query->where('external_id', $args['externalId']))
             //            ->when(Arr::get($args, 'verificationId'), fn (Builder $query) => $query->where('verification_id', $args['verificationId']))

@@ -5,8 +5,8 @@ namespace Enjin\Platform\Services\Database;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Facades\Qr;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Verification;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\SS58Address;
@@ -84,7 +84,7 @@ class VerificationService
             throw new PlatformException(__('enjin-platform::error.verification.invalid_signature'));
         }
 
-        $wallet = Wallet::query()->firstWhere(['public_key' => $publicKey]);
+        $wallet = Account::query()->firstWhere(['public_key' => $publicKey]);
         if (empty($wallet)) {
             $wallet = $this->walletService->firstOrStore(['verification_id' => $verificationId]);
         }

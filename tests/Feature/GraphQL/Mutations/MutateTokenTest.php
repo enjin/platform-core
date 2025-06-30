@@ -4,21 +4,21 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MutateTokenMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -33,15 +33,15 @@ class MutateTokenTest extends TestCaseGraphQL
     protected Collection $collection;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Wallet $wallet;
+    protected Address $wallet;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->wallet = Address::daemon();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory(['collection_id' => $this->collection])->create();
         $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
     }
@@ -151,7 +151,7 @@ class MutateTokenTest extends TestCaseGraphQL
             listingForbidden: $listingForbidden = fake()->boolean(),
         ));
 
-        $this->collection->update(['owner_wallet_id' => Wallet::factory()->create()->id]);
+        $this->collection->update(['owner_id' => Address::factory()->create()->id]);
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -161,7 +161,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $this->collection->update(['owner_id' => $this->wallet->id]);
         IsCollectionOwner::unBypass();
 
         $this->assertArrayContainsArray([
@@ -307,10 +307,10 @@ class MutateTokenTest extends TestCaseGraphQL
             listingForbidden: $listingForbidden = fake()->boolean(),
         ));
 
-        $newOwner = Wallet::factory()->create([
+        $newOwner = Address::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+        $this->collection->update(['owner_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
@@ -319,7 +319,7 @@ class MutateTokenTest extends TestCaseGraphQL
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $this->collection->update(['owner_id' => $this->wallet->id]);
 
         $this->assertArrayContainsArray([
             'method' => $this->method,
@@ -344,10 +344,10 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_public_key_signing_account(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
         $token = Token::factory(['collection_id' => $collection])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
@@ -931,7 +931,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'mutation' => [
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => Account::daemonPublicKey(),
+                        'beneficiary' => Address::daemonPublicKey(),
                         'percentage' => null,
                     ],
                 ],
@@ -954,7 +954,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'mutation' => [
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => Account::daemonPublicKey(),
+                        'beneficiary' => Address::daemonPublicKey(),
                         'percentage' => -1,
                     ],
                 ],
@@ -977,7 +977,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'mutation' => [
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => Account::daemonPublicKey(),
+                        'beneficiary' => Address::daemonPublicKey(),
                         'percentage' => 0,
                     ],
                 ],
@@ -1000,7 +1000,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'mutation' => [
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => Account::daemonPublicKey(),
+                        'beneficiary' => Address::daemonPublicKey(),
                         'percentage' => 51,
                     ],
                 ],
@@ -1023,7 +1023,7 @@ class MutateTokenTest extends TestCaseGraphQL
             'mutation' => [
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => Account::daemonPublicKey(),
+                        'beneficiary' => Address::daemonPublicKey(),
                         'percentage' => 'invalid',
                     ],
                 ],

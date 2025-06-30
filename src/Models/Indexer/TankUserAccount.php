@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\TankUserAccountFactory;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -46,7 +45,7 @@ class TankUserAccount extends UnwritableModel
      */
     public function wallet(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class);
+        return $this->belongsTo(Account::class);
     }
 
     //    public function scopeByWalletAccount(Builder $query, array $publicKeys): Builder

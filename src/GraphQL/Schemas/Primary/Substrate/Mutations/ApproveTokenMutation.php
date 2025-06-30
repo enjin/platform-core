@@ -28,7 +28,7 @@ use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -144,7 +144,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
-            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
+            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Address::daemonPublicKey())),
             'amount' => gmp_init(Arr::get($params, 'amount', 0)),
             'currentAmount' => gmp_init(Arr::get($params, 'currentAmount', 0)),
             'expiration' => Arr::get($params, 'expiration', null),

@@ -5,9 +5,9 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferBalanceMutation;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -33,7 +33,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
+        $this->defaultAccount = Address::daemonPublicKey();
     }
 
     public static function getInputData(...$data): array

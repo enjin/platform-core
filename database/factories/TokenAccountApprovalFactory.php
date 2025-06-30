@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\Database\Factories;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\TokenAccount;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TokenAccountApprovalFactory extends Factory
@@ -22,7 +22,7 @@ class TokenAccountApprovalFactory extends Factory
     {
         return [
             'token_account_id' => TokenAccount::factory(),
-            'wallet_id' => Wallet::factory(),
+            'wallet_id' => Account::factory(),
             'amount' => (string) fake()->numberBetween(1),
             'expiration' => fake()->numberBetween(1),
         ];

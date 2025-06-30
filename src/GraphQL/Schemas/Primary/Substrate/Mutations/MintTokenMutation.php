@@ -26,7 +26,7 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -132,7 +132,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'mintTokenParams', new MintParams(0, 0))->toEncodable(),

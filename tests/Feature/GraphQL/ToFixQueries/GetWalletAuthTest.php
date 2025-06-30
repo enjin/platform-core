@@ -3,8 +3,8 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixQueries;
 
 use Enjin\Platform\CoreServiceProvider;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Verification;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\Queries\Codec;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -21,7 +21,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
     protected string $method = 'GetWallet';
     protected Codec $codec;
     protected Model $verification;
-    protected Wallet $wallet;
+    protected Account $wallet;
     protected string $token;
 
     #[\Override]
@@ -33,7 +33,7 @@ class GetWalletAuthTest extends TestCaseGraphQL
         $this->verification = Verification::factory([
             'public_key' => $address = app(Generator::class)->public_key(),
         ])->create();
-        $this->wallet = Wallet::factory([
+        $this->wallet = Account::factory([
             'public_key' => $address,
             'verification_id' => $this->verification->verification_id,
         ])->create();

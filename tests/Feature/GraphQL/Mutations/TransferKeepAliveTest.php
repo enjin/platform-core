@@ -4,9 +4,9 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
@@ -24,7 +24,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     #[Override]
     public function test_it_can_skip_validation(): void
     {
-        Wallet::factory([
+        Account::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => false,
         ])->create();
@@ -65,7 +65,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     public function test_it_will_fail_with_not_enough_amount(): void
     {
         // Mocked balance = 2000000000000000000
-        Wallet::factory([
+        Account::factory([
             'public_key' => $publicKey = app(Generator::class)->public_key(),
             'managed' => false,
         ])->create();

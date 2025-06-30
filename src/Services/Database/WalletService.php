@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Services\Database;
 
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Model;
 
@@ -47,8 +47,8 @@ class WalletService
     public function get($key, string $column = 'id'): Model
     {
         return match ($column) {
-            'account' => Wallet::where(['public_key' => SS58Address::getPublicKey($key)])->firstOrFail(),
-            default => Wallet::where([$column => $key])->firstOrFail(),
+            'account' => Account::where(['public_key' => SS58Address::getPublicKey($key)])->firstOrFail(),
+            default => Account::where([$column => $key])->firstOrFail(),
         };
     }
 
@@ -59,7 +59,7 @@ class WalletService
     {
         $data['network'] ??= config('enjin-platform.chains.network');
 
-        return Wallet::create($data);
+        return Account::create($data);
     }
 
     /**
@@ -74,7 +74,7 @@ class WalletService
 
         $data['network'] ??= config('enjin-platform.chains.network');
 
-        return Wallet::firstOrCreate($key, $data);
+        return Account::firstOrCreate($key, $data);
     }
 
     /**
@@ -82,7 +82,7 @@ class WalletService
      */
     public function accountExistsInWallet(string $account): bool
     {
-        return Wallet::withoutGlobalScopes()->where(['public_key' => SS58Address::getPublicKey($account)])->exists();
+        return Account::withoutGlobalScopes()->where(['public_key' => SS58Address::getPublicKey($account)])->exists();
     }
 
     /**

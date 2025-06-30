@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -25,7 +25,7 @@ class CollectionFactory extends Factory
             'collection_id' => $collectionId = fake()->unique()->numberBetween(2000),
 
             'id' => (string) $collectionId,
-            'owner_id' => Wallet::factory(),
+            'owner_id' => Account::factory(),
             'mint_policy' => [
                 'maxTokenCount' => (string) fake()->numberBetween(1),
                 'maxTokenSupply' => (string) fake()->numberBetween(1),

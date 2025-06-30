@@ -4,20 +4,20 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\MutateCollectionMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -32,15 +32,15 @@ class MutateCollectionTest extends TestCaseGraphQL
     protected Collection $collection;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Wallet $wallet;
+    protected Address $wallet;
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->wallet = Address::daemon();
+        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->tokenIdEncoder = new Integer();
     }
 
@@ -50,7 +50,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = random_int(1, 1000),
-            owner: $owner = Account::daemonPublicKey(),
+            owner: $owner = Address::daemonPublicKey(),
         ));
 
         $response = $this->graphql($this->method, [
@@ -114,7 +114,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
+            owner: $owner = Address::daemonPublicKey(),
         ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
@@ -141,7 +141,7 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $collection = Collection::factory()->create(['owner_id' => Address::factory()->create()]);
         $response = $this->graphql($this->method, $params = [
             'collectionId' => $collection->collection_chain_id,
             'mutation' => [
@@ -164,7 +164,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
+            owner: $owner = Address::daemonPublicKey(),
         ));
 
         $response = $this->graphql($this->method, [
@@ -198,10 +198,10 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_with_ss58_signing_account(): void
     {
-        $signingWallet = Wallet::factory([
+        $signingWallet = Address::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
@@ -241,13 +241,13 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
+            owner: $owner = Address::daemonPublicKey(),
         ));
 
-        $newOwner = Wallet::factory()->create([
+        $newOwner = Address::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $this->collection->update(['owner_wallet_id' => $newOwner->id]);
+        $this->collection->update(['owner_id' => $newOwner->id]);
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'mutation' => [
@@ -255,7 +255,7 @@ class MutateCollectionTest extends TestCaseGraphQL
             ],
             'signingAccount' => $signingAccount,
         ]);
-        $this->collection->update(['owner_wallet_id' => $this->wallet->id]);
+        $this->collection->update(['owner_id' => $this->wallet->id]);
 
         $this->assertArrayContainsArray([
             'method' => $this->method,
@@ -313,7 +313,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
+            owner: $owner = Address::daemonPublicKey(),
             explicitRoyaltyCurrencies: $currencies = $this->generateCurrencies(fake()->numberBetween(1, 9))
         ));
 
@@ -348,12 +348,12 @@ class MutateCollectionTest extends TestCaseGraphQL
 
         $collection = Collection::factory([
             'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $this->wallet,
+            'owner_id' => $this->wallet,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $collection->collection_chain_id,
-            owner: $owner = Account::daemonPublicKey(),
+            owner: $owner = Address::daemonPublicKey(),
         ));
 
         $response = $this->graphql($this->method, [
@@ -382,7 +382,7 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_new_owner_doesnt_exists_locally_and_save(): void
     {
-        Wallet::where('public_key', '=', $owner = app(Generator::class)->public_key())?->delete();
+        Address::where('public_key', '=', $owner = app(Generator::class)->public_key())?->delete();
 
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
@@ -419,7 +419,7 @@ class MutateCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_collection_new_owner_that_exists_locally(): void
     {
-        $owner = Wallet::factory()->create();
+        $owner = Address::factory()->create();
 
         $encodedData = TransactionSerializer::encode($this->method, MutateCollectionMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->collection_chain_id,
@@ -513,7 +513,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'mutation' => [
-                'owner' => Account::daemonPublicKey(),
+                'owner' => Address::daemonPublicKey(),
             ],
         ], true);
 
@@ -530,7 +530,7 @@ class MutateCollectionTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => 'invalid',
             'mutation' => [
-                'owner' => Account::daemonPublicKey(),
+                'owner' => Address::daemonPublicKey(),
             ],
         ], true);
 
@@ -549,7 +549,7 @@ class MutateCollectionTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'mutation' => [
-                'owner' => Account::daemonPublicKey(),
+                'owner' => Address::daemonPublicKey(),
             ],
         ], true);
 
@@ -610,7 +610,7 @@ class MutateCollectionTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'collectionId' => -1,
             'mutation' => [
-                'owner' => Account::daemonPublicKey(),
+                'owner' => Address::daemonPublicKey(),
             ],
         ], true);
 

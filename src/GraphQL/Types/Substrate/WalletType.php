@@ -5,7 +5,7 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Support\Arr;
@@ -25,7 +25,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
         return [
             'name' => 'Wallet',
             'description' => __('enjin-platform::type.wallet.description'),
-            'model' => Wallet::class,
+            'model' => Account::class,
         ];
     }
 

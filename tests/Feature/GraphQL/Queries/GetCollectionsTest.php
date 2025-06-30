@@ -2,12 +2,12 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Illuminate\Support\Arr;
@@ -17,7 +17,7 @@ class GetCollectionsTest extends TestCaseGraphQL
 {
     protected string $method = 'GetCollections';
 
-    protected Wallet $wallet;
+    protected Account $wallet;
     protected array $collections;
 
     #[Override]
@@ -25,7 +25,7 @@ class GetCollectionsTest extends TestCaseGraphQL
     {
         parent::setUp();
 
-        $this->wallet = Wallet::factory()->create();
+        $this->wallet = Account::factory()->create();
         $this->collections = $this->generateCollections();
     }
 

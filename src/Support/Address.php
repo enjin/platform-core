@@ -4,13 +4,13 @@ namespace Enjin\Platform\Support;
 
 use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\Enums\Global\PlatformCache;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Services\Database\WalletService;
 use GMP;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
-class Account
+class Address
 {
     public static string $publicKey;
     public static array $walletAccounts = [];
@@ -49,11 +49,11 @@ class Account
     /**
      * Get the daemon account wallet.
      */
-    public static function daemon(): Wallet
+    public static function daemon(): Account
     {
         if (!static::$account) {
             static::$account = resolve(WalletService::class)->firstOrStore(
-                ['public_key' => static::daemonPublicKey()]
+                ['id' => static::daemonPublicKey()]
             );
         }
 
@@ -68,7 +68,7 @@ class Account
         return Cache::remember(
             PlatformCache::MANAGED_ACCOUNTS->key(),
             now()->addHour(),
-            fn () => collect(Wallet::where('managed', true)->pluck('public_key'))
+            fn () => collect(Account::where('managed', true)->pluck('id'))
                 ->filter()
                 ->add(static::daemonPublicKey())
                 ->unique()

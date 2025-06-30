@@ -1,8 +1,8 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 
 class CreateWalletTest extends TestCaseGraphQL
@@ -11,7 +11,7 @@ class CreateWalletTest extends TestCaseGraphQL
 
     public function test_create_ask_to_create_a_wallet_with_single_word(): void
     {
-        Wallet::where('external_id', '=', $externalId = fake()->uuid())?->delete();
+        Account::where('external_id', '=', $externalId = fake()->uuid())?->delete();
 
         $response = $this->graphql('CreateWallet', [
             'externalId' => $externalId,
@@ -27,7 +27,7 @@ class CreateWalletTest extends TestCaseGraphQL
 
     public function test_create_ask_to_create_a_wallet_with_multiple_words(): void
     {
-        Wallet::where('external_id', '=', $externalId = fake()->uuid())?->delete();
+        Account::where('external_id', '=', $externalId = fake()->uuid())?->delete();
 
         $response = $this->graphql('CreateWallet', [
             'externalId' => $externalId,
@@ -43,7 +43,7 @@ class CreateWalletTest extends TestCaseGraphQL
 
     public function test_create_ask_to_create_a_wallet_with_ascii(): void
     {
-        Wallet::where('external_id', '=', $externalId = fake()->uuid())?->delete();
+        Account::where('external_id', '=', $externalId = fake()->uuid())?->delete();
 
         $response = $this->graphql('CreateWallet', [
             'externalId' => $externalId,
@@ -61,7 +61,7 @@ class CreateWalletTest extends TestCaseGraphQL
 
     public function test_it_fail_if_external_id_is_not_unique(): void
     {
-        Wallet::factory([
+        Account::factory([
             'external_id' => $externalId = fake()->uuid(),
         ])->create();
 

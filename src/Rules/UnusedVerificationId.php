@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Translation\PotentiallyTranslatedString;
 
@@ -16,7 +16,7 @@ class UnusedVerificationId implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (Wallet::where('verification_id', $value)->exists()) {
+        if (Account::where('verification_id', $value)->exists()) {
             $fail(__('enjin-platform::validation.unused_verification_id'));
         }
     }

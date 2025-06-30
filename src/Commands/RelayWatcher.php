@@ -12,10 +12,10 @@ use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Enums\Substrate\XcmOutcome;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Substrate\Balances\Teleport;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\JSON;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -227,7 +227,7 @@ class RelayWatcher extends Command
     {
         $this->info('Creating transaction to teleport ENJ from: ' . $account);
 
-        $managedWallet = Wallet::firstWhere([
+        $managedWallet = Account::firstWhere([
             'public_key' => $account,
         ]);
 

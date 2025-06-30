@@ -2,13 +2,12 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use Enjin\Platform\Enums\Substrate\PalletIdentifier;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
 use Enjin\Platform\Support\Hex;
@@ -19,8 +18,8 @@ class GetTokenTest extends TestCaseGraphQL
 {
     protected string $method = 'GetToken';
 
-    protected Wallet $wallet;
-    protected Wallet $collectionOwner;
+    protected Account $wallet;
+    protected Account $collectionOwner;
     protected Collection $collection;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
@@ -32,7 +31,7 @@ class GetTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
 
-        $this->wallet = Wallet::factory()->create();
+        $this->wallet = Account::factory()->create();
 
         $this->token = Token::factory([
             'attribute_count' => 1,

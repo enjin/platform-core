@@ -5,7 +5,6 @@ namespace Enjin\Platform\Models\Indexer;
 use Enjin\Platform\Database\Factories\Unwritable\FuelTankFactory;
 use Enjin\Platform\Models\AccountRule;
 use Enjin\Platform\Models\DispatchRule;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -59,7 +58,7 @@ class FuelTank extends UnwritableModel
      */
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'owner_id');
+        return $this->belongsTo(Account::class, 'owner_id');
     }
 
     /**
@@ -83,7 +82,7 @@ class FuelTank extends UnwritableModel
      */
     public function accounts(): BelongsToMany
     {
-        return $this->belongsToMany(Wallet::class, 'fuel_tank_accounts');
+        return $this->belongsToMany(Account::class, 'fuel_tank_accounts');
     }
 
     //    public function address(): Attribute

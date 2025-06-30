@@ -3,11 +3,10 @@
 namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\CollectionFactory;
-use Enjin\Platform\Models\Wallet;
+use Illuminate\Database\Eloquent\Casts\Attribute as CastAttribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute as CastAttribute;
 
 class Collection extends UnwritableModel
 {
@@ -46,7 +45,7 @@ class Collection extends UnwritableModel
      */
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'owner_id');
+        return $this->belongsTo(Account::class, 'owner_id');
     }
 
     /**

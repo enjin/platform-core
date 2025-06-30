@@ -20,7 +20,7 @@ use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -111,7 +111,7 @@ class AcceptCollectionTransferMutation extends Mutation implements PlatformBlock
      */
     protected function rulesWithValidation(array $args): array
     {
-        $account = $this->getSigningAccount($args)?->public_key ?? Account::daemonPublicKey();
+        $account = $this->getSigningAccount($args)?->public_key ?? Address::daemonPublicKey();
 
         return [
             'collectionId' => ['bail', 'exists:collections,collection_chain_id', new AccountWaitingCollectionTransfer($account)],

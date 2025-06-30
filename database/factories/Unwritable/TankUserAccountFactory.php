@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\TankUserAccount;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,7 +22,7 @@ class TankUserAccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'wallet_id' => Wallet::factory()->create(),
+            'wallet_id' => Account::factory()->create(),
         ];
     }
 }

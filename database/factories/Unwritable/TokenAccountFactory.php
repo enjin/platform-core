@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Database\Factories\Unwritable;
 
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +23,7 @@ class TokenAccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => $account = Wallet::factory()->create(),
+            'account_id' => $account = Account::factory()->create(),
             'token_id' => $token = Token::factory()->create(),
             'collection_id' => $token->collection_id,
 

@@ -13,9 +13,9 @@
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-<!--        <testsuite name="Mutations">-->
-<!--            <directory>tests/Feature/GraphQL/Mutations</directory>-->
-<!--        </testsuite>-->
+        <testsuite name="Mutations">
+            <directory>tests/Feature/GraphQL/Mutations</directory>
+        </testsuite>
         <testsuite name="Queries">
             <directory>tests/Feature/GraphQL/Queries</directory>
         </testsuite>

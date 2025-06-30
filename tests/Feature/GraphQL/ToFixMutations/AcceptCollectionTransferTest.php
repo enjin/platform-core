@@ -1,21 +1,20 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\AcceptCollectionTransferMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 use Override;
 
@@ -25,8 +24,9 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
 
     protected string $method = 'AcceptCollectionTransfer';
     protected Codec $codec;
-    protected Model $owner;
-    protected Model $collection;
+
+    protected Address $owner;
+    protected Collection $collection;
 
     #[Override]
     protected function setUp(): void
@@ -34,7 +34,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->owner = Account::daemon();
+        $this->owner = Address::daemon();
         $this->collection = Collection::factory()->create([
             'pending_transfer' => $this->owner->public_key,
         ]);
@@ -115,7 +115,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
 
     public function test_it_can_accept_with_signing_account(): void
     {
-        Wallet::factory()->create([
+        Address::factory()->create([
             'public_key' => $signingAccount = app(Generator::class)->public_key(),
         ]);
         $collection = Collection::factory(['pending_transfer' => $signingAccount])->create();
@@ -226,7 +226,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArrayContainsArray([
-            'collectionId' => [sprintf('There is no pending collection transfer for the account %s at collection %s.', Account::daemonPublicKey(), $collectionId)],
+            'collectionId' => [sprintf('There is no pending collection transfer for the account %s at collection %s.', Address::daemonPublicKey(), $collectionId)],
         ], $response['error']);
     }
 
@@ -241,7 +241,7 @@ class AcceptCollectionTransferTest extends TestCaseGraphQL
         ], true);
 
         $this->assertArrayContainsArray(
-            ['collectionId' => [sprintf('There is no pending collection transfer for the account %s at collection %s.', Account::daemonPublicKey(), $collectionId)]],
+            ['collectionId' => [sprintf('There is no pending collection transfer for the account %s at collection %s.', Address::daemonPublicKey(), $collectionId)]],
             $response['error']
         );
     }

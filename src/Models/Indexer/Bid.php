@@ -3,7 +3,6 @@
 namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\BidFactory;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,7 +31,7 @@ class Bid extends UnwritableModel
      */
     public function bidder(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'bidder_id');
+        return $this->belongsTo(Account::class, 'bidder_id');
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
 use Carbon\Carbon;
 use Enjin\Platform\GraphQL\Schemas\Primary\Mutations\TokenHolderSnapshotMutation;

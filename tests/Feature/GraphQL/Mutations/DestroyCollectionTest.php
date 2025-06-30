@@ -4,18 +4,18 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\DestroyCollectionMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
-use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
@@ -29,7 +29,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     protected Codec $codec;
     protected Collection $collection;
-    protected Wallet $owner;
+    protected Account $owner;
 
     #[Override]
     protected function setUp(): void
@@ -39,7 +39,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
         $this->codec = new Codec();
         $this->owner = Account::daemon();
         $this->collection = Collection::factory()->create([
-            'owner_wallet_id' => $this->owner->id,
+            'owner_id' => $this->owner->id,
         ]);
     }
 
@@ -100,7 +100,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]);
         $response = $this->graphql($this->method, $params = [
             'collectionId' => $collection->collection_chain_id,
             'nonce' => $nonce = fake()->numberBetween(),
@@ -150,12 +150,12 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_destroy_a_collection_with_ss58_signing_account(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
@@ -190,12 +190,12 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_destroy_a_collection_with_public_key_signing_account(): void
     {
-        $wallet = Wallet::factory([
+        $wallet = Account::factory([
             'public_key' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
@@ -356,7 +356,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_will_fail_if_destroy_a_collection_that_has_tokens(): void
     {
-        $collection = Collection::factory(['owner_wallet_id' => $this->owner->id])->create();
+        $collection = Collection::factory(['owner_id' => $this->owner->id])->create();
         Token::factory(['collection_id' => $collection])->create();
 
         $response = $this->graphql($this->method, [

@@ -5,7 +5,7 @@ namespace Enjin\Platform\Rules;
 use Closure;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
@@ -31,9 +31,9 @@ class IsCollectionOwner implements DataAwareRule, ValidationRule
         }
 
         if (!static::$bypass &&
-            (!$collection->owner || !Account::isAccountOwner(
+            (!$collection->owner || !Address::isAccountOwner(
                 $collection->owner->public_key,
-                Arr::get($this->data, 'signingAccount') ?: Account::daemonPublicKey()
+                Arr::get($this->data, 'signingAccount') ?: Address::daemonPublicKey()
             ))
         ) {
             $fail('enjin-platform::validation.is_collection_owner')->translate();

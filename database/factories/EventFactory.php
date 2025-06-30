@@ -5,7 +5,7 @@ namespace Enjin\Platform\Database\Factories;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Event;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EventFactory extends Factory
@@ -33,7 +33,7 @@ class EventFactory extends Factory
             'params' => sprintf(
                 '[{"type":"U128","value":"%s"},{"type":"sp_core:crypto:AccountId32","value":"%s"}]',
                 $this->faker->unique()->randomNumber(),
-                HexConverter::unPrefix(Account::daemonPublicKey() ?? $this->faker->unique()->public_key())
+                HexConverter::unPrefix(Address::daemonPublicKey() ?? $this->faker->unique()->public_key())
             ),
         ];
     }

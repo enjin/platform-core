@@ -1,11 +1,11 @@
 <?php
 
-namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
+namespace Enjin\Platform\Tests\Feature\GraphQL\ToFixMutations;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Facades\Qr;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Verification;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
@@ -263,7 +263,7 @@ class VerifyAccountTest extends TestCaseGraphQL
     #[RequiresOperatingSystem('Linux')]
     public function test_it_will_fail_with_used_verification_id(): void
     {
-        Wallet::factory()->create(['verification_id' => $this->verification->verification_id]);
+        Account::factory()->create(['verification_id' => $this->verification->verification_id]);
         $data = app(Generator::class)->sr25519_signature($this->verification->code, isCode: true);
 
         $response = $this->graphql($this->method, [

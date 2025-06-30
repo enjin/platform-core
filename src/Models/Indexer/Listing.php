@@ -4,7 +4,6 @@ namespace Enjin\Platform\Models\Indexer;
 
 use Enjin\Platform\Database\Factories\Unwritable\ListingFactory;
 use Enjin\Platform\Models\MarketplaceState;
-use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -72,7 +71,7 @@ class Listing extends UnwritableModel
      */
     public function seller(): BelongsTo
     {
-        return $this->belongsTo(Wallet::class, 'seller_id');
+        return $this->belongsTo(Account::class, 'seller_id');
     }
 
     /**
