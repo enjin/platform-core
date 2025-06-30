@@ -68,7 +68,7 @@ class WalletService
     public function firstOrStore(array $key, $data = []): Model
     {
         if (isset($key['account'])) {
-            $key['public_key'] = SS58Address::getPublicKey($key['account']);
+            $key['id'] = SS58Address::getPublicKey($key['account']);
             unset($key['account']);
         }
 

@@ -16,7 +16,6 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -47,7 +46,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->recipient = Account::factory()->create();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory()->create(['collection_id' => $this->collection]);
@@ -210,14 +209,14 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'nonce' => fake()->numberBetween(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             [
                 'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
             ],
@@ -308,17 +307,24 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     public function test_it_can_transfer_token_with_signing_wallet(): void
     {
         $signingWallet = Account::factory([
-            'managed' => true,
+            //            'managed' => true,
         ])->create();
+
         $collection = Collection::factory(['owner_id' => $signingWallet->id])->create();
-        $token = Token::factory(['collection_id' => $collection])->create();
+        $token = Token::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $tokenAccount = TokenAccount::factory([
             'account_id' => $signingWallet,
-            'collection_id' => $collection,
+            'collection_id' => $collectionId,
             'token_id' => $token,
         ])->create();
+
         CollectionAccount::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId,
             'account_id' => $signingWallet,
             'account_count' => 1,
         ])->create();

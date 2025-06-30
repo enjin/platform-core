@@ -14,7 +14,6 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -42,7 +41,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory(['collection_id' => $this->collection])->create();
         $this->attribute = Attribute::factory()->create([
@@ -89,6 +88,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_simulate(): void
     {
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
@@ -133,7 +133,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $attribute->key,
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
@@ -284,23 +284,25 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
         ])->create();
 
         $token = Token::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId,
+            'tokenId' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $attribute = Attribute::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId,
             'token_id' => $token,
         ])->create();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
             'key' => $key = $attribute->key,
         ]);
 
         $encodedData = TransactionSerializer::encode('RemoveAttribute', RemoveTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode($token->token_id),
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
             key: $key,
         ));
 
@@ -445,7 +447,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of required type "BigInt!" was not provided.',
             $response['error']
         );

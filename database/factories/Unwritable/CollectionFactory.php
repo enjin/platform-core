@@ -23,8 +23,8 @@ class CollectionFactory extends Factory
     {
         return [
             'collection_id' => $collectionId = fake()->unique()->numberBetween(2000),
-
             'id' => (string) $collectionId,
+
             'owner_id' => Account::factory(),
             'mint_policy' => [
                 'maxTokenCount' => (string) fake()->numberBetween(1),

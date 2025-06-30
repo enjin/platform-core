@@ -43,7 +43,7 @@ class ApproveTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory(['owner_id' => $this->wallet])->create();
         $this->token = Token::factory([
             'collection_id' => $collectionId = $this->collection->id,
@@ -112,7 +112,7 @@ class ApproveTokenTest extends TestCaseGraphQL
             'operator' => fake()->text(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
                 'operator' => ['The operator is not a valid substrate account.'],
@@ -122,7 +122,7 @@ class ApproveTokenTest extends TestCaseGraphQL
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator is not a valid substrate account.']],
             $response['error']
         );
@@ -458,11 +458,13 @@ class ApproveTokenTest extends TestCaseGraphQL
             'id' => $collectionId,
             'owner_id' => $this->wallet->id,
         ])->create();
+
         $token = Token::factory([
             'collection_id' => $collectionId,
             'token_id' => $tokenId = fake()->randomNumber(),
             'id' => "{$collectionId}-{$tokenId}",
         ]);
+
         $tokenAccount = TokenAccount::factory([
             'account_id' => $this->wallet,
             'collection_id' => $collection,

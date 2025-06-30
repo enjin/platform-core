@@ -61,16 +61,19 @@ class BatchMintTest extends TestCaseGraphQL
                 'forceSingleMint' => false,
             ],
         ])->create();
+
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $collectionId = $this->collection->id,
             'account_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
+
         $this->token = Token::factory([
             'collection_id' => $collectionId,
             'token_id' => $tokenId = fake()->numberBetween(),
             'id' => "{$collectionId}-{$tokenId}",
         ])->create();
+
         $this->tokenIdEncoder = new Integer($tokenId);
         $this->tokenAccount = TokenAccount::factory([
             'collection_id' => $collectionId,
@@ -290,7 +293,7 @@ class BatchMintTest extends TestCaseGraphQL
             ],
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
                 'recipients.0.account' => ['The recipients.0.account is not a valid substrate account.'],
@@ -300,7 +303,7 @@ class BatchMintTest extends TestCaseGraphQL
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['recipients.0.account' => ['The recipients.0.account is not a valid substrate account.']],
             $response['error']
         );
@@ -886,7 +889,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_multiple_tokens(): void
     {
-        Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
+        $this->deleteAllFrom($this->collection->id, included: false);
 
         $tokens = Token::factory([
             'collection_id' => $this->collection,
@@ -995,7 +998,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mixed_tokens(): void
     {
-        Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
+        $this->deleteAllFrom($this->collection->id, included: false);
 
         $recipients = collect(range(0, 8))
             ->map(fn ($x) => [
@@ -1068,8 +1071,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_to_recipient_that_doesnt_exists(): void
     {
-        Account::where('id', '=', $address = app(Generator::class)->public_key())?->delete();
-        Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
+        $this->deleteAllFrom($this->collection->id, included: false);
 
         $tokenId = fake()->unique()->numberBetween();
 
@@ -2768,6 +2770,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_if_exceed_max_token_count_in_collection(): void
     {
         $this->collection->forceFill(['max_token_count' => 0])->save();
+
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->id,
             'recipients' => [

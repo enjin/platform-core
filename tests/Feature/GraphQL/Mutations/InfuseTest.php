@@ -13,7 +13,6 @@ use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
@@ -38,7 +37,7 @@ class InfuseTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory([
             'collection_id' => $collectionId = $this->collection->id,

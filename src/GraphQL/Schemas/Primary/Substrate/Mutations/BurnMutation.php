@@ -16,6 +16,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\BurnParams;
+use Enjin\Platform\Rules\CollectionExists;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
@@ -120,7 +121,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => [$min == 0 ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
+            'collectionId' => [$min == 0 ? new IsCollectionOwner() : new CollectionExists()],
             'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
@@ -134,7 +135,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             'params.amount' => [new MinBigInt($min), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params'),
         ];

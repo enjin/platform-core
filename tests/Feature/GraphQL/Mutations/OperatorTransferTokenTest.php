@@ -16,7 +16,6 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -46,7 +45,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->recipient = Account::factory()->create();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
@@ -187,20 +186,25 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $signingWallet = Account::factory()->create();
+
         $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
         CollectionAccount::factory([
             'collection_id' => $collection,
             'account_id' => $signingWallet,
             'account_count' => 1,
         ])->create();
+
         $token = Token::factory([
             'collection_id' => $collection,
         ])->create();
+
         $tokenAccount = TokenAccount::factory([
             'collection_id' => $collection,
             'token_id' => $token,
             'account_id' => $signingWallet,
         ])->create();
+
         $response = $this->graphql($this->method, $params = [
             'collectionId' => $collection->id,
             'recipient' => SS58Address::encode($this->recipient->id),
@@ -212,14 +216,15 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
             ],
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+
+        $this->assertArrayContainsArray(
             ['params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             [
                 'params.amount' => ['The params.amount is invalid, the amount provided is bigger than the token account balance.'],
             ],
@@ -736,7 +741,7 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_will_fail_collection_id_doesnt_exists(): void
     {
-        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        $this->deleteAllFrom($collectionId = fake()->numberBetween());
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

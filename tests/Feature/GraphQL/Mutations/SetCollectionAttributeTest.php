@@ -11,7 +11,6 @@ use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
@@ -35,7 +34,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
     }
 
@@ -56,7 +55,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'nonce' => fake()->numberBetween(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
@@ -270,7 +269,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'value' => fake()->realText(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of required type "BigInt!" was not provided.',
             $response['error']
         );

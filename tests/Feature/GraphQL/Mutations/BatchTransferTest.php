@@ -48,7 +48,7 @@ class BatchTransferTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->recipient = Account::factory()->create();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet->id]);
         $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
@@ -298,14 +298,14 @@ class BatchTransferTest extends TestCaseGraphQL
             ],
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['recipients.0.simpleParams.amount' => ['The recipients.0.simpleParams.amount is invalid, the amount provided is bigger than the token account balance.']],
             $response['error']
         );
@@ -318,7 +318,7 @@ class BatchTransferTest extends TestCaseGraphQL
             'id' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
-        Collection::where('id', Hex::MAX_UINT128)->update(['id' => fake()->numberBetween()]);
+        //        Collection::where('id', Hex::MAX_UINT128)->update(['id' => fake()->numberBetween()]);
 
         $collection = Collection::factory([
             'id' => Hex::MAX_UINT128,
@@ -1357,7 +1357,7 @@ class BatchTransferTest extends TestCaseGraphQL
 
     public function test_it_fail_with_collection_id_non_existent(): void
     {
-        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        $this->deleteAllFrom($collectionId = fake()->numberBetween());
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

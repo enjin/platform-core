@@ -3,11 +3,14 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL;
 
 use Enjin\Platform\Facades\Package;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
+use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasConvertableObject;
 use Enjin\Platform\Tests\TestCase;
 use Illuminate\Support\Arr;
@@ -148,10 +151,23 @@ class TestCaseGraphQL extends TestCase
             );
     }
 
+    protected function getDaemonAccount(): Account
+    {
+        if ($account = Account::find($id = Address::daemonPublicKey())) {
+            return $account;
+        }
+
+        return Account::factory([
+            'id' => $id,
+            'address' => SS58Address::encode($id),
+        ])->create();
+    }
+
     protected function deleteAllFrom(string $collectionId, ?string $tokenId = null, ?bool $included = true): void
     {
         if ($tokenId === null) {
             TokenAccount::where('collection_id', $collectionId)?->delete();
+            Attribute::where('id', 'LIKE', "{$collectionId}-%")->get();
             Token::where('collection_id', $collectionId)?->delete();
             CollectionAccount::where('collection_id', $collectionId)?->delete();
 

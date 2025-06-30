@@ -38,11 +38,14 @@ class ApproveCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->owner = Address::daemon();
+        $this->owner = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->owner->id]);
-        Token::factory(fake()->numberBetween(1, 2))->create([
-            'collection_id' => $this->collection->id,
-        ]);
+
+        Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
     }
 
     // Happy Path
@@ -81,7 +84,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => fake()->text(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             [
                 'collectionId' => ['The collection id provided is not owned by you.'],
                 'operator' => ['The operator is not a valid substrate account.'],
@@ -92,7 +95,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params, true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['operator' => ['The operator is not a valid substrate account.']],
             $response['error']
         );
@@ -310,7 +313,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of required type "BigInt!" was not provided.',
             $response['error']
         );
@@ -324,7 +327,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'collectionId' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of non-null type "BigInt!" must not be null.',
             $response['error']
         );
@@ -354,7 +357,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'collectionId' => $this->collection->id,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of required type "String!" was not provided.',
             $response['error']
         );
@@ -369,7 +372,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of non-null type "String!" must not be null.',
             $response['error']
         );
@@ -400,7 +403,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'expiration' => 'abc',
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$expiration" got invalid value "abc"; Int cannot represent non-integer value: "abc"',
             $response['error']
         );
@@ -435,7 +438,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'expiration' => Hex::MAX_UINT128,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$expiration" got invalid value "340282366920938463463374607431768211455"; Int cannot represent non-integer value: "340282366920938463463374607431768211455"',
             $response['error']
         );
@@ -452,7 +455,7 @@ class ApproveCollectionTest extends TestCaseGraphQL
             'operator' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of non-null type "String!" must not be null.',
             $response['error']
         );

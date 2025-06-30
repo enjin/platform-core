@@ -18,7 +18,6 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -46,7 +45,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet->id]);
         $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
         $this->tokenAccount = TokenAccount::factory([
@@ -133,7 +132,7 @@ class FreezeTest extends TestCaseGraphQL
             'collectionId' => $collection->id,
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );

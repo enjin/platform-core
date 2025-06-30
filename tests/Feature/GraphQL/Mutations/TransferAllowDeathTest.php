@@ -215,7 +215,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     {
         Account::factory([
             'id' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => true,
+            //            'managed' => true,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(

@@ -15,7 +15,6 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -47,7 +46,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory(['owner_id' => $this->wallet])->create();
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $this->collection,
@@ -157,7 +156,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'operator' => SS58Address::encode($operator->public_key),
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );

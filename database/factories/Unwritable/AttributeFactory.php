@@ -27,8 +27,8 @@ class AttributeFactory extends Factory
             'token_id' => $token = Token::factory()->create(),
             'collection_id' => $token->collection_id,
             'key' => $key = fake()->unique()->word(),
-
             'id' => $token->id . '-' . HexConverter::stringToHexPrefixed($key),
+
             'value' => fake()->text(),
             'deposit' => fake()->randomNumber(),
             'created_at' => now(),

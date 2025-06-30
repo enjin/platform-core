@@ -9,6 +9,7 @@ use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Indexer\TokenAccount;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -25,20 +26,13 @@ class TokenService
      */
     public function tokenBalanceForAccount(string $collectionId, string $tokenId, ?string $address = null): string
     {
-        $publicKey = !empty($address) ? SS58Address::getPublicKey($address) : Account::daemon()->public_key;
-        if (!($accountWallet = Account::withoutGlobalScopes()->firstWhere(['public_key' => $publicKey]))
-            || !($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
-            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
-        ) {
-            return '0';
+        $publicKey = !empty($address) ? SS58Address::getPublicKey($address) : Address::daemon()->id;
+
+        if ($tokenAccount = TokenAccount::find("{$publicKey}-{$collectionId}-{$tokenId}")) {
+            return (string) $tokenAccount->balance;
         }
 
-        $tokenAccount = TokenAccount::withoutGlobalScopes()->whereCollectionId($collection->id)
-            ->whereTokenId($token->id)
-            ->whereWalletId($accountWallet->id)
-            ->first();
-
-        return (string) ($tokenAccount?->balance ?: 0);
+        return '0';
     }
 
     /**

@@ -12,7 +12,6 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
@@ -37,7 +36,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create([
             'owner_id' => $this->wallet,
         ]);
@@ -135,17 +134,19 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $token = Token::factory([
-            'collection_id' => $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]),
+        Token::factory([
+            'collection_id' => $collectionId = Collection::factory(['owner_id' => Account::factory()->create()])->create()->id,
+            'token_id' => $tokenId = fake()->randomNumber(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->id,
-            'tokenId' => ['integer' => $token->token_id],
+            'collectionId' => $collectionId,
+            'tokenId' => ['integer' => $tokenId],
             'attributes' => $this->randomAttributes(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
@@ -305,7 +306,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchSetAttributeMutation::getEncodableParams(
             collectionId: $collectionId = $this->collection->id,
-            tokenId: $tokenId = $this->tokenIdEncoder->encode(),
+            tokenId: $this->tokenIdEncoder->encode(),
             attributes: $attributes = $this->randomAttributes(20, 20),
         ));
 

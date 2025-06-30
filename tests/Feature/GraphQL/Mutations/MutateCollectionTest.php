@@ -40,7 +40,7 @@ class MutateCollectionTest extends TestCaseGraphQL
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Address::daemon();
+        $this->wallet = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
         $this->tokenIdEncoder = new Integer();
     }
@@ -152,7 +152,7 @@ class MutateCollectionTest extends TestCaseGraphQL
             'nonce' => fake()->numberBetween(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );

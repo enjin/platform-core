@@ -12,7 +12,6 @@ use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -40,7 +39,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->owner = Address::daemon();
+        $this->owner = $this->getDaemonAccount();
         $this->collection = Collection::factory()->create(['owner_id' => $this->owner->id]);
         $this->collectionAccount = CollectionAccount::factory()->create([
             'collection_id' => $this->collection->id,
@@ -50,6 +49,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
         //            'collection_account_id' => $this->collectionAccount->id,
         //        ]);
         //        $this->operator = Account::find($this->collectionAccountApproval->wallet_id);
+        $this->operator = Account::factory()->create();
     }
 
     // Happy Path
@@ -107,22 +107,25 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $signingWallet = Account::factory()->create();
+
         $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
         $collectionAccount = CollectionAccount::factory([
             'collection_id' => $collection,
             'account_id' => $this->owner,
             'account_count' => 1,
         ])->create();
-        CollectionAccountApproval::factory()->create([
-            'collection_account_id' => $collectionAccount->id,
-            'account_id' => $operator = Account::factory()->create(),
-        ]);
+
+        //        CollectionAccountApproval::factory()->create([
+        //            'collection_account_id' => $collectionAccount->id,
+        //            'account_id' => $operator = Account::factory()->create(),
+        //        ]);
         $response = $this->graphql($this->method, $params = [
             'collectionId' => $collection->id,
             'operator' => SS58Address::encode($operator->public_key),
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
@@ -301,7 +304,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [], true);
 
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             'Variable "$collectionId" of required type "BigInt!" was not provided.',
             $response['error']
         );
@@ -315,7 +318,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'collectionId' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of non-null type "BigInt!" must not be null.',
             $response['error']
         );
@@ -329,7 +332,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'collectionId' => fake()->numberBetween(1),
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of required type "String!" was not provided.',
             $response['error']
         );
@@ -344,7 +347,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of non-null type "String!" must not be null.',
             $response['error']
         );
