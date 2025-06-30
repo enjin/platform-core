@@ -85,25 +85,25 @@ class TokenService
      */
     public function approvalExistsInToken(string $collectionId, string $tokenId, string $operator): bool
     {
-        $operatorWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($operator)]);
-        if (!($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
-            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
-        ) {
-            return false;
-        }
-
-        $tokenAccount = TokenAccount::withoutGlobalScopes()->whereCollectionId($collection->id)
-            ->whereTokenId($token->id)
-            ->where('wallet_id', '=', Account::daemon()->id)
-            ->first();
-
-        if (!$tokenAccount) {
-            return false;
-        }
-
-        return TokenAccountApproval::withoutGlobalScopes()->where('token_account_id', $tokenAccount->id)
-            ->where('wallet_id', $operatorWallet->id)
-            ->exists();
+        //        $operatorWallet = $this->walletService->firstOrStore(['public_key' => SS58Address::getPublicKey($operator)]);
+        //        if (!($collection = Collection::withoutGlobalScopes()->firstWhere(['collection_chain_id' => $collectionId]))
+        //            || !($token = Token::withoutGlobalScopes()->firstWhere(['token_chain_id' => $tokenId, 'collection_id' => $collection->id]))
+        //        ) {
+        //            return false;
+        //        }
+        //
+        //        $tokenAccount = TokenAccount::withoutGlobalScopes()->whereCollectionId($collection->id)
+        //            ->whereTokenId($token->id)
+        //            ->where('wallet_id', '=', Account::daemon()->id)
+        //            ->first();
+        //
+        //        if (!$tokenAccount) {
+        //            return false;
+        //        }
+        //
+        //        return TokenAccountApproval::withoutGlobalScopes()->where('token_account_id', $tokenAccount->id)
+        //            ->where('wallet_id', $operatorWallet->id)
+        //            ->exists();
     }
 
     /**
