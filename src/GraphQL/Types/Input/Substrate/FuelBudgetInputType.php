@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
@@ -14,7 +15,7 @@ class FuelBudgetInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the input type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -26,7 +27,7 @@ class FuelBudgetInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the input type's fields.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [

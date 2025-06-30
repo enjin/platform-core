@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 
@@ -24,7 +25,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -44,7 +45,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -109,7 +110,7 @@ class SetWalletAccountMutation extends Mutation implements PlatformGraphQlMutati
     /**
      * Get the validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [

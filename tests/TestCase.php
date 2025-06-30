@@ -26,7 +26,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function defineEnvironment($app): void
     {
-        // Make sure, our .env file is loaded for local tests
+        // Make sure our .env file is loaded for local tests
         $app->useEnvironmentPath(__DIR__ . '/..');
         $app->useDatabasePath(__DIR__ . '/../database');
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
@@ -52,33 +52,16 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    protected function usesNullDaemonAccount($app): void
-    {
-        $app->config->set('enjin-platform.chains.daemon-account', '0x0000000000000000000000000000000000000000000000000000000000000000');
-    }
-
-    protected function usesEnjinNetwork($app): void
-    {
-        $app->config->set('enjin-platform.chains.network', 'enjin');
-    }
-
-    protected function usesCanaryNetwork($app): void
-    {
-        $app->config->set('enjin-platform.chains.network', 'canary');
-    }
-
-    protected function usesLocalNetwork($app): void
-    {
-        $app->config->set('enjin-platform.chains.network', 'local');
-    }
-
     protected function assertArrayContainsArray(array $expected, array $actual): void
     {
-        $this->assertArrayIsEqualToArrayOnlyConsideringListOfKeys($expected, $actual, $this->arrayKeys($expected));
-    }
+        $keys = array_keys(Arr::dot($expected));
 
-    protected function arrayKeys($array): array
-    {
-        return array_keys(Arr::dot($array));
+        $expected = Arr::dot($expected);
+        $actual = Arr::only(Arr::dot($actual), $keys);
+
+        ksort($actual);
+        ksort($expected);
+
+        $this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys($expected, $actual, $keys);
     }
 }

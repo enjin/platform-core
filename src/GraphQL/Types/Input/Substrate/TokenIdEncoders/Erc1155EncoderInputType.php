@@ -8,6 +8,7 @@ use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidHex;
 use Enjin\Platform\Support\Hex;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 
@@ -18,7 +19,7 @@ class Erc1155EncoderInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -30,7 +31,7 @@ class Erc1155EncoderInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [

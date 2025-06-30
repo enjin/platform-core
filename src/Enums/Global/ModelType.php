@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Enums\Global;
 
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Traits\EnumExtensions;
 
 enum ModelType: string

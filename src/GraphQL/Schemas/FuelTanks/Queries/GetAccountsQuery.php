@@ -3,26 +3,26 @@
 namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
 use Closure;
-use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Rules\FuelTankExists;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetAccountsQuery extends FuelTanksQuery
 {
     protected $middleware = [
         ResolvePage::class,
+        SingleFilterOnly::class,
     ];
 
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -42,13 +42,19 @@ class GetAccountsQuery extends FuelTanksQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
-            'tankId' => [
-                'type' => GraphQL::type('String!'),
+            'id' => [
+                'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
+                'singleFilter' => true,
+            ],
+            'tankId' => [
+                'type' => GraphQL::type('String'),
+                'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
+                'singleFilter' => true,
             ],
         ]);
     }
@@ -56,32 +62,22 @@ class GetAccountsQuery extends FuelTanksQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return Wallet::loadSelectFields($resolveInfo, $this->name)
-            ->whereHas('fuelTanks', fn ($query) => $query->where('public_key', SS58Address::getPublicKey($args['tankId'])))
-            ->cursorPaginateWithTotalDesc('id', $args['first']);
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    {
+        //        return Wallet::selectFields($getSelectFields)
+        //            ->whereHas('fuelTanks', fn ($query) => $query->where('public_key', SS58Address::getPublicKey($args['tankId'])))
+        //            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 
     /**
      * Get the mutation's request validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [
-            'tankId' => [
-                'bail',
-                'filled',
-                'max:255',
-                new ValidSubstrateAddress(),
-                new FuelTankExists(),
-            ],
+            'id' => ['nullable', new ValidSubstrateAddress()],
+            'tankId' => ['nullable', new ValidSubstrateAddress()],
         ];
     }
 }

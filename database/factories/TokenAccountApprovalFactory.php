@@ -2,8 +2,7 @@
 
 namespace Enjin\Platform\Database\Factories;
 
-use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\TokenAccountApproval;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\Wallet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -11,8 +10,6 @@ class TokenAccountApprovalFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
-     *
-     * @var TokenAccountApproval
      */
     protected $model = TokenAccountApproval::class;
 

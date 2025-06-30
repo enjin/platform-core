@@ -7,16 +7,16 @@ use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class SetWalletAccountTest extends TestCaseGraphQL
 {
     use HasHttp;
 
     protected string $method = 'SetWalletAccount';
-    protected Model $wallet;
+    protected Wallet $wallet;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

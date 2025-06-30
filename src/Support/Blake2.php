@@ -3,11 +3,12 @@
 namespace Enjin\Platform\Support;
 
 use Enjin\BlockchainTools\HexConverter;
+use SodiumException;
 
 class Blake2
 {
     /**
-     * Hashes a number to a 128 bit length.
+     * Hashes a number to a 128-bit length.
      */
     public static function hashU128(string $number, ?int $bitLength = 128): string
     {
@@ -18,6 +19,8 @@ class Blake2
 
     /**
      * Hashes a number to a specified bit length.
+     *
+     * @throws SodiumException
      */
     public static function hash(string $data, ?int $bitLength = 256): string
     {
@@ -31,7 +34,9 @@ class Blake2
     }
 
     /**
-     * Hashes a number to a 128 bit length and encodes it.
+     * Hashes a number to a 128-bit length and encodes it.
+     *
+     * @throws SodiumException
      */
     public static function hashAndEncode(string $number): string
     {

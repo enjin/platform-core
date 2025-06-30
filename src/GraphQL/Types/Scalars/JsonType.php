@@ -8,8 +8,6 @@ use Enjin\Platform\GraphQL\Types\Traits\InGlobalSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Support\JSON;
 use Exception;
-use GraphQL\Error\Error;
-use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Contracts\TypeConvertible;
@@ -19,7 +17,7 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     use InGlobalSchema;
 
     /**
-     * Create new json type instance.
+     * Create a new JSON type instance.
      */
     public function __construct()
     {
@@ -28,30 +26,17 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
 
     /**
      * Serializes an internal value to include in a response.
-     *
-     * @param  mixed  $value
-     *
-     * @throws Error
-     *
-     * @return mixed
      */
-    public function serialize($value)
+    public function serialize($value): mixed
     {
         return $value;
     }
 
     /**
      * Parses an externally provided value (query variable) to use as an input.
-     *
-     * In the case of an invalid value this method must throw an Exception
-     *
-     * @param  mixed  $value
-     *
-     * @throws Error
-     *
-     * @return mixed
+     * In the case of an invalid value this method must throw an Exception.
      */
-    public function parseValue($value)
+    public function parseValue($value): mixed
     {
         return $value;
     }
@@ -73,17 +58,11 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
 
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
-     *
-     * In the case of an invalid node or value this method must throw an Exception
-     *
-     * @param  Node  $valueNode
-     * @param  mixed[]|null  $variables
+     * In the case of an invalid node or value, this method must throw an Exception.
      *
      * @throws Exception
-     *
-     * @return mixed
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral($valueNode, ?array $variables = null): mixed
     {
         $current = $valueNode->loc->startToken;
 
@@ -91,7 +70,7 @@ class JsonType extends ScalarType implements PlatformGraphQlType, TypeConvertibl
     }
 
     /**
-     * Create new instance.
+     * Create a new instance.
      */
     public function toType(): Type
     {

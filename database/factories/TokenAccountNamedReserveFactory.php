@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Database\Factories;
 
 use Enjin\Platform\Enums\Substrate\PalletIdentifier;
-use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\TokenAccountNamedReserve;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

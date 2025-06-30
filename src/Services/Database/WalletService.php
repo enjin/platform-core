@@ -32,7 +32,7 @@ class WalletService
     /**
      * Process the select closures.
      */
-    public static function processClosures(array $selectFields)
+    public static function processClosures(array $selectFields): array
     {
         foreach (static::$selectClosures as $closure) {
             $selectFields = $closure($selectFields);

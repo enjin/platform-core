@@ -18,11 +18,11 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AttributeExistsInCollection;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class RemoveCollectionAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {

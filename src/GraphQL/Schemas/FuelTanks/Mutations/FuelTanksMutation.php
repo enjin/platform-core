@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
+use Override;
 use Rebing\GraphQL\Support\Mutation as GraphQlMutation;
 
 abstract class FuelTanksMutation extends GraphQlMutation implements PlatformGraphQlMutation
@@ -12,10 +13,8 @@ abstract class FuelTanksMutation extends GraphQlMutation implements PlatformGrap
 
     /**
      * Adhoc rules.
-     *
-     * @var array
      */
-    public static $adhocRules = [];
+    public static array $adhocRules = [];
 
     /**
      * Get the blockchain method name from the graphql mutation name.
@@ -36,7 +35,7 @@ abstract class FuelTanksMutation extends GraphQlMutation implements PlatformGrap
     /**
      * Get validation rules.
      */
-    #[\Override]
+    #[Override]
     public function getRules(array $arguments = []): array
     {
         return collect(parent::getRules($arguments))->mergeRecursive(static::$adhocRules)->all();

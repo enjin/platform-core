@@ -12,6 +12,7 @@ use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class UpdateTransactionTest extends TestCaseGraphQL
 {
@@ -20,7 +21,7 @@ class UpdateTransactionTest extends TestCaseGraphQL
     protected Model $transaction;
     protected string $method = 'UpdateTransaction';
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

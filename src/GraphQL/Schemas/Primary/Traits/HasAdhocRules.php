@@ -6,10 +6,8 @@ trait HasAdhocRules
 {
     /**
      * Adhoc rules.
-     *
-     * @var array
      */
-    public static $adhocRules = [];
+    public static array $adhocRules = [];
 
     /**
      * Get validation rules.

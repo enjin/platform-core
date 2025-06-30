@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\Database\Factories;
 
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\PendingEvent;
-use Enjin\Platform\Models\Token;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PendingEventFactory extends Factory

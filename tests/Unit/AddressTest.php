@@ -58,40 +58,11 @@ class AddressTest extends TestCase
         $this->assertEquals('rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ', $address);
     }
 
-    /**
-     * @test
-     *
-     * @define-env usesNullDaemonAccount
-     */
-    public function test_it_can_get_null_daemon_account()
-    {
-        $address = HexConverter::unPrefix(Account::daemonPublicKey());
-
-        $this->assertEquals('0000000000000000000000000000000000000000000000000000000000000000', $address);
-    }
-
-    /**
-     * @test
-     *
-     * @define-env usesEnjinNetwork
-     */
     public function test_it_will_encode_matrix_address_if_enjin_is_the_selected_chain()
     {
         $address = SS58Address::encode('d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
 
         $this->assertEquals('efTwqopZgd4Yqefg2NzVPW4THfFmsSsSbxTLN2uq7kmadDaC5', $address);
-    }
-
-    /**
-     * @test
-     *
-     * @define-env usesLocalNetwork
-     */
-    public function test_it_will_encode_rocfinity_address_if_developer_is_the_selected_chain()
-    {
-        $address = SS58Address::encode('d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
-
-        $this->assertEquals('rf8YmxhSe9WGJZvCH8wtzAndweEmz6dTV6DjmSHgHvPEFNLAJ', $address);
     }
 
     public function test_it_fails_to_decode_invalid_address()

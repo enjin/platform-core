@@ -3,12 +3,10 @@
 namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Queries;
 
 use Closure;
-use Enjin\Platform\Models\MarketplaceBid;
-use Enjin\Platform\Rules\BidExists;
-use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Models\Indexer\Bid;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetBidQuery extends MarketplaceQuery
@@ -16,7 +14,7 @@ class GetBidQuery extends MarketplaceQuery
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -28,21 +26,21 @@ class GetBidQuery extends MarketplaceQuery
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
-        return GraphQL::type('MarketplaceBid!');
+        return GraphQL::type('MarketplaceBid');
     }
 
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
             'id' => [
-                'type' => GraphQL::type('BigInt!'),
+                'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
             ],
         ];
@@ -51,29 +49,10 @@ class GetBidQuery extends MarketplaceQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return MarketplaceBid::loadSelectFields($resolveInfo, $this->name)->find($args['id']);
-    }
-
-    /**
-     * Get the mutation's request validation rules.
-     */
-    #[\Override]
-    protected function rules(array $args = []): array
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        return [
-            'id' => [
-                'bail',
-                new MinBigInt(),
-                new MaxBigInt(),
-                new BidExists(),
-            ],
-        ];
+        return Bid::selectFields($getSelectFields)
+            ->where('id', $args['id'])
+            ->first();
     }
 }

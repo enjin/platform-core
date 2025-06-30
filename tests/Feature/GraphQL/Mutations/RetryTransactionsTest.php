@@ -3,7 +3,7 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
-use Enjin\Platform\Models\Laravel\Transaction;
+use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 

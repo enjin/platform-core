@@ -3,21 +3,23 @@
 namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Queries;
 
 use Closure;
-use Enjin\Platform\Models\MarketplaceListing;
-use Enjin\Platform\Rules\ListingExists;
-use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
+use Enjin\Platform\Models\Indexer\Listing;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetListingQuery extends MarketplaceQuery
 {
+    protected $middleware = [
+        SingleFilterOnly::class,
+    ];
+
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -29,26 +31,28 @@ class GetListingQuery extends MarketplaceQuery
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
-        return GraphQL::type('MarketplaceListing!');
+        return GraphQL::type('MarketplaceListing');
     }
 
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
             'id' => [
-                'type' => GraphQL::type('BigInt'),
+                'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
+                'singleFilter' => true,
             ],
             'listingId' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.field.listingId'),
+                'singleFilter' => true,
             ],
         ];
     }
@@ -56,43 +60,10 @@ class GetListingQuery extends MarketplaceQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return MarketplaceListing::loadSelectFields($resolveInfo, $this->name)
-            ->when(
-                $id = Arr::get($args, 'id'),
-                fn ($query) => $query->where('id', $id)
-            )->when(
-                $listingId = Arr::get($args, 'listingId'),
-                fn ($query) => $query->where('listing_chain_id', $listingId)
-            )->first();
-    }
-
-    /**
-     * Get the mutation's request validation rules.
-     */
-    #[\Override]
-    protected function rules(array $args = []): array
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        return [
-            'id' => [
-                'bail',
-                'required_without:listingId',
-                new MinBigInt(),
-                new MaxBigInt(),
-                new ListingExists('id'),
-            ],
-            'listingId' => [
-                'bail',
-                'required_without:id',
-                'max:255',
-                new ListingExists(),
-            ],
-        ];
+        return Listing::selectFields($getSelectFields)
+            ->where('id', $args['id'] ?? $args['listingId'])
+            ->first();
     }
 }

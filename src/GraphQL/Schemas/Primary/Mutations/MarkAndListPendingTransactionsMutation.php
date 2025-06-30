@@ -15,6 +15,7 @@ use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 
@@ -29,7 +30,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -49,7 +50,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
@@ -107,7 +108,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
     /**
      * Get the validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [

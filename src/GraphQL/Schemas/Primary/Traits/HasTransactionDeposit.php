@@ -5,8 +5,8 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Traits;
 use Codec\Utils;
 use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use GMP;
 
 trait HasTransactionDeposit
@@ -15,7 +15,7 @@ trait HasTransactionDeposit
 
     protected function getDeposit($args): ?string
     {
-        return match ((new \ReflectionClass($this))->getShortName()) {
+        return match (new \ReflectionClass($this)->getShortName()) {
             'CreateCollectionMutation' => $this->getCreateCollectionDeposit($args),
             'CreateTokenMutation' => $this->getCreateTokenDeposit($args),
             'MintTokenMutation' => $this->getMintTokenDeposit($args),

@@ -4,11 +4,10 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\UnapproveCollectionMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
 use Enjin\Platform\Models\CollectionAccountApproval;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -17,10 +16,12 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class UnapproveCollectionTest extends TestCaseGraphQL
 {
@@ -28,13 +29,13 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     protected string $method = 'UnapproveCollection';
     protected Codec $codec;
-    protected Model $owner;
-    protected Model $operator;
-    protected Model $collection;
-    protected Model $collectionAccount;
+    protected Wallet $owner;
+    protected Wallet $operator;
+    protected Collection $collection;
+    protected CollectionAccount $collectionAccount;
     protected Model $collectionAccountApproval;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

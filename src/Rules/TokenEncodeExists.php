@@ -3,12 +3,13 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Token\TokenIdManager;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class TokenEncodeExists implements DataAwareRule, ValidationRule
 {
@@ -30,7 +31,7 @@ class TokenEncodeExists implements DataAwareRule, ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

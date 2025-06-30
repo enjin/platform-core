@@ -4,12 +4,11 @@ namespace Enjin\Platform\Services\Database;
 
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Attribute;
-use Enjin\Platform\Models\Laravel\Collection;
-use Enjin\Platform\Models\Laravel\Wallet;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\TokenAccountApproval;
+use Enjin\Platform\Models\Indexer\Attribute;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,41 +20,6 @@ class TokenService
      * Create a new instance.
      */
     public function __construct(protected WalletService $walletService) {}
-
-    /**
-     * Create a new token.
-     */
-    public function store(array $data): Model
-    {
-        return Token::create($data);
-    }
-
-    /**
-     * Insert a new token.
-     */
-    public function insert(array $data): bool
-    {
-        return Token::insert($data);
-    }
-
-    /**
-     * Update or create a token.
-     */
-    public function updateOrStore(array $keys, array $data): Model
-    {
-        return Token::updateOrCreate($keys, $data);
-    }
-
-    /**
-     * Update ot insert a token.
-     */
-    public function updateOrInsert(array $keys, array $data)
-    {
-        return Token::updateOrInsert(
-            $keys,
-            $data
-        );
-    }
 
     /**
      * Get the token balance for an account.

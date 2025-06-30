@@ -39,7 +39,7 @@ class UniqueFieldNamesArray extends AbstractExecutionMiddleware
         return $next($schemaName, $schema, $params, $rootValue, $contextValue);
     }
 
-    protected function validateUniqueFieldNames($nodes)
+    protected function validateUniqueFieldNames($nodes): void
     {
         $fieldNames = $nodes->map(fn ($node) => $node->name->value);
         $duplicates = $fieldNames->duplicates();

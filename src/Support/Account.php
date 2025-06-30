@@ -4,7 +4,7 @@ namespace Enjin\Platform\Support;
 
 use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\Enums\Global\PlatformCache;
-use Enjin\Platform\Models\Laravel\Wallet;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Database\WalletService;
 use GMP;
 use Illuminate\Support\Arr;
@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Cache;
 
 class Account
 {
-    public static $publicKey;
-    public static $walletAccounts = [];
+    public static string $publicKey;
+    public static array $walletAccounts = [];
     private static $account;
 
     public static function existentialDeposit(): GMP
@@ -22,7 +22,7 @@ class Account
     }
 
     /**
-     * Check if account is owner.
+     * Check if an account is an owner.
      */
     public static function isAccountOwner(string $publicKey, string $others = ''): bool
     {
@@ -31,13 +31,11 @@ class Account
             ...Arr::wrap(static::$walletAccounts),
             $others,
         ];
-        foreach (array_filter($accounts) as $account) {
-            if ($account && SS58Address::isSameAddress($publicKey, $account)) {
-                return true;
-            }
-        }
 
-        return false;
+        return array_any(
+            array_filter($accounts),
+            fn ($account) => $account && SS58Address::isSameAddress($publicKey, $account)
+        );
     }
 
     /**
@@ -49,7 +47,7 @@ class Account
     }
 
     /**
-     * Get daemon account wallet.
+     * Get the daemon account wallet.
      */
     public static function daemon(): Wallet
     {
@@ -79,7 +77,7 @@ class Account
     }
 
     /**
-     * Parse account to public key.
+     * Parse an account to a public key.
      */
     public static function parseAccount(array|string|null $account): ?string
     {

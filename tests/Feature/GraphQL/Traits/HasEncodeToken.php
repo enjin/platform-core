@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Traits;
 
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Services\Token\TokenIdManager;
 
 trait HasEncodeToken

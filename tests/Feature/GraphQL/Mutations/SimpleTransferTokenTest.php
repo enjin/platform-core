@@ -4,13 +4,12 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SimpleTransferTokenMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\Substrate\SimpleTransferParams;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
@@ -21,10 +20,11 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class SimpleTransferTokenTest extends TestCaseGraphQL
 {
@@ -33,15 +33,15 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     protected string $method = 'SimpleTransferToken';
     protected Codec $codec;
     protected string $defaultAccount;
-    protected Model $wallet;
-    protected Model $collection;
-    protected Model $collectionAccount;
-    protected Model $token;
+    protected Wallet $wallet;
+    protected Collection $collection;
+    protected CollectionAccount $collectionAccount;
+    protected Token $token;
     protected Encoder $tokenIdInput;
-    protected Model $tokenAccount;
-    protected Model $recipient;
+    protected TokenAccount $tokenAccount;
+    protected Wallet $recipient;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

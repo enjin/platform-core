@@ -4,7 +4,7 @@ namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\Enums\Substrate\DispatchRule;
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Enjin\Platform\Models\Substrate\MaxFuelBurnPerTransactionParams;
 use Enjin\Platform\Models\Substrate\PermittedCallsParams;
 use Enjin\Platform\Models\Substrate\PermittedExtrinsicsParams;
@@ -20,6 +20,7 @@ use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class CanDispatch implements DataAwareRule, ValidationRule
 {
@@ -28,7 +29,7 @@ class CanDispatch implements DataAwareRule, ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

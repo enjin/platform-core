@@ -4,12 +4,11 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\UnapproveTokenMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\TokenAccountApproval;
 use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
@@ -21,10 +20,12 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class UnapproveTokenTest extends TestCaseGraphQL
 {
@@ -32,16 +33,16 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     protected string $method = 'UnapproveToken';
     protected Codec $codec;
-    protected Model $wallet;
-    protected Model $operator;
-    protected Model $collection;
-    protected Model $token;
+    protected Wallet $wallet;
+    protected Wallet $operator;
+    protected Collection $collection;
+    protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Model $tokenAccount;
+    protected TokenAccount $tokenAccount;
     protected Model $tokenAccountApproval;
-    protected Model $collectionAccount;
+    protected CollectionAccount $collectionAccount;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

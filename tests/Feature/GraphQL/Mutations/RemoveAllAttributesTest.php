@@ -4,12 +4,11 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
-use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\RemoveAllAttributesMutation;
-use Enjin\Platform\Models\Attribute;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Laravel\Wallet;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Attribute;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
@@ -19,10 +18,11 @@ use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
+use Facades\Enjin\Platform\Facades\TransactionSerializer;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class RemoveAllAttributesTest extends TestCaseGraphQL
 {
@@ -30,13 +30,13 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveAllAttributes';
     protected Codec $codec;
-    protected Model $collection;
-    protected Model $token;
+    protected Collection $collection;
+    protected Token $token;
     protected Encoder $tokenIdEncoder;
-    protected Model $attribute;
-    protected Model $wallet;
+    protected Attribute $attribute;
+    protected Wallet $wallet;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

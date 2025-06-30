@@ -4,20 +4,20 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Carbon\Carbon;
 use Enjin\Platform\GraphQL\Schemas\Primary\Mutations\TokenHolderSnapshotMutation;
-use Enjin\Platform\Models\Block;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Block;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class TokenHolderSnapshotTest extends TestCaseGraphQL
 {
     protected string $method = 'TokenHolderSnapshot';
-    protected Model $collection;
-    protected Model $token;
-    protected Model $block;
+    protected Collection $collection;
+    protected Token $token;
+    protected Block $block;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

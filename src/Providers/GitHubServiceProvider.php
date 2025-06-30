@@ -4,16 +4,15 @@ namespace Enjin\Platform\Providers;
 
 use Illuminate\Http\Client\Factory;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class GitHubServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    #[\Override]
-    public function register()
+    #[Override]
+    public function register(): void
     {
         $githubHttp = new Factory();
         $githubHttp = $githubHttp->baseUrl(config('enjin-platform.github.api_url'));

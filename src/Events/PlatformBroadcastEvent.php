@@ -14,6 +14,8 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use ReflectionClass;
+use Throwable;
 
 abstract class PlatformBroadcastEvent implements ShouldBroadcast
 {
@@ -25,7 +27,7 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     public ?Model $model = null;
 
     /**
-     * An array of functions to call prior to broadcasting the event.
+     * An array of functions to call before broadcasting the event.
      */
     public static array $beforeBroadcast = [];
 
@@ -47,14 +49,18 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     /**
      * The event UUID.
      */
-    protected string $uuid;
+    protected string $uuid {
+        get {
+            return $this->uuid;
+        }
+    }
 
     /**
      * Create a new event instance.
      */
     public function __construct()
     {
-        $this->className = (new \ReflectionClass(static::class))->getShortName();
+        $this->className = new ReflectionClass(static::class)->getShortName();
         $this->uuid = Str::uuid()->toString();
         $this->setQueue();
     }
@@ -98,8 +104,8 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
     {
         try {
             static::broadcast($event, $transaction, $extra, $model);
-        } catch (\Throwable $e) {
-            $class = (new \ReflectionClass(static::class))->getShortName();
+        } catch (Throwable $e) {
+            $class = new ReflectionClass(static::class)->getShortName();
             Log::info("{$class} : Event cached but no websocket open to broadcast on. {$e->getMessage()}");
         }
     }
@@ -113,11 +119,6 @@ abstract class PlatformBroadcastEvent implements ShouldBroadcast
         $event = $event->beforeBroadcast();
 
         return broadcast($event);
-    }
-
-    public function getUuid()
-    {
-        return $this->uuid;
     }
 
     /**

@@ -18,6 +18,7 @@ use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Support\Twox;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use SodiumException;
 
 class Encoder
 {
@@ -263,6 +264,9 @@ class Encoder
         return $this->sequenceLength($extrinsic) . $extrinsic;
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function getEncoded(string $type, array $params): string
     {
         if ($type == 'Batch' || (isset($params['continueOnFailure']) && $params['continueOnFailure'] === true)) {
@@ -282,6 +286,9 @@ class Encoder
         throw new PlatformException('Invalid encoded data: ' . $hex);
     }
 
+    /**
+     * @throws SodiumException
+     */
     public function systemAccountStorageKey(string $publicKey): string
     {
         $publicKey = HexConverter::unPrefix($publicKey);
@@ -302,6 +309,9 @@ class Encoder
         return HexConverter::prefix($encoded);
     }
 
+    /**
+     * @throws SodiumException
+     */
     public static function collectionStorageKey(string $collectionId): string
     {
         $hashAndEncode = Blake2::hashAndEncode($collectionId);
@@ -320,6 +330,9 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
+    /**
+     * @throws SodiumException
+     */
     public static function tokenStorageKey(string $collectionId, ?string $tokenId = null): string
     {
         $key = StorageType::TOKENS->value . Blake2::hashAndEncode($collectionId);
@@ -331,6 +344,9 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
+    /**
+     * @throws SodiumException
+     */
     public static function collectionAccountStorageKey(string $collectionId, ?string $accountId = null): string
     {
         $key = StorageType::COLLECTION_ACCOUNTS->value . Blake2::hashAndEncode($collectionId);
@@ -343,6 +359,9 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
+    /**
+     * @throws SodiumException
+     */
     public static function attributeStorageKey(string $collectionId, ?string $tokenId = null, ?string $key = null): string
     {
         $storageKey = StorageType::ATTRIBUTES->value . Blake2::hashAndEncode($collectionId);
@@ -361,6 +380,9 @@ class Encoder
         return HexConverter::prefix($storageKey);
     }
 
+    /**
+     * @throws SodiumException
+     */
     public static function tokenAccountStorageKey(string $collectionId, ?string $tokenId = null, ?string $accountId = null): string
     {
         $key = StorageType::TOKEN_ACCOUNTS->value . Blake2::hashAndEncode($collectionId);
@@ -377,6 +399,9 @@ class Encoder
         return HexConverter::prefix($key);
     }
 
+    /**
+     * @throws PlatformException
+     */
     public function setRoyalty(string $collectionId, ?string $tokenId, RoyaltyPolicyParams $royalty): string
     {
         return static::getEncoded('SetRoyalty', [

@@ -6,13 +6,16 @@ use Closure;
 use Enjin\Platform\Facades\Package;
 use Enjin\Platform\Interfaces\PlatformPublicGraphQlOperation;
 use Enjin\Platform\Services\Auth\AuthManager;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
+use GraphQL\Server\RequestError;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use JsonException;
 use Laragraph\Utils\RequestParser;
 
 class Authenticated
@@ -48,6 +51,10 @@ class Authenticated
 
     /**
      * Handle an incoming request.
+     *
+     * @throws RequestError
+     * @throws SyntaxError
+     * @throws JsonException
      */
     protected function bypass(Request $request): bool
     {

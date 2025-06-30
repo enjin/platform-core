@@ -2,8 +2,8 @@
 
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits;
 
+use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Database\TransactionService;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 trait StoresTransactions
@@ -11,7 +11,7 @@ trait StoresTransactions
     /**
      * Store a transaction.
      */
-    protected function storeTransaction(array $args, string $encodedData, ?TransactionService $transactionService = null): Model
+    protected function storeTransaction(array $args, string $encodedData, ?TransactionService $transactionService = null): Transaction
     {
         if (!$transactionService) {
             $transactionService = resolve(TransactionService::class);
