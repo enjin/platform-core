@@ -144,10 +144,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                 continueOnFailure: $continueOnFailure
             ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array

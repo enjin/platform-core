@@ -17,10 +17,8 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -100,7 +98,6 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         $continueOnFailure = $args['continueOnFailure'];
         $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
@@ -110,10 +107,7 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
             continueOnFailure: $continueOnFailure
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array

@@ -6,6 +6,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferAllBalanceMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
@@ -22,6 +23,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     protected string $method = 'TransferAllBalance';
     protected Codec $codec;
+
     protected string $defaultAccount;
 
     #[Override]
@@ -34,12 +36,11 @@ class TransferAllBalanceTest extends TestCaseGraphQL
     }
 
     // Happy Path
-
     public function test_it_can_skip_validation(): void
     {
-        Address::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
+            //            'managed' => false,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
@@ -220,7 +221,7 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_to_a_wallet_that_doesnt_exists(): void
     {
-        Address::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::where('id', '=', $address = app(Generator::class)->public_key())?->delete();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
             recipientAccount: $address,
@@ -246,17 +247,13 @@ class TransferAllBalanceTest extends TestCaseGraphQL
             'encoded_data' => $encodedData,
         ]);
 
-        $this->assertDatabaseHas('wallets', [
-            'public_key' => $address,
-        ]);
-
         Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_all_to_a_wallet_that_exists(): void
     {
-        Address::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(
@@ -288,9 +285,9 @@ class TransferAllBalanceTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_all_with_another_signing_wallet(): void
     {
-        Address::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => true,
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
+            //            'managed' => true,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferAllBalanceMutation::getEncodableParams(

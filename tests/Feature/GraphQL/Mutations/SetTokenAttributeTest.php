@@ -13,6 +13,7 @@ use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -28,6 +29,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'SetTokenAttribute';
     protected Codec $codec;
+
     protected string $defaultAccount;
     protected Collection $collection;
     protected Token $token;
@@ -40,17 +42,21 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        $this->token = Token::factory()->create(['collection_id' => $this->collection]);
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
+        $this->wallet = Address::daemon();
+        $this->collection = Collection::factory(['owner_id' => $this->wallet])->create();
+        $this->token = Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'collectionId' => $collectionId = $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
@@ -78,7 +84,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     {
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'collectionId' => $collectionId = $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
@@ -108,7 +114,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_create_an_attribute_using_adapter(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'collectionId' => $collectionId = $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
@@ -138,8 +144,8 @@ class SetTokenAttributeTest extends TestCaseGraphQL
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'collectionId' => $collection->id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
             'key' => fake()->word(),
             'value' => fake()->realText(),
             'nonce' => fake()->numberBetween(),
@@ -159,7 +165,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_create_an_attribute(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'collectionId' => $collectionId = $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
@@ -190,15 +196,18 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_create_an_attribute_with_signing_account(): void
     {
         $signingWallet = Account::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
+
         $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
         $token = Token::factory([
             'collection_id' => $collection,
         ])->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'collectionId' => $collectionId = $collection->id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
             'signingAccount' => SS58Address::encode($signingAccount),
@@ -206,7 +215,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+            tokenId: $this->tokenIdEncoder->encode($token->token_id),
             key: $key,
             value: $value
         ));
@@ -228,15 +237,18 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
     {
         $signingWallet = Account::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
+
         $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
         $token = Token::factory([
             'collection_id' => $collection,
         ])->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'collectionId' => $collectionId = $collection->id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
             'signingAccount' => $signingAccount,
@@ -244,7 +256,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+            tokenId: $this->tokenIdEncoder->encode($token->token_id),
             key: $key,
             value: $value
         ));
@@ -265,10 +277,10 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
         $collection = Collection::factory([
-            'collection_chain_id' => $collectionId = Hex::MAX_UINT128,
+            'id' => $collectionId,
             'owner_id' => $this->wallet,
         ])->create();
 
@@ -278,14 +290,14 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_chain_id),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetTokenAttributeMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+            tokenId: $this->tokenIdEncoder->encode($token->token_id),
             key: $key,
             value: $value
         ));
@@ -303,13 +315,13 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_create_an_attribute_with_bigint_token_id(): void
     {
         $collection = Collection::factory([
-            'collection_chain_id' => $collectionId = fake()->numberBetween(2000),
             'owner_id' => $this->wallet,
         ])->create();
 
         Token::factory([
-            'collection_id' => $collection,
-            'token_chain_id' => $tokenId = Hex::MAX_UINT128,
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = Hex::MAX_UINT128,
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $response = $this->graphql($this->method, [
@@ -340,7 +352,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_key_length(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => fake()->numerify(str_repeat('#', 257)),
             'value' => fake()->realText(),
@@ -357,7 +369,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_value_length(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => fake()->word(),
             'value' => fake()->asciify(str_repeat('*', 1025)),
@@ -373,7 +385,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_fail_with_for_collection_that_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -394,7 +406,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => 'not_valid',
-            'tokenId' => $this->token->token_chain_id,
+            'tokenId' => $this->token->token_id,
             'key' => fake()->word(),
             'value' => fake()->realText(),
         ], true);
@@ -410,7 +422,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_no_collection_id(): void
     {
         $response = $this->graphql($this->method, [
-            'tokenId' => $this->token->token_chain_id,
+            'tokenId' => $this->token->token_id,
             'key' => fake()->word(),
             'value' => fake()->realText(),
         ], true);
@@ -427,7 +439,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => null,
-            'tokenId' => $this->token->token_chain_id,
+            'tokenId' => $this->token->token_id,
             'key' => fake()->word(),
             'value' => fake()->realText(),
         ], true);
@@ -442,10 +454,10 @@ class SetTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_fail_with_for_token_that_doesnt_exists(): void
     {
-        Token::where('token_chain_id', '=', $tokenId = fake()->numberBetween())?->delete();
+        Token::where('token_id', '=', $tokenId = fake()->numberBetween())?->delete();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
             'key' => fake()->word(),
             'value' => fake()->realText(),
@@ -462,7 +474,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_invalid_token_id(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => ['integer' => 'not_valid'],
             'key' => fake()->word(),
             'value' => fake()->realText(),
@@ -479,7 +491,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_no_token_id(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => fake()->word(),
             'value' => fake()->realText(),
         ], true);
@@ -495,7 +507,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_null_token_id(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => ['integer' => null],
             'key' => fake()->word(),
             'value' => fake()->realText(),
@@ -512,7 +524,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_no_key(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'value' => fake()->realText(),
         ], true);
@@ -528,7 +540,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_null_key(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => null,
             'value' => fake()->realText(),
@@ -545,7 +557,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_no_value(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => fake()->word,
         ], true);
@@ -561,7 +573,7 @@ class SetTokenAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_null_value(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => fake()->word,
             'value' => null,

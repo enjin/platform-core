@@ -35,12 +35,10 @@ class TokenEncodeExists implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!Token::whereTokenChainId($this->tokenIdManager->encode($this->data))
-            ->when(
-                $collectionId = Arr::get($this->data, 'collectionId'),
-                fn ($query) => $query->whereHas('collection', fn ($subQuery) => $subQuery->where('collection_chain_id', $collectionId))
-            )->exists()
-        ) {
+        $collectionId = Arr::get($this->data, 'collectionId');
+        $tokenId = $this->tokenIdManager->encode($this->data);
+
+        if (Token::where('id', "{$collectionId}-{$tokenId}")->doesntExist()) {
             $fail('enjin-platform::validation.token_encode_exists')->translate();
         }
     }

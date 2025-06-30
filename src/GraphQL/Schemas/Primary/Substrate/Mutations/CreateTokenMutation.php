@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -16,19 +15,18 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CheckTokenCount;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -45,7 +43,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -65,7 +63,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -99,29 +97,23 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode(
             $this->getMethodName() . (currentSpec() >= 1020 ? '' : 'V1013'),
             static::getEncodableParams(
-                recipientAccount: $recipientWallet->public_key,
+                recipientAccount: $args['recipient'],
                 collectionId: $args['collectionId'],
                 createTokenParams: $blockchainService->getCreateTokenParams($args['params'])
             )
         );
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'Mint';
@@ -131,7 +123,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
+                'Id' => SS58Address::getPublicKey(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'createTokenParams', new CreateTokenParams(0, 0))->toEncodable(),

@@ -7,6 +7,7 @@ use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchMintMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Models\Indexer\Token;
@@ -36,13 +37,14 @@ class BatchMintTest extends TestCaseGraphQL
 
     protected string $method = 'BatchMint';
     protected Codec $codec;
-    protected Address $wallet;
+
+    protected Account $wallet;
     protected Collection $collection;
     protected CollectionAccount $collectionAccount;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
     protected TokenAccount $tokenAccount;
-    protected Address $recipient;
+    protected Account $recipient;
 
     #[Override]
     protected function setUp(): void
@@ -50,25 +52,29 @@ class BatchMintTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->recipient = Address::factory()->create();
+        $this->recipient = Account::factory()->create();
         $this->collection = Collection::factory([
             'owner_id' => $this->wallet = Address::daemon(),
-            'max_token_supply' => null,
-            'max_token_count' => 100,
-            'force_collapsing_supply' => false,
+            'mint_policy' => [
+                'maxTokenSupply' => null,
+                'maxTokenCount' => 100,
+                'forceSingleMint' => false,
+            ],
         ])->create();
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $this->collection,
+            'collection_id' => $collectionId = $this->collection->id,
             'account_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
         $this->token = Token::factory([
-            'collection_id' => $this->collection,
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
+        $this->tokenIdEncoder = new Integer($tokenId);
         $this->tokenAccount = TokenAccount::factory([
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
             'account_id' => $this->wallet,
         ])->create();
     }
@@ -80,7 +86,7 @@ class BatchMintTest extends TestCaseGraphQL
             collectionId: $collectionId = random_int(1, 1000),
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -125,10 +131,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_batch_mint_create_single_token_with_cap_null_using_adapter(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -171,10 +177,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_simulate(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -216,10 +222,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_batch_mint_create_single_token_with_cap_null(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -268,11 +274,11 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         Token::factory([
-            'collection_id' => $collection = Collection::factory()->create(['owner_id' => Address::factory()->create()]),
+            'collection_id' => $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]),
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'recipients' => [
                 [
                     'account' => fake()->text(),
@@ -303,17 +309,17 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_ss58_signing_account(): void
     {
-        $newOwner = Address::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $newOwner = Account::factory()->create([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
         Token::factory([
             'collection_id' => $collection = Collection::factory(['owner_id' => $newOwner])->create(),
         ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
+            collectionId: $collectionId = $collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -361,17 +367,17 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_public_key_signing_account(): void
     {
-        $newOwner = Address::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $newOwner = Account::factory()->create([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
         Token::factory([
             'collection_id' => $collection = Collection::factory(['owner_id' => $newOwner])->create(),
         ])->create();
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
+            collectionId: $collectionId = $collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -420,10 +426,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_batch_mint_create_single_token_with_single_mint_cap(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -469,10 +475,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_batch_mint_create_single_token_with_supply_cap(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -517,13 +523,13 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_bigint_token_id(): void
     {
-        Token::where('token_chain_id', '=', $tokenId = Hex::MAX_UINT128)?->delete();
+        $this->deleteAllFrom($this->collection->id, $tokenId = Hex::MAX_UINT128);
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -566,9 +572,10 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)->delete();
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
+
         Collection::factory([
-            'collection_chain_id' => $collectionId,
+            'id' => $collectionId,
             'owner_id' => $this->wallet,
         ])->create();
 
@@ -576,7 +583,7 @@ class BatchMintTest extends TestCaseGraphQL
             collectionId: $collectionId,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -620,10 +627,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_can_batch_mint_mint_single_token_without_unit_price(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $mintParams = new MintParams(
                         tokenId: $this->tokenIdEncoder->encode(),
                         amount: fake()->numberBetween(1),
@@ -670,10 +677,10 @@ class BatchMintTest extends TestCaseGraphQL
         // Will do that later
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $mintParams = new MintParams(
                         tokenId: $this->tokenIdEncoder->encode(),
                         amount: $amount = fake()->numberBetween(1),
@@ -716,9 +723,10 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_single_token_with_big_int_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = Hex::MAX_UINT128)->delete();
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
+
         $collection = Collection::factory([
-            'collection_chain_id' => $collectionId,
+            'id' => $collectionId,
             'owner_id' => $this->wallet,
         ])->create();
         $token = Token::factory([
@@ -729,9 +737,9 @@ class BatchMintTest extends TestCaseGraphQL
             collectionId: $collectionId,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $mintParams = new MintParams(
-                        tokenId: $this->tokenIdEncoder->encode($tokenId = $token->token_chain_id),
+                        tokenId: $this->tokenIdEncoder->encode($tokenId = $token->token_id),
                         amount: fake()->numberBetween(1),
                     ),
                 ],
@@ -772,17 +780,19 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_single_token_with_bigint_token_id(): void
     {
-        Token::where('token_chain_id', '=', $tokenId = Hex::MAX_UINT128)?->delete();
+        $this->deleteAllFrom($collectionId = $this->collection->id, $tokenId = Hex::MAX_UINT128);
+
         Token::factory([
-            'collection_id' => $this->collection->id,
-            'token_chain_id' => $tokenId,
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId,
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $mintParams = new MintParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         amount: fake()->numberBetween(1),
@@ -825,13 +835,12 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_multiple_tokens(): void
     {
-        Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
+        $this->deleteAllFrom($this->collection->id, included: false);
 
         $tokenId = fake()->numberBetween();
-
         $recipients = collect(range(0, 9))
             ->map(fn () => [
-                'accountId' => Address::factory()->create()->public_key,
+                'accountId' => Account::factory()->create()->id,
                 'params' => new CreateTokenParams(
                     tokenId: $tokenId = $this->tokenIdEncoder->encode($tokenId),
                     initialSupply: $supply = fake()->numberBetween(1),
@@ -839,7 +848,7 @@ class BatchMintTest extends TestCaseGraphQL
             ]);
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: $recipients->toArray(),
             continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -885,15 +894,15 @@ class BatchMintTest extends TestCaseGraphQL
         ])->count(10)->create();
 
         $recipients = $tokens->map(fn ($token) => [
-            'accountId' => Address::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->id,
             'params' => new MintParams(
-                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                tokenId: $this->tokenIdEncoder->encode($token->token_id),
                 amount: fake()->numberBetween(1),
             ),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: $recipients->toArray(),
             continueOnFailure: true // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -931,23 +940,24 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_multiple_tokens_with_continue_on_failure(): void
     {
-        Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
+        $this->deleteAllFrom($collectionId = $this->collection->id, included: false);
 
         $tokens = Token::factory([
-            'collection_id' => $this->collection,
-            'cap' => null,
+            'collection_id' => $collectionId,
+            'tokenId' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->count(10)->create();
 
         $recipients = $tokens->map(fn ($token) => [
-            'accountId' => Address::factory()->create()->public_key,
+            'accountId' => Account::factory()->create()->id,
             'params' => new MintParams(
-                tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                tokenId: $this->tokenIdEncoder->encode($tokenId),
                 amount: fake()->numberBetween(1),
             ),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId,
             recipients: $recipients->toArray(),
             continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -989,7 +999,7 @@ class BatchMintTest extends TestCaseGraphQL
 
         $recipients = collect(range(0, 8))
             ->map(fn ($x) => [
-                'accountId' => Address::factory()->create()->public_key,
+                'accountId' => Account::factory()->create()->id,
                 'params' => new CreateTokenParams(
                     tokenId: $x + 1,
                     initialSupply: $supply = fake()->numberBetween(1),
@@ -998,21 +1008,21 @@ class BatchMintTest extends TestCaseGraphQL
 
         $tokens = Token::factory()->count(10)->sequence(fn ($s) => [
             'collection_id' => $this->collection,
-            'token_chain_id' => $s->index + 10,
+            'token_id' => $s->index + 10,
         ])->create();
 
         $recipients = $recipients->merge(
             $tokens->map(fn ($token) => [
-                'accountId' => Address::factory()->create()->public_key,
+                'accountId' => Account::factory()->create()->id,
                 'params' => new MintParams(
-                    tokenId: $this->tokenIdEncoder->encode($token->token_chain_id),
+                    tokenId: $this->tokenIdEncoder->encode($token->token_id),
                     amount: fake()->numberBetween(1),
                 ),
             ])
         );
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: $recipients->toArray(),
             continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -1058,7 +1068,7 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_create_single_token_to_recipient_that_doesnt_exists(): void
     {
-        Address::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::where('id', '=', $address = app(Generator::class)->public_key())?->delete();
         Token::where('collection_id', '=', $this->collection->collection_id)?->delete();
 
         $tokenId = fake()->unique()->numberBetween();
@@ -1072,7 +1082,7 @@ class BatchMintTest extends TestCaseGraphQL
         ];
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [$recipient],
             continueOnFailure: true // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -1106,7 +1116,7 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         $this->assertDatabaseHas('wallets', [
-            'public_key' => $address,
+            'id' => $address,
         ]);
     }
 
@@ -1115,10 +1125,10 @@ class BatchMintTest extends TestCaseGraphQL
         $tokenId = fake()->unique()->numberBetween();
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -1176,10 +1186,10 @@ class BatchMintTest extends TestCaseGraphQL
         $tokenId = fake()->unique()->numberBetween();
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             recipients: [
                 [
-                    'accountId' => $recipient = $this->recipient->public_key,
+                    'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId),
                         initialSupply: $supply = fake()->numberBetween(1),
@@ -1240,7 +1250,7 @@ class BatchMintTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1264,7 +1274,7 @@ class BatchMintTest extends TestCaseGraphQL
             'collectionId' => null,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1288,7 +1298,7 @@ class BatchMintTest extends TestCaseGraphQL
             'collectionId' => 'invalid',
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1308,13 +1318,13 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_id_that_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1335,7 +1345,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_no_recipients(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
         ], true);
 
         $this->assertStringContainsString(
@@ -1349,7 +1359,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_recipients(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => null,
         ], true);
 
@@ -1364,7 +1374,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_recipients(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => 'invalid',
         ], true);
 
@@ -1379,7 +1389,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_empty_list_of_recipients(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [],
         ], true);
 
@@ -1394,10 +1404,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_create_params_and_mint_params_missing(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                 ],
             ],
         ], true);
@@ -1413,10 +1423,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_create_params_equals_null(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => null,
                 ],
             ],
@@ -1433,10 +1443,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_mint_params_equals_null(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => null,
                 ],
             ],
@@ -1453,10 +1463,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => 'invalid',
                 ],
             ],
@@ -1473,10 +1483,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_empty_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [],
                 ],
             ],
@@ -1493,10 +1503,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => 'invalid',
                 ],
             ],
@@ -1513,10 +1523,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_empty_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [],
                 ],
             ],
@@ -1533,7 +1543,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_address_missing(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
                     'createParams' => [
@@ -1556,7 +1566,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_address_null(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
                     'account' => null,
@@ -1580,7 +1590,7 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_address(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
                     'account' => 'invalid',
@@ -1605,10 +1615,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_token_id_missing_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'initialSupply' => $supply = fake()->numberBetween(1),
                         'cap' => null,
@@ -1628,10 +1638,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_token_id_null_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => null,
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1652,10 +1662,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_token_id_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable('invalid'),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1676,10 +1686,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_overflow_token_id_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(Hex::MAX_UINT256),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1700,10 +1710,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_token_id_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(-1),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1724,10 +1734,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_initial_supply_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => -1,
@@ -1748,10 +1758,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_overflow_initial_supply_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => Hex::MAX_UINT256,
@@ -1773,10 +1783,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_cap_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1797,10 +1807,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_cap_type_in_create_token_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1824,10 +1834,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_missing_cap_type_in_create_token_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1851,10 +1861,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_cap_type_equals_null_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1879,10 +1889,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_amount_missing_on_cap_equals_supply_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -1906,10 +1916,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_cap_amount_lower_than_initial_supply_in_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->unique()->numberBetween()),
                         'initialSupply' => $supply = 2,
@@ -1934,10 +1944,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_no_token_id_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'amount' => fake()->numberBetween(1),
                     ],
@@ -1956,10 +1966,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_token_id_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(-1),
                         'amount' => fake()->numberBetween(1),
@@ -1979,10 +1989,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_overflow_token_id_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(Hex::MAX_UINT256),
                         'amount' => fake()->numberBetween(1),
@@ -2002,10 +2012,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_token_id_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable('invalid'),
                         'amount' => fake()->numberBetween(1),
@@ -2025,10 +2035,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_token_id_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => null,
                         'amount' => fake()->numberBetween(1),
@@ -2047,13 +2057,13 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_a_token_id_that_doesnt_exists_in_mint_params(): void
     {
-        Token::where('token_chain_id', '=', $tokenId = fake()->numberBetween())?->delete();
+        Token::where('token_id', '=', $tokenId = fake()->numberBetween())?->delete();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                         'amount' => fake()->numberBetween(1),
@@ -2074,10 +2084,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_amount_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => -1,
@@ -2097,10 +2107,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_zero_amount_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => 0,
@@ -2120,10 +2130,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_amount_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => 'invalid',
@@ -2143,10 +2153,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_no_amount_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                     ],
@@ -2165,10 +2175,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_amount_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => null,
@@ -2188,10 +2198,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_overflow_amount_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => Hex::MAX_UINT256,
@@ -2211,10 +2221,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_unit_price_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => fake()->numberBetween(1),
@@ -2235,10 +2245,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_zero_unit_price_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => fake()->numberBetween(1),
@@ -2259,10 +2269,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_overflow_unit_price_in_mint_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => fake()->numberBetween(1),
@@ -2283,10 +2293,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_if_providing_mint_and_create_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => fake()->numberBetween(1),
@@ -2312,10 +2322,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_over_250_recipients(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => collect(range(0, 250))->map(
                 fn () => [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'mintParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(),
                         'amount' => fake()->numberBetween(1),
@@ -2335,10 +2345,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_royalty_params(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -2361,10 +2371,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_empty_array_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -2389,10 +2399,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_missing_beneficiary_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -2417,10 +2427,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_beneficiary_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -2446,10 +2456,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_beneficiary_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -2479,17 +2489,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_missing_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                         ]],
                     ],
                 ],
@@ -2507,17 +2517,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => null,
                         ]],
                     ],
@@ -2536,17 +2546,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => 'invalid',
                         ]],
                     ],
@@ -2565,17 +2575,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => -1,
                         ]],
                     ],
@@ -2598,17 +2608,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_zero_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => 0,
                         ]],
                     ],
@@ -2631,17 +2641,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_less_than_min_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' =>  null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => 0.09,
                         ]],
                     ],
@@ -2664,17 +2674,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_more_than_max_percentage_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => 50.1,
                         ]],
                     ],
@@ -2697,17 +2707,17 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_percentage_with_more_than_seven_decimal_places_in_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
 
                         'cap' => null,
                         'behavior' => ['hasRoyalty' => [
-                            'beneficiary' => $this->recipient->public_key,
+                            'beneficiary' => $this->recipient->id,
                             'percentage' => 10.000000001,
                         ]],
                     ],
@@ -2732,10 +2742,10 @@ class BatchMintTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_listing_forbidden(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' => $supply = fake()->numberBetween(1),
@@ -2759,10 +2769,10 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $this->collection->forceFill(['max_token_count' => 0])->save();
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'recipients' => [
                 [
-                    'account' => $this->recipient->public_key,
+                    'account' => $this->recipient->id,
                     'createParams' => [
                         'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                         'initialSupply' =>  fake()->numberBetween(1),

@@ -14,14 +14,13 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\StringMaxByteLength;
-use Enjin\Platform\Services\Database\TransactionService;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class SetCollectionAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -37,7 +36,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -57,7 +56,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -90,20 +89,16 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(...$args));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'SetAttribute';

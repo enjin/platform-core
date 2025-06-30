@@ -17,11 +17,9 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Laravel\Attribute;
-use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Rules\IsCollectionOwner;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -72,11 +70,11 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.remove_all_attributes.args.collectionId'),
             ],
-            ...$this->getTokenFields(__('enjin-platform::args.common.tokenId'), true),
             'attributeCount' => [
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::mutation.remove_all_attributes.args.attributeCount'),
             ],
+            ...$this->getTokenFields(__('enjin-platform::args.common.tokenId'), true),
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -94,7 +92,6 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         if (!Arr::get($args, 'attributeCount')) {
             $args['attributeCount'] = $this->getAttributeCount($args);
@@ -109,15 +106,12 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
             attributeCount: $args['attributeCount']
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
     {
-        $tokenId = Arr::get($params, 'tokenId', null);
+        $tokenId = Arr::get($params, 'tokenId');
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
@@ -152,7 +146,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {

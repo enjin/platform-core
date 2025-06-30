@@ -29,7 +29,7 @@ class SubstrateProvider extends Base
             'baseFee' => HexConverter::intToHexPrefixed($base = fake()->numberBetween()),
             'lenFee' => HexConverter::intToHexPrefixed($len = fake()->numberBetween()),
             'adjustedWeightFee' => HexConverter::intToHexPrefixed($adjusted = fake()->numberBetween()),
-            'fakeSum' => $base + $len + $adjusted,
+            'fakeSum' => (string) ($base + $len + $adjusted),
         ];
     }
 

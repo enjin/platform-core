@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -16,20 +15,19 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\SimpleTransferParams;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -46,7 +44,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -66,7 +64,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -100,26 +98,20 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipientAccount: $targetWallet->public_key,
+            recipientAccount: $args['recipient'],
             collectionId: $args['collectionId'],
             simpleTransferParams: $blockchainService->getSimpleTransferParams($args['params']),
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'Transfer';
@@ -129,7 +121,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
+                'Id' => SS58Address::getPublicKey(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'simpleTransferParams', new SimpleTransferParams('0', '0'))->toEncodable(),
@@ -142,7 +134,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     protected function rulesCommon(array $args): array
     {
         return [
-            'recipient' => ['filled', new ValidSubstrateAccount()],
+            'recipient' => [new ValidSubstrateAccount()],
         ];
     }
 
@@ -152,7 +144,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => ['exists:collections,id'],
             'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];

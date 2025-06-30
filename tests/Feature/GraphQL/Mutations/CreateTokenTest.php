@@ -7,6 +7,7 @@ use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateTokenMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
@@ -32,10 +33,11 @@ class CreateTokenTest extends TestCaseGraphQL
 
     protected string $method = 'CreateToken';
     protected Codec $codec;
-    protected Codec $collection;
-    protected Address $recipient;
+
+    protected Collection $collection;
+    protected Account $recipient;
     protected Encoder $tokenIdEncoder;
-    protected Address $wallet;
+    protected Account $wallet;
 
     #[Override]
     protected function setUp(): void
@@ -44,14 +46,14 @@ class CreateTokenTest extends TestCaseGraphQL
         $this->codec = new Codec();
         $this->wallet = Address::daemon();
         $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        $this->recipient = Address::factory()->create();
+        $this->recipient = Account::factory()->create();
         $this->tokenIdEncoder = new Integer(fake()->unique()->numberBetween());
     }
 
     public function test_it_can_skip_validation(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
+            recipientAccount: $recipient = $this->recipient->id,
             collectionId: $collectionId = random_int(1, 1000),
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
@@ -93,8 +95,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_can_create_a_token_with_cap_equals_null_using_adapter(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode(),
                 initialSupply: fake()->numberBetween(1),
@@ -130,8 +132,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_can_simulate(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -164,10 +166,10 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $collection = Collection::factory()->create(['owner_id' => Address::factory()->create()]);
+        $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]);
         $response = $this->graphql($this->method, $params = [
-            'recipient' => $this->recipient->public_key,
-            'collectionId' => $collection->collection_chain_id,
+            'recipient' => $this->recipient->id,
+            'collectionId' => $collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween(1, 10)),
             ],
@@ -187,8 +189,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_can_create_a_token_with_cap_equals_null(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -227,14 +229,14 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_ss58_signing_account(): void
     {
-        $signingWallet = Address::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $signingWallet = Account::factory([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
         $collection = Collection::factory(['owner_id' => $signingWallet])->create();
 
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -274,14 +276,14 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_public_key_signing_account(): void
     {
-        $signingWallet = Address::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $signingWallet = Account::factory([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
         $collection = Collection::factory(['owner_id' => $signingWallet])->create();
 
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -322,8 +324,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_can_create_a_token_with_unit_price_equals_null(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -359,8 +361,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_can_create_a_token_with_collapsing_supply(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -404,8 +406,8 @@ class CreateTokenTest extends TestCaseGraphQL
         $encodedData = TransactionSerializer::encode(
             'Mint',
             CreateTokenMutation::getEncodableParams(
-                recipientAccount: $recipient = $this->recipient->public_key,
-                collectionId: $collectionId = $this->collection->collection_chain_id,
+                recipientAccount: $recipient = $this->recipient->id,
+                collectionId: $collectionId = $this->collection->id,
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -450,8 +452,8 @@ class CreateTokenTest extends TestCaseGraphQL
         $encodedData = TransactionSerializer::encode(
             'Mint',
             CreateTokenMutation::getEncodableParams(
-                recipientAccount: $recipient = $this->recipient->public_key,
-                collectionId: $collectionId = $this->collection->collection_chain_id,
+                recipientAccount: $recipient = $this->recipient->id,
+                collectionId: $collectionId = $this->collection->id,
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -491,14 +493,14 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_can_create_a_token_with_royalty(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
                 behavior: new TokenMarketBehaviorParams(
                     hasRoyalty: new RoyaltyPolicyParams(
-                        beneficiary: $beneficiary = $this->wallet->public_key,
+                        beneficiary: $beneficiary = $this->wallet->id,
                         percentage: $percentage = fake()->numberBetween(1, 50)
                     ),
                 ),
@@ -543,8 +545,8 @@ class CreateTokenTest extends TestCaseGraphQL
         $encodedData = TransactionSerializer::encode(
             'Mint',
             CreateTokenMutation::getEncodableParams(
-                recipientAccount: $recipient = $this->recipient->public_key,
-                collectionId: $collectionId = $this->collection->collection_chain_id,
+                recipientAccount: $recipient = $this->recipient->id,
+                collectionId: $collectionId = $this->collection->id,
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -586,8 +588,8 @@ class CreateTokenTest extends TestCaseGraphQL
         $encodedData = TransactionSerializer::encode(
             'Mint',
             CreateTokenMutation::getEncodableParams(
-                recipientAccount: $recipient = $this->recipient->public_key,
-                collectionId: $collectionId = $this->collection->collection_chain_id,
+                recipientAccount: $recipient = $this->recipient->id,
+                collectionId: $collectionId = $this->collection->id,
                 createTokenParams: new CreateTokenParams(
                     tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                     initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -627,8 +629,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_can_create_a_token_with_different_types_for_numbers(): void
     {
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $this->collection->id,
             createTokenParams: new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: $initialSupply = fake()->numberBetween(1),
@@ -664,16 +666,16 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_bigint_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)?->delete();
+        Collection::where('id', '=', Hex::MAX_UINT128)?->delete();
 
         $collection = Collection::factory([
             'owner_id' => $this->wallet->id,
-            'collection_chain_id' => Hex::MAX_UINT128,
+            'id' => Hex::MAX_UINT128,
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -709,8 +711,8 @@ class CreateTokenTest extends TestCaseGraphQL
         $collection = Collection::factory()->create(['owner_id' => $this->wallet]);
 
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: $recipient = $this->recipient->public_key,
-            collectionId: $collectionId = $collection->collection_chain_id,
+            recipientAccount: $recipient = $this->recipient->id,
+            collectionId: $collectionId = $collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode(Hex::MAX_UINT128),
                 initialSupply: fake()->numberBetween(1),
@@ -745,17 +747,17 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_can_create_a_token_with_not_existent_recipient_and_creates_it(): void
     {
-        Address::where('public_key', '=', $recipient = app(Generator::class)->public_key())?->delete();
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)?->delete();
+        Account::where('id', '=', $recipient = app(Generator::class)->public_key())?->delete();
+        Collection::where('id', '=', Hex::MAX_UINT128)?->delete();
 
         $collection = Collection::factory([
             'owner_id' => $this->wallet,
-            'collection_chain_id' => Hex::MAX_UINT128,
+            'id' => Hex::MAX_UINT128,
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
             recipientAccount: $recipient,
-            collectionId: $collectionId = $collection->collection_chain_id,
+            collectionId: $collectionId = $collection->id,
             createTokenParams: $params = new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->numberBetween()),
                 initialSupply: fake()->numberBetween(1),
@@ -786,7 +788,7 @@ class CreateTokenTest extends TestCaseGraphQL
         ]);
 
         $this->assertDatabaseHas('wallets', [
-            'public_key' => $recipient,
+            'id' => $recipient,
         ]);
 
         Event::assertDispatched(TransactionCreated::class);
@@ -796,15 +798,15 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_it_will_fail_trying_to_create_a_token_with_an_id_that_already_exists(): void
     {
-        Token::where('token_chain_id', '=', $tokenId = fake()->numberBetween())?->delete();
+        Token::where('token_id', '=', $tokenId = fake()->numberBetween())?->delete();
         Token::factory([
             'collection_id' => $this->collection->id,
-            'token_chain_id' => $tokenId,
+            'token_id' => $tokenId,
         ])->create();
 
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
                 'initialSupply' => fake()->numberBetween(1),
@@ -824,7 +826,7 @@ class CreateTokenTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'recipient' => 'not_substrate_address',
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -842,10 +844,10 @@ class CreateTokenTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_id_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
 
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
+            'recipient' => SS58Address::encode($this->recipient->id),
             'collectionId' => $collectionId,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
@@ -865,8 +867,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_token_id(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(-1),
                 'initialSupply' => fake()->numberBetween(1),
@@ -885,8 +887,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_overflow_token_id(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(Hex::MAX_UINT256),
                 'initialSupply' => fake()->numberBetween(1),
@@ -905,8 +907,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_supply(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => -1,
@@ -925,8 +927,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_supply_overflow(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => Hex::MAX_UINT256,
@@ -946,8 +948,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_cap(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -966,8 +968,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_empty_cap(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -987,8 +989,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_cap_supply_less_than_initial_supply(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => $initialSupply = fake()->numberBetween(1),
@@ -1010,8 +1012,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_cap_supply_amount_zero(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1034,8 +1036,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_cap_supply_amount_negative(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1058,8 +1060,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_cap_supply_amount_null(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1082,8 +1084,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_without_cap_type(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => $initialSupply = fake()->numberBetween(1),
@@ -1104,8 +1106,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1124,8 +1126,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_empty_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1147,8 +1149,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_missing_beneficiary_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1171,8 +1173,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_beneficiary_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1194,8 +1196,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_beneficiary_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1221,14 +1223,14 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_no_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'cap' => null,
                 'behavior' => ['hasRoyalty' => [
-                    'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                    'beneficiary' => SS58Address::encode($this->recipient->id),
                 ]],
             ],
         ], true);
@@ -1244,14 +1246,14 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_null_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                        'beneficiary' => SS58Address::encode($this->recipient->id),
                         'percentage' => null,
                     ], ],
             ],
@@ -1268,13 +1270,13 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'behavior' => ['hasRoyalty' => [
-                    'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                    'beneficiary' => SS58Address::encode($this->recipient->id),
                     'percentage' => 'invalid',
                 ]],
             ],
@@ -1291,14 +1293,14 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_negative_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'cap' => null,
                 'behavior' => ['hasRoyalty' => [
-                    'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                    'beneficiary' => SS58Address::encode($this->recipient->id),
                     'percentage' => -0.1,
                 ]],
             ],
@@ -1319,15 +1321,15 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_zero_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'cap' => null,
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                        'beneficiary' => SS58Address::encode($this->recipient->id),
                         'percentage' => 0,
                     ],
                 ],
@@ -1349,14 +1351,14 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_less_than_the_minimum_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                        'beneficiary' => SS58Address::encode($this->recipient->id),
                         'percentage' => 0.09,
                     ],
                 ],
@@ -1378,15 +1380,15 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_more_than_the_max_percentage_on_royalty(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
                 'cap' => null,
                 'behavior' => [
                     'hasRoyalty' => [
-                        'beneficiary' => SS58Address::encode($this->recipient->public_key),
+                        'beneficiary' => SS58Address::encode($this->recipient->id),
                         'percentage' => 50.1,
                     ],
                 ],
@@ -1408,8 +1410,8 @@ class CreateTokenTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_listing_forbidden(): void
     {
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),
@@ -1429,8 +1431,8 @@ class CreateTokenTest extends TestCaseGraphQL
     {
         $this->collection->forceFill(['max_token_count' => 0])->save();
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->recipient->public_key),
-            'collectionId' => $this->collection->collection_chain_id,
+            'recipient' => SS58Address::encode($this->recipient->id),
+            'collectionId' => $this->collection->id,
             'params' => [
                 'tokenId' => $this->tokenIdEncoder->toEncodable(fake()->numberBetween()),
                 'initialSupply' => fake()->numberBetween(1),

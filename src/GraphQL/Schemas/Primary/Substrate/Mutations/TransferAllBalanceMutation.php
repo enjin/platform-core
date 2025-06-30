@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -14,15 +13,13 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
@@ -39,7 +36,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -59,7 +56,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -88,28 +85,21 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
         $context,
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
-        Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            recipientAccount: $targetWallet->public_key,
+            recipientAccount: $args['recipient'],
             keepAlive: $args['keepAlive']
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return  $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
             'dest' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
+                'Id' => SS58Address::getPublicKey(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'keepAlive' => Arr::get($params, 'keepAlive', false),
         ];
@@ -121,7 +111,7 @@ class TransferAllBalanceMutation extends Mutation implements PlatformBlockchainT
     protected function rulesCommon(array $args): array
     {
         return [
-            'recipient' => ['filled', new ValidSubstrateAccount()],
+            'recipient' => [new ValidSubstrateAccount()],
         ];
     }
 }

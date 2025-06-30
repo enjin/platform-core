@@ -11,6 +11,7 @@ use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
@@ -36,7 +37,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->owner = Account::daemon();
+        $this->owner = Address::daemon();
         $this->collection = Collection::factory()->create([
             'owner_id' => $this->owner->id,
         ]);
@@ -46,7 +47,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_skip_validation(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $collectionId = random_int(2000, 3000)
+            collectionId: $collectionId = fake()->randomNumber(),
         ));
 
         $response = $this->graphql($this->method, [
@@ -75,12 +76,12 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_simulate(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id
+            collectionId: $this->collection->id
         ));
 
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'simulate' => true,
         ]);
 
@@ -89,7 +90,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'fee' => $feeDetails['fakeSum'],
+            'fee' => (string) $feeDetails['fakeSum'],
             'deposit' => null,
             'wallet' => null,
         ], $response);
@@ -100,10 +101,12 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]);
+
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->collection_chain_id,
-            'nonce' => $nonce = fake()->numberBetween(),
+            'collectionId' => $collection->id,
+            'nonce' => fake()->numberBetween(),
         ], true);
+
         $this->assertEquals(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
@@ -111,6 +114,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params);
+
         $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
     }
@@ -118,11 +122,11 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_destroy_a_collection(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id
+            collectionId: $this->collection->id
         ));
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
 
@@ -150,7 +154,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_destroy_a_collection_with_ss58_signing_account(): void
     {
         $wallet = Account::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key,
+            'id' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
@@ -158,11 +162,11 @@ class DestroyCollectionTest extends TestCaseGraphQL
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id
+            collectionId: $collection->id
         ));
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
@@ -190,7 +194,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_destroy_a_collection_with_public_key_signing_account(): void
     {
         $wallet = Account::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key,
+            'id' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
 
         $collection = Collection::factory([
@@ -198,11 +202,11 @@ class DestroyCollectionTest extends TestCaseGraphQL
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id
+            collectionId: $collection->id
         ));
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'signingAccount' => $signingAccount,
         ]);
 
@@ -230,11 +234,11 @@ class DestroyCollectionTest extends TestCaseGraphQL
     public function test_it_can_destroy_a_collection_with_bigint(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, DestroyCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id
+            collectionId: $this->collection->id
         ));
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
         ]);
 
         $this->assertArrayContainsArray([
@@ -309,20 +313,6 @@ class DestroyCollectionTest extends TestCaseGraphQL
         Event::assertNotDispatched(TransactionCreated::class);
     }
 
-    public function test_it_will_fail_with_collection_id_less_than_two_thousand(): void
-    {
-        $response = $this->graphql($this->method, [
-            'collectionId' => fake()->numberBetween(0, 1999),
-        ], true);
-
-        $this->assertArrayContainsArray(
-            ['collectionId' => ['The collection id is too small, the minimum value it can be is 2000.']],
-            $response['error']
-        );
-
-        Event::assertNotDispatched(TransactionCreated::class);
-    }
-
     public function test_it_will_fail_with_overflow_collection_id(): void
     {
         $response = $this->graphql($this->method, [
@@ -339,7 +329,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
 
     public function test_it_will_fail_if_collection_id_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(1))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(1))?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -359,7 +349,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
         Token::factory(['collection_id' => $collection])->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -375,7 +365,7 @@ class DestroyCollectionTest extends TestCaseGraphQL
         $collection = Collection::factory()->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
         ], true);
 
         $this->assertArrayContainsArray(

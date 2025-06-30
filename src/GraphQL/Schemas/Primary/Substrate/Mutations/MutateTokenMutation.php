@@ -17,16 +17,15 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidRoyaltyPercentage;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MutateTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -45,7 +44,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -65,7 +64,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -73,11 +72,11 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.mutate_collection.args.collectionId'),
             ],
-            ...$this->getTokenFields(__('enjin-platform::mutation.mutate_collection.args.tokenId')),
             'mutation' => [
                 'type' => GraphQL::type('TokenMutationInput!'),
                 'description' => __('enjin-platform::mutation.mutate_token.args.mutation'),
             ],
+            ...$this->getTokenFields(__('enjin-platform::mutation.mutate_collection.args.tokenId')),
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -95,7 +94,6 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
         Substrate $blockchainService
     ): mixed {
         $encodedData = $serializationService->encode(
@@ -110,16 +108,13 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
             )
         );
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return  $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the validation error messages.
      */
-    #[\Override]
+    #[Override]
     public function validationErrorMessages(array $args = []): array
     {
         return [
@@ -173,7 +168,7 @@ class MutateTokenMutation extends Mutation implements PlatformBlockchainTransact
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {

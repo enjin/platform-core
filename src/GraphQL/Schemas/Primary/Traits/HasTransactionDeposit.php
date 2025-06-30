@@ -5,9 +5,8 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Traits;
 use Codec\Utils;
 use Enjin\Platform\BlockchainConstant;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
-use Enjin\Platform\Models\Indexer\Collection;
-use Enjin\Platform\Models\Indexer\Token;
 use GMP;
+use ReflectionClass;
 
 trait HasTransactionDeposit
 {
@@ -15,7 +14,7 @@ trait HasTransactionDeposit
 
     protected function getDeposit($args): ?string
     {
-        return match (new \ReflectionClass($this)->getShortName()) {
+        return match (new ReflectionClass($this)->getShortName()) {
             'CreateCollectionMutation' => $this->getCreateCollectionDeposit($args),
             'CreateTokenMutation' => $this->getCreateTokenDeposit($args),
             'MintTokenMutation' => $this->getMintTokenDeposit($args),
@@ -79,14 +78,6 @@ trait HasTransactionDeposit
 
     protected function calculateDepositForMint(string $collectionId, array $params): GMP
     {
-        $token = null;
-        if ($collection = Collection::firstWhere('collection_chain_id', $collectionId)) {
-            $token = Token::firstWhere([
-                'collection_id' => $collection->id,
-                'token_id' => $this->encodeTokenId($params),
-            ]);
-        }
-
         $depositPerTokenAccount = gmp_init(BlockchainConstant::DEPOSIT_PER_TOKEN_ACCOUNT);
 
         return gmp_mul($depositPerTokenAccount, $params['amount']);

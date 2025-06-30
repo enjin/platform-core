@@ -25,8 +25,8 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     public function test_it_can_skip_validation(): void
     {
         Account::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
+            'id' => $publicKey = app(Generator::class)->public_key(),
+            //            'managed' => false,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
@@ -66,7 +66,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     {
         // Mocked balance = 2000000000000000000
         Account::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
+            'id' => $publicKey = app(Generator::class)->public_key(),
             'managed' => false,
         ])->create();
 

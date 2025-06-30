@@ -17,14 +17,13 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\StringMaxByteLength;
-use Enjin\Platform\Services\Database\TransactionService;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -43,7 +42,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -63,7 +62,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -71,7 +70,6 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.collectionId'),
             ],
-            ...$this->getTokenFields(__('enjin-platform::args.common.tokenId')),
             'key' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.key'),
@@ -80,6 +78,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.value'),
             ],
+            ...$this->getTokenFields(__('enjin-platform::args.common.tokenId')),
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -97,7 +96,6 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
@@ -106,16 +104,13 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
             value: $args['value']
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'SetAttribute';

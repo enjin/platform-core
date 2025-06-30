@@ -8,6 +8,7 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\CreateCollectionMutation;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
@@ -132,6 +133,10 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_ss58_signing_account(): void
     {
+        $signingAccount = Account::factory([
+            'id' => app(Generator::class)->public_key,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
                 forceCollapsingSupply: fake()->boolean(),
@@ -141,7 +146,7 @@ class CreateCollectionTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
             'simulate' => null,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount->id),
         ]);
 
         $this->assertArrayContainsArray([
@@ -150,7 +155,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingAccount,
+                    'publicKey' => $signingAccount->id,
                 ],
             ],
         ], $response);
@@ -167,6 +172,10 @@ class CreateCollectionTest extends TestCaseGraphQL
 
     public function test_create_collection_with_public_key_signing_account(): void
     {
+        $signingAccount = Account::factory([
+            'id' => app(Generator::class)->public_key,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, CreateCollectionMutation::getEncodableParams(
             mintPolicy: $policy = new MintPolicyParams(
                 forceCollapsingSupply: fake()->boolean(),
@@ -176,7 +185,7 @@ class CreateCollectionTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'mintPolicy' => $policy->toArray(),
             'simulate' => null,
-            'signingAccount' => $signingAccount = app(Generator::class)->public_key,
+            'signingAccount' => $signingAccount->id,
         ]);
 
         $this->assertArrayContainsArray([
@@ -185,7 +194,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingAccount,
+                    'publicKey' => $signingAccount->id,
                 ],
             ],
         ], $response);
@@ -222,7 +231,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encodedData' => $encodedData,
-            'fee' => $feeDetails['fakeSum'],
+            'fee' => (string) $feeDetails['fakeSum'],
             'wallet' => null,
         ], $response);
 
@@ -1169,7 +1178,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
             'explicitRoyaltyCurrencies' => array_merge($this->generateCurrencies(), [
                 [
-                    'collectionId' => $collection->collection_chain_id,
+                    'collectionId' => $collection->id,
                 ],
             ]),
         ], true);
@@ -1192,7 +1201,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
             'explicitRoyaltyCurrencies' => array_merge($this->generateCurrencies(), [
                 [
-                    'collectionId' => $collection->collection_chain_id,
+                    'collectionId' => $collection->id,
                     'tokenId' => null,
                 ],
             ]),
@@ -1216,7 +1225,7 @@ class CreateCollectionTest extends TestCaseGraphQL
             ],
             'explicitRoyaltyCurrencies' => array_merge($this->generateCurrencies(), [
                 [
-                    'collectionId' => $collection->collection_chain_id,
+                    'collectionId' => $collection->id,
                     'tokenId' => 'invalid',
                 ],
             ]),
@@ -1381,8 +1390,8 @@ class CreateCollectionTest extends TestCaseGraphQL
     {
         return array_map(
             fn () => [
-                'tokenId' => ($token = Token::factory()->create())->token_chain_id,
-                'collectionId' => Collection::find($token->collection_id)->collection_chain_id,
+                'tokenId' => ($token = Token::factory()->create())->token_id,
+                'collectionId' => Collection::find($token->collection_id)->id,
             ],
             range(0, $total),
         );

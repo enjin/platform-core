@@ -250,12 +250,11 @@ class ApproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_approve_a_collection_with_bigint(): void
     {
-        Token::where('collection_id', Hex::MAX_UINT128)?->delete();
-        Collection::find(Hex::MAX_UINT128)?->delete();
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
         $collection = Collection::factory()->create([
-            'id' => Hex::MAX_UINT128,
-            'collection_id' => Hex::MAX_UINT128,
+            'id' => $collectionId,
+            'collection_id' => $collectionId,
             'owner_id' => $this->owner->id,
         ]);
 

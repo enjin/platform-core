@@ -17,9 +17,12 @@ use Enjin\Platform\Rules\CollectionHasTokens;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\FutureBlock;
 use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -120,8 +123,8 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     {
         return [
             'collectionId' => [new IsCollectionOwner(), new CollectionHasTokens()],
-            'operator' => ['filled', new ValidSubstrateAccount(), new DaemonProhibited()],
-            'expiration' => ['nullable', 'integer', new FutureBlock()],
+            'operator' => [new ValidSubstrateAccount(), new DaemonProhibited()],
+            'expiration' => ['nullable', new FutureBlock()],
         ];
     }
 
@@ -131,7 +134,8 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'operator' => ['filled', new ValidSubstrateAccount()],
+            'collectionId' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'operator' => [new ValidSubstrateAccount()],
             'expiration' => ['nullable', 'integer', 'min:0'],
         ];
     }
