@@ -49,7 +49,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
         $this->collection = Collection::factory(['owner_id' => $accountId = $this->wallet->id])->create();
 
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $collectionId = $this->collection,
+            'collection_id' => $collectionId = $this->collection->id,
             'account_id' => $accountId,
             'account_count' => 1,
             'id' => "{$accountId}-{$collectionId}",
@@ -179,10 +179,8 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token(): void
     {
-        $owner = Account::factory()->create();
-
         $collection = Collection::factory([
-            'owner_id' => $ownerId = $owner->id,
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
 
         $token = Token::factory([
@@ -289,26 +287,36 @@ class UnapproveTokenTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_token_with_signing_account_public_key(): void
     {
+        $collection = Collection::factory([
+            'owner_id' => $ownerId = Account::factory()->create()->id,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        TokenAccount::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $token,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
+            'approvals' => [['accountId' => $operatorId = $this->operator->id]],
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, UnapproveTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->id,
-            tokenId: $this->tokenIdEncoder->encode(),
-            operator: $operator = $this->operator->id,
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            operator: $operatorId,
         ));
-
-        $newOwner = Account::factory()->create([
-            'id' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-
-        $this->collection->update(['owner_id' => $newOwner->id]);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'operator' => SS58Address::encode($operator),
-            'signingAccount' => $signingAccount,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
+            'operator' => SS58Address::encode($operatorId),
+            'signingAccount' => $ownerId,
         ]);
-
-        $this->collection->update(['owner_id' => $this->wallet->id]);
 
         $this->assertArrayContainsArray([
             'method' => $this->method,
@@ -316,7 +324,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingAccount,
+                    'publicKey' => $ownerId,
                 ],
             ],
         ], $response);
@@ -399,7 +407,7 @@ class UnapproveTokenTest extends TestCaseGraphQL
         $operator = Account::factory()->create();
 
         $collection = Collection::factory([
-            'owner_id' => $ownerId = $this->wallet,
+            'owner_id' => $ownerId = $this->wallet->id,
             'id' => $collectionId,
         ])->create();
 

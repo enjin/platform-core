@@ -39,7 +39,11 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+
+        $this->collection = Collection::factory([
+            'owner_id' => $this->wallet,
+        ])->create();
+
         $this->attribute = Attribute::factory([
             'collection_id' => $this->collection,
             'token_id' => null,
@@ -180,7 +184,7 @@ class RemoveCollectionAttributeTest extends TestCaseGraphQL
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = $collection->id,
-            'key' => $key = HexConverter::hexToString($attribute->key),
+            'key' => $key = $attribute->key,
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 

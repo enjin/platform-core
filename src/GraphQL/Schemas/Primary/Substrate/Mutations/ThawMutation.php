@@ -132,7 +132,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             'collectionId' => [new IsCollectionOwner()],
             ...(
                 in_array($freezeType, [FreezeType::TOKEN, FreezeType::TOKEN_ACCOUNT], true)
-                    ? $this->getTokenFieldRulesExist(null, [])
+                    ? $this->getTokenFieldRulesExist()
                     : ['tokenId' => ['prohibited']]
             ),
             'collectionAccount' => $freezeType === FreezeType::COLLECTION_ACCOUNT ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInCollection()] : ['prohibited'],

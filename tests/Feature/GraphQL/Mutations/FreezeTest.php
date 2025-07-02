@@ -761,7 +761,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_token_account_non_existent(): void
     {
-        Account::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::find($publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,

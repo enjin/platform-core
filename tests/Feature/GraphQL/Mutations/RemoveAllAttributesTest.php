@@ -40,18 +40,25 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+
+        $this->collection = Collection::factory([
+            'owner_id' => $this->wallet->id,
+        ])->create();
+
         $this->token = Token::factory([
             'collection_id' => $collectionId = $this->collection->id,
             'token_id' => $tokenId = fake()->numberBetween(),
             'id' => "{$collectionId}-{$tokenId}",
         ])->create();
+
         $this->attribute = Attribute::factory()->create([
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
         ]);
+
         $this->tokenIdEncoder = new Integer($tokenId);
     }
 

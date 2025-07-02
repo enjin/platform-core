@@ -47,32 +47,48 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
+
         $this->recipient = Account::factory()->create();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        $this->token = Token::factory()->create(['collection_id' => $this->collection]);
-        $this->tokenAccount = TokenAccount::factory([
-            'account_id' => $this->wallet,
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
+
+        $this->collection = Collection::factory([
+            'owner_id' => $ownerId = $this->wallet,
         ])->create();
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $this->collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
             'account_count' => 1,
         ])->create();
-        $this->tokenIdInput = new Integer($this->token->token_id);
+
+        $this->tokenAccount = TokenAccount::factory([
+            'account_id' => $ownerId,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenIdInput = new Integer($tokenId);
     }
 
     public function test_it_can_skip_validation(): void
     {
         $signingWallet = Account::factory([
-            'managed' => false,
+            //            'managed' => false,
         ])->create();
+
         $tokenAccount = TokenAccount::factory([
             'account_id' => $signingWallet,
         ])->create();
+
         $token = Token::find($tokenAccount->token_id);
         $collection = Collection::find($tokenAccount->collection_id);
+
         CollectionAccount::factory([
             'collection_id' => $collection,
             'account_id' => $signingWallet,
@@ -505,7 +521,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_recipient_that_doesnt_exists(): void
     {
-        Account::where('id', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::find($publicKey = app(Generator::class)->public_key())?->delete();
 
         $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $publicKey,

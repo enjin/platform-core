@@ -13,6 +13,7 @@ use Faker\Generator;
 use Http;
 use Illuminate\Support\Facades\Event;
 use Override;
+use ReflectionObject;
 
 class TransferKeepAliveTest extends TransferAllowDeathTest
 {
@@ -67,7 +68,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
         // Mocked balance = 2000000000000000000
         Account::factory([
             'id' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
+            //            'managed' => false,
         ])->create();
 
         $response = $this->graphql($this->method, [
@@ -86,7 +87,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
 
     private static function clearExistingFakes(): void
     {
-        $reflection = new \ReflectionObject(Http::getFacadeRoot());
+        $reflection = new ReflectionObject(Http::getFacadeRoot());
         $property = $reflection->getProperty('stubCallbacks');
         $property->setAccessible(true);
         $property->setValue(Http::getFacadeRoot(), collect());

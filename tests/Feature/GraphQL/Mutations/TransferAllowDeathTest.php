@@ -80,6 +80,10 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_with_ss58_signing_account(): void
     {
+        Account::factory([
+            'id' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey = app(Generator::class)->public_key(),
             value: $amount = fake()->numberBetween(),
@@ -88,7 +92,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
             'amount' => $amount,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArrayContainsArray([

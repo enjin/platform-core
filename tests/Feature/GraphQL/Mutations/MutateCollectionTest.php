@@ -41,7 +41,11 @@ class MutateCollectionTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+
+        $this->collection = Collection::factory([
+            'owner_id' => $this->wallet])
+            ->create();
+
         $this->tokenIdEncoder = new Integer();
     }
 

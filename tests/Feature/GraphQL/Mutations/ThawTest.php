@@ -44,28 +44,42 @@ class ThawTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        $this->token = Token::factory(['collection_id' => $this->collection])->create();
-        $this->tokenAccount = TokenAccount::factory([
-            'account_id' => $this->wallet,
-            'collection_id' => $this->collection->id,
-            'token_id' => $this->token->id,
+
+        $this->collection = Collection::factory([
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $this->collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
             'account_count' => 1,
         ])->create();
-        $this->tokenIdEncoder = new Integer($this->token->token_id);
+
+        $this->tokenAccount = TokenAccount::factory([
+            'account_id' => $ownerId,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
-            collectionId: $collectionId = random_int(1, 1000),
+            collectionId: $collectionId = fake()->numberBetween(),
             thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -126,23 +140,30 @@ class ThawTest extends TestCaseGraphQL
     public function test_it_can_bypass_ownership(): void
     {
         $signingWallet = Account::factory()->create();
-        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
+        $collection = Collection::factory([
+            'owner_id' => $signingWallet,
+        ])->create();
+
         Token::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
             'freezeType' => FreezeType::COLLECTION->name,
-            'collectionId' => $collection->id,
+            'collectionId' => $collectionId,
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertArrayContainsArray(
-            ['collectionId' => ['The collection id provided is not owned by you.']],
-            $response['error']
-        );
+
+        $this->assertArrayContainsArray([
+            'collectionId' => ['The collection id provided is not owned by you.'],
+        ], $response['error']);
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params);
+
         $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
     }
@@ -188,7 +209,11 @@ class ThawTest extends TestCaseGraphQL
         $signingWallet = Account::factory([
             'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
+        $collection = Collection::factory([
+            'owner_id' => $signingWallet,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
             collectionId: $collectionId = $collection->id,
             thawParams: new FreezeTypeParams(
@@ -228,7 +253,11 @@ class ThawTest extends TestCaseGraphQL
         $signingWallet = Account::factory([
             'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
+        $collection = Collection::factory([
+            'owner_id' => $signingWallet,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
             collectionId: $collectionId = $collection->id,
             thawParams: new FreezeTypeParams(
@@ -313,14 +342,14 @@ class ThawTest extends TestCaseGraphQL
             collectionId: $collectionId = $this->collection->id,
             thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION_ACCOUNT,
-                account: $account = $this->wallet->id,
+                account: $accountId = $this->wallet->id,
             ),
         ));
 
         $response = $this->graphql($this->method, [
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
-            'collectionAccount' => SS58Address::encode($account),
+            'collectionAccount' => SS58Address::encode($accountId),
         ]);
 
         $this->assertArrayContainsArray([
@@ -406,19 +435,25 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_can_thaw_a_big_int_token(): void
     {
-        $collection = Collection::factory(['owner_id' => $this->wallet])->create();
-        Token::factory([
-            'collection_id' => $collection,
-            'token_id' => $tokenId = Hex::MAX_UINT128,
+        $collection = Collection::factory([
+            'owner_id' => $this->wallet,
         ])->create();
+
+        Token::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = Hex::MAX_UINT128,
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $accountId = $this->wallet,
+            'id' => "{$accountId}-{$collectionId}",
             'account_count' => 1,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, ThawMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode($tokenId),
@@ -455,7 +490,7 @@ class ThawTest extends TestCaseGraphQL
             thawParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN_ACCOUNT,
                 token: $this->tokenIdEncoder->encode(),
-                account: $account = $this->wallet->id,
+                account: $accountId = $this->wallet->id,
             ),
         ));
 
@@ -463,7 +498,7 @@ class ThawTest extends TestCaseGraphQL
             'freezeType' => $freezeType->name,
             'collectionId' => $collectionId,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'tokenAccount' => SS58Address::encode($account),
+            'tokenAccount' => SS58Address::encode($accountId),
         ]);
 
         $this->assertArrayContainsArray([
@@ -484,7 +519,6 @@ class ThawTest extends TestCaseGraphQL
     }
 
     // Exception Path
-
     public function test_it_will_fail_with_thaw_type_non_existent(): void
     {
         $response = $this->graphql($this->method, [
@@ -502,7 +536,7 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_id_non_existent(): void
     {
-        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        $this->deleteAllFrom($collectionId = fake()->numberBetween(2000));
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION->name,
@@ -610,7 +644,7 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_token_id_non_existent(): void
     {
-        Token::where('token_id', '=', $tokenId = fake()->numberBetween())?->delete();
+        $this->deleteAllFrom($this->collection->id, $tokenId = fake()->numberBetween());
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
@@ -675,7 +709,7 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_account_non_existent(): void
     {
-        Account::where('id', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::find($address = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
@@ -693,7 +727,7 @@ class ThawTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_token_account_non_existent(): void
     {
-        Account::where('id', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::find($address = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,

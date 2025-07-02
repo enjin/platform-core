@@ -13,6 +13,7 @@ use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
 use Enjin\Platform\Models\Substrate\DispatchRulesParams;
@@ -41,7 +42,6 @@ use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Exception;
-use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 
@@ -277,7 +277,7 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Create a new create token market behavior object.
+     * Create a new mutate token behavior object.
      */
     public function getMutateTokenBehavior(array $args): null|array|TokenMarketBehaviorParams
     {
@@ -350,8 +350,7 @@ class Substrate implements BlockchainServiceInterface
         ];
 
         if (isset($args['collectionAccount']) || isset($args['tokenAccount'])) {
-            $accountWallet = WalletService::firstOrStore(['public_key' => SS58Address::getPublicKey(Arr::get($args, 'collectionAccount') ?? Arr::get($args, 'tokenAccount'))]);
-            $data['account'] = $accountWallet->public_key;
+            $data['account'] = SS58Address::getPublicKey(Arr::get($args, 'collectionAccount') ?? Arr::get($args, 'tokenAccount'));
         }
 
         if (isset($args['freezeState'])) {
@@ -430,7 +429,7 @@ class Substrate implements BlockchainServiceInterface
                 ? new PermittedCallsParams(Arr::get($permittedCalls, 'calls'))
                 : null,
             ($permittedExtrinsics = Arr::get($args, 'permittedExtrinsics'))
-                ? (new PermittedExtrinsicsParams())->fromMethods($permittedExtrinsics)
+                ? new PermittedExtrinsicsParams()->fromMethods($permittedExtrinsics)
                 : null,
             ($pallets = Arr::get($args, 'whitelistedPallets'))
                 ? new WhitelistedPalletsParams($pallets)

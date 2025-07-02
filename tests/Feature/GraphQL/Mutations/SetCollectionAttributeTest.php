@@ -35,33 +35,39 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+        $this->collection = Collection::factory(['owner_id' => $this->wallet])->create();
     }
 
     // Happy Path
     public function test_it_can_bypass_ownership(): void
     {
         $signingWallet = Account::factory()->create();
-        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
+        $collection = Collection::factory([
+            'owner_id' => $signingWallet,
+        ])->create();
+
         Token::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->id,
+            'collectionId' => $collectionId,
             'key' => fake()->word(),
             'value' => fake()->realText(),
             'simulate' => null,
             'nonce' => fake()->numberBetween(),
         ], true);
 
-        $this->assertArrayContainsArray(
-            ['collectionId' => ['The collection id provided is not owned by you.']],
-            $response['error']
-        );
+        $this->assertArrayContainsArray([
+            'collectionId' => ['The collection id provided is not owned by you.'],
+        ], $response['error']);
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params);
+
         $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
     }
@@ -102,7 +108,9 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         $signingWallet = Account::factory()->create([
             'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
+
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
+
         $response = $this->graphql($this->method, [
             'collectionId' => $collection->id,
             'key' => $key = fake()->word(),

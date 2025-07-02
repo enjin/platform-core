@@ -44,21 +44,36 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
+
         $this->recipient = Account::factory()->create();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
-        $this->tokenAccount = TokenAccount::factory([
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
-            'account_id' => $this->wallet,
+
+        $this->collection = Collection::factory([
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $this->collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
             'account_count' => 1,
         ])->create();
+
+        $this->tokenAccount = TokenAccount::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
+        ])->create();
+
         $this->tokenIdEncoder = new Integer($this->token->token_id);
     }
 
@@ -680,39 +695,42 @@ class OperatorTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_bigint_token_id(): void
     {
-        $collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+        $collection = Collection::factory([
+            'owner_id' => $ownerId = $this->wallet->id,
+        ])->create();
 
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId = $collection->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
             'account_count' => 1,
         ])->create();
 
-        Token::where('token_id', Hex::MAX_UINT128)->update(['token_id' => random_int(1, 1000)]);
-
         $token = Token::factory([
             'collection_id' => $collection,
-            'token_id' => Hex::MAX_UINT128,
+            'token_id' => $tokenId = Hex::MAX_UINT128,
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', OperatorTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->id,
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             operatorTransferParams: $params = new OperatorTransferParams(
-                tokenId: $this->tokenIdEncoder->encode($token->token_id),
-                source: $this->wallet->id,
+                tokenId: $this->tokenIdEncoder->encode($tokenId),
+                source: $ownerId,
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
         $params = $params->toArray()['Operator'];
-        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($token->token_id);
+        $params['tokenId'] = $this->tokenIdEncoder->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,

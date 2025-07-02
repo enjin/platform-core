@@ -38,12 +38,17 @@ class InfuseTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+
+        $this->collection = Collection::factory([
+            'owner_id' => $this->wallet,
+        ])->create();
+
         $this->token = Token::factory([
             'collection_id' => $collectionId = $this->collection->id,
             'token_id' => $tokenId = fake()->numberBetween(),
             'id' => "{$collectionId}-{$tokenId}",
         ])->create();
+
         $this->tokenIdEncoder = new Integer($tokenId);
     }
 

@@ -42,12 +42,17 @@ class MutateTokenTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory(['owner_id' => $this->wallet])->create();
+
+        $this->collection = Collection::factory([
+            'owner_id' => $this->wallet,
+        ])->create();
+
         $this->token = Token::factory([
             'collection_id' => $collectionId = $this->collection->id,
             'token_id' => $tokenId = fake()->numberBetween(),
             'id' => "{$collectionId}-{$tokenId}",
         ])->create();
+
         $this->tokenIdEncoder = new Integer($tokenId);
     }
 
@@ -150,24 +155,36 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
+        $newOwner = Account::factory()->create([
+            'id' => app(Generator::class)->public_key(),
+        ]);
+
+        $collection = Collection::factory([
+            'owner_id' => $newOwner,
+        ])->create();
+
+        Token::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->id,
-            tokenId: $this->tokenIdEncoder->encode(),
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
             listingForbidden: $listingForbidden = fake()->boolean(),
         ));
 
-        $this->collection->update(['owner_id' => Account::factory()->create()->id]);
-
         IsCollectionOwner::bypass();
+
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
             'mutation' => [
                 'listingForbidden' => $listingForbidden,
             ],
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
-        $this->collection->update(['owner_id' => $this->wallet->id]);
 
         IsCollectionOwner::unBypass();
 
@@ -308,28 +325,34 @@ class MutateTokenTest extends TestCaseGraphQL
 
     public function test_it_can_mutate_a_token_with_ss58_signing_account(): void
     {
-        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->id,
-            tokenId: $this->tokenIdEncoder->encode(),
-            listingForbidden: $listingForbidden = fake()->boolean(),
-        ));
-
         $newOwner = Account::factory()->create([
             'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
 
-        $this->collection->update(['owner_id' => $newOwner->id]);
+        $collection = Collection::factory([
+            'owner_id' => $newOwner,
+        ])->create();
+
+        Token::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $encodedData = TransactionSerializer::encode($this->method, MutateTokenMutation::getEncodableParams(
+            collectionId: $collectionId,
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
+            listingForbidden: $listingForbidden = fake()->boolean(),
+        ));
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable(),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
             'mutation' => [
                 'listingForbidden' => $listingForbidden,
             ],
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
-
-        $this->collection->update(['owner_id' => $this->wallet->id]);
 
         $this->assertArrayContainsArray([
             'method' => $this->method,
@@ -359,7 +382,8 @@ class MutateTokenTest extends TestCaseGraphQL
         ])->create();
 
         $collection = Collection::factory(['owner_id' => $signingWallet])->create();
-        $token = Token::factory([
+
+        Token::factory([
             'collection_id' => $collectionId = $collection->id,
             'token_id' => $tokenId = fake()->numberBetween(),
             'id' => "{$collectionId}-{$tokenId}",

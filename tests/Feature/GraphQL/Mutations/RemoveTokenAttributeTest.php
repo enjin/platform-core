@@ -29,6 +29,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'RemoveTokenAttribute';
     protected Codec $codec;
+
     protected Collection $collection;
     protected Token $token;
     protected Encoder $tokenIdEncoder;
@@ -42,13 +43,23 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        $this->token = Token::factory(['collection_id' => $this->collection])->create();
+
+        $this->collection = Collection::factory([
+            'owner_id' => $this->wallet,
+        ])->create();
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $this->attribute = Attribute::factory()->create([
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
         ]);
-        $this->tokenIdEncoder = new Integer($this->token->token_id);
+
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
@@ -56,7 +67,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
     public function test_it_can_skip_validation(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = random_int(2000, 3000),
+            'collectionId' => $collectionId = fake()->numberBetween(),
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'key' => $key = $this->attribute->key,
             'skipValidation' => true,
@@ -374,7 +385,7 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
 
     public function test_it_fail_with_for_collection_that_doesnt_exists(): void
     {
-        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        $this->deleteAllFrom($collectionId = fake()->numberBetween());
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -382,10 +393,9 @@ class RemoveTokenAttributeTest extends TestCaseGraphQL
             'key' => $this->attribute->key,
         ], true);
 
-        $this->assertArrayContainsArray(
-            ['collectionId' => ['The selected collection id is invalid.']],
-            $response['error']
-        );
+        $this->assertArrayContainsArray([
+            'collectionId' => ['The selected collection id is invalid.'],
+        ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
     }
