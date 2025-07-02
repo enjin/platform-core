@@ -3,13 +3,14 @@
 namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
+use Override;
 
 class DispatchAndTouchMutation extends DispatchMutation implements PlatformBlockchainTransaction
 {
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [

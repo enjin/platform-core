@@ -2,7 +2,6 @@
 
 namespace Enjin\Platform\Providers;
 
-use Enjin\Platform\GraphQL\Types\Pagination\ConnectionType;
 use Enjin\Platform\Interfaces\PlatformGraphQlEnum;
 use Enjin\Platform\Interfaces\PlatformGraphQlExecutionMiddleware;
 use Enjin\Platform\Interfaces\PlatformGraphQlHttpMiddleware;
@@ -14,17 +13,16 @@ use Enjin\Platform\Interfaces\PlatformGraphQlUnion;
 use Enjin\Platform\Package;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\UploadType;
 
 class GraphQlServiceProvider extends ServiceProvider
 {
-    protected const TYPE = PlatformGraphQlType::class;
-    protected const QUERY = PlatformGraphQlQuery::class;
-    protected const MUTATION = PlatformGraphQlMutation::class;
-    protected const ENUM = PlatformGraphQlEnum::class;
-    protected const UNION = PlatformGraphQlUnion::class;
+    protected const string TYPE = PlatformGraphQlType::class;
+    protected const string QUERY = PlatformGraphQlQuery::class;
+    protected const string MUTATION = PlatformGraphQlMutation::class;
+    protected const string ENUM = PlatformGraphQlEnum::class;
+    protected const string UNION = PlatformGraphQlUnion::class;
 
     private Collection $graphqlClasses;
 
@@ -32,10 +30,8 @@ class GraphQlServiceProvider extends ServiceProvider
      * Register any application services.
      */
     #[\Override]
-    public function register()
+    public function register(): void
     {
-        config(['graphql.pagination_type' => ConnectionType::class]);
-
         $this->setNetwork();
         $this->graphqlClasses = Package::getPackageClasses();
 
@@ -46,13 +42,12 @@ class GraphQlServiceProvider extends ServiceProvider
         $this->registerGraphQlHttpMiddleware();
         $this->registerGraphQlExecutionMiddleware();
         $this->registerExternalResolverMiddleware();
-        $this->registerGraphiqlEndpoints();
     }
 
     /**
      * Register graphql union types.
      */
-    protected function graphQlUnions()
+    protected function graphQlUnions(): void
     {
         $this->graphqlClasses
             ->filter(
@@ -64,7 +59,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Register graphql network agnostic global types.
      */
-    protected function graphQlNetworkAgnosticGlobalTypes()
+    protected function graphQlNetworkAgnosticGlobalTypes(): void
     {
         $this->graphqlClasses
             ->filter(
@@ -78,7 +73,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Register graphql enum types.
      */
-    protected function graphQlEnums()
+    protected function graphQlEnums(): void
     {
         $this->graphqlClasses
             ->filter(
@@ -90,7 +85,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Register graphql global types.
      */
-    protected function graphQlGlobalTypes()
+    protected function graphQlGlobalTypes(): void
     {
         $this->graphqlClasses
             ->filter(
@@ -107,7 +102,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Register graphql network specific global types.
      */
-    protected function graphQlNetworkSpecificGlobalTypes()
+    protected function graphQlNetworkSpecificGlobalTypes(): void
     {
         $this->graphqlClasses
             ->filter(
@@ -121,7 +116,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Register graphql schemas.
      */
-    protected function graphQlSchemas()
+    protected function graphQlSchemas(): void
     {
         // Schema Queries and Mutations
         $queries = $this->graphqlClasses->filter(
@@ -146,7 +141,7 @@ class GraphQlServiceProvider extends ServiceProvider
             $schemas[$mutation::getSchemaName()]['mutation'][] = $mutation;
         });
 
-        // Schema specific Types
+        // Schema-specific Types
         $types = $this->graphqlClasses->filter(
             fn ($className) => in_array(static::TYPE, class_implements($className))
                 && !empty($className::getSchemaName())
@@ -161,11 +156,11 @@ class GraphQlServiceProvider extends ServiceProvider
             config(["graphql.schemas.{$schemaName}" => array_merge_recursive($schemaDefaults, $schema)]);
         }
 
-        // Manually add UploadType after schema has been built.
+        // Manually add UploadType after the schema has been built.
         GraphQL::addType(UploadType::class);
     }
 
-    protected function registerGraphQlHttpMiddleware()
+    protected function registerGraphQlHttpMiddleware(): void
     {
         $httpMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlHttpMiddleware::class);
 
@@ -190,7 +185,7 @@ class GraphQlServiceProvider extends ServiceProvider
             });
     }
 
-    protected function registerGraphQlExecutionMiddleware()
+    protected function registerGraphQlExecutionMiddleware(): void
     {
         $executionMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlExecutionMiddleware::class);
 
@@ -215,7 +210,7 @@ class GraphQlServiceProvider extends ServiceProvider
             });
     }
 
-    protected function registerExternalResolverMiddleware()
+    protected function registerExternalResolverMiddleware(): void
     {
         $resolverMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlResolverMiddleware::class)
             ->map(function ($resolverMiddleware) {
@@ -234,38 +229,10 @@ class GraphQlServiceProvider extends ServiceProvider
         config(['graphql.resolver_middleware' => array_merge($graphQlResolverMiddleware, $resolverMiddlewares)]);
     }
 
-    protected function registerGraphiqlEndpoints(): void
-    {
-        $installedPackages = Package::getInstalledPlatformPackages();
-        $schemas = collect(config('graphql.schemas'))->keys();
-
-        $packageRoutes = $installedPackages->mapWithKeys(function ($package) use ($schemas) {
-            $packageName = Str::kebab(Package::getPackageName($package));
-            $graphQlEndpoint = config('graphql.route.prefix', 'graphql');
-            $graphiQlEndpoint = config('graphql.graphiql.prefix', 'graphiql');
-
-            if ($packageName != 'Core' && $schemas->contains($packageName)) {
-                $graphQlEndpoint .= '/' . $packageName;
-                $graphiQlEndpoint .= '/' . $packageName;
-            }
-
-            return [
-                "/{$graphiQlEndpoint}" => [
-                    'name' => Str::replace('/', '.', $graphiQlEndpoint),
-                    'endpoint' => "/{$graphQlEndpoint}",
-                    'subscription-endpoint' => null,
-                ],
-            ];
-        });
-
-        $existingRoutes = collect(config('graphiql.routes'));
-        config(['graphiql.routes' => $packageRoutes->merge($existingRoutes)->all()]);
-    }
-
     /**
      * Set the network for the graphql.
      */
-    private function setNetwork()
+    private function setNetwork(): void
     {
         $segments = request()->segments();
         $network = array_values(array_intersect($segments, array_keys(config('enjin-platform.chains.supported'))));

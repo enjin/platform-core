@@ -186,6 +186,6 @@ class SS58Address
         $subarray = array_slice($hash, 0, $remove);
         $final = array_merge($input, $subarray);
 
-        return (new Base58(['characters' => Base58::BITCOIN]))->encode(hex2bin(HexConverter::bytesToHex($final)));
+        return new Base58(['characters' => Base58::BITCOIN])->encode(hex2bin(HexConverter::bytesToHex($final)));
     }
 }

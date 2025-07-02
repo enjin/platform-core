@@ -6,10 +6,7 @@ use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\DispatchCall;
 use Enjin\Platform\Exceptions\FuelTanksException;
-use Enjin\Platform\Rules\CanDispatch;
-use Enjin\Platform\Rules\FuelTankExists;
-use Enjin\Platform\Rules\RuleSetExists;
-use Enjin\Platform\Rules\ValidMutation;
+use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -18,18 +15,22 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\CanDispatch;
+use Enjin\Platform\Rules\FuelTankExists;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Rules\RuleSetExists;
 use Enjin\Platform\Rules\ValidHex;
+use Enjin\Platform\Rules\ValidMutation;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Facades\TransactionSerializer;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -44,7 +45,7 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -64,7 +65,7 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -158,10 +159,10 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
         $ruleSetId = Arr::get($params, 'ruleSetId', 0);
 
         return [

@@ -12,14 +12,10 @@ use Enjin\Platform\Enums\Substrate\SystemEventType;
 use Enjin\Platform\Enums\Substrate\XcmOutcome;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Substrate\Balances\Teleport;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Services\Processor\Substrate\DecoderService;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\JSON;
-use Enjin\Platform\Support\Util;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Str;
@@ -29,32 +25,23 @@ class RelayWatcher extends Command
 {
     public $signature = 'platform:relay-watcher';
 
-    public $description;
-
-    protected Codec $codec;
+    public $description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
 
     protected Substrate $rpc;
 
-    public function __construct(protected DecoderService $decoder)
+    public function __construct()
     {
         parent::__construct();
-
-        $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
-        $this->codec = new Codec();
         $this->rpc = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
-        $this->decoder->setNetwork(currentRelay()->value);
     }
 
     public function handle(): int
     {
         $sub = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
-        $runtime = Util::updateRuntimeVersion(null, currentRelay());
 
         try {
             $this->info('================ Starting Relay Ingest ================');
             $this->info('Connected to: ' . currentRelay()->value);
-            $this->info("Transaction version: {$runtime[0]}");
-            $this->info("Spec version: {$runtime[1]}");
             $this->info('=========================================================');
 
             $this->info('Subscribing to block new heads...');
@@ -239,7 +226,7 @@ class RelayWatcher extends Command
     {
         $this->info('Creating transaction to teleport ENJ from: ' . $account);
 
-        $managedWallet = Wallet::firstWhere([
+        $managedWallet = Account::firstWhere([
             'public_key' => $account,
         ]);
 

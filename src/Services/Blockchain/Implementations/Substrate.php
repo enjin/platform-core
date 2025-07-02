@@ -10,43 +10,40 @@ use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\CryptoSignatureType;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\FreezeType;
-use Enjin\Platform\Enums\Substrate\StorageKey;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
-use Enjin\Platform\Models\Laravel\Transaction;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Substrate\AccountRulesParams;
 use Enjin\Platform\Models\Substrate\CreateTokenParams;
+use Enjin\Platform\Models\Substrate\DispatchRulesParams;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
+use Enjin\Platform\Models\Substrate\MaxFuelBurnPerTransactionParams;
 use Enjin\Platform\Models\Substrate\MetadataParams;
 use Enjin\Platform\Models\Substrate\MintParams;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
-use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
-use Enjin\Platform\Models\Substrate\SimpleTransferParams;
-use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
-use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
-use Enjin\Platform\Support\Account;
-use Enjin\Platform\Support\SS58Address;
-use Exception;
-use Facades\Enjin\Platform\Services\Database\WalletService;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
-use Enjin\Platform\Models\Substrate\AccountRulesParams;
-use Enjin\Platform\Models\Substrate\DispatchRulesParams;
-use Enjin\Platform\Models\Substrate\MaxFuelBurnPerTransactionParams;
 use Enjin\Platform\Models\Substrate\PermittedCallsParams;
 use Enjin\Platform\Models\Substrate\PermittedExtrinsicsParams;
 use Enjin\Platform\Models\Substrate\RequireSignatureParams;
 use Enjin\Platform\Models\Substrate\RequireTokenParams;
+use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
+use Enjin\Platform\Models\Substrate\SimpleTransferParams;
 use Enjin\Platform\Models\Substrate\TankFuelBudgetParams;
+use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Models\Substrate\UserAccountManagementParams;
 use Enjin\Platform\Models\Substrate\UserFuelBudgetParams;
 use Enjin\Platform\Models\Substrate\WhitelistedCallersParams;
 use Enjin\Platform\Models\Substrate\WhitelistedCollectionsParams;
 use Enjin\Platform\Models\Substrate\WhitelistedPalletsParams;
+use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
+use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\SS58Address;
+use Exception;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 class Substrate implements BlockchainServiceInterface
 {
@@ -74,48 +71,12 @@ class Substrate implements BlockchainServiceInterface
         return $this->client;
     }
 
-    public static function getStorageKeys(): array
-    {
-        return [
-            StorageKey::collections(),
-            StorageKey::pendingCollectionTransfers(),
-            StorageKey::collectionAccounts(),
-            StorageKey::tokens(),
-            StorageKey::tokenAccounts(),
-            StorageKey::attributes(),
-            StorageKey::tanks(),
-            StorageKey::accounts(),
-            StorageKey::listings(),
-        ];
-    }
-
-    public static function getStorageKeysForCollectionId(string $collectionId): array
-    {
-        return [
-            StorageKey::collections(Encoder::collectionStorageKey($collectionId)),
-            StorageKey::pendingCollectionTransfers(Encoder::pendingCollectionTransfersStorageKey($collectionId)),
-            StorageKey::collectionAccounts(Encoder::collectionAccountStorageKey($collectionId)),
-            StorageKey::tokens(Encoder::tokenStorageKey($collectionId)),
-            StorageKey::tokenAccounts(Encoder::tokenAccountStorageKey($collectionId)),
-            StorageKey::attributes(Encoder::attributeStorageKey($collectionId)),
-            StorageKey::tanks(),
-            StorageKey::accounts(),
-            StorageKey::listings(),
-        ];
-    }
-
-    public static function getStorageKeysForCollectionIds(array|Collection $collectionIds): array
-    {
-        return collect($collectionIds)
-            ->map(fn ($collectionId) => self::getStorageKeysForCollectionId($collectionId))
-            ->flatten(1)
-            ->toArray();
-    }
-
     /**
      * Call the method in the client service.
+     *
+     * @throws PlatformException
      */
-    public function callMethod(string $name, array $args = [], ?bool $raw = false): mixed
+    public function callMethod(string $name, array $args = [], ?bool $raw = false): string|array|null
     {
         return $this->client->send($name, $args, $raw);
     }
@@ -163,7 +124,7 @@ class Substrate implements BlockchainServiceInterface
     {
         return $this->codec->encoder()->signingPayloadJSON(
             call: $transaction['encoded_data'],
-            address: $transaction['wallet_public_key'] ?? Account::daemonPublicKey(),
+            address: $transaction['wallet_public_key'] ?? Address::daemonPublicKey(),
             nonce: Arr::get($args, 'nonce'),
             blockHash: networkConfig('genesis-hash'),
             genesisHash: networkConfig('genesis-hash'),
@@ -177,7 +138,7 @@ class Substrate implements BlockchainServiceInterface
     {
         return Cache::remember(PlatformCache::FEE->key($call), now()->addWeek(), function () use ($call) {
             $extrinsic = $this->codec->encoder()->addFakeSignature($call);
-            $result = (new SubstrateHttpClient())
+            $result = new SubstrateHttpClient()
                 ->jsonRpc('payment_queryFeeDetails', [
                     $extrinsic,
                 ]);
@@ -226,7 +187,7 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Get mint or create params object.
+     * Get mint or create a params object.
      */
     public function getMintOrCreateParams(array $args): CreateTokenParams|MintParams
     {
@@ -316,7 +277,7 @@ class Substrate implements BlockchainServiceInterface
     }
 
     /**
-     * Create a new create token market behavior object.
+     * Create a new mutate token behavior object.
      */
     public function getMutateTokenBehavior(array $args): null|array|TokenMarketBehaviorParams
     {
@@ -389,8 +350,7 @@ class Substrate implements BlockchainServiceInterface
         ];
 
         if (isset($args['collectionAccount']) || isset($args['tokenAccount'])) {
-            $accountWallet = WalletService::firstOrStore(['public_key' => SS58Address::getPublicKey(Arr::get($args, 'collectionAccount') ?? Arr::get($args, 'tokenAccount'))]);
-            $data['account'] = $accountWallet->public_key;
+            $data['account'] = SS58Address::getPublicKey(Arr::get($args, 'collectionAccount') ?? Arr::get($args, 'tokenAccount'));
         }
 
         if (isset($args['freezeState'])) {
@@ -398,36 +358,6 @@ class Substrate implements BlockchainServiceInterface
         }
 
         return new FreezeTypeParams(...$data);
-    }
-
-    /**
-     * Append balance details to the wallet object.
-     */
-    public function walletWithBalanceAndNonce(mixed $wallet): mixed
-    {
-        if (!$wallet) {
-            return null;
-        }
-
-        if (!is_string($wallet) && $wallet->public_key === null) {
-            return $wallet;
-        }
-
-        if (is_string($wallet)) {
-            $wallet = WalletService::firstOrStore(['public_key' => SS58Address::getPublicKey($wallet)]);
-        }
-
-        try {
-            $storage = $this->fetchSystemAccount($wallet->public_key);
-            $accountInfo = $this->codec->decoder()->systemAccount($storage);
-        } catch (Exception) {
-            return $wallet;
-        }
-
-        $wallet->nonce = Arr::get($accountInfo, 'nonce');
-        $wallet->balances = Arr::get($accountInfo, 'balances');
-
-        return $wallet;
     }
 
     /**
@@ -499,7 +429,7 @@ class Substrate implements BlockchainServiceInterface
                 ? new PermittedCallsParams(Arr::get($permittedCalls, 'calls'))
                 : null,
             ($permittedExtrinsics = Arr::get($args, 'permittedExtrinsics'))
-                ? (new PermittedExtrinsicsParams())->fromMethods($permittedExtrinsics)
+                ? new PermittedExtrinsicsParams()->fromMethods($permittedExtrinsics)
                 : null,
             ($pallets = Arr::get($args, 'whitelistedPallets'))
                 ? new WhitelistedPalletsParams($pallets)
@@ -549,20 +479,5 @@ class Substrate implements BlockchainServiceInterface
         }
 
         return $accountRulesParams;
-    }
-
-    /**
-     * Fetch the system account from the chain.
-     */
-    protected function fetchSystemAccount(string $publicKey): mixed
-    {
-        return Cache::remember(
-            PlatformCache::SYSTEM_ACCOUNT->key($publicKey),
-            now()->addSeconds(12),
-            fn () => (new SubstrateHttpClient())
-                ->jsonRpc('state_getStorage', [
-                    $this->codec->encoder()->systemAccountStorageKey($publicKey),
-                ])
-        );
     }
 }

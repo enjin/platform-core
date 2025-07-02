@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Models\Substrate;
 
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Facades\Enjin\Platform\Services\Database\WalletService;
 use Illuminate\Support\Arr;
 

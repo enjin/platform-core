@@ -4,9 +4,12 @@ namespace Enjin\Platform\Providers\Faker;
 
 use Crypto\sr25519;
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\SS58Address;
+use Exception;
 use Faker\Provider\Base;
+use SodiumException;
 
 class SubstrateProvider extends Base
 {
@@ -26,7 +29,7 @@ class SubstrateProvider extends Base
             'baseFee' => HexConverter::intToHexPrefixed($base = fake()->numberBetween()),
             'lenFee' => HexConverter::intToHexPrefixed($len = fake()->numberBetween()),
             'adjustedWeightFee' => HexConverter::intToHexPrefixed($adjusted = fake()->numberBetween()),
-            'fakeSum' => $base + $len + $adjusted,
+            'fakeSum' => (string) ($base + $len + $adjusted),
         ];
     }
 
@@ -44,7 +47,7 @@ class SubstrateProvider extends Base
                 if (SS58Address::encode($key)) {
                     $publicKey = HexConverter::prefix($hexKey);
                 }
-            } catch (\Exception) {
+            } catch (Exception) {
             }
         }
 
@@ -62,7 +65,7 @@ class SubstrateProvider extends Base
             try {
                 $key = HexConverter::hexToBytes(bin2hex(random_bytes(32)));
                 $address = SS58Address::encode($key);
-            } catch (\Exception) {
+            } catch (Exception) {
             }
         }
 
@@ -70,7 +73,7 @@ class SubstrateProvider extends Base
     }
 
     /**
-     * Get a random substrate address with signed message using ed25519.
+     * Get a random substrate address with a signed message using ed25519.
      */
     public function ed25519_signature(string $message, ?bool $isCode = false): array
     {
@@ -89,13 +92,17 @@ class SubstrateProvider extends Base
                     'publicKey' => HexConverter::prefix($publicKey),
                     'signature' => $signature,
                 ];
-            } catch (\Exception) {
+            } catch (Exception) {
             }
         }
+
+        return [];
     }
 
     /**
-     * Get a random substrate address with signed message using sr25519.
+     * Get a random substrate address with a signed message using sr25519.
+     *
+     * @throws SodiumException|PlatformException
      */
     public function sr25519_signature(string $message, ?bool $isCode = false): array
     {
@@ -114,6 +121,8 @@ class SubstrateProvider extends Base
 
     /**
      * Sign a message using the provided keypair.
+     *
+     * @throws SodiumException
      */
     public function sign(string $message, string $keypair): string
     {
@@ -124,6 +133,8 @@ class SubstrateProvider extends Base
 
     /**
      * Sign a code using the provided keypair.
+     *
+     * @throws SodiumException
      */
     public function signWithCode(string $code, ?string $keypair = null): string
     {
@@ -135,6 +146,8 @@ class SubstrateProvider extends Base
 
     /**
      * Sign a message using the provided keypair.
+     *
+     * @throws SodiumException
      */
     public function signWithMessage(string $message, ?string $keypair = null): string
     {

@@ -13,18 +13,16 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\NoTokensInCollection;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -40,7 +38,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -60,7 +58,7 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -85,15 +83,10 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(...$args));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -111,17 +104,17 @@ class DestroyCollectionMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128), new IsCollectionOwner(), new NoTokensInCollection()],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new IsCollectionOwner(), new NoTokensInCollection()],
         ];
     }
 
     /**
-     * Get the mutation's validation rules withoud DB rules.
+     * Get the mutation's validation rules without DB rules.
      */
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }

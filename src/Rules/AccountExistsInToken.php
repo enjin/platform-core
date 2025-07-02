@@ -4,10 +4,12 @@ namespace Enjin\Platform\Rules;
 
 use Closure;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
-use Enjin\Platform\Services\Database\TokenService;
+use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class AccountExistsInToken implements DataAwareRule, ValidationRule
 {
@@ -15,32 +17,21 @@ class AccountExistsInToken implements DataAwareRule, ValidationRule
     use HasEncodableTokenId;
 
     /**
-     * The token service.
-     */
-    protected TokenService $tokenService;
-
-    /**
-     * Create instance.
-     */
-    public function __construct()
-    {
-        $this->tokenService = resolve(TokenService::class);
-    }
-
-    /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        $collectionId = $this->data['collectionId'];
         $tokenId = $this->encodeTokenId($this->data);
+        $accountId = SS58Address::getPublicKey($value);
 
-        if (!$tokenId || !$this->tokenService->accountExistsInToken($this->data['collectionId'], $tokenId, $value)) {
+        if (TokenAccount::where('id', "{$accountId}-{$collectionId}-{$tokenId}")->doesntExist()) {
             $fail('enjin-platform::validation.account_exists_in_token')
                 ->translate([
-                    'account' => $this->data['tokenAccount'],
-                    'collectionId' => $this->data['collectionId'],
+                    'account' => $value,
+                    'collectionId' => $collectionId,
                     'tokenId' => $tokenId,
                 ]);
         }

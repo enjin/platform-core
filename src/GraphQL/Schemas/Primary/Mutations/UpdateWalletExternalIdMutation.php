@@ -7,7 +7,7 @@ use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Rules\AccountExistsInWallet;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 
@@ -30,7 +31,7 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -50,7 +51,7 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -62,7 +63,7 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
                     'nullable',
                     'bail',
                     function (string $attribute, mixed $value, Closure $fail): void {
-                        if (!Wallet::where('id', $value)->exists()) {
+                        if (!Account::where('id', $value)->exists()) {
                             $fail('validation.exists')->translate();
                         }
                     },
@@ -77,7 +78,7 @@ class UpdateWalletExternalIdMutation extends Mutation implements PlatformGraphQl
                     'required_without_all:id,account',
                     'nullable',
                     function (string $attribute, mixed $value, Closure $fail): void {
-                        if (!Wallet::where('external_id', $value)->exists()) {
+                        if (!Account::where('external_id', $value)->exists()) {
                             $fail('validation.exists')->translate();
                         }
                     },

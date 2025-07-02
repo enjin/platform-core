@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Database\Factories;
 
-use Enjin\Platform\Models\Collection;
 use Enjin\Platform\Models\CollectionRoyaltyCurrency;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CollectionRoyaltyCurrencyFactory extends Factory

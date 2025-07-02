@@ -1,9 +1,7 @@
 <?php
 
-use Enjin\Platform\Support\Account;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
@@ -15,12 +13,6 @@ return new class () extends Migration {
         Schema::table('transactions', function (Blueprint $table) {
             $table->boolean('managed')->default(false)->index()->after('state');
         });
-
-        DB::statement('
-            UPDATE transactions SET managed = 1
-            WHERE wallet_public_key IS  NULL
-            or wallet_public_key IN(?)
-        ', ["'" . implode("','", Account::managedPublicKeys()) . "'"]);
     }
 
     /**

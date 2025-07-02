@@ -2,8 +2,13 @@
 
 namespace Enjin\Platform\Clients\Abstracts;
 
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+use JsonException;
+use Random\RandomException;
+use Throwable;
+use WebSocket\BadOpcodeException;
 use WebSocket\Client;
 
 abstract class WebsocketAbstract
@@ -31,16 +36,26 @@ abstract class WebsocketAbstract
 
     /**
      * Send a request to the websocket server.
+     *
+     * @throws PlatformException
      */
     public function send(string $method, array $params = [], bool $rawResponse = false): array|string|null
     {
-        $response = $this->sendRaw(Util::createJsonRpc($method, $params));
+        try {
+            $json = Util::createJsonRpc($method, $params);
+            $response = $this->sendRaw($json);
 
-        return $rawResponse ? $response : $response['result'] ?? null;
+            return $rawResponse ? $response : $response['result'] ?? null;
+
+        } catch (BadOpcodeException|JsonException|RandomException $e) {
+            throw new PlatformException($e->getMessage());
+        }
     }
 
     /**
      * Send a raw request to the websocket server.
+     *
+     * @throws BadOpcodeException
      */
     public function sendRaw(string $payload): ?array
     {
@@ -86,7 +101,7 @@ abstract class WebsocketAbstract
         if ($this->client) {
             try {
                 $this->client->close();
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
         }
     }

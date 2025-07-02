@@ -3,33 +3,30 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\Enums\Substrate\ListingState;
-use Enjin\Platform\Models\MarketplaceListing;
-use Enjin\Platform\Models\Token;
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Indexer\Listing;
+use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
+use Override;
 
 class EnoughTokenSupply implements DataAwareRule, ValidationRule
 {
     use HasEncodableTokenId;
 
     /**
-     * All of the data under validation.
-     *
-     * @var array
+     * All the data under validation.
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * Set the data under validation.
-     *
-     * @param  array  $data
-     * @return $this
      */
-    #[\Override]
-    public function setData($data)
+    #[Override]
+    public function setData(array $data): static
     {
         $this->data = $data;
 
@@ -39,9 +36,9 @@ class EnoughTokenSupply implements DataAwareRule, ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
-    #[\Override]
+    #[Override]
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $collectionId = Arr::get($this->data, 'makeAssetId.collectionId');
@@ -57,7 +54,7 @@ class EnoughTokenSupply implements DataAwareRule, ValidationRule
             return;
         }
 
-        $amount = MarketplaceListing::whereDoesntHave(
+        $amount = Listing::whereDoesntHave(
             'state',
             fn ($query) => $query->where('state', ListingState::CANCELLED->name)
         )->where([

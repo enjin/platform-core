@@ -18,13 +18,11 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AccountExistsInCollection;
 use Enjin\Platform\Rules\AccountExistsInToken;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -109,7 +107,6 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
@@ -117,10 +114,7 @@ class FreezeMutation extends Mutation implements PlatformBlockchainTransaction, 
             freezeParams: $params
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array

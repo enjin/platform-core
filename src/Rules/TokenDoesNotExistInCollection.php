@@ -7,6 +7,7 @@ use Enjin\Platform\Rules\Traits\HasDataAwareRule;
 use Enjin\Platform\Services\Database\TokenService;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class TokenDoesNotExistInCollection implements DataAwareRule, ValidationRule
 {
@@ -28,7 +29,7 @@ class TokenDoesNotExistInCollection implements DataAwareRule, ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

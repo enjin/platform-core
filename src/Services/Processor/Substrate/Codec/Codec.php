@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Cache;
 class Codec
 {
     protected ScaleInstance $scaleInstance;
-    protected Decoder $decoder;
     protected Encoder $encoder;
 
     public function __construct()
@@ -20,13 +19,7 @@ class Codec
         $generator = Base::create();
         Base::regCustom($generator, $this->loadCustomTypes());
         $this->scaleInstance = new ScaleInstance($generator);
-        $this->decoder = new Decoder($this->scaleInstance);
         $this->encoder = new Encoder($this->scaleInstance);
-    }
-
-    public function decoder(): Decoder
-    {
-        return $this->decoder;
     }
 
     public function encoder(): Encoder

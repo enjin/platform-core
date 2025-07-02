@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
@@ -17,20 +16,19 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\MintParams;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MintTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -49,7 +47,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -69,7 +67,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -103,26 +101,20 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $recipientWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(
-            recipientAccount: $recipientWallet->public_key,
+            recipientAccount: $args['recipient'],
             collectionId: $args['collectionId'],
             mintTokenParams: $blockchainService->getMintTokenParams($args['params'])
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'Mint';
@@ -132,7 +124,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+                'Id' => SS58Address::getPublicKey(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'params' => Arr::get($params, 'mintTokenParams', new MintParams(0, 0))->toEncodable(),
@@ -142,7 +134,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     protected function rulesCommon(array $args): array
     {
         return [
-            'recipient' => ['filled', new ValidSubstrateAccount()],
+            'recipient' => [new ValidSubstrateAccount()],
         ];
     }
 
@@ -152,7 +144,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128), new IsCollectionOwner()],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new IsCollectionOwner()],
             ...$this->getTokenFieldRulesExist('params')];
     }
 
@@ -162,7 +154,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => ['bail', new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params'),
         ];
     }

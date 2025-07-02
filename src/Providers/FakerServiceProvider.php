@@ -7,17 +7,19 @@ use Enjin\Platform\Providers\Faker\SubstrateProvider;
 use Faker\Factory;
 use Faker\Generator;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class FakerServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    #[\Override]
-    public function register()
+    #[Override]
+    public function register(): void
     {
-        $this->app->singleton(Generator::class, function () {
+        $this->app->singleton(function (): Generator {
             $faker = Factory::create();
+
             $faker->addProvider(new SubstrateProvider($faker));
             $faker->addProvider(new Erc1155Provider($faker));
 

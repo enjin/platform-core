@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -14,19 +13,21 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\CollectionHasTokens;
 use Enjin\Platform\Rules\DaemonProhibited;
 use Enjin\Platform\Rules\FutureBlock;
 use Enjin\Platform\Rules\IsCollectionOwner;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -42,7 +43,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -62,7 +63,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -96,28 +97,22 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
-            operator: $operatorWallet->public_key,
+            operator: $args['operator'],
             expiration: $args['expiration']
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
-            'expiration' => Arr::get($params, 'expiration', null),
+            'operator' => SS58Address::getPublicKey(Arr::get($params, 'operator', Address::daemonPublicKey())),
+            'expiration' => Arr::get($params, 'expiration'),
         ];
     }
 
@@ -128,8 +123,8 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     {
         return [
             'collectionId' => [new IsCollectionOwner(), new CollectionHasTokens()],
-            'operator' => ['filled', new ValidSubstrateAccount(), new DaemonProhibited()],
-            'expiration' => ['nullable', 'integer', new FutureBlock()],
+            'operator' => [new ValidSubstrateAccount(), new DaemonProhibited()],
+            'expiration' => ['nullable', new FutureBlock()],
         ];
     }
 
@@ -139,7 +134,8 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'operator' => ['filled', new ValidSubstrateAccount()],
+            'collectionId' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'operator' => [new ValidSubstrateAccount()],
             'expiration' => ['nullable', 'integer', 'min:0'],
         ];
     }

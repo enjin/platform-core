@@ -10,7 +10,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -78,7 +78,7 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
                 $tx->update([
                     'state' => TransactionState::PENDING->name,
                     'transaction_chain_hash' => null,
-                    'wallet_public_key' => $tx->wallet_public_key === Account::daemonPublicKey() ? null : $tx->wallet_public_key,
+                    'wallet_public_key' => $tx->wallet_public_key === Address::daemonPublicKey() ? null : $tx->wallet_public_key,
                 ]);
             });
 

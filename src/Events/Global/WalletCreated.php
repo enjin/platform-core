@@ -3,8 +3,8 @@
 namespace Enjin\Platform\Events\Global;
 
 use Enjin\Platform\Events\PlatformEvent;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Traits\HasCustomQueue;
-use Illuminate\Database\Eloquent\Model;
 
 class WalletCreated extends PlatformEvent
 {
@@ -13,7 +13,7 @@ class WalletCreated extends PlatformEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(public Model $model)
+    public function __construct(public Account $model)
     {
         parent::__construct();
     }

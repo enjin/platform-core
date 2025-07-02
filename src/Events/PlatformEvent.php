@@ -6,6 +6,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use ReflectionClass;
 
 abstract class PlatformEvent
 {
@@ -17,20 +18,19 @@ abstract class PlatformEvent
     /**
      * The event class name.
      */
-    protected string $className;
+    protected string $className {
+        get {
+            return $this->className;
+        }
+    }
 
     /**
      * Create a new event instance.
      */
     public function __construct()
     {
-        $this->className = (new \ReflectionClass(static::class))->getShortName();
+        $this->className = new ReflectionClass(static::class)->getShortName();
         $this->setQueue();
-    }
-
-    public function getClassName()
-    {
-        return $this->className;
     }
 
     protected function setQueue(): void {}

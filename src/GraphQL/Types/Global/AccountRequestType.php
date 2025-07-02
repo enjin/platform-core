@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Types\Global;
 
 use Enjin\Platform\GraphQL\Types\Traits\InGlobalSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
@@ -14,7 +15,7 @@ class AccountRequestType extends Type implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -26,7 +27,7 @@ class AccountRequestType extends Type implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [

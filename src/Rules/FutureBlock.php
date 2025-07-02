@@ -3,32 +3,25 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Laravel\Block;
-use Enjin\Platform\Services\Processor\Substrate\BlockProcessor;
+use Enjin\Platform\Models\Indexer\Block;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class FutureBlock implements ValidationRule
 {
     /**
-     * The latest block on-chain.
-     */
-    protected int $latestBlock;
-
-    /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $this->latestBlock = app()->runningUnitTests()
-            ? (int) Block::max('number')
-            : (int) ((new BlockProcessor())->latestBlock() ?: Block::max('number'));
+        $blockNumber = Block::max('block_number') ?? 0;
 
-        if ($this->latestBlock >= $value) {
+        if ($blockNumber >= $value) {
             $fail('enjin-platform::validation.future_block')
                 ->translate([
-                    'block' => $this->latestBlock,
+                    'block' => $blockNumber,
                 ]);
         }
     }

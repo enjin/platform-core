@@ -7,14 +7,15 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class BlockchainServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
      * Register any application services.
      */
-    #[\Override]
-    public function register()
+    #[Override]
+    public function register(): void
     {
         $map = [
             ChainType::SUBSTRATE->value => Substrate::class,
@@ -31,8 +32,8 @@ class BlockchainServiceProvider extends ServiceProvider implements DeferrablePro
     /**
      * Get the services provided by the provider.
      */
-    #[\Override]
-    public function provides()
+    #[Override]
+    public function provides(): array
     {
         return [BlockchainServiceInterface::class];
     }

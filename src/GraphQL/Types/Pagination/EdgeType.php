@@ -5,25 +5,22 @@ declare(strict_types=1);
 namespace Enjin\Platform\GraphQL\Types\Pagination;
 
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type as GraphQLType;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class EdgeType extends ObjectType
 {
     /**
-     * Create new edge type instance.
+     * Create a new edge type instance.
      */
-    public function __construct(string $typeName, string $customTypeName)
+    public function __construct(string $typeName, ?string $customName = null)
     {
-        $config = [
-            'name' => $customTypeName,
-            'fields' => $this->getEdgeFields($typeName),
-        ];
-
         $underlyingType = GraphQL::type($typeName);
 
-        if (isset($underlyingType->config['model'])) {
-            $config['model'] = $underlyingType->config['model'];
-        }
+        $config = [
+            'name' => $customName ?: $typeName . 'Edge',
+            'fields' => $this->getPaginationFields($underlyingType),
+        ];
 
         parent::__construct($config);
     }
@@ -31,15 +28,15 @@ class EdgeType extends ObjectType
     /**
      * Resolve the wrap type.
      */
-    protected function getEdgeFields(string $typeName): array
+    protected function getPaginationFields(GraphQLType $underlyingType): array
     {
         return [
             'node' => [
-                'type' => GraphQL::type("{$typeName}!"),
-                'description' => __('enjin-platform::type.edge.field.node'),
+                'type' => GraphQL::type($underlyingType->name),
             ],
             'cursor' => [
                 'type' => GraphQL::type('String!'),
+                'selectable' => false,
             ],
         ];
     }

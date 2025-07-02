@@ -2,14 +2,10 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
-use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries\GetTransactionsQuery;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\Wallet;
-use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
-use Enjin\Platform\Traits\HasSelectFields;
+use Enjin\Platform\Models\Indexer\Account;
 use Illuminate\Pagination\Cursor;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Support\Arr;
@@ -18,15 +14,7 @@ use Rebing\GraphQL\Support\Type as GraphQlType;
 
 class WalletType extends GraphQlType implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InSubstrateSchema;
-
-    /**
-     * Create new wallet type instance.
-     */
-    public function __construct(
-        protected BlockchainServiceInterface $blockchainService
-    ) {}
 
     /**
      * Get the type's attributes.
@@ -37,7 +25,7 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
         return [
             'name' => 'Wallet',
             'description' => __('enjin-platform::type.wallet.description'),
-            'model' => Wallet::class,
+            'model' => Account::class,
         ];
     }
 
@@ -50,48 +38,53 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
         return [
             // Properties
             'id' => [
-                'type' => GraphQL::type('Int!'),
+                'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.wallet.field.id'),
             ],
             'account' => [
-                'type' => GraphQL::type('Account'),
+                'type' => GraphQL::type('Account!'),
                 'description' => __('enjin-platform::type.wallet.field.account'),
+                'alias' => 'address',
+                'is_relation' => false,
+                'always' => ['id'],
                 'resolve' => fn ($wallet) => [
-                    'publicKey' => $wallet->public_key,
+                    'publicKey' => $wallet->id,
                     'address' => $wallet->address,
                 ],
-                'is_relation' => false,
-                'selectable' => false,
-                'always' => ['public_key'],
             ],
-            'externalId' => [
-                'type' => GraphQL::type('String'),
-                'description' => __('enjin-platform::type.wallet.field.externalId'),
-                'alias' => 'external_id',
-            ],
-            'managed' => [
-                'type' => GraphQL::type('Boolean!'),
-                'description' => __('enjin-platform::type.wallet.field.managed'),
-            ],
-            'network' => [
-                'type' => GraphQL::type('String!'),
-                'description' => __('enjin-platform::type.wallet.field.network'),
-            ],
-
-            // Related
             'nonce' => [
-                'type' => GraphQL::type('Int'),
+                'type' => GraphQL::type('Int!'),
                 'description' => __('enjin-platform::type.wallet.field.nonce'),
-                'resolve' => fn ($wallet) => $this->blockchainService->walletWithBalanceAndNonce($wallet)->nonce,
-                'selectable' => false,
             ],
             'balances' => [
-                'type' => GraphQL::type('Balances'),
+                'type' => GraphQL::type('Balances!'),
                 'description' => __('enjin-platform::type.wallet.field.balances'),
-                'resolve' => fn ($wallet) => $this->blockchainService->walletWithBalanceAndNonce($wallet)->balances,
-                'selectable' => false,
+                'alias' => 'balance',
                 'is_relation' => false,
+                'resolve' => fn ($w) => [
+                    'free' => Arr::get($w->balance, 'free', '0'),
+                    'reserved' => Arr::get($w->balance, 'reserved', '0'),
+                    'miscFrozen' => Arr::get($w->balance, 'miscFrozen', '0'),
+                    'feeFrozen' => Arr::get($w->balance, 'feeFrozen', '0'),
+                ],
             ],
+
+
+            //            'externalId' => [
+            //                'type' => GraphQL::type('String'),
+            //                'description' => __('enjin-platform::type.wallet.field.externalId'),
+            //                'alias' => 'external_id',
+            //            ],
+            //            'managed' => [
+            //                'type' => GraphQL::type('Boolean!'),
+            //                'description' => __('enjin-platform::type.wallet.field.managed'),
+            //            ],
+            //            'network' => [
+            //                'type' => GraphQL::type('String!'),
+            //                'description' => __('enjin-platform::type.wallet.field.network'),
+            //            ],
+
+            // Relationships
             'collectionAccounts' => [
                 'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
                 'description' => __('enjin-platform::type.wallet.field.collectionAccounts'),
@@ -144,63 +137,63 @@ class WalletType extends GraphQlType implements PlatformGraphQlType
                 ],
                 'is_relation' => true,
             ],
-            'collectionAccountApprovals' => [
-                'type' => GraphQL::paginate('CollectionAccountApproval', 'CollectionAccountApprovalConnection'),
-                'description' => __('enjin-platform::type.wallet.field.collectionAccountApprovals'),
-                'args' => ConnectionInput::args([
-                    'walletAccounts' => [
-                        'type' => GraphQL::type('[String!]'),
-                        'description' => __('enjin-platform::query.get_wallet.args.account'),
-                        'rules' => ['array', new ValidSubstrateAccount(), 'max:500'],
-                    ],
-                ]),
-                'resolve' => fn ($wallet, $args) => [
-                    'items' => new CursorPaginator(
-                        $wallet?->collectionAccountApprovals,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $wallet?->collection_account_approvals_count,
-                ],
-                'is_relation' => true,
-            ],
-            'tokenAccountApprovals' => [
-                'type' => GraphQL::paginate('TokenAccountApproval', 'TokenAccountApprovalConnection'),
-                'description' => __('enjin-platform::type.wallet.field.tokenAccountApprovals'),
-                'args' => ConnectionInput::args([
-                    'walletAccounts' => [
-                        'type' => GraphQL::type('[String!]'),
-                        'description' => __('enjin-platform::query.get_wallet.args.account'),
-                        'rules' => ['array', new ValidSubstrateAccount(), 'max:500'],
-                    ],
-                ]),
-                'resolve' => fn ($wallet, $args) => [
-                    'items' => new CursorPaginator(
-                        $wallet?->tokenAccountApprovals,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $wallet?->token_account_approvals_count,
-                ],
-                'is_relation' => true,
-            ],
-            'transactions' => [
-                'type' => GraphQL::paginate('Transaction', 'TransactionConnection'),
-                'description' => __('enjin-platform::type.wallet.field.transactions'),
-                'args' => Arr::except(GetTransactionsQuery::resolveArgs(), ['accounts']),
-                'resolve' => fn ($wallet, array $args) => [
-                    'items' => new CursorPaginator(
-                        $wallet?->transactions,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $wallet?->transactions_count,
-                ],
-                'is_relation' => true,
-            ],
+            //            'collectionAccountApprovals' => [
+            //                'type' => GraphQL::paginate('CollectionAccountApproval', 'CollectionAccountApprovalConnection'),
+            //                'description' => __('enjin-platform::type.wallet.field.collectionAccountApprovals'),
+            //                'args' => ConnectionInput::args([
+            //                    'walletAccounts' => [
+            //                        'type' => GraphQL::type('[String!]'),
+            //                        'description' => __('enjin-platform::query.get_wallet.args.account'),
+            //                        'rules' => ['array', new ValidSubstrateAccount(), 'max:500'],
+            //                    ],
+            //                ]),
+            //                'resolve' => fn ($wallet, $args) => [
+            //                    'items' => new CursorPaginator(
+            //                        $wallet?->collectionAccountApprovals,
+            //                        $args['first'],
+            //                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+            //                        ['parameters' => ['id']]
+            //                    ),
+            //                    'total' => (int) $wallet?->collection_account_approvals_count,
+            //                ],
+            //                'is_relation' => true,
+            //            ],
+            //            'tokenAccountApprovals' => [
+            //                'type' => GraphQL::paginate('TokenAccountApproval', 'TokenAccountApprovalConnection'),
+            //                'description' => __('enjin-platform::type.wallet.field.tokenAccountApprovals'),
+            //                'args' => ConnectionInput::args([
+            //                    'walletAccounts' => [
+            //                        'type' => GraphQL::type('[String!]'),
+            //                        'description' => __('enjin-platform::query.get_wallet.args.account'),
+            //                        'rules' => ['array', new ValidSubstrateAccount(), 'max:500'],
+            //                    ],
+            //                ]),
+            //                'resolve' => fn ($wallet, $args) => [
+            //                    'items' => new CursorPaginator(
+            //                        $wallet?->tokenAccountApprovals,
+            //                        $args['first'],
+            //                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+            //                        ['parameters' => ['id']]
+            //                    ),
+            //                    'total' => (int) $wallet?->token_account_approvals_count,
+            //                ],
+            //                'is_relation' => true,
+            //            ],
+            //            'transactions' => [
+            //                'type' => GraphQL::paginate('Transaction', 'TransactionConnection'),
+            //                'description' => __('enjin-platform::type.wallet.field.transactions'),
+            //                'args' => Arr::except(GetTransactionsQuery::resolveArgs(), ['accounts']),
+            //                'resolve' => fn ($wallet, array $args) => [
+            //                    'items' => new CursorPaginator(
+            //                        $wallet?->transactions,
+            //                        $args['first'],
+            //                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
+            //                        ['parameters' => ['id']]
+            //                    ),
+            //                    'total' => (int) $wallet?->transactions_count,
+            //                ],
+            //                'is_relation' => true,
+            //            ],
             'ownedCollections' => [
                 'type' => GraphQL::paginate('Collection', 'CollectionConnection'),
                 'description' => __('enjin-platform::type.wallet.field.ownedCollections'),

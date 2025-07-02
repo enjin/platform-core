@@ -4,9 +4,23 @@ use Enjin\Platform\Enums\Global\ChainType;
 use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Services\Qr\Adapters\PlatformQrAdapter;
 
-// config for Platform/Core
-
 return [
+    'indexer' => [
+        'driver' => 'pgsql',
+        'url' => env('INDEXER_DB_URL'),
+        'host' => env('INDEXER_DB_HOST', '127.0.0.1'),
+        'port' => env('INDEXER_DB_PORT', '5432'),
+        'database' => env('INDEXER_DB_DATABASE', 'postgres'),
+        'username' => env('INDEXER_DB_USERNAME', 'postgres'),
+        'password' => env('INDEXER_DB_PASSWORD', 'postgres'),
+        'charset' => env('INDEXER_DB_CHARSET', 'utf8'),
+        'prefix' => '',
+        'prefix_indexes' => true,
+        'search_path' => 'public',
+        'sslmode' => 'prefer',
+    ],
+
+
     /*
     |--------------------------------------------------------------------------
     | Authentication
@@ -33,16 +47,6 @@ return [
             'token' => env('BASIC_AUTH_TOKEN'),
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Uses decoder container
-    |--------------------------------------------------------------------------
-    |
-    | If you wish to use a decoder container set the host here.
-    |
-    */
-    'decoder_container' => env('DECODER_CONTAINER', '127.0.0.1:8090'),
 
     /*
     |--------------------------------------------------------------------------
@@ -175,18 +179,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The sync settings
-    |--------------------------------------------------------------------------
-    |
-    | Here you can set whether to sync everything from the blockchain.
-    |
-    */
-    'sync' => [
-        'all' => env('SYNC_ALL', false),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | The flag to cache event
     |--------------------------------------------------------------------------
     |
@@ -260,17 +252,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Prune blocks
-    |--------------------------------------------------------------------------
-    |
-    | Here you can specify the number of days to retain blocks data before pruning.
-    | If set to null or zero, blocks will not be pruned.
-    |
-    */
-    'prune_blocks' => env('PRUNE_BLOCKS', 7),
-
-    /*
-    |--------------------------------------------------------------------------
     | API Rate Limiting
     |--------------------------------------------------------------------------
     |
@@ -281,20 +262,6 @@ return [
         'enabled' => env('RATE_LIMIT_ENABLED', false),
         'attempts' => env('RATE_LIMIT_ATTEMPTS', 500),
         'time' => env('RATE_LIMIT_TIME', 1), // minutes
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Attribute metadata syncing
-    |--------------------------------------------------------------------------
-    |
-    | Here you may configure how the attribute metadata is synced
-    |
-    */
-    'sync_metadata' => [
-        'data_chunk_size' => env('SYNC_METADATA_CHUNK_SIZE', 10000),
-        'refresh_max_attempts' => env('REFRESH_METADATA_MAX_ATTEMPTS', 10),
-        'refresh_decay_seconds' => env('REFRESH_METADATA_DECAY_SECONDS', 60),
     ],
 
     /*

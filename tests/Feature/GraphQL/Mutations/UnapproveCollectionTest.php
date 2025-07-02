@@ -6,21 +6,19 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\UnapproveCollectionMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Models\CollectionAccountApproval;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class UnapproveCollectionTest extends TestCaseGraphQL
 {
@@ -28,28 +26,30 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     protected string $method = 'UnapproveCollection';
     protected Codec $codec;
-    protected Model $owner;
-    protected Model $operator;
-    protected Model $collection;
-    protected Model $collectionAccount;
-    protected Model $collectionAccountApproval;
 
-    #[\Override]
+    protected Account $owner;
+    protected Account $operator;
+    protected Collection $collection;
+    protected CollectionAccount $collectionAccount;
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->owner = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->owner->id]);
+        $this->owner = $this->getDaemonAccount();
+
+        $this->collection = Collection::factory([
+            'owner_id' => $ownerId = $this->owner->id,
+        ])->create();
+
         $this->collectionAccount = CollectionAccount::factory()->create([
-            'collection_id' => $this->collection->id,
-            'wallet_id' => $this->owner->id,
+            'collection_id' => $collectionId = $this->collection->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'approvals' => [['accountId' => ($this->operator = Account::factory()->create())->id]],
         ]);
-        $this->collectionAccountApproval = CollectionAccountApproval::factory()->create([
-            'collection_account_id' => $this->collectionAccount->id,
-        ]);
-        $this->operator = Wallet::find($this->collectionAccountApproval->wallet_id);
     }
 
     // Happy Path
@@ -58,13 +58,13 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId = random_int(1, 100),
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'operator' => SS58Address::encode($this->operator->id),
             'skipValidation' => true,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
             collectionId: $collectionId,
-            operator: $this->operator->public_key
+            operator: $this->operator->id
         ));
 
         $this->assertArrayContainsArray([
@@ -81,14 +81,14 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     {
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'collectionId' => $this->collection->id,
+            'operator' => SS58Address::encode($this->operator->id),
             'simulate' => true,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
-            operator: $this->operator->public_key
+            collectionId: $this->collection->id,
+            operator: $this->operator->id
         ));
 
         $this->assertArrayContainsArray([
@@ -106,45 +106,50 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $signingWallet = Wallet::factory()->create();
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
-        $collectionAccount = CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $this->owner,
-            'account_count' => 1,
+        $signingWallet = Account::factory()->create();
+
+        $collection = Collection::factory([
+            'owner_id' => $ownerId = $signingWallet->id,
         ])->create();
-        CollectionAccountApproval::factory()->create([
-            'collection_account_id' => $collectionAccount->id,
-            'wallet_id' => $operator = Wallet::factory()->create(),
-        ]);
+
+        CollectionAccount::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'account_count' => 1,
+            'approvals' => [['accountId' => $operatorId = Account::factory()->create()->id]],
+        ])->create();
+
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->collection_chain_id,
-            'operator' => SS58Address::encode($operator->public_key),
+            'collectionId' => $collectionId,
+            'operator' => SS58Address::encode($operatorId),
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params);
+
         $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
     }
 
     public function test_it_can_unapprove_a_collection_with_string(): void
     {
+        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
+            collectionId: $this->collection->id,
+            operator: $this->operator->id,
+        ));
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'collectionId' => $this->collection->id,
+            'operator' => SS58Address::encode($this->operator->id),
             'nonce' => $nonce = fake()->numberBetween(),
         ]);
-
-        $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
-            operator: $this->operator->public_key,
-        ));
 
         $this->assertArrayContainsArray([
             'method' => $this->method,
@@ -162,28 +167,31 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_ss58_signing_account(): void
     {
-        $signingWallet = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
-        $collectionAccount = CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $this->owner,
-            'account_count' => 1,
+        Account::factory([
+            'id' => $ownerId = app(Generator::class)->public_key(),
         ])->create();
-        CollectionAccountApproval::factory()->create([
-            'collection_account_id' => $collectionAccount->id,
-            'wallet_id' => $this->operator,
-        ]);
+
+        $collection = Collection::factory([
+            'owner_id' => $ownerId,
+        ])->create();
+
+        CollectionAccount::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'account_count' => 1,
+            'approvals' => [['accountId' => $operatorId = $this->operator->id]],
+        ])->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
-            'signingAccount' => SS58Address::encode($signingAccount),
+            'collectionId' => $collectionId,
+            'operator' => SS58Address::encode($operatorId),
+            'signingAccount' => SS58Address::encode($ownerId),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
-            operator: $this->operator->public_key
+            collectionId: $collectionId,
+            operator: $operatorId
         ));
 
         $this->assertArrayContainsArray([
@@ -192,7 +200,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingAccount,
+                    'publicKey' => $ownerId,
                 ],
             ],
         ], $response);
@@ -202,29 +210,31 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_public_key_signing_account(): void
     {
-        $signingWallet = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
-        ]);
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
-        $collectionAccount = CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $this->owner,
-            'account_count' => 1,
+        $signingAccount = Account::factory([
+            'id' => $ownerId = app(Generator::class)->public_key(),
         ])->create();
-        CollectionAccountApproval::factory()->create([
-            'collection_account_id' => $collectionAccount->id,
-            'wallet_id' => $this->operator,
-        ]);
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
-            'signingAccount' => $signingAccount,
-        ]);
+
+        $collection = Collection::factory([
+            'owner_id' => $ownerId,
+        ])->create();
+
+        CollectionAccount::factory([
+            'collection_id' => $collectionId = $collection->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'approvals' => [['accountId' => $operatorId = $this->operator->id]],
+        ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
-            operator: $this->operator->public_key,
+            collectionId: $collectionId,
+            operator: $operatorId,
         ));
+
+        $response = $this->graphql($this->method, [
+            'collectionId' => $collectionId,
+            'operator' => SS58Address::encode($operatorId),
+            'signingAccount' => $ownerId,
+        ]);
 
         $this->assertArrayContainsArray([
             'method' => $this->method,
@@ -232,7 +242,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingAccount,
+                    'publicKey' => $ownerId,
                 ],
             ],
         ], $response);
@@ -243,13 +253,13 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     public function test_it_can_unapprove_a_collection_with_int(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => (int) $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'collectionId' => (int) $this->collection->id,
+            'operator' => SS58Address::encode($this->operator->id),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
-            operator: $this->operator->public_key
+            collectionId: $this->collection->id,
+            operator: $this->operator->id
         ));
 
         $this->assertArrayContainsArray([
@@ -264,24 +274,28 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_unapprove_a_collection_with_bigint(): void
     {
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
-        $collection = Collection::factory()->create([
-            'collection_chain_id' => Hex::MAX_UINT128,
-            'owner_wallet_id' => $this->owner->id,
-        ]);
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
-        $collectionAccount = CollectionAccount::find($this->collectionAccount->id);
-        $collectionAccount->collection_id = $collection->id;
-        $collectionAccount->save();
+        Collection::factory([
+            'id' => $collectionId,
+            'owner_id' => $ownerId = $this->owner->id,
+        ])->create();
+
+        CollectionAccount::factory([
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'approvals' => [['accountId' => $operatorId = $this->operator->id]],
+        ])->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'collectionId' => $collectionId,
+            'operator' => SS58Address::encode($operatorId),
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, UnapproveCollectionMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
-            operator: $this->operator->public_key
+            collectionId: $collectionId,
+            operator: $operatorId
         ));
 
         $this->assertArrayContainsArray([
@@ -300,7 +314,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of required type "BigInt!" was not provided.',
             $response['error']
         );
@@ -314,7 +328,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'collectionId' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of non-null type "BigInt!" must not be null.',
             $response['error']
         );
@@ -328,7 +342,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'collectionId' => fake()->numberBetween(1),
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of required type "String!" was not provided.',
             $response['error']
         );
@@ -343,7 +357,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
             'operator' => null,
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$operator" of non-null type "String!" must not be null.',
             $response['error']
         );
@@ -355,7 +369,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => 'abc',
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'operator' => SS58Address::encode($this->operator->id),
         ], true);
 
         $this->assertStringContainsString(
@@ -370,7 +384,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'collectionId' => -1,
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'operator' => SS58Address::encode($this->operator->id),
         ], true);
 
         $this->assertStringContainsString(
@@ -384,7 +398,7 @@ class UnapproveCollectionTest extends TestCaseGraphQL
     public function test_it_fail_with_invalid_operator(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'operator' => 'not_a_substrate_address',
         ], true);
 
@@ -398,11 +412,11 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_fail_with_collection_id_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(1))?->delete();
+        $this->deleteAllFrom($collectionId = fake()->numberBetween());
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'operator' => SS58Address::encode($this->operator->public_key),
+            'operator' => SS58Address::encode($this->operator->id),
         ], true);
 
         $this->assertArrayContainsArray(
@@ -415,17 +429,16 @@ class UnapproveCollectionTest extends TestCaseGraphQL
 
     public function test_it_fail_with_operator_doesnt_exists(): void
     {
-        Wallet::where('public_key', '=', $operator = app(Generator::class)->public_key())?->delete();
+        Account::find($accountId = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'operator' => SS58Address::encode($operator),
+            'collectionId' => $collectionId = $this->collection->id,
+            'operator' => $operatorId = SS58Address::encode($accountId),
         ], true);
 
-        $this->assertStringContainsString(
-            'Could not find an approval for',
-            $response['error']['operator'][0]
-        );
+        $this->assertArrayContainsArray([
+            'operator' => ["Could not find an approval for {$operatorId} at collection {$collectionId}."],
+        ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
     }

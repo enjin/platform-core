@@ -12,6 +12,7 @@ use Enjin\Platform\Models\PendingEvent;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -26,7 +27,7 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -46,7 +47,7 @@ class GetPendingEventsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([

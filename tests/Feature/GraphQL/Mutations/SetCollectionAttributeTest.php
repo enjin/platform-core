@@ -6,19 +6,18 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\SetCollectionAttributeMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class SetCollectionAttributeTest extends TestCaseGraphQL
 {
@@ -26,43 +25,49 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     protected string $method = 'SetCollectionAttribute';
     protected Codec $codec;
-    protected Model $collection;
-    protected Model $wallet;
 
-    #[\Override]
+    protected Collection $collection;
+    protected Account $wallet;
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
+        $this->wallet = $this->getDaemonAccount();
+        $this->collection = Collection::factory(['owner_id' => $this->wallet])->create();
     }
 
     // Happy Path
-
     public function test_it_can_bypass_ownership(): void
     {
-        $signingWallet = Wallet::factory()->create();
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $signingWallet = Account::factory()->create();
+
+        $collection = Collection::factory([
+            'owner_id' => $signingWallet,
+        ])->create();
+
         Token::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId = $collection->id,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $response = $this->graphql($this->method, $params = [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collectionId,
             'key' => fake()->word(),
             'value' => fake()->realText(),
             'simulate' => null,
             'nonce' => fake()->numberBetween(),
         ], true);
 
-        $this->assertEquals(
-            ['collectionId' => ['The collection id provided is not owned by you.']],
-            $response['error']
-        );
+        $this->assertArrayContainsArray([
+            'collectionId' => ['The collection id provided is not owned by you.'],
+        ], $response['error']);
 
         IsCollectionOwner::bypass();
         $response = $this->graphql($this->method, $params);
+
         $this->assertNotEmpty($response);
         IsCollectionOwner::unBypass();
     }
@@ -70,7 +75,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_can_create_an_attribute(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
             'simulate' => null,
@@ -78,7 +83,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $this->collection->id,
             tokenId: null,
             key: $key,
             value: $value
@@ -100,19 +105,21 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_ss58_signing_account(): void
     {
-        $signingWallet = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $signingWallet = Account::factory()->create([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
+
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
             'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
+            collectionId: $collection->id,
             tokenId: null,
             key: $key,
             value: $value
@@ -134,19 +141,19 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     public function test_it_can_create_an_attribute_with_public_key_signing_account(): void
     {
-        $signingWallet = Wallet::factory()->create([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $signingWallet = Account::factory()->create([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ]);
-        $collection = Collection::factory()->create(['owner_wallet_id' => $signingWallet]);
+        $collection = Collection::factory()->create(['owner_id' => $signingWallet]);
         $response = $this->graphql($this->method, [
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
             'signingAccount' => $signingAccount,
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
-            collectionId: $collection->collection_chain_id,
+            collectionId: $collection->id,
             tokenId: null,
             key: $key,
             value: $value
@@ -170,14 +177,14 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     {
         $this->mockFee($feeDetails = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => $key = fake()->word(),
             'value' => $value = fake()->realText(),
             'simulate' => true,
         ]);
 
         $encodedData = TransactionSerializer::encode('SetAttribute', SetCollectionAttributeMutation::getEncodableParams(
-            collectionId: $this->collection->collection_chain_id,
+            collectionId: $this->collection->id,
             tokenId: null,
             key: $key,
             value: $value
@@ -200,7 +207,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_key_length(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => fake()->numerify(str_repeat('#', 257)),
             'value' => fake()->realText(),
         ], true);
@@ -216,7 +223,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_will_fail_with_invalid_value_length(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => fake()->word(),
             'value' => fake()->asciify(str_repeat('*', 1025)),
         ], true);
@@ -231,7 +238,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
 
     public function test_it_fail_with_for_collection_that_doesnt_exists(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -270,7 +277,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
             'value' => fake()->realText(),
         ], true);
 
-        $this->assertEquals(
+        $this->assertStringContainsString(
             'Variable "$collectionId" of required type "BigInt!" was not provided.',
             $response['error']
         );
@@ -297,7 +304,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_no_key(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'value' => fake()->realText(),
         ], true);
 
@@ -312,7 +319,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_null_key(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => null,
             'value' => fake()->realText(),
         ], true);
@@ -328,7 +335,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_no_value(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => fake()->word,
         ], true);
 
@@ -343,7 +350,7 @@ class SetCollectionAttributeTest extends TestCaseGraphQL
     public function test_it_fail_with_null_value(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'key' => fake()->word,
             'value' => null,
         ], true);

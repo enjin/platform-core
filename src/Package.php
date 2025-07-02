@@ -16,17 +16,17 @@ class Package
         return self::$path;
     }
 
-    public static function setPath(string $path, bool $overwrite = false)
+    public static function setPath(string $path, bool $overwrite = false): void
     {
         self::$path = $overwrite ? $path : self::$path ?? $path;
     }
 
-    public static function clearPath()
+    public static function clearPath(): void
     {
         self::$path = null;
     }
 
-    public static function getPathToVendorFolder()
+    public static function getPathToVendorFolder(): string
     {
         $basePath = app()->basePath();
 
@@ -39,7 +39,7 @@ class Package
     public static function getAutoloader()
     {
         $vendorPath = self::$path ?? self::getPathToVendorFolder();
-        $vendorPath = rtrim((string) $vendorPath, DIRECTORY_SEPARATOR);
+        $vendorPath = rtrim($vendorPath, DIRECTORY_SEPARATOR);
 
         return require "{$vendorPath}/vendor/autoload.php";
 
@@ -61,7 +61,7 @@ class Package
         return collect(self::getAutoloader()->getClassMap())
             ->keys()
             ->filter(function ($className) {
-                $appNamespace = trim((string) app()->getNamespace(), '\\');
+                $appNamespace = trim(app()->getNamespace(), '\\');
                 $namespaceFilter = "/^(Enjin\\\\Platform|{$appNamespace})\\\\/";
 
                 return preg_match($namespaceFilter, $className)
@@ -75,7 +75,7 @@ class Package
         return self::getPackageClasses()->first(fn ($class) => Str::afterLast($class, '\\') == $className);
     }
 
-    public static function classImplementsInterface($class, $interface)
+    public static function classImplementsInterface($class, $interface): bool
     {
         return in_array($interface, class_implements($class));
     }
@@ -110,8 +110,14 @@ class Package
 
     public static function getInstalledPlatformPackages(): Collection
     {
-        return collect(InstalledVersions::getInstalledPackages())
+        $packages = collect(InstalledVersions::getInstalledPackages())
             ->filter(fn ($packageName) => preg_match("/^enjin\/platform-/", $packageName));
+
+        if ($packages->contains('enjin/platform-core')) {
+            $packages = $packages->merge(['enjin/platform-fuel-tanks', 'enjin/platform-marketplace']);
+        }
+
+        return $packages;
     }
 
     public static function getPackageClass($package): string

@@ -5,6 +5,7 @@ namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\InputType;
 
@@ -16,7 +17,7 @@ class BurnParamsInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -28,7 +29,7 @@ class BurnParamsInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [

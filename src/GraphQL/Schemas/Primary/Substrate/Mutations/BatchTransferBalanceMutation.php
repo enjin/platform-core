@@ -15,14 +15,13 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -38,7 +37,7 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -58,7 +57,7 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -89,7 +88,6 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
         WalletService $walletService
     ): mixed {
         $recipients = collect($args['recipients'])->map(
@@ -116,10 +114,7 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
             continueOnFailure: $continueOnFailure
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -146,7 +141,7 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'Batch';

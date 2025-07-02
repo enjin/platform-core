@@ -4,8 +4,8 @@ namespace Enjin\Platform\Events\Substrate\Balances;
 
 use Enjin\Platform\Channels\PlatformAppChannel;
 use Enjin\Platform\Events\PlatformBroadcastEvent;
+use Enjin\Platform\Models\Transaction;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Model;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Polkadart\Events\Balances\Endowed as EndowedPolkadart;
 use Enjin\Platform\Traits\HasCustomQueue;
 
@@ -16,7 +16,7 @@ class Endowed extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(EndowedPolkadart $event, ?Model $transaction = null)
+    public function __construct(EndowedPolkadart $event, ?Transaction $transaction = null)
     {
         parent::__construct();
 

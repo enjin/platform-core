@@ -10,10 +10,13 @@ use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTokenIdFieldRules;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Rules\TokenEncodeExists;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetTokenQuery extends Query implements PlatformGraphQlQuery
@@ -27,7 +30,7 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -41,22 +44,25 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
      */
     public function type(): Type
     {
-        return GraphQL::type('Token!');
+        return GraphQL::type('Token');
     }
 
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
-            'collectionId' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::query.get_token.args.collectionId'),
-                'rules' => ['exists:Enjin\Platform\Models\Collection,collection_chain_id'],
+            'id' => [
+                'type' => GraphQL::type('String'),
+                'description' => '',
             ],
-            ...$this->getTokenFields(__('enjin-platform::query.get_token.args.tokenId')),
+            'collectionId' => [
+                'type' => GraphQL::type('BigInt'),
+                'description' => __('enjin-platform::query.get_token.args.collectionId'),
+            ],
+            ...$this->getTokenFields(__('enjin-platform::query.get_token.args.tokenId'), true),
         ];
     }
 
@@ -65,21 +71,21 @@ class GetTokenQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Token::loadSelectFields($resolveInfo, $this->name)
-            ->whereHas('collection', fn ($query) => $query->where('collection_chain_id', $args['collectionId']))
-            ->where('token_chain_id', $this->encodeTokenId($args))
+        return Token::selectFields($getSelectFields)
+            ->where('id', $args['id'] ?? "{$args['collectionId']}-{$this->encodeTokenId($args)}")
             ->first();
     }
 
     /**
      * Get the validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
-        return $this->getTokenFieldRules(
-            null,
-            [new TokenEncodeExists()]
-        );
+        return [
+            'id' => ['nullable', 'required_without_all:collectionId,tokenId'],
+            'collectionId' => ['nullable', 'required_without:id', 'present_with:tokenId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            ...$this->getOptionalTokenFieldRules(null, ['required_without:id', 'present_with:collectionId']),
+        ];
     }
 }

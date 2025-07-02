@@ -3,26 +3,27 @@
 namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
 use Closure;
-use Enjin\Platform\Models\FuelTank;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Rules\ValidSubstrateAddress;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetFuelTanksQuery extends FuelTanksQuery
 {
     protected $middleware = [
+        SingleFilterOnly::class,
         ResolvePage::class,
     ];
 
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -42,17 +43,24 @@ class GetFuelTanksQuery extends FuelTanksQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
-            'names' => [
-                'type' => GraphQL::type('[String!]'),
-                'description' => __('enjin-platform::type.fuel_tank.field.name'),
+            'ids' => [
+                'type' => GraphQL::type('[String]'),
+                'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
+                'singleFilter' => true,
             ],
             'tankIds' => [
-                'type' => GraphQL::type('[String!]'),
+                'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform::mutation.fuel_tank.args.tankId'),
+                'singleFilter' => true,
+            ],
+            'names' => [
+                'type' => GraphQL::type('[String]'),
+                'description' => __('enjin-platform::type.fuel_tank.field.name'),
+                'singleFilter' => true,
             ],
         ]);
     }
@@ -60,45 +68,24 @@ class GetFuelTanksQuery extends FuelTanksQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return FuelTank::loadSelectFields($resolveInfo, $this->name)
-            ->when(
-                $publicKeys = Arr::get($args, 'tankIds'),
-                fn ($query) => $query->whereIn(
-                    'public_key',
-                    collect($publicKeys)->map(fn ($publicKey) => SS58Address::getPublicKey($publicKey))
-                )
-            )->when(
-                $names = Arr::get($args, 'names'),
-                fn ($query) => $query->whereIn('name', $names)
-            )->cursorPaginateWithTotalDesc('id', $args['first']);
-    }
-
-    /**
-     * Get the mutation's request validation rules.
-     */
-    #[\Override]
-    protected function rules(array $args = []): array
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        return [
-            'names' => [
-                'bail',
-                'prohibits:tankIds',
-                'array',
-            ],
-            'names.*' => ['bail', 'filled', 'max:32', 'distinct'],
-            'tankIds' => [
-                'bail',
-                'prohibits:names',
-                'array',
-            ],
-            'tankIds.*' => ['bail', 'filled', 'distinct', new ValidSubstrateAddress()],
-        ];
+        return FuelTank::selectFields($getSelectFields)
+            ->when(
+                !empty($args['ids']),
+                fn ($query) => $query->whereIn(
+                    'id',
+                    collect($args['ids'])->map(fn ($publicKey) => SS58Address::getPublicKey($publicKey))
+                )
+            )
+            ->when(
+                !empty($args['tankIds']),
+                fn ($query) => $query->whereIn(
+                    'id',
+                    collect($args['tankIds'])->map(fn ($publicKey) => SS58Address::getPublicKey($publicKey))
+                )
+            )
+            ->when(!empty($args['names']), fn ($query) => $query->whereIn('name', $args['names']))
+            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 }

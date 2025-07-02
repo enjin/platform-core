@@ -7,7 +7,7 @@ use Enjin\BlockchainTools\HexConverter;
 class Twox
 {
     /**
-     * Hashes a number to a 128 bit length.
+     * Hashes a number to a 128-bit length.
      */
     public static function hash(string $data, ?int $bitLength = 128): string
     {

@@ -3,12 +3,17 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Queries;
 
 use Closure;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasAdhocRules;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Rules\MaxBigInt;
+use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -17,10 +22,14 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
     use HasAdhocRules;
     use InPrimarySubstrateSchema;
 
+    protected $middleware = [
+        SingleFilterOnly::class,
+    ];
+
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -34,20 +43,26 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
      */
     public function type(): Type
     {
-        return GraphQL::type('Collection!');
+        return GraphQL::type('Collection');
     }
 
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
+            'id' => [
+                'type' => GraphQL::type('String'),
+                'description' =>  __('enjin-platform::query.get_collection.args.collectionId'),
+                'singleFilter' => true,
+            ],
             'collectionId' => [
-                'type' => GraphQL::type('BigInt!'),
+                'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::query.get_collection.args.collectionId'),
-                'rules' => ['exists:collections,collection_chain_id'],
+                'deprecationReason' => '',
+                'singleFilter' => true,
             ],
         ];
     }
@@ -57,8 +72,21 @@ class GetCollectionQuery extends Query implements PlatformGraphQlQuery
      */
     public function resolve($root, $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields): mixed
     {
-        return Collection::loadSelectFields($resolveInfo, $this->name)
-            ->where('collection_chain_id', $args['collectionId'])
+        return Collection::selectFields($getSelectFields)
+            ->where('id', $args['id'] ?? $args['collectionId'])
             ->first();
+    }
+
+    /**
+     * Get the validation rules.
+     */
+    #[Override]
+    protected function rules(array $args = []): array
+    {
+        return [
+            'id' => ['nullable', 'required_without:collectionId', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            // TODO: Remove when the collectionId argument is removed
+            'collectionId' => ['nullable', 'required_without:id', new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+        ];
     }
 }

@@ -5,7 +5,7 @@ namespace Enjin\Platform\Support;
 class BitMask
 {
     /**
-     * Get bits from mask.
+     * Get bits from the mask.
      */
     public static function getBits(int $mask): array
     {
@@ -26,7 +26,7 @@ class BitMask
     }
 
     /**
-     * Set bits in mask.
+     * Set bits in a mask.
      */
     public static function setBits(array $bits, int $mask = 0): mixed
     {
@@ -59,7 +59,7 @@ class BitMask
     }
 
     /**
-     * Set bit in mask.
+     * Set a bit in the mask.
      */
     public static function setBit(int $bit, int $mask): int
     {
@@ -67,7 +67,7 @@ class BitMask
     }
 
     /**
-     * Unset bit in mask.
+     * Unset a bit in the mask.
      */
     public static function unsetBit(int $bit, int $mask): int
     {

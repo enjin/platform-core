@@ -6,13 +6,14 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Support\SS58Address;
-use Enjin\Platform\Tests\Support\Mocks\StorageMock;
 use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
 use Http;
 use Illuminate\Support\Facades\Event;
+use Override;
+use ReflectionObject;
 
 class TransferKeepAliveTest extends TransferAllowDeathTest
 {
@@ -21,23 +22,12 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     protected string $method = 'TransferKeepAlive';
     protected array $fee;
 
-    #[\Override]
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->mockHttpClientSequence([
-            StorageMock::account_with_balance(),
-            StorageMock::fee($this->fee = app(Generator::class)->fee_details()),
-        ]);
-    }
-
-    #[\Override]
+    #[Override]
     public function test_it_can_skip_validation(): void
     {
-        Wallet::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
+            //            'managed' => false,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
@@ -76,9 +66,9 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     public function test_it_will_fail_with_not_enough_amount(): void
     {
         // Mocked balance = 2000000000000000000
-        Wallet::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
+            //            'managed' => false,
         ])->create();
 
         $response = $this->graphql($this->method, [
@@ -97,7 +87,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
 
     private static function clearExistingFakes(): void
     {
-        $reflection = new \ReflectionObject(Http::getFacadeRoot());
+        $reflection = new ReflectionObject(Http::getFacadeRoot());
         $property = $reflection->getProperty('stubCallbacks');
         $property->setAccessible(true);
         $property->setValue(Http::getFacadeRoot(), collect());

@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations;
 
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Traits\InMarketplaceSchema;
+use Override;
 use Rebing\GraphQL\Support\Mutation as GraphQlMutation;
 
 abstract class MarketplaceMutation extends GraphQlMutation implements PlatformGraphQlMutation
@@ -12,10 +13,8 @@ abstract class MarketplaceMutation extends GraphQlMutation implements PlatformGr
 
     /**
      * Adhoc rules.
-     *
-     * @var array
      */
-    public static $adhocRules = [];
+    public static array $adhocRules = [];
 
     /**
      * Get the blockchain method name from the graphql mutation name.
@@ -36,7 +35,7 @@ abstract class MarketplaceMutation extends GraphQlMutation implements PlatformGr
     /**
      * Get validation rules.
      */
-    #[\Override]
+    #[Override]
     public function getRules(array $arguments = []): array
     {
         return collect(parent::getRules($arguments))->mergeRecursive(static::$adhocRules)->all();
