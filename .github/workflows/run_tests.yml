@@ -8,6 +8,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
+      pgsql:
+        image: postgres:17
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 54332:5432
+
       mysql:
         image: mysql:8
         env:
@@ -16,11 +24,13 @@ jobs:
         ports:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
       redis:
         image: redis:7
         ports:
           - 6379:6379
         options: --entrypoint redis-server
+
     strategy:
       fail-fast: true
       matrix:
@@ -58,3 +68,4 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
           DB_DATABASE: platform
+          INDEXER_DB_PORT: ${{ job.services.pgsql.ports[54332] }}

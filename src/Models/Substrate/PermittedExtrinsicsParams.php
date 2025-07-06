@@ -107,6 +107,6 @@ class PermittedExtrinsicsParams extends FuelTankRules
             ->filter(fn ($class) => $class !== BatchTransferBalanceMutation::class)
             ->filter(fn ($class) => Str::contains(class_basename($class), $mutationName))->first();
 
-        return HexConverter::unPrefix(TransactionSerializer::encode((new $transactionMutation())->getMethodName(), $transactionMutation::getEncodableParams()));
+        return HexConverter::unPrefix(TransactionSerializer::encode(new $transactionMutation()->getMethodName(), $transactionMutation::getEncodableParams()));
     }
 }

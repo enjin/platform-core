@@ -59,7 +59,7 @@ trait HasEncodeToken
      */
     protected function newToken(): Token
     {
-        $this->token = (new Token())->forceFill([
+        $this->token = new Token()->forceFill([
             'collection_id' => $this->collection->id,
             'token_chain_id' => $this->getEncodedToken(),
             'supply' => (string) $supply = fake()->numberBetween(1),

@@ -66,7 +66,7 @@ class Package
 
                 return preg_match($namespaceFilter, $className)
                     && class_exists($className)
-                    && !(new \ReflectionClass($className))->isAbstract();
+                    && !new \ReflectionClass($className)->isAbstract();
             });
     }
 
