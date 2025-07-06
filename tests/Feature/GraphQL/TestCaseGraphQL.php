@@ -167,12 +167,11 @@ class TestCaseGraphQL extends TestCase
     {
         if ($tokenId === null) {
             TokenAccount::where('collection_id', $collectionId)?->delete();
-            Attribute::where('id', 'LIKE', "{$collectionId}-%")->get();
-            Token::where('collection_id', $collectionId)?->delete();
             CollectionAccount::where('collection_id', $collectionId)?->delete();
+            Attribute::where('collection_id', $collectionId)?->delete();
+            Token::where('collection_id', $collectionId)?->delete();
 
             if ($included) {
-                Attribute::where('collection_id', $collectionId)?->delete();
                 Collection::find($collectionId)?->delete();
             }
         }

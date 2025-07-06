@@ -4,6 +4,7 @@ namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferBalanceMutation;
@@ -16,6 +17,7 @@ use Faker\Generator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Override;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class BatchTransferBalanceTest extends TestCaseGraphQL
 {
@@ -34,6 +36,16 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->defaultAccount = Address::daemonPublicKey();
+
+        if (Account::where('id', $publicKey = '0x6802f945419791d3138b4086aa0b2700abb679f950e2721fd7d65b5d1fdf8f02')->doesntExist()) {
+            Account::factory(['id' => $publicKey])->create();
+        }
+        if (Account::where('id', $publicKey = '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e')->doesntExist()) {
+            Account::factory(['id' => $publicKey])->create();
+        }
+        if (Account::where('id', $publicKey = '0x3cf81cc35f7e749865f06f03239bc43b1b1679af39f46d211aabc21d070269a8')->doesntExist()) {
+            Account::factory(['id' => $publicKey])->create();
+        }
     }
 
     public static function getInputData(...$data): array
@@ -138,9 +150,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
 
     // Happy Path
 
-    /**
-     * @dataProvider validRecipientDataProvider
-     */
+    #[DataProvider('validRecipientDataProvider')]
     public function test_it_passes($data): void
     {
         $encodedData = TransactionSerializer::encode('Batch', BatchTransferBalanceMutation::getEncodableParams(
@@ -152,7 +162,8 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
             continueOnFailure: $data['continueOnFailure'],
         ));
 
-        $this->mockFee($feeDetails = app(Generator::class)->fee_details());
+        $this->mockFee(app(Generator::class)->fee_details());
+
         $response = $this->graphql($this->method, [
             'recipients' => $data['recipientInputData'],
             'continueOnFailure' => $data['continueOnFailure'],
@@ -178,10 +189,7 @@ class BatchTransferBalanceTest extends TestCaseGraphQL
     }
 
     // Exception Path
-
-    /**
-     * @dataProvider invalidRecipientDataProvider
-     */
+    #[DataProvider('invalidRecipientDataProvider')]
     public function test_it_fails_with_error($data, $errorKey, $errorValue): void
     {
         $response = $this->graphql($this->method, [

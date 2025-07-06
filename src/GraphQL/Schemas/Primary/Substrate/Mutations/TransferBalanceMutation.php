@@ -126,7 +126,7 @@ class TransferBalanceMutation extends Mutation implements PlatformBlockchainTran
     {
         return [
             'recipient' => [new ValidSubstrateAccount()],
-            'amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            'amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }

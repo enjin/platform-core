@@ -36,14 +36,14 @@ class AccountFactory extends Factory
             'id' => $pk = $this->faker->unique()->public_key(),
             'address' => SS58Address::encode($pk),
             'nonce' => $this->faker->randomNumber(),
-            'balance' => json_encode([
-                'free' => $free = $this->faker->randomNumber(),
+            'balance' => [
+                'free' => $free = gmp_strval(gmp_mul(gmp_init($this->faker->randomNumber()), gmp_init('1000000000000000000'))),
                 'transferable' => $free,
                 'frozen' => '0',
                 'reserved' => '0',
                 'feeFrozen' => '0',
                 'miscFrozen' => '0',
-            ]),
+            ],
             'verified' => false,
             // 'external_id' => fake()->unique()->uuid(),
             // 'managed' => fake()->boolean(),

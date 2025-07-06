@@ -53,8 +53,10 @@ class BatchMintTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->recipient = Account::factory()->create();
+        $this->wallet = $this->getDaemonAccount();
+
         $this->collection = Collection::factory([
-            'owner_id' => $this->wallet = Address::daemon(),
+            'owner_id' => $ownerId = $this->wallet->id,
             'mint_policy' => [
                 'maxTokenSupply' => null,
                 'maxTokenCount' => 100,
@@ -64,8 +66,9 @@ class BatchMintTest extends TestCaseGraphQL
 
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $collectionId = $this->collection->id,
-            'account_id' => $this->wallet,
+            'account_id' => $ownerId,
             'account_count' => 1,
+            'id' => "{$ownerId}-{$collectionId}",
         ])->create();
 
         $this->token = Token::factory([
@@ -74,25 +77,27 @@ class BatchMintTest extends TestCaseGraphQL
             'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
-        $this->tokenIdEncoder = new Integer($tokenId);
         $this->tokenAccount = TokenAccount::factory([
             'collection_id' => $collectionId,
             'token_id' => $this->token->id,
             'account_id' => $this->wallet,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
+
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = random_int(1, 1000),
+            collectionId: $collectionId = fake()->numberBetween(),
             recipients: [
                 [
                     'accountId' => $recipient = $this->recipient->id,
                     'params' => $createParams = new CreateTokenParams(
                         tokenId: $this->tokenIdEncoder->encode($tokenId = fake()->unique()->numberBetween()),
-                        initialSupply: $supply = fake()->numberBetween(1),
+                        initialSupply: fake()->numberBetween(1),
                     ),
                 ],
             ],
@@ -728,12 +733,16 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
-        $collection = Collection::factory([
+        Collection::factory([
             'id' => $collectionId,
+            'collection_id' => $collectionId,
             'owner_id' => $this->wallet,
         ])->create();
+
         $token = Token::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
@@ -742,7 +751,7 @@ class BatchMintTest extends TestCaseGraphQL
                 [
                     'accountId' => $recipient = $this->recipient->id,
                     'params' => $mintParams = new MintParams(
-                        tokenId: $this->tokenIdEncoder->encode($tokenId = $token->token_id),
+                        tokenId: $this->tokenIdEncoder->encode($tokenId),
                         amount: fake()->numberBetween(1),
                     ),
                 ],
@@ -889,12 +898,16 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mint_multiple_tokens(): void
     {
-        $this->deleteAllFrom($this->collection->id, included: false);
+        $this->deleteAllFrom($collectionId = $this->collection->id, included: false);
 
-        $tokens = Token::factory([
-            'collection_id' => $this->collection,
-            'cap' => null,
-        ])->count(10)->create();
+        $tokens = collect(range(0, 9))->map(
+            fn () => Token::factory([
+                'collection_id' => $collectionId,
+                'token_id' => $tokenId = fake()->numberBetween(),
+                'cap' => null,
+                'id' => "{$collectionId}-{$tokenId}",
+            ])->create()
+        );
 
         $recipients = $tokens->map(fn ($token) => [
             'accountId' => Account::factory()->create()->id,
@@ -905,7 +918,7 @@ class BatchMintTest extends TestCaseGraphQL
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->id,
+            collectionId: $collectionId,
             recipients: $recipients->toArray(),
             continueOnFailure: true // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -945,16 +958,18 @@ class BatchMintTest extends TestCaseGraphQL
     {
         $this->deleteAllFrom($collectionId = $this->collection->id, included: false);
 
-        $tokens = Token::factory([
-            'collection_id' => $collectionId,
-            'tokenId' => $tokenId = fake()->numberBetween(),
-            'id' => "{$collectionId}-{$tokenId}",
-        ])->count(10)->create();
+        $tokens = collect(range(0, 9))->map(
+            fn () => Token::factory([
+                'collection_id' => $collectionId,
+                'token_id' => $tokenId = fake()->numberBetween(),
+                'id' => "{$collectionId}-{$tokenId}",
+            ])->create()
+        );
 
         $recipients = $tokens->map(fn ($token) => [
             'accountId' => Account::factory()->create()->id,
             'params' => new MintParams(
-                tokenId: $this->tokenIdEncoder->encode($tokenId),
+                tokenId: $this->tokenIdEncoder->encode($token->token_id),
                 amount: fake()->numberBetween(1),
             ),
         ]);
@@ -998,21 +1013,24 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_can_batch_mint_mixed_tokens(): void
     {
-        $this->deleteAllFrom($this->collection->id, included: false);
+        $this->deleteAllFrom($collectionId = $this->collection->id, included: false);
 
         $recipients = collect(range(0, 8))
             ->map(fn ($x) => [
                 'accountId' => Account::factory()->create()->id,
                 'params' => new CreateTokenParams(
                     tokenId: $x + 1,
-                    initialSupply: $supply = fake()->numberBetween(1),
+                    initialSupply: fake()->numberBetween(1),
                 ),
             ]);
 
-        $tokens = Token::factory()->count(10)->sequence(fn ($s) => [
-            'collection_id' => $this->collection,
-            'token_id' => $s->index + 10,
-        ])->create();
+        $tokens = collect(range(0, 9))->map(
+            fn ($s) => Token::factory([
+                'collection_id' => $collectionId,
+                'token_id' => $tokenId = ($s + 10),
+                'id' => "{$collectionId}-{$tokenId}",
+            ])->create()
+        );
 
         $recipients = $recipients->merge(
             $tokens->map(fn ($token) => [
@@ -1025,7 +1043,7 @@ class BatchMintTest extends TestCaseGraphQL
         );
 
         $encodedData = TransactionSerializer::encode($this->method, BatchMintMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->id,
+            collectionId: $collectionId,
             recipients: $recipients->toArray(),
             continueOnFailure: true, // TODO: Please remove the line when we support `continueOnFailure = false`
         ));
@@ -1076,10 +1094,10 @@ class BatchMintTest extends TestCaseGraphQL
         $tokenId = fake()->unique()->numberBetween();
 
         $recipient = [
-            'accountId' => $address,
+            'accountId' => $this->recipient->id,
             'params' => new CreateTokenParams(
                 tokenId: $this->tokenIdEncoder->encode($tokenId),
-                initialSupply: $supply = fake()->numberBetween(1),
+                initialSupply: fake()->numberBetween(1),
             ),
         ];
 
@@ -1115,10 +1133,6 @@ class BatchMintTest extends TestCaseGraphQL
             'method' => $this->method,
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
-        ]);
-
-        $this->assertDatabaseHas('wallets', [
-            'id' => $address,
         ]);
     }
 
@@ -2769,7 +2783,11 @@ class BatchMintTest extends TestCaseGraphQL
 
     public function test_it_will_fail_if_exceed_max_token_count_in_collection(): void
     {
-        $this->collection->forceFill(['max_token_count' => 0])->save();
+        $this->collection->mint_policy = [
+            ...$this->collection->mint_policy,
+            'maxTokenCount' => '0',
+        ];
+        $this->collection->save();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->id,

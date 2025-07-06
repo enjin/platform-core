@@ -111,14 +111,14 @@ class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new KeepExistentialDeposit()],
+            'amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new KeepExistentialDeposit()],
         ];
     }
 
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 

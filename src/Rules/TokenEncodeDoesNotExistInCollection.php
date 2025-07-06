@@ -3,8 +3,8 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
+use Enjin\Platform\Models\Indexer\Token;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
-use Enjin\Platform\Services\Database\TokenService;
 use Enjin\Platform\Services\Token\TokenIdManager;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -17,11 +17,6 @@ class TokenEncodeDoesNotExistInCollection implements DataAwareRule, ValidationRu
     use HasDataAwareRule;
 
     /**
-     * The token service.
-     */
-    protected TokenService $tokenService;
-
-    /**
      * The token id manager service.
      */
     protected TokenIdManager $tokenIdManager;
@@ -31,7 +26,6 @@ class TokenEncodeDoesNotExistInCollection implements DataAwareRule, ValidationRu
      */
     public function __construct()
     {
-        $this->tokenService = resolve(TokenService::class);
         $this->tokenIdManager = resolve(TokenIdManager::class);
     }
 
@@ -43,11 +37,10 @@ class TokenEncodeDoesNotExistInCollection implements DataAwareRule, ValidationRu
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $data = Arr::get($this->data, Str::beforeLast($attribute, '.'));
+        $collectionId = $this->data['collectionId'];
+        $tokenId = $this->tokenIdManager->encode($data);
 
-        if ($this->tokenService->tokenExistsInCollection(
-            $this->tokenIdManager->encode($data),
-            $this->data['collectionId']
-        )) {
+        if (Token::where('id', "{$collectionId}-{$tokenId}")->exists()) {
             $fail('enjin-platform::validation.token_encode_doesnt_exist_in_collection')->translate();
         }
     }

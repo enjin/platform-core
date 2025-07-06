@@ -37,13 +37,18 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create([
+
+        $this->collection = Collection::factory([
             'owner_id' => $this->wallet,
-        ]);
-        $this->token = Token::factory([
-            'collection_id' => $this->collection->id,
         ])->create();
-        $this->tokenIdEncoder = new Integer($this->token->token_id);
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId = $this->collection->id,
+            'token_id' => $tokenId = fake()->randomNumber(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
@@ -487,7 +492,7 @@ class BatchSetAttributeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_token_that_doesnt_exists(): void
     {
-        Token::where('token_id', '=', $tokenId = fake()->randomNumber())?->delete();
+        $this->deleteAllFrom($this->collection->id, $tokenId = fake()->randomNumber());
 
         $response = $this->graphql($this->method, [
             'collectionId' => $this->collection->id,

@@ -33,6 +33,7 @@ class FreezeTest extends TestCaseGraphQL
 
     protected string $method = 'Freeze';
     protected Codec $codec;
+
     protected Account $wallet;
     protected Collection $collection;
     protected CollectionAccount $collectionAccount;
@@ -46,19 +47,32 @@ class FreezeTest extends TestCaseGraphQL
         parent::setUp();
         $this->codec = new Codec();
         $this->wallet = $this->getDaemonAccount();
-        $this->collection = Collection::factory()->create(['owner_id' => $this->wallet->id]);
-        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
-        $this->tokenAccount = TokenAccount::factory([
-            'account_id' => $this->wallet,
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
+
+        $this->collection = Collection::factory([
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
+
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $this->collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId = $this->collection->id,
+            'account_id' => $ownerId,
             'account_count' => 1,
+            'id' => "{$ownerId}-{$collectionId}",
         ])->create();
-        $this->tokenIdEncoder = new Integer($this->token->token_id);
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenAccount = TokenAccount::factory([
+            'account_id' => $ownerId,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
@@ -440,20 +454,28 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_big_int_token(): void
     {
-        $collection = Collection::factory()->create(['owner_id' => $this->wallet]);
-        Token::factory([
-            'collection_id' => $collection,
-            'token_id' => $tokenId = Hex::MAX_UINT128,
+        $this->deleteAllFrom($collectionId = fake()->numberBetween(), $tokenId = Hex::MAX_UINT128);
+
+        Collection::factory([
+            'collection_id' => $collectionId,
+            'owner_id' => $ownerId = $this->wallet->id,
+            'id' => $collectionId,
         ])->create();
 
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
             'account_count' => 1,
         ])->create();
 
+        Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId,
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode($tokenId),
@@ -743,16 +765,16 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_account_non_existent(): void
     {
-        Account::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::find($publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
             'collectionId' => $collectionId = $this->collection->id,
-            'collectionAccount' => $address,
+            'collectionAccount' => $publicKey,
         ], true);
 
         $this->assertArrayContainsArray(
-            ['collectionAccount' => ["Could not find a collection account for {$address} at collection {$collectionId}."]],
+            ['collectionAccount' => ["Could not find a collection account for {$publicKey} at collection {$collectionId}."]],
             $response['error']
         );
 

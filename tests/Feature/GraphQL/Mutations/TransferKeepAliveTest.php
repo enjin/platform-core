@@ -7,6 +7,7 @@ use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
 use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Substrate\Balance;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Support\MocksSocketClient;
 use Faker\Generator;
@@ -27,11 +28,10 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     {
         Account::factory([
             'id' => $publicKey = app(Generator::class)->public_key(),
-            //            'managed' => false,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
-            recipientAccount: $this->defaultAccount,
+            recipientAccount: $publicKey,
             value: $amount = fake()->numberBetween(),
         ));
 
@@ -39,7 +39,7 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
 
         $this->mockFee($this->fee = app(Generator::class)->fee_details());
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->defaultAccount),
+            'recipient' => SS58Address::encode($publicKey),
             'amount' => $amount,
             'signingAccount' => SS58Address::encode($publicKey),
             'skipValidation' => true,
@@ -65,15 +65,15 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
 
     public function test_it_will_fail_with_not_enough_amount(): void
     {
-        // Mocked balance = 2000000000000000000
-        Account::factory([
-            'id' => $publicKey = app(Generator::class)->public_key(),
-            //            'managed' => false,
-        ])->create();
+        $this->wallet->balance = new Balance(
+            free: $free = fake()->numberBetween(1),
+            transferable: $free
+        );
+        $this->wallet->save();
 
         $response = $this->graphql($this->method, [
-            'recipient' => $publicKey,
-            'amount' => '1950000000000000000',
+            'recipient' => app(Generator::class)->public_key(),
+            'amount' => $free - fake()->randomNumber(1),
         ], expectError: true);
 
         $this->assertArrayContainsArray([
@@ -83,6 +83,38 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
         ], $response['error']);
 
         Event::assertNotDispatched(TransactionCreated::class);
+    }
+
+    #[Override]
+    public function test_it_can_transfer_with_another_signing_wallet(): void
+    {
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
+        ])->create();
+
+        $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
+            recipientAccount: $this->wallet->id,
+            value: $amount = fake()->numberBetween(1)
+        ));
+
+        $response = $this->graphql($this->method, [
+            'recipient' => SS58Address::encode($this->wallet->id),
+            'amount' => $amount,
+            'signingAccount' => SS58Address::encode($publicKey),
+        ]);
+
+        $this->assertArrayContainsArray([
+            'method' => $this->method,
+            'state' => TransactionState::PENDING->name,
+            'encodedData' => $encodedData,
+            'wallet' => [
+                'account' => [
+                    'publicKey' => $publicKey,
+                ],
+            ],
+        ], $response);
+
+        Event::assertDispatched(TransactionCreated::class);
     }
 
     private static function clearExistingFakes(): void

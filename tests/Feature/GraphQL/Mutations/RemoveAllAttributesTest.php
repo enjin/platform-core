@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -57,6 +58,8 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
         $this->attribute = Attribute::factory()->create([
             'collection_id' => $collectionId,
             'token_id' => $this->token->id,
+            'key' => $key = fake()->word,
+            'id' => "{$collectionId}-{$tokenId}-" . HexConverter::stringToHexPrefixed($key),
         ]);
 
         $this->tokenIdEncoder = new Integer($tokenId);
@@ -363,22 +366,35 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_bigint_collection_id(): void
     {
-        Collection::where('id', Hex::MAX_UINT128)->update(['id' => fake()->numberBetween()]);
-        $collection = Collection::factory(['id' => Hex::MAX_UINT128, 'owner_id' => $this->wallet->id])->create();
-        $collectionId = $collection->id;
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
-        $token = Token::factory(['collection_id' => $collection])->create();
-        Attribute::factory(['collection_id' => $collection, 'token_id' => $token])->create();
+        Collection::factory([
+            'id' => $collectionId,
+            'owner_id' => $this->wallet->id,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        Attribute::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'key' => $key = fake()->word,
+            'id' => "{$collectionId}-{$tokenId}-" . HexConverter::stringToHexPrefixed($key),
+        ])->create();
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
             'attributeCount' => $attributeCount = 1,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode($token->token_id),
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
             attributeCount: $attributeCount,
         ));
 
@@ -401,20 +417,35 @@ class RemoveAllAttributesTest extends TestCaseGraphQL
 
     public function test_it_can_remove_an_attribute_with_bigint_token_id(): void
     {
-        $collection = Collection::factory(['owner_id' => $this->wallet->id, 'id' => $collectionId = fake()->numberBetween(2000)])->create();
-        Token::where('token_id', Hex::MAX_UINT128)->update(['token_id' => random_int(1, 1000)]);
-        $token = Token::factory(['collection_id' => $collection, 'token_id' => $tokenId = Hex::MAX_UINT128])->create();
-        Attribute::factory(['collection_id' => $collection, 'token_id' => $token])->create();
+        $this->deleteAllFrom($collectionId = fake()->numberBetween(), $tokenId = Hex::MAX_UINT128);
+
+        Collection::factory([
+            'id' => $collectionId,
+            'owner_id' => $this->wallet->id,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId,
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        Attribute::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'key' => $key = fake()->word,
+            'id' => "{$collectionId}-{$tokenId}-" . HexConverter::stringToHexPrefixed($key),
+        ])->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($token->token_id),
+            'collectionId' => $collectionId,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
             'attributeCount' => $attributeCount = 1,
         ]);
 
         $encodedData = TransactionSerializer::encode($this->method, RemoveAllAttributesMutation::getEncodableParams(
             collectionId: $collectionId,
-            tokenId: $this->tokenIdEncoder->encode($token->token_id),
+            tokenId: $this->tokenIdEncoder->encode($tokenId),
             attributeCount: $attributeCount,
         ));
 

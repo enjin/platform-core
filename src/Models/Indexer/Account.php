@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Models\Indexer;
 
+use Enjin\Platform\Casts\AsBalance;
 use Enjin\Platform\Database\Factories\Unwritable\AccountFactory;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Models\Verification;
@@ -89,7 +90,7 @@ class Account extends UnwritableModel
     protected function casts(): array
     {
         return [
-            'balance' => 'array',
+            'balance' => AsBalance::class,
         ];
     }
 

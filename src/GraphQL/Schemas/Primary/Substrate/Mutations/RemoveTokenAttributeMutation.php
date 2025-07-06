@@ -131,7 +131,7 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
     {
         return [
             'collectionId' => [new IsCollectionOwner()],
-            'key' => ['bail', 'filled', 'alpha_dash', 'max:32', new AttributeExistsInToken()],
+            'key' => ['filled', 'alpha_dash', 'max:32', new AttributeExistsInToken()],
             ...$this->getTokenFieldRules(null, [new TokenEncodeExists()])];
     }
 
@@ -141,8 +141,8 @@ class RemoveTokenAttributeMutation extends Mutation implements PlatformBlockchai
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
-            'key' => ['bail', 'filled', 'alpha_dash', 'max:32'],
+            'collectionId' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'key' => ['filled', 'alpha_dash', 'max:32'],
             ...$this->getTokenFieldRules(),
         ];
     }

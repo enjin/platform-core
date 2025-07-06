@@ -99,7 +99,7 @@ class CreateTokenMutation extends Mutation implements PlatformBlockchainTransact
         SerializationServiceInterface $serializationService,
     ): mixed {
         $encodedData = $serializationService->encode(
-            $this->getMethodName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            $this->getMethodName(),
             static::getEncodableParams(
                 recipientAccount: $args['recipient'],
                 collectionId: $args['collectionId'],

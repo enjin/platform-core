@@ -15,6 +15,7 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\SimpleTransferParams;
+use Enjin\Platform\Rules\CollectionExists;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
@@ -144,7 +145,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,id'],
+            'collectionId' => [new CollectionExists()],
             'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
@@ -156,7 +157,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             'params.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params'),
         ];

@@ -18,6 +18,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
@@ -91,17 +92,15 @@ class BatchTransferBalanceMutation extends Mutation implements PlatformBlockchai
         WalletService $walletService
     ): mixed {
         $recipients = collect($args['recipients'])->map(
-            function ($recipient) use ($walletService) {
+            function ($recipient) {
                 $transferBalanceParams = Arr::get($recipient, 'transferBalanceParams');
 
                 if ($transferBalanceParams === null) {
                     throw new PlatformException(__('enjin-platform::error.set_transfer_balance_params_for_recipient'));
                 }
 
-                $targetWallet = $walletService->firstOrStore(['account' => $recipient['account']]);
-
                 return [
-                    'accountId' => $targetWallet->public_key,
+                    'accountId' => SS58Address::getPublicKey($recipient['account']),
                     'keepAlive' => $transferBalanceParams['keepAlive'],
                     'value' => $transferBalanceParams['value'],
                 ];

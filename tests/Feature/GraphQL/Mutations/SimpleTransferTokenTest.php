@@ -51,7 +51,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
         $this->recipient = Account::factory()->create();
 
         $this->collection = Collection::factory([
-            'owner_id' => $ownerId = $this->wallet,
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
 
         $this->token = Token::factory([
@@ -64,6 +64,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'collection_id' => $collectionId,
             'account_id' => $ownerId,
             'account_count' => 1,
+            'id' => "{$ownerId}-{$collectionId}",
         ])->create();
 
         $this->tokenAccount = TokenAccount::factory([
@@ -78,40 +79,53 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_skip_validation(): void
     {
-        $signingWallet = Account::factory([
-            //            'managed' => false,
+        Account::factory([
+            'id' => $ownerId = app(Generator::class)->public_key,
+        ])->create();
+
+        Collection::factory([
+            'owner_id' => $ownerId,
+            'collection_id' => $collectionId = fake()->numberBetween(),
+            'id' => $collectionId,
+        ])->create();
+
+        CollectionAccount::factory([
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'account_count' => 1,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $tokenAccount = TokenAccount::factory([
-            'account_id' => $signingWallet,
-        ])->create();
-
-        $token = Token::find($tokenAccount->token_id);
-        $collection = Collection::find($tokenAccount->collection_id);
-
-        CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $signingWallet,
-            'account_count' => 1,
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->id,
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId = $collectionId,
             simpleTransferParams: $params = new SimpleTransferParams(
-                tokenId: $this->tokenIdInput->encode($token->token_id),
+                tokenId: $this->tokenIdInput->encode($tokenId),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
         $params = $params->toArray()['Simple'];
-        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_id);
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
-            'signingAccount' => SS58Address::encode($signingWallet->public_key),
+            'signingAccount' => SS58Address::encode($ownerId),
             'skipValidation' => true,
         ]);
 
@@ -121,7 +135,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingWallet->id,
+                    'publicKey' => $ownerId,
                 ],
             ],
         ], $response);
@@ -322,46 +336,53 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_signing_wallet(): void
     {
-        $signingWallet = Account::factory([
-            //            'managed' => true,
+        Account::factory([
+            'id' => $ownerId = app(Generator::class)->public_key,
         ])->create();
 
-        $collection = Collection::factory(['owner_id' => $signingWallet->id])->create();
+        Collection::factory([
+            'owner_id' => $ownerId,
+            'collection_id' => $collectionId = fake()->numberBetween(),
+            'id' => $collectionId,
+        ])->create();
+
+        CollectionAccount::factory([
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
+            'account_count' => 1,
+        ])->create();
+
         $token = Token::factory([
-            'collection_id' => $collectionId = $collection->id,
+            'collection_id' => $collectionId,
             'token_id' => $tokenId = fake()->numberBetween(),
             'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $tokenAccount = TokenAccount::factory([
-            'account_id' => $signingWallet,
             'collection_id' => $collectionId,
-            'token_id' => $token,
-        ])->create();
-
-        CollectionAccount::factory([
-            'collection_id' => $collectionId,
-            'account_id' => $signingWallet,
-            'account_count' => 1,
+            'token_id' => $token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->id,
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             simpleTransferParams: $params = new SimpleTransferParams(
-                tokenId: $this->tokenIdInput->encode($token->token_id),
+                tokenId: $this->tokenIdInput->encode($tokenId),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
         $params = $params->toArray()['Simple'];
-        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_id);
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
-            'signingAccount' => SS58Address::encode($signingWallet->public_key),
+            'signingAccount' => SS58Address::encode($ownerId),
         ]);
 
         $this->assertArrayContainsArray([
@@ -370,7 +391,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingWallet->id,
+                    'publicKey' => $ownerId,
                 ],
             ],
         ], $response);
@@ -387,39 +408,53 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_public_keysigning_wallet(): void
     {
-        $wallet = Account::factory([
-            'id' => $signingAccount = app(Generator::class)->public_key,
+        Account::factory([
+            'id' => $ownerId = app(Generator::class)->public_key,
         ])->create();
-        $collection = Collection::factory(['owner_id' => $wallet])->create();
-        $token = Token::factory(['collection_id' => $collection])->create();
-        $tokenAccount = TokenAccount::factory([
-            'account_id' => $wallet,
-            'collection_id' => $collection,
-            'token_id' => $token,
+
+        Collection::factory([
+            'owner_id' => $ownerId,
+            'collection_id' => $collectionId = fake()->numberBetween(),
+            'id' => $collectionId,
         ])->create();
+
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
             'account_count' => 1,
+        ])->create();
+
+        $token = Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $tokenAccount = TokenAccount::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->id,
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             simpleTransferParams: $params = new SimpleTransferParams(
-                tokenId: $this->tokenIdInput->encode($token->token_id),
+                tokenId: $this->tokenIdInput->encode($tokenId),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
         $params = $params->toArray()['Simple'];
-        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_id);
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
             'recipient' => SS58Address::encode($recipient),
             'params' => $params,
-            'signingAccount' => $signingAccount,
+            'signingAccount' => $ownerId,
         ]);
 
         $this->assertArrayContainsArray([
@@ -428,7 +463,7 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'encodedData' => $encodedData,
             'wallet' => [
                 'account' => [
-                    'publicKey' => $signingAccount,
+                    'publicKey' => $ownerId,
                 ],
             ],
         ], $response);
@@ -554,47 +589,49 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
             'state' => TransactionState::PENDING->name,
             'encoded_data' => $encodedData,
         ]);
-
-        $this->assertDatabaseHas('wallets', [
-            'id' => $publicKey,
-        ]);
     }
 
     public function test_it_can_transfer_token_with_bigint_collection_id(): void
     {
-        Collection::where('id', Hex::MAX_UINT128)->update(['id' => fake()->numberBetween()]);
-        $collection = Collection::factory([
-            'id' => Hex::MAX_UINT128,
-            'owner_id' => $this->wallet,
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
+
+        Collection::factory([
+            'id' => $collectionId,
+            'collection_id' => $collectionId,
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
 
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
             'account_count' => 1,
+            'id' => "{$ownerId}-{$collectionId}",
         ])->create();
 
         $token = Token::factory([
-            'collection_id' => $collection,
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
 
         $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->id,
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             simpleTransferParams: $params = new SimpleTransferParams(
-                tokenId: $this->tokenIdInput->encode($token->token_id),
+                tokenId: $this->tokenIdInput->encode($tokenId),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
         $params = $params->toArray()['Simple'];
-        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_id);
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -621,34 +658,45 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_token_with_bigint_token_id(): void
     {
-        $collection = Collection::factory()->create(['owner_id' => $this->wallet]);
+        $this->deleteAllFrom($collectionId = fake()->numberBetween(), $tokenId = Hex::MAX_UINT128);
+
+        Collection::factory([
+            'owner_id' => $ownerId = $this->wallet->id,
+            'collection_id' => $collectionId,
+            'id' => $collectionId,
+        ])->create();
+
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}",
             'account_count' => 1,
         ])->create();
-        Token::where('token_id', Hex::MAX_UINT128)->update(['token_id' => random_int(1, 1000)]);
+
         $token = Token::factory([
-            'collection_id' => $collection,
-            'token_id' => Hex::MAX_UINT128,
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId,
+            'id' => "{$collectionId}-{$tokenId}",
         ])->create();
+
         $tokenAccount = TokenAccount::factory([
-            'collection_id' => $collection,
-            'token_id' => $token,
-            'account_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'token_id' => $token->id,
+            'account_id' => $ownerId,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
         ])->create();
 
         $encodedData = TransactionSerializer::encode('Transfer', SimpleTransferTokenMutation::getEncodableParams(
             recipientAccount: $recipient = $this->recipient->id,
-            collectionId: $collectionId = $collection->id,
+            collectionId: $collectionId,
             simpleTransferParams: $params = new SimpleTransferParams(
-                tokenId: $this->tokenIdInput->encode($token->token_id),
+                tokenId: $this->tokenIdInput->encode($tokenId),
                 amount: fake()->numberBetween(1, $tokenAccount->balance),
             ),
         ));
 
         $params = $params->toArray()['Simple'];
-        $params['tokenId'] = $this->tokenIdInput->toEncodable($token->token_id);
+        $params['tokenId'] = $this->tokenIdInput->toEncodable($tokenId);
 
         $response = $this->graphql($this->method, [
             'collectionId' => $collectionId,
@@ -1002,7 +1050,6 @@ class SimpleTransferTokenTest extends TestCaseGraphQL
     {
         $signingWallet = Account::factory([
             'id' => app(Generator::class)->public_key(),
-            'managed' => true,
         ])->create();
 
         $response = $this->graphql($this->method, [

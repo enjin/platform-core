@@ -125,12 +125,14 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
      */
     protected function getAttributeCount(array $args): int
     {
+        $collectionId = $args['collectionId'];
         $tokenId = $this->encodeTokenId($args);
 
-        return Attribute::whereHas('collection', fn ($sub) => $sub->where('collection_chain_id', $args['collectionId']))
-            ->when($tokenId, fn ($query) => $query->whereHas('token', fn ($sub) => $sub->where('token_chain_id', $tokenId)))
-            ->unless($tokenId, fn ($query) => $query->whereNull('token_id'))
-            ->count();
+        if ($tokenId !== null) {
+            return Attribute::where('id', 'LIKE', "{$collectionId}-{$tokenId}-%")->count();
+        }
+
+        return Attribute::where('id', 'LIKE', "{$collectionId}-%")->count();
     }
 
     /**
