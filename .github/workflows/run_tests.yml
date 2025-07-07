@@ -60,7 +60,9 @@ jobs:
         run: pnpm install
 
       - name: Run indexer migration
-        run: pnpm run db:migrate
+        run: |
+          pnpm run build
+          pnpm run db:migrate
 
       - name: Checkout code
         uses: actions/checkout@v4
