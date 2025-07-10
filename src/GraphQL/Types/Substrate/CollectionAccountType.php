@@ -4,14 +4,12 @@ namespace Enjin\Platform\GraphQL\Types\Substrate;
 
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Traits\HasSelectFields;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
 class CollectionAccountType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InSubstrateSchema;
 
     /**
@@ -45,22 +43,20 @@ class CollectionAccountType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::type.collection_account.field.isFrozen'),
                 'alias' => 'is_frozen',
             ],
+            'approvals' => [
+                'type' => GraphQL::type('[CollectionAccountApproval]'),
+                'description' => __('enjin-platform::type.collection_account.field.approvals'),
+                'is_relation' => false,
+            ],
 
-            // Related
+            // Relationships
             'collection' => [
                 'type' => GraphQL::type('Collection!'),
                 'description' => __('enjin-platform::type.collection_account.field.collection'),
-                'is_relation' => true,
             ],
             'wallet' => [
                 'type' => GraphQL::type('Wallet'),
                 'description' => __('enjin-platform::type.collection_account.field.wallet'),
-                'is_relation' => true,
-            ],
-            'approvals' => [
-                'type' => GraphQL::type('[CollectionAccountApproval]'),
-                'description' => __('enjin-platform::type.collection_account.field.approvals'),
-                'is_relation' => true,
             ],
         ];
     }

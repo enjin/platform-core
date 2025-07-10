@@ -2,13 +2,11 @@
 
 namespace Enjin\Platform\Services\Database;
 
-use Carbon\Carbon;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Events\Global\TransactionUpdated;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 class TransactionService
@@ -20,8 +18,10 @@ class TransactionService
 
     /**
      * Get a transaction by column and value.
+     *
+     * @throws PlatformException
      */
-    public function get(string $key, string $column = 'id'): Model
+    public function get(string $key, string $column = 'id'): Transaction
     {
         $transaction = Transaction::where([$column => $key])->first();
 
@@ -35,18 +35,18 @@ class TransactionService
     /**
      * Create a new transaction.
      */
-    public function store(array $data, ?Model $signingWallet = null): Model
+    public function store(array $data, $signingWallet = null): Transaction
     {
         if ($transaction = Transaction::firstWhere(['idempotency_key' => $data['idempotency_key']])) {
             return $transaction;
         }
 
-        $data['wallet_public_key'] = $signingWallet?->public_key;
+        $data['signer_id'] = $signingWallet?->id;
         $data['method'] ??= '';
         $data['network'] = network()->name;
 
         if (Arr::get($data, 'simulate', false)) {
-            $data['created_at'] = $data['updated_at'] = Carbon::now();
+            $data['created_at'] = $data['updated_at'] = now();
             $data['idempotency_key'] = null;
 
             return Transaction::make($data);
@@ -69,9 +69,7 @@ class TransactionService
         $transaction->fill($data)->save();
 
         TransactionUpdated::safeBroadcast(
-            event: null,
             transaction: $transaction->refresh(),
-            extra: null,
         );
 
         return $transaction->wasChanged();

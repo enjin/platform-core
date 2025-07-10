@@ -5,14 +5,17 @@ namespace Enjin\Platform\GraphQL\Middleware;
 use Closure;
 use Enjin\Platform\Exceptions\PlatformException;
 use GraphQL\Type\Definition\ResolveInfo;
+use Override;
 use Rebing\GraphQL\Support\Middleware;
 
 class SingleFilterOnly extends Middleware
 {
     /**
      * Process the middleware.
+     *
+     * @throws PlatformException
      */
-    #[\Override]
+    #[Override]
     public function handle($root, array $args, $context, ResolveInfo $info, Closure $next)
     {
         $filledArgs = collect($args)->filter(fn ($arg) => !empty($arg));

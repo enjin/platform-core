@@ -3,10 +3,19 @@
 namespace Enjin\Platform\Tests\Feature\GraphQL;
 
 use Enjin\Platform\Facades\Package;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Attribute;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
+use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasConvertableObject;
 use Enjin\Platform\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
+use Override;
 use PHPUnit\Framework\ExpectationFailedException;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
@@ -18,7 +27,7 @@ class TestCaseGraphQL extends TestCase
     protected static bool $initialized = false;
     protected bool $fakeEvents = true;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -140,6 +149,42 @@ class TestCaseGraphQL extends TestCase
             ->each(
                 fn ($file) => self::$queries[str_replace(['.gql', '.graphql'], '', $file)] = file_get_contents(__DIR__ . '/Resources/' . $file)
             );
+    }
+
+    protected function getDaemonAccount(): Account
+    {
+        if ($account = Account::find($id = Address::daemonPublicKey())) {
+            return $account;
+        }
+
+        return Account::factory([
+            'id' => $id,
+            'address' => SS58Address::encode($id),
+        ])->create();
+    }
+
+    protected function deleteAllFrom(string $collectionId, ?string $tokenId = null, ?bool $included = true): void
+    {
+        if ($tokenId === null) {
+            TokenAccount::where('collection_id', $collectionId)?->delete();
+            CollectionAccount::where('collection_id', $collectionId)?->delete();
+            Attribute::where('collection_id', $collectionId)?->delete();
+            Token::where('collection_id', $collectionId)?->delete();
+
+            if ($included) {
+                Collection::find($collectionId)?->delete();
+            }
+        }
+
+        if ($tokenId !== null) {
+            TokenAccount::where('token_id', "{$collectionId}-{$tokenId}")?->delete();
+
+            if ($included) {
+                Attribute::where('token_id', "{$collectionId}-{$tokenId}")?->delete();
+                Token::find("{$collectionId}-{$tokenId}")?->delete();
+            }
+        }
+
     }
 
     /**

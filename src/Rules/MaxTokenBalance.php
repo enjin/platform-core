@@ -9,6 +9,7 @@ use Enjin\Platform\Services\Database\TokenService;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class MaxTokenBalance implements DataAwareRule, ValidationRule
 {
@@ -21,7 +22,7 @@ class MaxTokenBalance implements DataAwareRule, ValidationRule
     protected TokenService $tokenService;
 
     /**
-     * Create instance.
+     * Create an instance.
      */
     public function __construct()
     {
@@ -31,7 +32,7 @@ class MaxTokenBalance implements DataAwareRule, ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

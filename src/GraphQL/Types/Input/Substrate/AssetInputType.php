@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\GraphQL\Types\Input\Substrate;
 
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class AssetInputType extends InputType
@@ -9,7 +10,7 @@ class AssetInputType extends InputType
     /**
      * Get the input type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -21,7 +22,7 @@ class AssetInputType extends InputType
     /**
      * Get the input type's fields.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         return [

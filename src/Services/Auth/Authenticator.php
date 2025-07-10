@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 interface Authenticator
 {
     /**
-     * Authenticate user by request.
+     * Authenticate a user by request.
      */
     public function authenticate(Request $request): bool;
 
     /**
-     * Get authorization token.
+     * Get an authorization token.
      */
     public function getToken(): string;
 

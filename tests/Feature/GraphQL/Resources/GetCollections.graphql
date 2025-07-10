@@ -1,14 +1,15 @@
 query GetCollections(
-  $collectionIds: [BigInt]
+  $ids: [String]
   $tokensCursor: String
   $tokensLimit: Int
   $accountsCursor: String
   $accountsLimit: Int
 ) {
-  GetCollections(collectionIds: $collectionIds) {
+  GetCollections(ids: $ids) {
     edges {
       cursor
       node {
+        id
         collectionId
         maxTokenCount
         maxTokenSupply

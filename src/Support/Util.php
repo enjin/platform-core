@@ -6,10 +6,12 @@ use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\NetworkType;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Exceptions\PlatformException;
-use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Models\Indexer\Block;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use JsonException;
+use Random\RandomException;
 
 class Util
 {
@@ -42,6 +44,9 @@ class Util
 
     /**
      * Create a JSON-RPC encoded string.
+     *
+     * @throws JsonException
+     * @throws RandomException
      */
     public static function createJsonRpc(string $method, array $params = []): string
     {
@@ -53,7 +58,7 @@ class Util
         ], JSON_THROW_ON_ERROR);
     }
 
-    public static function isBase64String(string $string)
+    public static function isBase64String(string $string): bool
     {
         return base64_encode(base64_decode($string, true)) === $string;
     }

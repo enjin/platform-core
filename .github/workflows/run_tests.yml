@@ -2,12 +2,20 @@ name: Unit & Functional Tests
 on:
   push:
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     services:
+      pgsql:
+        image: postgres:17
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+
       mysql:
         image: mysql:8
         env:
@@ -16,19 +24,46 @@ jobs:
         ports:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
       redis:
         image: redis:7
         ports:
           - 6379:6379
         options: --entrypoint redis-server
+
     strategy:
       fail-fast: true
       matrix:
-        php: [8.3]
+        php: [8.4]
 
     name: PHP ${{ matrix.php }}
 
     steps:
+      - name: Checkout Indexer
+        uses: actions/checkout@v4
+        with:
+          repository: enjin/indexer
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: false
+
+      - name: Install Node 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "pnpm"
+
+      - name: Install packages
+        run: pnpm install
+
+      - name: Run indexer migration
+        run: |
+          pnpm run build
+          pnpm run db:migrate
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -41,11 +76,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup GO
-        uses: actions/setup-go@v5
-        with:
-          go-version: "^1.21"
-
       - name: Setup problem matchers
         run: |
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
@@ -54,8 +84,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-interaction --no-progress
-          composer build-sr25519
-          composer dump-autoload      
+          composer dump-autoload
 
       - name: Execute tests
         run: |
@@ -64,11 +93,3 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
           DB_DATABASE: platform
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          dry_run: github.event.pull_request.draft == true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          verbose: true

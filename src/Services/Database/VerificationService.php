@@ -5,12 +5,15 @@ namespace Enjin\Platform\Services\Database;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Facades\Qr;
+use Enjin\Platform\Models\Indexer\Account;
 use Enjin\Platform\Models\Verification;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Services\Blockchain\Interfaces\BlockchainServiceInterface;
 use Enjin\Platform\Support\Blake2;
 use Enjin\Platform\Support\SS58Address;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Random\RandomException;
+use SodiumException;
 
 class VerificationService
 {
@@ -31,7 +34,7 @@ class VerificationService
     }
 
     /**
-     * Get a verification by column and value.
+     * Get verification by column and value.
      */
     public function get(string $key, string $column = 'verification_id'): Model
     {
@@ -44,7 +47,7 @@ class VerificationService
     }
 
     /**
-     * Create a new verification.
+     * Create new verification.
      */
     public function store(array $data): Model
     {
@@ -63,6 +66,8 @@ class VerificationService
 
     /**
      * Verify a verification.
+     *
+     * @throws SodiumException|PlatformException
      */
     public function verify(string $verificationId, string $signature, string $address, string $cryptoSignatureType): bool
     {
@@ -79,7 +84,7 @@ class VerificationService
             throw new PlatformException(__('enjin-platform::error.verification.invalid_signature'));
         }
 
-        $wallet = Wallet::query()->firstWhere(['public_key' => $publicKey]);
+        $wallet = Account::query()->firstWhere(['public_key' => $publicKey]);
         if (empty($wallet)) {
             $wallet = $this->walletService->firstOrStore(['verification_id' => $verificationId]);
         }
@@ -94,25 +99,30 @@ class VerificationService
     }
 
     /**
-     * Generate a readable string using all upper case letters that are easy to recognize.
+     * Generate a readable string using all upper case letters that are straightforward to recognize.
      */
     public function generate(): array
     {
-        $verificationId = $this->generateVerificationId();
-
-        while (Verification::firstWhere(['verification_id' => $verificationId])) {
-            // TODO: Should report this as in theory this should not happen.
+        try {
             $verificationId = $this->generateVerificationId();
+
+            if (Verification::where(['verification_id' => $verificationId])->exists()) {
+                $this->generate();
+            }
+
+            return [
+                'verification_id' => $verificationId,
+                'code' => $this->generateCode(),
+            ];
+        } catch (Exception) {
+            $this->generate();
         }
 
-        return [
-            'verification_id' => $verificationId,
-            'code' => $this->generateCode(),
-        ];
+        return [];
     }
 
     /**
-     * Generate a QR code for a verification.
+     * Generate a QR code for verification.
      */
     public function qr(string $data, int $size = 512): string
     {
@@ -121,6 +131,8 @@ class VerificationService
 
     /**
      * Generate a random verification ID.
+     *
+     * @throws PlatformException
      */
     private function generateVerificationId(): string
     {
@@ -132,13 +144,15 @@ class VerificationService
             $hexed = sodium_bin2hex($key);
 
             return HexConverter::prefix($hexed);
-        } catch (\Exception) {
+        } catch (Exception) {
             throw new PlatformException(__('enjin-platform::error.verification.unable_to_generate_verification_id'));
         }
     }
 
     /**
      * Generate a random code.
+     *
+     * @throws RandomException
      */
     private function generateCode(): string
     {

@@ -16,17 +16,17 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\BurnParams;
-use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\CollectionExists;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BurnMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -44,7 +44,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -64,7 +64,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -93,7 +93,6 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
     ): mixed {
         $args['params']['tokenId'] = $this->encodeTokenId($args['params']);
         unset($args['params']['encodeTokenId'], $args['params']['keepAlive']);
@@ -103,10 +102,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             burnParams: new BurnParams(...$args['params'])
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -125,7 +121,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => [$min == 0 ? new IsCollectionOwner() : 'exists:collections,collection_chain_id'],
+            'collectionId' => [$min == 0 ? new IsCollectionOwner() : new CollectionExists()],
             'params.amount' => [new MinBigInt($min), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
@@ -139,7 +135,7 @@ class BurnMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         $min = Arr::get($args, 'params.removeTokenStorage', false) ? 0 : 1;
 
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             'params.amount' => [new MinBigInt($min), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params'),
         ];

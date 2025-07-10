@@ -4,9 +4,6 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
-use Enjin\Platform\Rules\AccountsExistsInFuelTank;
-use Enjin\Platform\Rules\IsFuelTankOwner;
-use Enjin\Platform\Rules\RuleSetExists;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -15,17 +12,21 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\AccountsExistsInFuelTank;
+use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Rules\RuleSetExists;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -40,7 +41,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -60,7 +61,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -91,7 +92,7 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
         ];
     }
 
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'ForceSetConsumption';
@@ -116,10 +117,10 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
         $userId = Arr::get($params, 'userId', null);
         $ruleSetId = Arr::get($params, 'ruleSetId', 0);
         $totalConsumed = Arr::get($params, 'totalConsumed', 0);

@@ -5,9 +5,6 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Mutations;
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
-use Enjin\Platform\Models\Substrate\DispatchRulesParams;
-use Enjin\Platform\Rules\IsFuelTankOwner;
-use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -15,19 +12,23 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
+use Enjin\Platform\Models\Substrate\DispatchRulesParams;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\IsFuelTankOwner;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -43,7 +44,7 @@ class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockch
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -63,7 +64,7 @@ class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockch
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -127,10 +128,10 @@ class InsertRuleSetMutation extends FuelTanksMutation implements PlatformBlockch
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
         $ruleSetId = Arr::get($params, 'ruleSetId', 0);
         $rules = Arr::get($params, 'dispatchRules', new DispatchRulesParams())->toEncodable();
         $requireAccount = Arr::get($params, 'requireAccount', false);

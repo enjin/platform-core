@@ -25,9 +25,11 @@ use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchMintMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -45,7 +47,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -65,7 +67,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -105,7 +107,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         WalletService $walletService
     ): mixed {
         $recipients = collect($args['recipients'])->map(
-            function ($recipient) use ($blockchainService, $walletService) {
+            function ($recipient) use ($blockchainService) {
                 $createParams = Arr::get($recipient, 'createParams');
                 $mintParams = Arr::get($recipient, 'mintParams');
 
@@ -124,10 +126,8 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
                     throw new PlatformException(__('enjin-platform::error.set_either_create_or_mint_param_for_recipient'));
                 }
 
-                $recipientWallet = $walletService->firstOrStore(['account' => $recipient['account']]);
-
                 return [
-                    'accountId' => $recipientWallet->public_key,
+                    'accountId' => SS58Address::getPublicKey($recipient['account']),
                     'params' => $blockchainService->getMintOrCreateParams($createParams ?? $mintParams),
                 ];
             }
@@ -137,16 +137,13 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         //  Encode the transaction with `0x` the solution here is to use Batch and within each call append the 0's
         $continueOnFailure = true;
         $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' :
-            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'), static::getEncodableParams(
+            $this->getMutationName(), static::getEncodableParams(
                 collectionId: $args['collectionId'],
                 recipients: $recipients->toArray(),
                 continueOnFailure: $continueOnFailure
             ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -159,7 +156,7 @@ class BatchMintMutation extends Mutation implements PlatformBlockchainTransactio
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
                 fn ($recipient) => $serializationService->encode(
-                    'Mint' . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    'Mint',
                     [
                         'collectionId' => gmp_init($collectionId),
                         'recipient' => [

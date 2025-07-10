@@ -17,19 +17,20 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\CollectionExists;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class BatchTransferMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -47,7 +48,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -67,7 +68,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -102,11 +103,10 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
         WalletService $walletService
     ): mixed {
         $recipients = collect($args['recipients'])->map(
-            function ($recipient) use ($blockchainService, $walletService) {
+            function ($recipient) use ($blockchainService) {
                 $simpleParams = Arr::get($recipient, 'simpleParams');
                 $operatorParams = Arr::get($recipient, 'operatorParams');
 
@@ -117,10 +117,8 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
                     throw new PlatformException(__('enjin-platform::error.set_either_simple_and_operator_params_for_recipient'));
                 }
 
-                $targetWallet = $walletService->firstOrStore(['account' => $recipient['account']]);
-
                 return [
-                    'accountId' => $targetWallet->public_key,
+                    'accountId' => SS58Address::getPublicKey($recipient['account']),
                     'params' => $blockchainService->getTransferParams($simpleParams ?? $operatorParams),
                 ];
             }
@@ -128,16 +126,13 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
 
         $continueOnFailure = $args['continueOnFailure'];
         $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' :
-            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'), static::getEncodableParams(
+            $this->getMutationName(), static::getEncodableParams(
                 collectionId: $args['collectionId'],
                 recipients: $recipients->toArray(),
                 continueOnFailure: $continueOnFailure
             ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -150,7 +145,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
                 fn ($recipient) => $serializationService->encode(
-                    'Transfer' . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    'Transfer',
                     [
                         'recipient' => [
                             'Id' => HexConverter::unPrefix($recipient['accountId']),
@@ -194,11 +189,11 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            'collectionId' => [new CollectionExists()],
             ...$this->getTokenFieldRulesExist('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRulesExist('recipients.*.operatorParams', $args),
-            'recipients.*.simpleParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
-            'recipients.*.operatorParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
+            'recipients.*.simpleParams.amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
+            'recipients.*.operatorParams.amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
         ];
     }
 
@@ -208,11 +203,11 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('recipients.*.simpleParams', $args),
             ...$this->getTokenFieldRules('recipients.*.operatorParams', $args),
-            'recipients.*.simpleParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
-            'recipients.*.operatorParams.amount' => [new MinBigInt(1), new MaxBigInt(Hex::MAX_UINT128)],
+            'recipients.*.simpleParams.amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
+            'recipients.*.operatorParams.amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 }

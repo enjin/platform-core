@@ -3,13 +3,14 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\FuelTank;
+use Enjin\Platform\Models\Indexer\FuelTank;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class IsFuelTankOwner implements DataAwareRule, ValidationRule
 {
@@ -18,7 +19,7 @@ class IsFuelTankOwner implements DataAwareRule, ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -31,7 +32,7 @@ class IsFuelTankOwner implements DataAwareRule, ValidationRule
             return;
         }
 
-        if (!SS58Address::isSameAddress($fuelTank->owner->public_key, Arr::get($this->data, 'signingAccount') ?? Account::daemonPublicKey())) {
+        if (!SS58Address::isSameAddress($fuelTank->owner->public_key, Arr::get($this->data, 'signingAccount') ?? Address::daemonPublicKey())) {
             $fail('enjin-platform::validation.is_fuel_tank_owner')->translate();
         }
     }

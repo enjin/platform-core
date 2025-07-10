@@ -2,9 +2,9 @@
 
 namespace Enjin\Platform\Tests\Packages\Traits;
 
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\Token;
 use Illuminate\Database\Eloquent\Model;
 
 trait CreateCollectionData
@@ -29,7 +29,7 @@ trait CreateCollectionData
      */
     public function createCollectionData(?string $publicKey = null): void
     {
-        $this->wallet = Wallet::firstOrCreate(
+        $this->wallet = Account::firstOrCreate(
             ['public_key' => $publicKey ?: config('enjin-platform.chains.daemon-account')],
             [
                 'external_id' => fake()->unique()->uuid(),

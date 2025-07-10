@@ -3,28 +3,25 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Laravel\MarketplaceListing;
+use Enjin\Platform\Models\Indexer\Listing;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
+use Override;
 
 class MinimumPrice implements DataAwareRule, ValidationRule
 {
     /**
-     * All of the data under validation.
-     *
-     * @var array
+     * All the data under validation.
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * Set the data under validation.
-     *
-     * @param  array  $data
-     * @return $this
      */
-    #[\Override]
-    public function setData($data)
+    #[Override]
+    public function setData(array $data): static
     {
         $this->data = $data;
 
@@ -34,13 +31,13 @@ class MinimumPrice implements DataAwareRule, ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
-    #[\Override]
+    #[Override]
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if ($listingId = Arr::get($this->data, 'listingId')) {
-            if (!$listing = MarketplaceListing::where('listing_chain_id', $listingId)->with('highestBid')->first()) {
+            if (!$listing = Listing::where('listing_chain_id', $listingId)->with('highestBid')->first()) {
                 return;
             }
 

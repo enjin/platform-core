@@ -9,6 +9,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QrController extends Controller
 {
+    /**
+     * @throws PlatformException
+     */
     public function get(Request $request)
     {
         $data = $request->input('d');

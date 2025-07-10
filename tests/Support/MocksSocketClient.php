@@ -4,7 +4,10 @@ namespace Enjin\Platform\Tests\Support;
 
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+use JsonException;
 use Mockery;
+use Random\RandomException;
+use ReflectionException;
 use WebSocket\Client;
 
 trait MocksSocketClient
@@ -21,13 +24,15 @@ trait MocksSocketClient
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
+     * @throws RandomException
+     * @throws ReflectionException
      */
     protected function mockWebsocketClient(string $method, array $params, string $responseJson, bool $anyParam = false): void
     {
         $expectedRpcRequest = Util::createJsonRpc($method, $params);
 
-        app()->bind(Client::class, function () use ($expectedRpcRequest, $responseJson, $anyParam) {
+        app()->bind(function () use ($expectedRpcRequest, $responseJson, $anyParam): Client {
             $mock = Mockery::mock(Client::class);
             if ($anyParam) {
                 $mock->shouldReceive('send')
@@ -51,9 +56,12 @@ trait MocksSocketClient
         });
     }
 
+    /**
+     * @throws ReflectionException
+     */
     protected function mockWebsocketClientSequence(array $responseSequence): void
     {
-        app()->bind(Client::class, function () use ($responseSequence) {
+        app()->bind(function () use ($responseSequence): Client {
             $mock = Mockery::mock(Client::class);
 
             $mock->shouldReceive('isConnected')

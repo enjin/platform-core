@@ -2,20 +2,20 @@
 
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
+use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
 use Enjin\Platform\GraphQL\Types\Traits\InSubstrateSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Traits\HasSelectFields;
-use Illuminate\Pagination\Cursor;
-use Illuminate\Pagination\CursorPaginator;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
 class CollectionType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
+    use HasEncodableTokenId;
     use InSubstrateSchema;
 
     /**
@@ -39,128 +39,133 @@ class CollectionType extends Type implements PlatformGraphQlType
     {
         return [
             // Properties
-            'collectionId' => [
-                'type' => GraphQL::type('BigInt!'),
+            'id' => [
+                'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.collection_type.field.collectionId'),
-                'alias' => 'collection_chain_id',
             ],
             'maxTokenCount' => [
-                'type' => GraphQL::type('Int'),
+                'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.collection_type.field.maxTokenCount'),
-                'alias' => 'max_token_count',
+                'alias' => 'mint_policy',
+                'resolve' => fn ($c) => Arr::get($c->mint_policy, 'maxTokenCount'),
             ],
             'maxTokenSupply' => [
                 'type' => GraphQL::type('BigInt'),
                 'description' => __('enjin-platform::type.collection_type.field.maxTokenSupply'),
-                'alias' => 'max_token_supply',
+                'alias' => 'mint_policy',
+                'resolve' => fn ($c) => Arr::get($c->mint_policy, 'maxTokenSupply'),
             ],
             'forceCollapsingSupply' => [
                 'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.collection_type.field.forceCollapsingSupply'),
-                'alias' => 'force_collapsing_supply',
+                'alias' => 'mint_policy',
+                'resolve' => fn ($c) => Arr::get($c->mint_policy, 'forceSingleMint', false),
             ],
             'frozen' => [
-                'type' => GraphQL::type('Boolean'),
+                'type' => GraphQL::type('Boolean!'),
                 'description' => __('enjin-platform::type.collection_type.field.frozen'),
-                'alias' => 'is_frozen',
+                'alias' => 'transfer_policy',
+                'resolve' => fn ($c) => Arr::get($c->transfer_policy, 'isFrozen', false),
             ],
             'royalty' => [
                 'type' => GraphQL::type('Royalty'),
                 'description' => __('enjin-platform::type.collection_type.field.royalty'),
-                'resolve' => function ($collection) {
-                    if ($collection->royaltyBeneficiary === null) {
-                        return;
+                'alias' => 'market_policy',
+                'is_relation' => false,
+                'resolve' => function ($c): ?array {
+                    if (empty($beneficiary = Arr::get($c->market_policy, 'beneficiaries.0'))) {
+                        return null;
+                    }
+
+                    $wallet = Account::firstWhere('id', Arr::get($beneficiary, 'accountId'));
+                    if (!$wallet) {
+                        return null;
                     }
 
                     return [
-                        'beneficiary' => $collection->royaltyBeneficiary,
-                        'percentage' => $collection->royalty_percentage,
+                        'beneficiary' => $wallet,
+                        'percentage' => Arr::get($beneficiary, 'percentage'),
                     ];
                 },
-                'is_relation' => false,
-                'selectable' => false,
-                'always' => ['royalty_wallet_id', 'royalty_percentage'],
             ],
             'totalDeposit' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::type.collection_type.field.totalDeposit'),
                 'alias' => 'total_deposit',
             ],
-            'totalInfusion' => [
-                'type' => GraphQL::type('BigInt!'),
-                'description' => __('enjin-platform::type.collection_type.field.totalInfusion'),
-                'alias' => 'total_infusion',
-            ],
-            'creationDeposit' => [
-                'type' => GraphQL::type('CreationDeposit!'),
-                'description' => __('enjin-platform::type.collection_type.field.creationDeposit'),
-                'resolve' => fn ($collection) => [
-                    'depositor' => $collection->creationDepositor,
-                    'amount' => $collection->creation_deposit_amount,
-                ],
-                'is_relation' => false,
-                'selectable' => false,
-            ],
             'network' => [
                 'type' => GraphQL::type('String!'),
                 'description' => __('enjin-platform::type.collection_type.field.network'),
+                'selectable' => false,
             ],
 
-            // Related
+            // Relationships
             'owner' => [
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform::type.collection_type.field.owner'),
-                'is_relation' => true,
             ],
             'attributes' => [
                 'type' => GraphQL::type('[Attribute]'),
                 'description' => __('enjin-platform::type.collection_type.field.attributes'),
-                'is_relation' => true,
             ],
             'accounts' => [
                 'type' => GraphQL::paginate('CollectionAccount', 'CollectionAccountConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.accounts'),
                 'args' => ConnectionInput::args(),
-                'resolve' => fn ($collection, $args, $context, $info) => [
-                    'items' => new CursorPaginator(
-                        $collection?->accounts,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $collection?->accounts_count,
-                ],
-                'is_relation' => true,
+                'alias' => 'collectionAccounts',
+                'resolve' => fn ($c, $args) => $c?->collectionAccounts()->cursorPaginateWithTotal('id', $args['first']),
             ],
             'tokens' => [
                 'type' => GraphQL::paginate('Token', 'TokenConnection'),
                 'description' => __('enjin-platform::type.collection_type.field.tokens'),
                 'args' => ConnectionInput::args([
+                    'ids' => [
+                        'type' => GraphQL::type('[String]'),
+                        'description' => '',
+                        'rules' => ['array', 'max:100'],
+                    ],
                     'tokenIds' => [
                         'type' => GraphQL::type('[EncodableTokenIdInput]'),
                         'description' => __('enjin-platform::query.get_tokens.args.tokenIds'),
                         'rules' => ['array', 'max:100'],
                     ],
                 ]),
-                'resolve' => fn ($collection, $args) => [
-                    'items' => new CursorPaginator(
-                        $collection?->tokens,
-                        $args['first'],
-                        Arr::get($args, 'after') ? Cursor::fromEncoded($args['after']) : null,
-                        ['parameters' => ['id']]
-                    ),
-                    'total' => (int) $collection?->tokens_count,
-                ],
-                'is_relation' => true,
+                'resolve' => fn ($c, $args) => $c?->tokens()
+                    ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('id', $args['ids']))
+                    ->when(!empty($args['tokenIds']), fn (Builder $query, $tokenIds) => $query->whereIn('token_id', collect($args['tokenIds'])->map(fn ($tokenId) => $this->encodeTokenId(['tokenId' => $tokenId]))->all()))
+                    ->cursorPaginateWithTotal('id', $args['first']),
             ],
 
             // Deprecated
+            'collectionId' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.collection_type.field.collectionId'),
+                'deprecationReason' => '',
+                'alias' => 'collection_id',
+            ],
             'forceSingleMint' => [
                 'type' => GraphQL::type('Boolean'),
                 'description' => __('enjin-platform::type.collection_type.field.forceSingleMint'),
                 'deprecationReason' => __('enjin-platform::deprecated.collection_type.field.forceSingleMint'),
-                'alias' => 'force_collapsing_supply',
+                'alias' => 'mint_policy',
+                'resolve' => fn ($c) => Arr::get($c->mint_policy, 'forceSingleMint'),
+            ],
+            'totalInfusion' => [
+                'type' => GraphQL::type('BigInt!'),
+                'description' => __('enjin-platform::type.collection_type.field.totalInfusion'),
+                'deprecationReason' => '',
                 'selectable' => false,
+                'resolve' => fn () => 0,
+            ],
+            'creationDeposit' => [
+                'type' => GraphQL::type('CreationDeposit!'),
+                'description' => __('enjin-platform::type.collection_type.field.creationDeposit'),
+                'selectable' => false,
+                'is_relation' => false,
+                'resolve' => fn () => [
+                    'depositor' => Account::first(),
+                    'amount' => 0,
+                ],
             ],
         ];
     }

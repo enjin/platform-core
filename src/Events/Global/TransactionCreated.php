@@ -3,10 +3,10 @@
 namespace Enjin\Platform\Events\Global;
 
 use Enjin\Platform\Events\PlatformBroadcastEvent;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Traits\HasCustomQueue;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Model;
 
 class TransactionCreated extends PlatformBroadcastEvent
 {
@@ -15,7 +15,7 @@ class TransactionCreated extends PlatformBroadcastEvent
     /**
      * Create a new event instance.
      */
-    public function __construct($event, ?Model $transaction = null, ?array $extra = null)
+    public function __construct($event, ?Transaction $transaction = null, ?array $extra = null)
     {
         parent::__construct();
 
@@ -28,7 +28,7 @@ class TransactionCreated extends PlatformBroadcastEvent
             'idempotencyKey' => $transaction->idempotency_key,
         ];
 
-        $publicKey = $transaction->wallet?->public_key ?? Account::daemonPublicKey();
+        $publicKey = $transaction->wallet?->public_key ?? Address::daemonPublicKey();
 
         if ($publicKey == null) {
             return;

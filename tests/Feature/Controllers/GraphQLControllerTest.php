@@ -9,7 +9,7 @@ class GraphQLControllerTest extends TestCaseGraphQL
 {
     use HasHttp;
 
-    public function test_it_can_query_introspsection(): void
+    public function test_it_can_query_introspection(): void
     {
         $response = $this->json(
             'POST',

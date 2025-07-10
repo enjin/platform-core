@@ -14,7 +14,7 @@ class AuthServiceTest extends TestCase
     {
         $manager = resolve(AuthManager::class);
         $manager->setDefaultDriver('basic_token');
-        $this->assertEquals($manager->getDefaultDriver(), 'basic_token');
+        $this->assertEquals('basic_token', $manager->getDefaultDriver());
 
         config(['enjin-platform.auth_drivers.basic_token.token' =>  $token = Str::random(20)]);
         $auth = $manager->driver();

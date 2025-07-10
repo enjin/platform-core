@@ -16,18 +16,18 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DistinctMultiAsset;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidRoyaltyPercentage;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class MutateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -45,7 +45,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -65,7 +65,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -94,7 +94,6 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
         WalletService $walletService,
         Substrate $blockchainService
     ): mixed {
@@ -116,18 +115,15 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
             $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
             static::getEncodableParams(
                 collectionId: $args['collectionId'],
-                owner: Arr::get($args, 'mutation.owner') !== null
-                ? $walletService->firstOrStore(['account' => $args['mutation']['owner']])->public_key
+                owner: ($owner = Arr::get($args, 'mutation.owner')) !== null
+                ? SS58Address::getPublicKey($owner)
                 : null,
                 royalty: $blockchainService->getMutateCollectionRoyalty(Arr::get($args, 'mutation')),
                 explicitRoyaltyCurrencies: Arr::get($args, 'mutation.explicitRoyaltyCurrencies'),
             )
         );
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array

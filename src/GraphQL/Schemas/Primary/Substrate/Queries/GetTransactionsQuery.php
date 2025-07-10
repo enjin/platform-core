@@ -20,6 +20,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 
@@ -35,7 +36,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -55,7 +56,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the query's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return self::resolveArgs();
@@ -150,7 +151,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
     /**
      * Get the validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [

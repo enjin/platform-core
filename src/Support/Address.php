@@ -1,0 +1,95 @@
+<?php
+
+namespace Enjin\Platform\Support;
+
+use Enjin\Platform\BlockchainConstant;
+use Enjin\Platform\Enums\Global\PlatformCache;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Services\Database\WalletService;
+use GMP;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+
+class Address
+{
+    public static $publicKey;
+    public static $walletAccounts = [];
+    private static $account;
+
+    public static function existentialDeposit(): GMP
+    {
+        return gmp_init(BlockchainConstant::EXISTENTIAL_DEPOSIT);
+    }
+
+    /**
+     * Check if an account is an owner.
+     */
+    public static function isAccountOwner(string $publicKey, string $others = ''): bool
+    {
+        $accounts = [
+            static::$publicKey,
+            ...Arr::wrap(static::$walletAccounts),
+            $others,
+        ];
+
+        return array_any(
+            array_filter($accounts),
+            fn ($account) => $account && SS58Address::isSameAddress($publicKey, $account)
+        );
+    }
+
+    /**
+     * Get daemon account public key.
+     */
+    public static function daemonPublicKey(): string
+    {
+        return SS58Address::getPublicKey(static::$publicKey ?? config('enjin-platform.chains.daemon-account'));
+    }
+
+    /**
+     * Get the daemon account wallet.
+     */
+    public static function daemon(): Account
+    {
+        if (!static::$account) {
+            static::$account = resolve(WalletService::class)->firstOrStore(
+                ['id' => static::daemonPublicKey()]
+            );
+        }
+
+        return static::$account;
+    }
+
+    /**
+     * Get managed wallets public keys.
+     */
+    public static function managedPublicKeys(): array
+    {
+        return Cache::remember(
+            PlatformCache::MANAGED_ACCOUNTS->key(),
+            now()->addHour(),
+            fn () => collect(Account::where('managed', true)->pluck('id'))
+                ->filter()
+                ->add(static::daemonPublicKey())
+                ->unique()
+                ->toArray()
+        );
+    }
+
+    /**
+     * Parse an account to a public key.
+     */
+    public static function parseAccount(array|string|null $account): ?string
+    {
+        if (isset($account['Signed'])) {
+            return SS58Address::getPublicKey($account['Signed']);
+        }
+
+        return SS58Address::getPublicKey($account);
+    }
+
+    public static function isManaged(string $publicKey): bool
+    {
+        return in_array($publicKey, static::managedPublicKeys());
+    }
+}

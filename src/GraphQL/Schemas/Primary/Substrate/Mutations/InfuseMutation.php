@@ -16,15 +16,14 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -43,7 +42,7 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -63,7 +62,7 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -71,11 +70,11 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.common.args.collectionId'),
             ],
-            ...$this->getTokenFields(__('enjin-platform::mutation.infuse.args.tokenId')),
             'amount' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.infuse.args.amount'),
             ],
+            ...$this->getTokenFields(__('enjin-platform::mutation.infuse.args.tokenId')),
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -93,7 +92,6 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
     ): mixed {
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
@@ -101,10 +99,7 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
             amount: $args['amount']
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -123,7 +118,7 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
     {
         return [
             // TODO: Check anyoneCanInfuse
-            'collectionId' => ['exists:collections,collection_chain_id'],
+            //            'collectionId' => ['exists:collection,id'],
             // TODO: Ideally we will check if we have enough ENJ balance to make this infusion
             'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRulesExist(),
@@ -136,8 +131,8 @@ class InfuseMutation extends Mutation implements PlatformBlockchainTransaction, 
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
-            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
+            'amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules(),
         ];
     }

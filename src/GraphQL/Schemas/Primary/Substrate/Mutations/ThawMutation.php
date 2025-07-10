@@ -17,18 +17,17 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasTokenIdFields;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AccountExistsInCollection;
 use Enjin\Platform\Rules\AccountExistsInToken;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class ThawMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
@@ -45,7 +44,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -65,7 +64,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -77,7 +76,6 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform::mutation.thaw.args.collectionId'),
             ],
-            ...$this->getTokenFields(__('enjin-platform::mutation.thaw.args.tokenId'), true),
             'collectionAccount' => [
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::mutation.thaw.args.collectionAccount'),
@@ -86,6 +84,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
                 'type' => GraphQL::type('String'),
                 'description' => __('enjin-platform::mutation.thaw.args.tokenAccount'),
             ],
+            ...$this->getTokenFields(__('enjin-platform::mutation.thaw.args.tokenId'), true),
             ...$this->getSigningAccountField(),
             ...$this->getIdempotencyField(),
             ...$this->getSkipValidationField(),
@@ -104,7 +103,6 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         $params = $blockchainService->getFreezeOrThawParams($args);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
@@ -112,10 +110,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             thawParams: $params,
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return  $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
@@ -137,7 +132,7 @@ class ThawMutation extends Mutation implements PlatformBlockchainTransaction, Pl
             'collectionId' => [new IsCollectionOwner()],
             ...(
                 in_array($freezeType, [FreezeType::TOKEN, FreezeType::TOKEN_ACCOUNT], true)
-                    ? $this->getTokenFieldRulesExist(null, [])
+                    ? $this->getTokenFieldRulesExist()
                     : ['tokenId' => ['prohibited']]
             ),
             'collectionAccount' => $freezeType === FreezeType::COLLECTION_ACCOUNT ? ['bail', 'required', new ValidSubstrateAccount(), new AccountExistsInCollection()] : ['prohibited'],

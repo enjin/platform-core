@@ -12,13 +12,14 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasIdempotencyField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
-use Enjin\Platform\Rules\ListingNotCancelled;
 use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\ListingNotCancelled;
 use Enjin\Platform\Rules\ValidHex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class FinalizeAuctionMutation extends MarketplaceMutation implements PlatformBlockchainTransaction
@@ -33,7 +34,7 @@ class FinalizeAuctionMutation extends MarketplaceMutation implements PlatformBlo
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -45,7 +46,7 @@ class FinalizeAuctionMutation extends MarketplaceMutation implements PlatformBlo
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::type('Transaction!');
@@ -54,7 +55,7 @@ class FinalizeAuctionMutation extends MarketplaceMutation implements PlatformBlo
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -87,7 +88,7 @@ class FinalizeAuctionMutation extends MarketplaceMutation implements PlatformBlo
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         return [

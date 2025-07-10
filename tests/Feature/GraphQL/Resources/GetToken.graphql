@@ -1,40 +1,30 @@
 query GetToken(
-  $collectionId: BigInt!
-  $tokenId: EncodableTokenIdInput!
+  $id: String
+  $collectionId: BigInt
+  $tokenId: EncodableTokenIdInput
   $accountsCursor: String
   $accountsLimit: Int
 ) {
   GetToken(
+    id: $id
     collectionId: $collectionId
     tokenId: $tokenId
   ) {
+    id
     tokenId
     supply
     cap
     capSupply
     isFrozen
     attributeCount
-    requiresDeposit
-    creationDeposit {
-      depositor {
-        account {
-          address
-          publicKey
-        }
-      }
-      amount
-    }
-    ownerDeposit
-    totalTokenAccountDeposit
     infusion
     anyoneCanInfuse
-    tokenMetadata {
-      name
-      symbol
-      decimalCount
-    }
+#    tokenMetadata {
+#      name
+#      symbol
+#      decimalCount
+#    }
     nonFungible
-    metadata
     collection {
       collectionId
     }
@@ -56,26 +46,26 @@ query GetToken(
           balance
           reservedBalance
           isFrozen
-          wallet {
-            account {
-              publicKey
-              address
-            }
-          }
-          approvals {
-            amount
-            expiration
-            wallet {
-              account {
-                publicKey
-                address
-              }
-            }
-          }
-          namedReserves {
-            pallet
-            amount
-          }
+#          wallet {
+#            account {
+#              publicKey
+#              address
+#            }
+#          }
+#          approvals {
+#            amount
+#            expiration
+#            wallet {
+#              account {
+#                publicKey
+#                address
+#              }
+#            }
+#          }
+#          namedReserves {
+#            pallet
+#            amount
+#          }
         }
       }
     }

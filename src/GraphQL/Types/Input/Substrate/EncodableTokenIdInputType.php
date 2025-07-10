@@ -7,6 +7,7 @@ use Enjin\Platform\Interfaces\PlatformGraphQlType;
 use Enjin\Platform\Package;
 use Enjin\Platform\Services\Token\Encoder;
 use Illuminate\Support\Str;
+use Override;
 use Rebing\GraphQL\Support\InputType;
 
 class EncodableTokenIdInputType extends InputType implements PlatformGraphQlType
@@ -16,7 +17,7 @@ class EncodableTokenIdInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the type's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -28,7 +29,7 @@ class EncodableTokenIdInputType extends InputType implements PlatformGraphQlType
     /**
      * Get the type's fields definition.
      */
-    #[\Override]
+    #[Override]
     public function fields(): array
     {
         $encoders = Package::getClassesThatImplementInterface(Encoder::class);

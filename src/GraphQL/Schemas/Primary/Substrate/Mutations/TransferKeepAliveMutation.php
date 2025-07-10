@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -14,20 +13,18 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\KeepExistentialDeposit;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -43,7 +40,7 @@ class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -63,7 +60,7 @@ class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -91,28 +88,21 @@ class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTr
         $context,
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
-        Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
-            recipientAccount: $targetWallet->public_key,
+            recipientAccount: $args['recipient'],
             value: $args['amount']
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
             'dest' => [
-                'Id' =>  HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+                'Id' => SS58Address::getPublicKey(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'value' => gmp_init(Arr::get($params, 'value', 0)),
         ];
@@ -121,14 +111,14 @@ class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesWithValidation(array $args): array
     {
         return [
-            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new KeepExistentialDeposit()],
+            'amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new KeepExistentialDeposit()],
         ];
     }
 
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
         ];
     }
 
@@ -138,7 +128,7 @@ class TransferKeepAliveMutation extends Mutation implements PlatformBlockchainTr
     protected function rulesCommon(array $args): array
     {
         return [
-            'recipient' => ['filled', new ValidSubstrateAccount()],
+            'recipient' => [new ValidSubstrateAccount()],
         ];
     }
 }

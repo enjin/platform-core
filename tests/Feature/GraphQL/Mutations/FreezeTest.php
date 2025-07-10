@@ -8,25 +8,24 @@ use Enjin\Platform\Enums\Substrate\FreezeType;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\FreezeMutation;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Models\Substrate\FreezeTypeParams;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\Wallet;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Services\Token\Encoder;
 use Enjin\Platform\Services\Token\Encoders\Integer;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class FreezeTest extends TestCaseGraphQL
 {
@@ -34,32 +33,46 @@ class FreezeTest extends TestCaseGraphQL
 
     protected string $method = 'Freeze';
     protected Codec $codec;
-    protected Model $wallet;
-    protected Model $collection;
-    protected Model $collectionAccount;
-    protected Model $token;
-    protected Encoder $tokenIdEncoder;
-    protected Model $tokenAccount;
 
-    #[\Override]
+    protected Account $wallet;
+    protected Collection $collection;
+    protected CollectionAccount $collectionAccount;
+    protected Token $token;
+    protected Encoder $tokenIdEncoder;
+    protected TokenAccount $tokenAccount;
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->codec = new Codec();
-        $this->wallet = Account::daemon();
-        $this->collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet->id]);
-        $this->token = Token::factory(['collection_id' => $this->collection->id])->create();
-        $this->tokenAccount = TokenAccount::factory([
-            'wallet_id' => $this->wallet,
-            'collection_id' => $this->collection,
-            'token_id' => $this->token,
+        $this->wallet = $this->getDaemonAccount();
+
+        $this->collection = Collection::factory([
+            'owner_id' => $ownerId = $this->wallet->id,
         ])->create();
+
         $this->collectionAccount = CollectionAccount::factory([
-            'collection_id' => $this->collection,
-            'wallet_id' => $this->wallet,
+            'collection_id' => $collectionId = $this->collection->id,
+            'account_id' => $ownerId,
             'account_count' => 1,
+            'id' => "{$ownerId}-{$collectionId}",
         ])->create();
-        $this->tokenIdEncoder = new Integer($this->token->token_chain_id);
+
+        $this->token = Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId = fake()->numberBetween(),
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenAccount = TokenAccount::factory([
+            'account_id' => $ownerId,
+            'collection_id' => $collectionId,
+            'token_id' => $this->token->id,
+            'id' => "{$ownerId}-{$collectionId}-{$tokenId}",
+        ])->create();
+
+        $this->tokenIdEncoder = new Integer($tokenId);
     }
 
     // Happy Path
@@ -99,7 +112,7 @@ class FreezeTest extends TestCaseGraphQL
     public function test_it_can_simulate(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -127,13 +140,13 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_can_bypass_ownership(): void
     {
-        $collection = Collection::factory()->create(['owner_wallet_id' => Wallet::factory()->create()]);
+        $collection = Collection::factory()->create(['owner_id' => Account::factory()->create()]);
         $response = $this->graphql($this->method, $params = [
             'freezeType' => FreezeType::COLLECTION->name,
-            'collectionId' => $collection->collection_chain_id,
+            'collectionId' => $collection->id,
             'nonce' => fake()->numberBetween(),
         ], true);
-        $this->assertEquals(
+        $this->assertArrayContainsArray(
             ['collectionId' => ['The collection id provided is not owned by you.']],
             $response['error']
         );
@@ -147,7 +160,7 @@ class FreezeTest extends TestCaseGraphQL
     public function test_can_freeze_a_collection(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -182,13 +195,13 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_ss58_signing_account(): void
     {
-        $signingWallet = Wallet::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key(),
+        $signingWallet = Account::factory([
+            'id' => $signingAccount = app(Generator::class)->public_key(),
         ])->create();
-        $collection = Collection::factory(['owner_wallet_id' => $signingWallet])->create();
+        $collection = Collection::factory(['owner_id' => $signingWallet])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
+            collectionId: $collectionId = $collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -223,15 +236,15 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_collection_with_public_key_signing_account(): void
     {
-        $wallet = Wallet::factory([
-            'public_key' => $signingAccount = app(Generator::class)->public_key,
+        $wallet = Account::factory([
+            'id' => $signingAccount = app(Generator::class)->public_key,
         ])->create();
         $collection = Collection::factory([
-            'owner_wallet_id' => $wallet,
+            'owner_id' => $wallet,
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
+            collectionId: $collectionId = $collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION
             ),
@@ -266,15 +279,15 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_big_int_collection(): void
     {
-        Collection::where('collection_chain_id', Hex::MAX_UINT128)->delete();
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
         $collection = Collection::factory([
-            'collection_chain_id' => $collectionId = Hex::MAX_UINT128,
-            'owner_wallet_id' => $this->wallet,
+            'id' => $collectionId = Hex::MAX_UINT128,
+            'owner_id' => $this->wallet,
         ])->create();
         CollectionAccount::factory([
             'collection_id' => $collection,
-            'wallet_id' => $this->wallet,
+            'account_id' => $this->wallet,
             'account_count' => 1,
         ])->create();
 
@@ -310,10 +323,10 @@ class FreezeTest extends TestCaseGraphQL
     public function test_can_freeze_a_collection_account(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::COLLECTION_ACCOUNT,
-                account: $account = $this->wallet->public_key,
+                account: $account = $this->wallet->id,
             ),
         ));
 
@@ -343,7 +356,7 @@ class FreezeTest extends TestCaseGraphQL
     public function test_can_freeze_a_token_using_adapter(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
@@ -374,7 +387,7 @@ class FreezeTest extends TestCaseGraphQL
     public function test_can_freeze_a_token_without_freeze_state(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
@@ -407,7 +420,7 @@ class FreezeTest extends TestCaseGraphQL
     public function test_can_freeze_a_token_with_freeze_state(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode(),
@@ -441,20 +454,28 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_can_freeze_a_big_int_token(): void
     {
-        $collection = Collection::factory()->create(['owner_wallet_id' => $this->wallet]);
-        Token::factory([
-            'collection_id' => $collection,
-            'token_chain_id' => $tokenId = Hex::MAX_UINT128,
+        $this->deleteAllFrom($collectionId = fake()->numberBetween(), $tokenId = Hex::MAX_UINT128);
+
+        Collection::factory([
+            'collection_id' => $collectionId,
+            'owner_id' => $ownerId = $this->wallet->id,
+            'id' => $collectionId,
         ])->create();
 
         CollectionAccount::factory([
-            'collection_id' => $collection,
-            'wallet_id' => $this->wallet,
+            'collection_id' => $collectionId,
+            'account_id' => $ownerId,
             'account_count' => 1,
         ])->create();
 
+        Token::factory([
+            'collection_id' => $collectionId,
+            'token_id' => $tokenId,
+            'id' => "{$collectionId}-{$tokenId}",
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $collection->collection_chain_id,
+            collectionId: $collectionId,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN,
                 token: $this->tokenIdEncoder->encode($tokenId),
@@ -487,11 +508,11 @@ class FreezeTest extends TestCaseGraphQL
     public function test_can_freeze_a_token_account(): void
     {
         $encodedData = TransactionSerializer::encode($this->method, FreezeMutation::getEncodableParams(
-            collectionId: $collectionId = $this->collection->collection_chain_id,
+            collectionId: $collectionId = $this->collection->id,
             freezeParams: new FreezeTypeParams(
                 type: $freezeType = FreezeType::TOKEN_ACCOUNT,
                 token: $this->tokenIdEncoder->encode(),
-                account: $account = $this->wallet->public_key,
+                account: $account = $this->wallet->id,
             ),
         ));
 
@@ -525,7 +546,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => 'ASSET',
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
         ], true);
 
         $this->assertStringContainsString(
@@ -538,7 +559,7 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_id_non_existent(): void
     {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
+        Collection::where('id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION->name,
@@ -601,7 +622,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => null,
         ], true);
 
@@ -617,7 +638,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -632,7 +653,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable('invalid'),
         ], true);
 
@@ -648,7 +669,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable('invalid'),
             'freezeState' => 'invalid',
         ], true);
@@ -665,7 +686,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'freezeState' => FreezeStateType::TEMPORARY->name,
         ], true);
 
@@ -679,11 +700,11 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_token_id_non_existent(): void
     {
-        Token::where('token_chain_id', '=', $tokenId = fake()->numberBetween())?->delete();
+        Token::where('token_id', '=', $tokenId = fake()->numberBetween())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId),
         ], true);
 
@@ -699,7 +720,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'collectionAccount' => null,
         ], true);
 
@@ -715,7 +736,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -730,7 +751,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'collectionAccount' => 'invalid',
         ], true);
 
@@ -744,16 +765,16 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_collection_account_non_existent(): void
     {
-        Wallet::where('public_key', '=', $address = app(Generator::class)->public_key())?->delete();
+        Account::find($publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'collectionAccount' => $address,
+            'collectionId' => $collectionId = $this->collection->id,
+            'collectionAccount' => $publicKey,
         ], true);
 
         $this->assertArrayContainsArray(
-            ['collectionAccount' => ["Could not find a collection account for {$address} at collection {$collectionId}."]],
+            ['collectionAccount' => ["Could not find a collection account for {$publicKey} at collection {$collectionId}."]],
             $response['error']
         );
 
@@ -762,12 +783,12 @@ class FreezeTest extends TestCaseGraphQL
 
     public function test_it_will_fail_with_token_account_non_existent(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::find($publicKey = app(Generator::class)->public_key())?->delete();
 
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId = $this->token->token_chain_id),
+            'collectionId' => $collectionId = $this->collection->id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($tokenId = $this->token->token_id),
             'tokenAccount' => $tokenAccount = SS58Address::encode($publicKey),
         ], true);
 
@@ -783,7 +804,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'tokenAccount' => null,
         ], true);
@@ -800,7 +821,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ], true);
 
@@ -816,7 +837,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
             'tokenAccount' => 'invalid',
         ], true);
@@ -833,7 +854,7 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
         ], true);
 
@@ -849,8 +870,8 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION->name,
-            'collectionId' => $this->collection->collection_chain_id,
-            'collectionAccount' => $this->wallet->public_key,
+            'collectionId' => $this->collection->id,
+            'collectionAccount' => $this->wallet->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -865,8 +886,8 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION->name,
-            'collectionId' => $this->collection->collection_chain_id,
-            'tokenAccount' => $this->wallet->public_key,
+            'collectionId' => $this->collection->id,
+            'tokenAccount' => $this->wallet->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -881,9 +902,9 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
-            'collectionAccount' => $this->wallet->public_key,
-            'tokenAccount' => $this->wallet->public_key,
+            'collectionId' => $this->collection->id,
+            'collectionAccount' => $this->wallet->id,
+            'tokenAccount' => $this->wallet->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -898,9 +919,9 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::COLLECTION_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
-            'collectionAccount' => $this->wallet->public_key,
-            'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_chain_address),
+            'collectionId' => $this->collection->id,
+            'collectionAccount' => $this->wallet->id,
+            'tokenId' => $this->tokenIdEncoder->toEncodable($this->token->token_id),
         ], true);
 
         $this->assertArrayContainsArray(
@@ -915,9 +936,9 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'tokenAccount' => $this->wallet->public_key,
+            'tokenAccount' => $this->wallet->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -932,9 +953,9 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'collectionAccount' => $this->wallet->public_key,
+            'collectionAccount' => $this->wallet->id,
         ], true);
 
         $this->assertArrayContainsArray(
@@ -949,10 +970,10 @@ class FreezeTest extends TestCaseGraphQL
     {
         $response = $this->graphql($this->method, [
             'freezeType' => FreezeType::TOKEN_ACCOUNT->name,
-            'collectionId' => $this->collection->collection_chain_id,
+            'collectionId' => $this->collection->id,
             'tokenId' => $this->tokenIdEncoder->toEncodable(),
-            'collectionAccount' => SS58Address::encode($this->wallet->public_key),
-            'tokenAccount' => SS58Address::encode($this->wallet->public_key),
+            'collectionAccount' => SS58Address::encode($this->wallet->id),
+            'tokenAccount' => SS58Address::encode($this->wallet->id),
         ], true);
 
         $this->assertArrayContainsArray(

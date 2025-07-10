@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\FuelTanks\Queries;
 
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\InFuelTanksSchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlQuery;
+use Override;
 use Rebing\GraphQL\Support\Query as GraphQlQuery;
 
 abstract class FuelTanksQuery extends GraphQlQuery implements PlatformGraphQlQuery
@@ -12,15 +13,13 @@ abstract class FuelTanksQuery extends GraphQlQuery implements PlatformGraphQlQue
 
     /**
      * Adhoc rules.
-     *
-     * @var array
      */
-    public static $adhocRules = [];
+    public static array $adhocRules = [];
 
     /**
      * Get validation rules.
      */
-    #[\Override]
+    #[Override]
     public function getRules(array $arguments = []): array
     {
         return collect(parent::getRules($arguments))->mergeRecursive(static::$adhocRules)->all();

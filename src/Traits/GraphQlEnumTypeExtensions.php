@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 trait GraphQlEnumTypeExtensions
 {
     /**
-     * Cases names as collection.
+     * Cases names as a collection.
      */
     public function caseNames(): Collection
     {

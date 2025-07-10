@@ -89,7 +89,7 @@ trait HasTokenIdFieldArrayRules
     }
 
     /**
-     * Get encodeable token rules with doesn't exist rule.
+     * Get encodable token rules with doesn't exist rule.
      */
     public function getEncodableTokenIdRulesDoesntExist(array $args = [], array $extraRules = []): NestedRules
     {

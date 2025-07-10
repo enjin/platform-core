@@ -1,44 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd" backupGlobals="false" bootstrap="vendor/autoload.php" colors="true" processIsolation="false" stopOnFailure="false" executionOrder="random" failOnWarning="true" failOnRisky="true" failOnEmptyTestSuite="true" beStrictAboutOutputDuringTests="true" cacheDirectory=".phpunit.cache" backupStaticProperties="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         beStrictAboutOutputDuringTests="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         failOnPhpunitDeprecation="true"
+         failOnRisky="true"
+         failOnWarning="true">
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+        <testsuite name="Mutations">
+            <directory>tests/Feature/GraphQL/Mutations</directory>
+        </testsuite>
+        <testsuite name="Queries">
+            <directory>tests/Feature/GraphQL/Queries</directory>
         </testsuite>
     </testsuites>
-    <coverage>
-        <report>
-            <html outputDirectory="build/coverage"/>
-            <text outputFile="build/coverage.txt"/>
-            <clover outputFile="build/logs/clover.xml"/>
-        </report>
-    </coverage>
-    <logging>
-        <junit outputFile="build/report.junit.xml"/>
-    </logging>
+
     <php>
         <env name="APP_KEY" value="base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKZvp6fiiM10="/>
         <env name="DB_CONNECTION" value="mysql"/>
         <env name="CACHE_STORE" value="redis"/>
-        <env name="NETWORK" value="local-matrixchain"/>
+        <env name="NETWORK" value="enjin-matrixchain"/>
         <env name="DAEMON_ACCOUNT" value="0x6a03b1a3d40d7e344dfb27157931b14b59fe2ff11d7352353321fe400e956802"/>
     </php>
-    <source>
+
+    <source ignoreIndirectDeprecations="true" restrictNotices="true" restrictWarnings="true">
         <include>
-            <directory suffix=".php">./src</directory>
+            <directory>src</directory>
         </include>
-        <exclude>
-            <directory>./src/Commands</directory>
-            <directory>./src/Observers</directory>
-            <directory>./src/Enums</directory>
-            <directory>./src/Events</directory>
-            <directory>./src/Exceptions</directory>
-            <directory>./src/Traits</directory>
-            <directory>./src/Services/Processor/Substrate</directory>
-            <directory>./src/Clients</directory>
-            <directory>./database/schema</directory>
-        </exclude>
     </source>
 </phpunit>

@@ -3,10 +3,11 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Services\Database\CollectionService;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class IsCollectionOwnerOrApproved implements ValidationRule
 {
@@ -23,15 +24,15 @@ class IsCollectionOwnerOrApproved implements ValidationRule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $collection = Collection::firstWhere('collection_chain_id', '=', $value);
-        $daemonAccount = Account::daemonPublicKey();
+        $daemonAccount = Address::daemonPublicKey();
 
         if (!$collection ||
-            (!Account::isAccountOwner($collection->owner->public_key, $daemonAccount) &&
+            (!Address::isAccountOwner($collection->owner->public_key, $daemonAccount) &&
             !$this->collectionService->approvalExistsInCollection(
                 $collection->collection_chain_id,
                 $daemonAccount,

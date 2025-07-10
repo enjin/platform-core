@@ -14,15 +14,14 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\AttributeExistsInCollection;
 use Enjin\Platform\Rules\IsCollectionOwner;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class RemoveCollectionAttributeMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
@@ -37,7 +36,7 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -57,7 +56,7 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -86,20 +85,16 @@ class RemoveCollectionAttributeMutation extends Mutation implements PlatformBloc
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
         $encodedData = $serializationService->encode($this->getMethodName(), static::getEncodableParams(...$args));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'RemoveAttribute';

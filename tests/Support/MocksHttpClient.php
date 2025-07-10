@@ -4,9 +4,13 @@ namespace Enjin\Platform\Tests\Support;
 
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use JsonException;
 
 trait MocksHttpClient
 {
+    /**
+     * @throws JsonException
+     */
     protected function mockFee(array $mockedFee): void
     {
         $this->mockHttpClient(

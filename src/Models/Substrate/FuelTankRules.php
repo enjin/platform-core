@@ -10,7 +10,7 @@ abstract class FuelTankRules
     public function toKind(): array
     {
         return [
-            str_replace('Params', '', (new \ReflectionClass($this))->getShortName()) => null,
+            str_replace('Params', '', new \ReflectionClass($this)->getShortName()) => null,
         ];
     }
 }

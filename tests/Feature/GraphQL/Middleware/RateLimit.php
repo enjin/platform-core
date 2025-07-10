@@ -2,7 +2,7 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Mutations;
 
-use Enjin\Platform\Models\Collection;
+use Enjin\Platform\Models\Indexer\Collection;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Feature\GraphQL\Traits\HasHttp;
 use Illuminate\Support\Arr;

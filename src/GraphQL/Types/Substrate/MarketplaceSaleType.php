@@ -3,14 +3,13 @@
 namespace Enjin\Platform\GraphQL\Types\Substrate;
 
 use Enjin\Platform\GraphQL\Schemas\Marketplace\Traits\InMarketplaceSchema;
-use Enjin\Platform\Traits\HasSelectFields;
-use Rebing\GraphQL\Support\Facades\GraphQL;
 use Enjin\Platform\Interfaces\PlatformGraphQlType;
+use Enjin\Platform\Models\Indexer\Sale;
+use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type;
 
 class MarketplaceSaleType extends Type implements PlatformGraphQlType
 {
-    use HasSelectFields;
     use InMarketplaceSchema;
 
     /**
@@ -22,6 +21,7 @@ class MarketplaceSaleType extends Type implements PlatformGraphQlType
         return [
             'name' => 'MarketplaceSale',
             'description' => __('enjin-platform-marketplace::type.marketplace_sale.description'),
+            'model' => Sale::class,
         ];
     }
 
@@ -32,6 +32,7 @@ class MarketplaceSaleType extends Type implements PlatformGraphQlType
     public function fields(): array
     {
         return [
+            // Properties
             'id' => [
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
@@ -44,15 +45,20 @@ class MarketplaceSaleType extends Type implements PlatformGraphQlType
                 'type' => GraphQL::type('BigInt!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.field.amount'),
             ],
+
+            // Relationships
             'bidder' => [
                 'type' => GraphQL::type('Wallet!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.bidder'),
-                'is_relation' => true,
+                'alias' => 'buyer',
+            ],
+            'buyer' => [
+                'type' => GraphQL::type('Wallet!'),
+                'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.bidder'),
             ],
             'listing' => [
-                'type' => GraphQL::type('MarketplaceListing'),
+                'type' => GraphQL::type('MarketplaceListing!'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.description'),
-                'is_relation' => true,
             ],
         ];
     }

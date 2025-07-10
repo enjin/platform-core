@@ -2,40 +2,39 @@
 
 namespace Enjin\Platform\Tests\Feature\GraphQL\Queries;
 
-use Enjin\Platform\Models\Attribute;
-use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\CollectionAccount;
-use Enjin\Platform\Models\CollectionAccountApproval;
-use Enjin\Platform\Models\Token;
-use Enjin\Platform\Models\TokenAccount;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Indexer\Attribute;
+use Enjin\Platform\Models\Indexer\Collection;
+use Enjin\Platform\Models\Indexer\CollectionAccount;
+use Enjin\Platform\Models\Indexer\Token;
+use Enjin\Platform\Models\Indexer\TokenAccount;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Override;
 
 class GetCollectionTest extends TestCaseGraphQL
 {
     protected string $method = 'GetCollection';
-    protected Model $wallet;
-    protected Model $collectionOwner;
-    protected Model $collection;
-    protected Model $token;
-    protected Model $collectionAccount;
-    protected Model $collectionAccountApproval;
-    protected Model $tokenAccount;
-    protected Model $collectionAttribute;
-    protected Model $tokenAttribute;
 
-    #[\Override]
+    protected Account $wallet;
+    protected Account $collectionOwner;
+    protected Collection $collection;
+    protected Token $token;
+    protected CollectionAccount $collectionAccount;
+    protected TokenAccount $tokenAccount;
+    protected Attribute $collectionAttribute;
+    protected Attribute $tokenAttribute;
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->wallet = Wallet::factory()->create();
-        $this->collectionOwner = Wallet::factory()->create();
+        $this->wallet = Account::factory()->create();
+        $this->collectionOwner = Account::factory()->create();
         $this->collection = Collection::factory([
-            'owner_wallet_id' => $this->collectionOwner,
-            'token_count' => 1,
+            'owner_id' => $this->collectionOwner,
             'attribute_count' => 1,
         ])->create();
         $this->token = Token::factory([
@@ -44,17 +43,14 @@ class GetCollectionTest extends TestCaseGraphQL
         ])->create();
         $this->collectionAccount = CollectionAccount::factory([
             'collection_id' => $this->collection,
-            'wallet_id' => $this->wallet,
+            'account_id' => $this->wallet,
             'account_count' => 1,
-        ])->create();
-        $this->collectionAccountApproval = CollectionAccountApproval::factory([
-            'collection_account_id' => $this->collectionAccount,
-            'wallet_id' => $this->collectionOwner,
+            'approvals' => [['accountId' => $this->collectionOwner->id]],
         ])->create();
         $this->tokenAccount = TokenAccount::factory([
             'collection_id' => $this->collection,
             'token_id' => $this->token,
-            'wallet_id' => $this->wallet,
+            'account_id' => $this->wallet,
         ])->create();
         $this->collectionAttribute = Attribute::factory([
             'collection_id' => $this->collection,
@@ -69,32 +65,32 @@ class GetCollectionTest extends TestCaseGraphQL
     public function test_it_can_get_a_collection_with_all_data(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $this->collection->collection_chain_id,
+            'id' => $collectionId = $this->collection->id,
         ]);
 
         $this->assertArrayContainsArray([
             'collectionId' => $collectionId,
-            'maxTokenCount' => $this->collection->max_token_count,
-            'maxTokenSupply' => $this->collection->max_token_supply,
-            'forceCollapsingSupply' => $this->collection->force_collapsing_supply,
-            'frozen' => $this->collection->is_frozen,
+            'maxTokenCount' => Arr::get($this->collection->mint_policy, 'maxTokenCount'),
+            'maxTokenSupply' => Arr::get($this->collection->mint_policy, 'maxTokenSupply'),
+            'forceCollapsingSupply' => Arr::get($this->collection->mint_policy, 'forceSingleMint'),
+            'frozen' => Arr::get($this->collection->transfer_policy, 'isFrozen'),
             'network' => $this->collection->network,
             'owner' => [
                 'account' => [
-                    'publicKey' => $this->collectionOwner->public_key,
+                    'publicKey' => $this->collectionOwner->id,
                 ],
             ],
             'attributes' => [
                 [
-                    'key' => Hex::safeConvertToString($this->collectionAttribute->key),
-                    'value' => Hex::safeConvertToString($this->collectionAttribute->value),
+                    'key' => $this->collectionAttribute->key,
+                    'value' => $this->collectionAttribute->value,
                 ],
             ],
             'tokens' => [
                 'edges' => [
                     [
                         'node' => [
-                            'tokenId' => $this->token->token_chain_id,
+                            'tokenId' => $this->token->token_id,
                         ],
                     ],
                 ],
@@ -107,17 +103,17 @@ class GetCollectionTest extends TestCaseGraphQL
                             'isFrozen' => $this->collectionAccount->is_frozen,
                             'wallet' => [
                                 'account' => [
-                                    'publicKey' => $this->wallet->public_key,
+                                    'publicKey' => $this->wallet->id,
                                 ],
                             ],
                             'approvals' => [
                                 [
+                                    'expiration' => Arr::get($this->collectionAccount->approvals, '0.expiration'),
                                     'wallet' => [
                                         'account' => [
-                                            'publicKey' => $this->collectionOwner->public_key,
+                                            'publicKey' => $this->collectionOwner->id,
                                         ],
                                     ],
-                                    'expiration' => $this->collectionAccountApproval->expiration,
                                 ],
                             ],
                         ],
@@ -129,33 +125,36 @@ class GetCollectionTest extends TestCaseGraphQL
 
     public function test_it_can_get_a_collection_with_big_int_collection_id(): void
     {
-        Collection::where('collection_chain_id', '=', Hex::MAX_UINT128)?->delete();
+        $this->deleteAllFrom($collectionId = Hex::MAX_UINT128);
 
-        $collection = Collection::factory([
-            'collection_chain_id' => Hex::MAX_UINT128,
+        Collection::factory([
+            'id' => $collectionId,
         ])->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'id' => $collectionId,
         ]);
 
         $this->assertArrayContainsArray([
-            'collectionId' => $collectionId,
+            'id' => $collectionId,
         ], $response);
     }
 
     public function test_it_max_token_count_can_be_null(): void
     {
         $collection = Collection::factory([
-            'max_token_count' => null,
+            'mint_policy' => [
+                'maxTokenSupply' => (string) fake()->randomNumber(),
+                'forceSingleMint' => fake()->boolean(),
+            ],
         ])->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'id' => $collection->id,
         ]);
 
         $this->assertArrayContainsArray([
-            'collectionId' => $collectionId,
+            'id' => $collection->id,
             'maxTokenCount' => null,
         ], $response);
     }
@@ -163,102 +162,100 @@ class GetCollectionTest extends TestCaseGraphQL
     public function test_it_max_token_supply_can_be_null(): void
     {
         $collection = Collection::factory([
-            'max_token_supply' => null,
+            'mint_policy' => [
+                'maxTokenCount' => (string) fake()->randomNumber(),
+                'forceSingleMint' => fake()->boolean(),
+            ],
         ])->create();
 
         $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId = $collection->collection_chain_id,
+            'id' => $collection->id,
         ]);
 
         $this->assertArrayContainsArray([
-            'collectionId' => $collectionId,
+            'id' => $collection->id,
             'maxTokenSupply' => null,
         ], $response);
     }
 
+    public function test_it_returns_null_for_non_existing_collection(): void
+    {
+        Collection::where('id', '=', $collectionId = (string) fake()->numberBetween(2000))?->delete();
+
+        $response = $this->graphql($this->method, [
+            'id' => $collectionId,
+        ]);
+
+        $this->assertNull($response);
+    }
+
+    /**
+     * Tests for unhappy paths.
+     */
     public function test_it_will_fail_with_no_args(): void
     {
         $response = $this->graphql($this->method, [], true);
 
-        $this->assertStringContainsString(
-            'Variable "$collectionId" of required type "BigInt!" was not provided',
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'id' => ['The id field is required when collection id is not present.'],
+            'collectionId' => ['The collection id field is required when id is not present.'],
+        ], $response['error']);
     }
-
-    // Exception Path
 
     public function test_it_will_fail_with_collection_id_null(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => null,
+            'id' => null,
         ], true);
 
-        $this->assertStringContainsString(
-            'Variable "$collectionId" of non-null type "BigInt!" must not be null.',
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'id' => ['The id field is required when collection id is not present.'],
+            'collectionId' => ['The collection id field is required when id is not present.'],
+        ], $response['error']);
     }
 
     public function test_it_will_fail_with_collection_id_negative(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => -1,
+            'id' => '-1',
         ], true);
 
-        $this->assertStringContainsString(
-            'Variable "$collectionId" got invalid value -1; Cannot represent following value as uint256',
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'id' => ['The id is too small, the minimum value it can be is 0.'],
+        ], $response['error']);
     }
 
     public function test_it_will_fail_with_collection_id_empty_string(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => '',
+            'id' => '',
         ], true);
 
-        $this->assertStringContainsString(
-            'Variable "$collectionId" got invalid value (empty string)',
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'id' => ['The id field is required when collection id is not present.'],
+            'collectionId' => ['The collection id field is required when id is not present.'],
+        ], $response['error']);
     }
 
     public function test_it_will_fail_with_invalid_collection_id(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => 'invalid',
+            'id' => 'invalid',
         ], true);
 
-        $this->assertStringContainsString(
-            'Variable "$collectionId" got invalid value "invalid"; Cannot represent following value as uint256',
-            $response['error'],
-        );
-    }
-
-    public function test_it_will_fail_if_collection_id_doesnt_exist(): void
-    {
-        Collection::where('collection_chain_id', '=', $collectionId = fake()->numberBetween(2000))?->delete();
-
-        $response = $this->graphql($this->method, [
-            'collectionId' => $collectionId,
-        ], true);
-
-        $this->assertArrayContainsArray(
-            ['collectionId' => ['The selected collection id is invalid.']],
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'id' => ['The id field must be a number.'],
+        ], $response['error']);
     }
 
     public function test_it_will_fail_with_overflow_collection_id(): void
     {
         $response = $this->graphql($this->method, [
-            'collectionId' => Hex::MAX_UINT256,
+            'id' => Hex::MAX_UINT256,
         ], true);
 
-        $this->assertArrayContainsArray(
-            ['collectionId' => ['The selected collection id is invalid.']],
-            $response['error'],
-        );
+        $this->assertArrayContainsArray([
+            'id' => ['The id is too large, the maximum value it can be is 340282366920938463463374607431768211455.'],
+        ], $response['error']);
     }
 }

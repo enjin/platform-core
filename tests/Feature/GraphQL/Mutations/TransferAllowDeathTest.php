@@ -6,15 +6,16 @@ use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Events\Global\TransactionCreated;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\TransferBalanceMutation;
-use Enjin\Platform\Models\Wallet;
+use Enjin\Platform\Models\Indexer\Account;
+use Enjin\Platform\Models\Substrate\Balance;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
-use Enjin\Platform\Support\Account;
 use Enjin\Platform\Support\Hex;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksHttpClient;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
+use Override;
 
 class TransferAllowDeathTest extends TestCaseGraphQL
 {
@@ -22,16 +23,22 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     protected string $method = 'TransferAllowDeath';
     protected Codec $codec;
-    protected string $defaultAccount;
+
+    protected Account $wallet;
     protected array $fee;
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->codec = new Codec();
-        $this->defaultAccount = Account::daemonPublicKey();
+        $this->wallet = $this->getDaemonAccount();
+        $this->wallet->balance = new Balance(
+            free: $free = gmp_strval(gmp_mul(gmp_init(fake()->randomNumber()), gmp_init('1000000000000000000'))),
+            transferable: $free,
+        );
+        $this->wallet->save();
 
         if (static::class === self::class) {
             $this->mockFee($this->fee = app(Generator::class)->fee_details());
@@ -41,18 +48,17 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     // Happy Path
     public function test_it_can_skip_validation(): void
     {
-        Wallet::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => false,
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
-            recipientAccount: $this->defaultAccount,
+            recipientAccount: $this->wallet->id,
             value: $amount = fake()->numberBetween(),
         ));
 
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->defaultAccount),
+            'recipient' => SS58Address::encode($this->wallet->id),
             'amount' => $amount,
             'signingAccount' => SS58Address::encode($publicKey),
             'skipValidation' => true,
@@ -78,15 +84,19 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_balance_with_ss58_signing_account(): void
     {
+        $account = Account::factory([
+            'id' => $signingAccount = app(Generator::class)->public_key,
+        ])->create();
+
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey = app(Generator::class)->public_key(),
-            value: $amount = fake()->numberBetween(),
+            value: $amount = fake()->numberBetween(1, $account->balance->transferable),
         ));
 
         $response = $this->graphql($this->method, [
             'recipient' => SS58Address::encode($publicKey),
             'amount' => $amount,
-            'signingAccount' => SS58Address::encode($signingAccount = app(Generator::class)->public_key),
+            'signingAccount' => SS58Address::encode($signingAccount),
         ]);
 
         $this->assertArrayContainsArray([
@@ -147,11 +157,11 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_to_a_wallet_that_doesnt_exists(): void
     {
-        Wallet::where('public_key', '=', $publicKey = app(Generator::class)->public_key())?->delete();
+        Account::where('id', '=', $publicKey = app(Generator::class)->public_key())?->delete();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey,
-            value: $amount = fake()->numberBetween()
+            value: $amount = fake()->numberBetween(1),
         ));
 
         $response = $this->graphql($this->method, [
@@ -173,22 +183,18 @@ class TransferAllowDeathTest extends TestCaseGraphQL
             'encoded_data' => $encodedData,
         ]);
 
-        $this->assertDatabaseHas('wallets', [
-            'public_key' => $publicKey,
-        ]);
-
         Event::assertDispatched(TransactionCreated::class);
     }
 
     public function test_it_can_transfer_to_a_wallet_that_exists(): void
     {
-        Wallet::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey,
-            value: $amount = fake()->numberBetween()
+            value: $amount = fake()->numberBetween(1),
         ));
 
         $response = $this->graphql($this->method, [
@@ -215,18 +221,17 @@ class TransferAllowDeathTest extends TestCaseGraphQL
 
     public function test_it_can_transfer_with_another_signing_wallet(): void
     {
-        Wallet::factory([
-            'public_key' => $publicKey = app(Generator::class)->public_key(),
-            'managed' => true,
+        Account::factory([
+            'id' => $publicKey = app(Generator::class)->public_key(),
         ])->create();
 
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
-            recipientAccount: $this->defaultAccount,
+            recipientAccount: $this->wallet->id,
             value: $amount = fake()->numberBetween()
         ));
 
         $response = $this->graphql($this->method, [
-            'recipient' => SS58Address::encode($this->defaultAccount),
+            'recipient' => SS58Address::encode($this->wallet->id),
             'amount' => $amount,
             'signingAccount' => SS58Address::encode($publicKey),
         ]);
@@ -249,7 +254,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey = app(Generator::class)->public_key(),
-            value: $amount = fake()->numberBetween()
+            value: $amount = fake()->numberBetween(1),
         ));
 
         $response = $this->graphql($this->method, [
@@ -272,7 +277,7 @@ class TransferAllowDeathTest extends TestCaseGraphQL
     {
         $encodedData = TransactionSerializer::encode($this->method, TransferBalanceMutation::getEncodableParams(
             recipientAccount: $publicKey = app(Generator::class)->public_key(),
-            value: $amount = fake()->numberBetween(),
+            value: $amount = fake()->numberBetween(1),
         ));
 
         $response = $this->graphql($this->method, [

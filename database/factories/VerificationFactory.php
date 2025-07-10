@@ -6,21 +6,20 @@ use Enjin\Platform\Models\Verification;
 use Facades\Enjin\Platform\Services\Database\VerificationService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<Verification>
+ */
 class VerificationFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
-     *
-     * @var Verification
      */
     protected $model = Verification::class;
 
     /**
      * Define the model's default state.
-     *
-     * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
         $verification = VerificationService::generate();
 

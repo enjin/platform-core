@@ -3,20 +3,21 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\MarketplaceSale;
+use Enjin\Platform\Models\Indexer\Sale;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class SaleExists implements ValidationRule
 {
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     #[\Override]
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!MarketplaceSale::where('id', $value)->exists()) {
+        if (!Sale::where('id', $value)->exists()) {
             $fail('validation.exists')->translate();
         }
     }

@@ -3,9 +3,10 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
-use Enjin\Platform\Models\FuelTankAccount;
+use Enjin\Platform\Models\Indexer\TankUserAccount;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class AccountsNotInFuelTank implements ValidationRule
 {
@@ -17,7 +18,7 @@ class AccountsNotInFuelTank implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -25,7 +26,7 @@ class AccountsNotInFuelTank implements ValidationRule
             return;
         }
 
-        if (FuelTankAccount::byFuelTankAccount($this->account)->byWalletAccount(Arr::wrap($value))->exists()) {
+        if (TankUserAccount::byFuelTankAccount($this->account)->byWalletAccount(Arr::wrap($value))->exists()) {
             $fail('enjin-platform::validation.accounts_not_in_fuel_tank')->translate();
         }
     }

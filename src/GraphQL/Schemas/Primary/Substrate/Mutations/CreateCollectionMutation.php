@@ -17,16 +17,15 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\MintPolicyParams;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\DistinctAttributes;
 use Enjin\Platform\Rules\DistinctMultiAsset;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
 use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 use Enjin\Platform\Traits\InheritsGraphQlFields;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class CreateCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
@@ -45,7 +44,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -65,7 +64,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -107,17 +106,13 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService
     ): mixed {
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction(
-                $args,
-                $serializationService->encode(
-                    $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
-                    static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))
-                )
-            ),
-            $resolveInfo
+        return $this->storeTransaction(
+            $args,
+            $serializationService->encode(
+                $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+                static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))
+            )
         );
     }
 

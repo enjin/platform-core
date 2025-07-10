@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -14,18 +13,17 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
-use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Rules\ApprovalExistsInCollection;
 use Enjin\Platform\Rules\IsCollectionOwner;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class UnapproveCollectionMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
@@ -40,7 +38,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -60,7 +58,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -89,26 +87,20 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $operatorWallet = $walletService->firstOrStore(['account' => $args['operator']]);
         $encodedData = $serializationService->encode($this->getMutationName(), static::getEncodableParams(
             collectionId: $args['collectionId'],
-            operator: $operatorWallet->public_key
+            operator: $args['operator'],
         ));
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return $this->storeTransaction($args, $encodedData);
     }
 
     public static function getEncodableParams(...$params): array
     {
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
+            'operator' => SS58Address::getPublicKey(Arr::get($params, 'operator', Address::daemonPublicKey())),
         ];
     }
 
@@ -119,7 +111,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
     {
         return [
             'collectionId' => [new IsCollectionOwner()],
-            'operator' => ['bail', 'filled', new ValidSubstrateAccount(), new ApprovalExistsInCollection()],
+            'operator' => [new ValidSubstrateAccount(), new ApprovalExistsInCollection()],
         ];
     }
 
@@ -129,7 +121,7 @@ class UnapproveCollectionMutation extends Mutation implements PlatformBlockchain
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'operator' => ['bail', 'filled', new ValidSubstrateAccount()],
+            'operator' => [new ValidSubstrateAccount()],
         ];
     }
 }

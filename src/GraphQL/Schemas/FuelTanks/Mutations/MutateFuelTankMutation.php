@@ -6,7 +6,6 @@ use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Enums\Substrate\CoveragePolicy;
 use Enjin\Platform\GraphQL\Schemas\FuelTanks\Traits\HasFuelTankValidationRules;
-use Enjin\Platform\Rules\FuelTankExists;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -15,15 +14,17 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSigningAccountField;
 use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Models\Transaction;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Rules\FuelTankExists;
+use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
-use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 
 class MutateFuelTankMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
 {
@@ -38,7 +39,7 @@ class MutateFuelTankMutation extends FuelTanksMutation implements PlatformBlockc
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -58,7 +59,7 @@ class MutateFuelTankMutation extends FuelTanksMutation implements PlatformBlockc
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -102,10 +103,10 @@ class MutateFuelTankMutation extends FuelTanksMutation implements PlatformBlockc
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
-        $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
+        $tankId = Arr::get($params, 'tankId', Address::daemonPublicKey());
         $userAccount = Arr::get($params, 'userAccount');
         $coveragePolicy = is_string($coverage = Arr::get($params, 'coveragePolicy')) ? CoveragePolicy::getEnumCase($coverage) : $coverage;
         $accountRules = Arr::get($params, 'accountRules');

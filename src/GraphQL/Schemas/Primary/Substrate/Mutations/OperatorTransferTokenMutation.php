@@ -3,7 +3,6 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations;
 
 use Closure;
-use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Base\Mutation;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\InPrimarySubstrateSchema;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
@@ -16,21 +15,21 @@ use Enjin\Platform\GraphQL\Types\Input\Substrate\Traits\HasSimulateField;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
 use Enjin\Platform\Models\Substrate\OperatorTransferParams;
-use Enjin\Platform\Models\Transaction;
+use Enjin\Platform\Rules\CollectionExists;
 use Enjin\Platform\Rules\MaxBigInt;
 use Enjin\Platform\Rules\MaxTokenBalance;
 use Enjin\Platform\Rules\MinBigInt;
 use Enjin\Platform\Rules\ValidSubstrateAccount;
 use Enjin\Platform\Services\Blockchain\Implementations\Substrate;
-use Enjin\Platform\Services\Database\TransactionService;
-use Enjin\Platform\Services\Database\WalletService;
-use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
-use Enjin\Platform\Support\Account;
+use Enjin\Platform\Support\Address;
 use Enjin\Platform\Support\Hex;
+use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use Enjin\Platform\Services\Serialization\Interfaces\SerializationServiceInterface;
 
 class OperatorTransferTokenMutation extends Mutation implements PlatformBlockchainTransaction, PlatformGraphQlMutation
 {
@@ -46,7 +45,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -66,7 +65,7 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -101,29 +100,23 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
         Closure $getSelectFields,
         Substrate $blockchainService,
         SerializationServiceInterface $serializationService,
-        TransactionService $transactionService,
-        WalletService $walletService
     ): mixed {
-        $targetWallet = $walletService->firstOrStore(['account' => $args['recipient']]);
         $encodedData = $serializationService->encode(
-            $this->getMethodName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            $this->getMethodName(),
             static::getEncodableParams(
-                recipientAccount: $targetWallet->public_key,
+                recipientAccount: $args['recipient'],
                 collectionId: $args['collectionId'],
                 operatorTransferParams: $blockchainService->getOperatorTransferParams($args['params'])
             )
         );
 
-        return Transaction::lazyLoadSelectFields(
-            $this->storeTransaction($args, $encodedData),
-            $resolveInfo
-        );
+        return  $this->storeTransaction($args, $encodedData);
     }
 
     /**
      * Get the serialization service method name.
      */
-    #[\Override]
+    #[Override]
     public function getMethodName(): string
     {
         return 'Transfer';
@@ -133,10 +126,10 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         return [
             'recipient' => [
-                'Id' => HexConverter::unPrefix(Arr::get($params, 'recipientAccount', Account::daemonPublicKey())),
+                'Id' => SS58Address::getPublicKey(Arr::get($params, 'recipientAccount', Address::daemonPublicKey())),
             ],
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
-            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Account::daemonPublicKey(), 0, false))->toEncodable(),
+            'params' => Arr::get($params, 'operatorTransferParams', new OperatorTransferParams(0, Address::daemonPublicKey(), 0, false))->toEncodable(),
         ];
     }
 
@@ -158,8 +151,8 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     {
         // TODO: We need to have a rule that checks if the signed has approval on the source collection / token and if enough approval balance
         return [
-            'collectionId' => ['exists:collections,collection_chain_id'],
-            'params.amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
+            'collectionId' => [new CollectionExists()],
+            'params.amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128), new MaxTokenBalance()],
             ...$this->getTokenFieldRulesExist('params'),
         ];
     }
@@ -170,8 +163,8 @@ class OperatorTransferTokenMutation extends Mutation implements PlatformBlockcha
     protected function rulesWithoutValidation(array $args): array
     {
         return [
-            'collectionId' => [new MinBigInt(2000), new MaxBigInt(Hex::MAX_UINT128)],
-            'params.amount' => [new MinBigInt(0), new MaxBigInt(Hex::MAX_UINT128)],
+            'collectionId' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
+            'params.amount' => [new MinBigInt(), new MaxBigInt(Hex::MAX_UINT128)],
             ...$this->getTokenFieldRules('params')];
     }
 }

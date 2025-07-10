@@ -7,15 +7,15 @@ use Illuminate\Http\Request;
 
 class BasicTokenAuth implements Authenticator
 {
-    public const HEADER = 'Authorization';
+    public const string HEADER = 'Authorization';
 
     /**
-     * Create instance.
+     * Create an instance.
      */
     public function __construct(public string $token) {}
 
     /**
-     * Authenticate user by request.
+     * Authenticate a user by request.
      */
     public function authenticate(Request $request): bool
     {
@@ -27,7 +27,7 @@ class BasicTokenAuth implements Authenticator
     }
 
     /**
-     * Get authorization token.
+     * Get an authorization token.
      */
     public function getToken(): string
     {

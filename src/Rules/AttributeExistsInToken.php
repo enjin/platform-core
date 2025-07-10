@@ -3,11 +3,13 @@
 namespace Enjin\Platform\Rules;
 
 use Closure;
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasEncodableTokenId;
+use Enjin\Platform\Models\Indexer\Attribute;
 use Enjin\Platform\Rules\Traits\HasDataAwareRule;
-use Enjin\Platform\Services\Database\TokenService;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class AttributeExistsInToken implements DataAwareRule, ValidationRule
 {
@@ -15,28 +17,17 @@ class AttributeExistsInToken implements DataAwareRule, ValidationRule
     use HasEncodableTokenId;
 
     /**
-     * The token service.
-     */
-    protected TokenService $tokenService;
-
-    /**
-     * Create a new rule instance.
-     */
-    public function __construct()
-    {
-        $this->tokenService = resolve(TokenService::class);
-    }
-
-    /**
      * Determine if the validation rule passes.
      *
-     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        $collectionId = $this->data['collectionId'];
         $tokenId = $this->encodeTokenId($this->data);
+        $key = HexConverter::stringToHexPrefixed($value);
 
-        if ($tokenId && !$this->tokenService->attributeExistsInToken($this->data['collectionId'], $tokenId, $value)) {
+        if (Attribute::where('id', "{$collectionId}-{$tokenId}-{$key}")->doesntExist()) {
             $fail('enjin-platform::validation.key_doesnt_exit_in_token')->translate();
         }
     }

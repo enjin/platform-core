@@ -4,27 +4,28 @@ namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Queries;
 
 use Closure;
 use Enjin\Platform\GraphQL\Middleware\ResolvePage;
+use Enjin\Platform\GraphQL\Middleware\SingleFilterOnly;
 use Enjin\Platform\GraphQL\Types\Pagination\ConnectionInput;
-use Enjin\Platform\Models\MarketplaceBid;
-use Enjin\Platform\Rules\MaxBigInt;
-use Enjin\Platform\Rules\MinBigInt;
+use Enjin\Platform\Models\Indexer\Bid;
 use Enjin\Platform\Rules\ValidSubstrateAddress;
 use Enjin\Platform\Support\SS58Address;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Builder;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class GetBidsQuery extends MarketplaceQuery
 {
     protected $middleware = [
         ResolvePage::class,
+        SingleFilterOnly::class,
     ];
 
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -36,7 +37,7 @@ class GetBidsQuery extends MarketplaceQuery
     /**
      * Get the mutation's return type.
      */
-    #[\Override]
+    #[Override]
     public function type(): Type
     {
         return GraphQL::paginate('MarketplaceBid', 'MarketplaceBidConnection');
@@ -45,21 +46,24 @@ class GetBidsQuery extends MarketplaceQuery
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return ConnectionInput::args([
             'ids' => [
-                'type' => GraphQL::type('[BigInt!]'),
+                'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_bid.field.id'),
+                'singleFilter' => true,
             ],
             'accounts' => [
-                'type' => GraphQL::type('[String!]'),
+                'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform-marketplace::query.get_listings.args.account'),
+                'singleFilter' => true,
             ],
             'listingIds' => [
-                'type' => GraphQL::type('[String!]'),
+                'type' => GraphQL::type('[String]'),
                 'description' => __('enjin-platform-marketplace::type.marketplace_listing.field.listingId'),
+                'singleFilter' => true,
             ],
         ]);
     }
@@ -67,56 +71,35 @@ class GetBidsQuery extends MarketplaceQuery
     /**
      * Resolve the mutation's request.
      */
-    public function resolve(
-        $root,
-        array $args,
-        $context,
-        ResolveInfo $resolveInfo,
-        Closure $getSelectFields
-    ) {
-        return MarketplaceBid::loadSelectFields($resolveInfo, $this->name)
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    {
+        return Bid::selectFields($getSelectFields)
+            ->when(!empty($args['ids']), fn (Builder $query) => $query->whereIn('id', $args['ids']))
             ->when(
-                $ids = Arr::get($args, 'ids'),
-                fn ($query) => $query->whereIn('id', $ids)
-            )->when(
-                $accounts = Arr::get($args, 'accounts'),
-                fn ($query) => $query->whereHas(
-                    'bidder',
-                    fn ($query) => $query->whereIn(
-                        'public_key',
-                        collect($accounts)->map(fn ($account) => SS58Address::getPublicKey($account))->toArray()
-                    )
+                !empty($args['accounts']),
+                fn (Builder $query) => $query->whereIn(
+                    'bidder_id',
+                    collect($args['accounts'])
+                        ->map(fn ($account) => SS58Address::getPublicKey($account))
+                        ->toArray()
                 )
-            )->when(
-                $listingIds = Arr::get($args, 'listingIds'),
-                fn ($query) => $query->whereHas(
-                    'listing',
-                    fn ($query) => $query->whereIn('listing_chain_id', $listingIds)
-                )
-            )->cursorPaginateWithTotalDesc('marketplace_bids.id', $args['first']);
+            )
+            ->when(!empty($args['listingIds']), fn (Builder $query) => $query->whereIn('listing_id', $args['listingIds']))
+            ->cursorPaginateWithTotalDesc('id', $args['first']);
     }
 
     /**
      * Get the mutation's request validation rules.
      */
-    #[\Override]
+    #[Override]
     protected function rules(array $args = []): array
     {
         return [
             'ids' => ['bail', 'nullable', 'array', 'max:1000'],
-            'ids.*' => [
-                'bail',
-                new MinBigInt(),
-                new MaxBigInt(),
-            ],
             'listingIds' => ['bail', 'nullable', 'array', 'max:1000'],
             'listingIds.*' => ['max:255'],
             'accounts' => ['bail', 'nullable', 'array', 'max:1000'],
-            'accounts.*' => [
-                'bail',
-                'max:255',
-                Arr::get($args, 'accounts') ? new ValidSubstrateAddress() : '',
-            ],
+            'accounts.*' => [new ValidSubstrateAddress()],
         ];
     }
 }

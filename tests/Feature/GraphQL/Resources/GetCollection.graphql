@@ -1,25 +1,17 @@
 query GetCollection(
-  $collectionId: BigInt!
+  $id: String
   $tokensCursor: String
   $tokensLimit: Int
   $accountsCursor: String
   $accountsLimit: Int
 ) {
-  GetCollection(collectionId: $collectionId) {
+  GetCollection(id: $id) {
+    id
     collectionId
     maxTokenCount
     maxTokenSupply
     forceCollapsingSupply
     frozen
-    creationDeposit {
-      depositor {
-        account {
-          publicKey
-          address
-        }
-      }
-      amount
-    }
     totalDeposit
     totalInfusion
     network
