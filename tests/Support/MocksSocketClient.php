@@ -30,11 +30,11 @@ trait MocksSocketClient
         app()->bind(Client::class, function () use ($expectedRpcRequest, $responseJson, $anyParam) {
             $mock = Mockery::mock(Client::class);
             if ($anyParam) {
-                $mock->shouldReceive('send')
+                $mock->shouldReceive('text')
                     ->once()
                     ->withAnyArgs();
             } else {
-                $mock->shouldReceive('send')
+                $mock->shouldReceive('text')
                     ->once()
                     ->with(Mockery::on(function ($rpcRequest) use ($expectedRpcRequest) {
                         $this->assertRpcResponseEquals($expectedRpcRequest, $rpcRequest);
@@ -60,7 +60,7 @@ trait MocksSocketClient
                 ->zeroOrMoreTimes()
                 ->andReturn(true);
 
-            $mock->shouldReceive('send')
+            $mock->shouldReceive('text')
                 ->zeroOrMoreTimes()
                 ->withAnyArgs();
 
