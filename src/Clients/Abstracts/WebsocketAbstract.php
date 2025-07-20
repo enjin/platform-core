@@ -44,7 +44,7 @@ abstract class WebsocketAbstract
      */
     public function sendRaw(string $payload): ?array
     {
-        $this->client()->send($payload);
+        $this->client()->text($payload);
 
         return JSON::decode($this->client->receive(), true);
     }
@@ -99,8 +99,8 @@ abstract class WebsocketAbstract
         if (!$this->client || !$this->client->isConnected()) {
             $this->client = app(Client::class, [
                 'uri' => $this->host,
-                'options' => ['timeout' => 20],
             ]);
+            $this->client->setTimeout(20);
         }
 
         return $this->client;
