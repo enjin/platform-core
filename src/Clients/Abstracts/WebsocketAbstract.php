@@ -81,7 +81,7 @@ abstract class WebsocketAbstract
      */
     public function receive(): mixed
     {
-        while (true && $this->client && $this->client->isConnected()) {
+        while ($this->client?->isConnected()) {
             $message = $this->client->receive();
 
             if ($message instanceof Ping || $message instanceof Pong) {
@@ -103,10 +103,11 @@ abstract class WebsocketAbstract
      */
     public function close(): void
     {
-        if ($this->client) {
+        if ($this->client?->isConnected()) {
             try {
                 $this->client->close();
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Error closing websocket connection', ['error' => $e->getMessage()]);
             }
         }
     }
@@ -116,7 +117,7 @@ abstract class WebsocketAbstract
      */
     protected function client(): Client
     {
-        if (!$this->client || !$this->client->isConnected()) {
+        if (!$this->client) {
             $this->client = app(Client::class, [
                 'uri' => $this->host,
             ]);
@@ -124,6 +125,7 @@ abstract class WebsocketAbstract
             $this->client
                 ->addMiddleware(new CloseHandler())
                 ->addMiddleware(new PingResponder())
+                ->setPersistent(true)
                 ->setTimeout(20);
         }
 

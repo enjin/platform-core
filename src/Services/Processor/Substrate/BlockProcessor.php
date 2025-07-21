@@ -104,7 +104,6 @@ class BlockProcessor
         try {
             $sub->callMethod('chain_subscribeFinalizedHeads');
             while (true) {
-                $this->info('Calling receive method to get the next new head notification');
                 if ($response = $sub->getClient()->receive()) {
                     $syncTime = now();
                     $result = Arr::get(JSON::decode($response, true), 'params.result');
