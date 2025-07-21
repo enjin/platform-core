@@ -4,10 +4,7 @@ namespace Enjin\Platform\Clients\Abstracts;
 
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
-use Illuminate\Support\Facades\Log;
 use WebSocket\Client;
-use WebSocket\Message\Ping;
-use WebSocket\Message\Pong;
 use WebSocket\Message\Text;
 use WebSocket\Middleware\CloseHandler;
 use WebSocket\Middleware\PingResponder;
