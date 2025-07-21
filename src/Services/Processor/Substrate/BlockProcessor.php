@@ -88,7 +88,7 @@ class BlockProcessor
         while (true) {
             $blockHash = $this->persistedClient->callMethod('chain_getBlockHash', [$blockNumber]);
             if ($blockHash) {
-                $this->persistedClient->getClient()->close();
+                // $this->persistedClient->getClient()->close();
 
                 return $blockHash;
             }
@@ -104,6 +104,7 @@ class BlockProcessor
         try {
             $sub->callMethod('chain_subscribeFinalizedHeads');
             while (true) {
+                $this->info('Calling receive method to get the next new head notification');
                 if ($response = $sub->getClient()->receive()) {
                     $syncTime = now();
                     $result = Arr::get(JSON::decode($response, true), 'params.result');
