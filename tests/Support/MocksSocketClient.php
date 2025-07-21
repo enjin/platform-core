@@ -6,6 +6,7 @@ use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
 use Mockery;
 use WebSocket\Client;
+use WebSocket\Message\Text;
 
 trait MocksSocketClient
 {
@@ -45,7 +46,21 @@ trait MocksSocketClient
 
             $mock->shouldReceive('receive')
                 ->once()
-                ->andReturn($responseJson);
+                ->andReturn(new Text($responseJson));
+
+            $mock->shouldReceive('setTimeout')
+                ->once()
+                ->withArgs([20])
+                ->andReturnSelf();
+
+            $mock->shouldReceive('addMiddleware')
+                ->twice()
+                ->withAnyArgs()
+                ->andReturnSelf();
+
+            $mock->shouldReceive('isConnected')
+                ->zeroOrMoreTimes()
+                ->andReturn(true);
 
             return $mock;
         });
@@ -66,7 +81,17 @@ trait MocksSocketClient
 
             $mock->shouldReceive('receive')
                 ->zeroOrMoreTimes()
-                ->andReturnValues($responseSequence);
+                ->andReturnValues(array_map(fn ($response) => new Text($response), $responseSequence));
+
+            $mock->shouldReceive('setTimeout')
+                ->zeroOrMoreTimes()
+                ->withArgs([20])
+                ->andReturnSelf();
+
+            $mock->shouldReceive('addMiddleware')
+                ->zeroOrMoreTimes()
+                ->withAnyArgs()
+                ->andReturnSelf();
 
             return $mock;
         });

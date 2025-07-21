@@ -4,7 +4,13 @@ namespace Enjin\Platform\Clients\Abstracts;
 
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+use Illuminate\Support\Facades\Log;
 use WebSocket\Client;
+use WebSocket\Message\Ping;
+use WebSocket\Message\Pong;
+use WebSocket\Message\Text;
+use WebSocket\Middleware\CloseHandler;
+use WebSocket\Middleware\PingResponder;
 
 abstract class WebsocketAbstract
 {
@@ -46,7 +52,7 @@ abstract class WebsocketAbstract
     {
         $this->client()->text($payload);
 
-        return JSON::decode($this->client->receive(), true);
+        return JSON::decode($this->receive(), true);
     }
 
     /**
@@ -75,7 +81,13 @@ abstract class WebsocketAbstract
      */
     public function receive(): mixed
     {
-        return $this->client()->receive();
+        while (true) {
+            $message = $this->client()->receive();
+
+            if ($message instanceof Text) {
+                return $message->getPayload();
+            }
+        }
     }
 
     /**
@@ -100,7 +112,10 @@ abstract class WebsocketAbstract
             $this->client = app(Client::class, [
                 'uri' => $this->host,
             ]);
-            $this->client->setTimeout(20);
+            $this->client
+                ->addMiddleware(new CloseHandler())
+                ->addMiddleware(new PingResponder())
+                ->setTimeout(20);
         }
 
         return $this->client;
