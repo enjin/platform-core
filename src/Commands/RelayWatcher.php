@@ -89,8 +89,7 @@ class RelayWatcher extends Command
         while (true) {
             $blockHash = $this->rpc->callMethod('chain_getBlockHash', [$blockNumber]);
             if ($blockHash) {
-                $this->rpc->getClient()->close();
-
+                // $this->rpc->getClient()->close();
                 return $blockHash;
             }
             usleep(100000);
