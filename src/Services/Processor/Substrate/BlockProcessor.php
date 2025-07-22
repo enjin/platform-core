@@ -88,8 +88,6 @@ class BlockProcessor
         while (true) {
             $blockHash = $this->persistedClient->callMethod('chain_getBlockHash', [$blockNumber]);
             if ($blockHash) {
-                // $this->persistedClient->getClient()->close();
-
                 return $blockHash;
             }
             usleep(100000);
