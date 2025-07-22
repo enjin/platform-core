@@ -58,6 +58,11 @@ trait MocksSocketClient
                 ->withAnyArgs()
                 ->andReturnSelf();
 
+            $mock->shouldReceive('setPersistent')
+                ->once()
+                ->with(true)
+                ->andReturnSelf();
+
             $mock->shouldReceive('isConnected')
                 ->zeroOrMoreTimes()
                 ->andReturn(true);
@@ -91,6 +96,11 @@ trait MocksSocketClient
             $mock->shouldReceive('addMiddleware')
                 ->zeroOrMoreTimes()
                 ->withAnyArgs()
+                ->andReturnSelf();
+
+            $mock->shouldReceive('setPersistent')
+                ->zeroOrMoreTimes()
+                ->with(true)
                 ->andReturnSelf();
 
             return $mock;
