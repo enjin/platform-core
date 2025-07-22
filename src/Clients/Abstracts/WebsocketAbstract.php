@@ -121,12 +121,12 @@ abstract class WebsocketAbstract
             $this->client = app(Client::class, [
                 'uri' => $this->host,
             ]);
-            $this->client->setLogger(Log::getLogger());
             $this->client
                 ->addMiddleware(new CloseHandler())
                 ->addMiddleware(new PingResponder())
                 ->setPersistent(true)
                 ->setTimeout(20);
+            Log::info('Websocket client created.', ['host' => $this->host]);
         }
 
         return $this->client;
