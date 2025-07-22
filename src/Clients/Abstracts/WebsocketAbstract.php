@@ -107,7 +107,10 @@ abstract class WebsocketAbstract
             try {
                 $this->client->close();
             } catch (\Throwable $e) {
-                Log::error('Error closing websocket connection', ['error' => $e->getMessage()]);
+                Log::error('Error closing websocket connection', [
+                    'error' => $e->getMessage(),
+                    'host'  => $this->host,
+                ]);
             }
         }
     }
