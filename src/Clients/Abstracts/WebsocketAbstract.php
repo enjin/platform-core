@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Clients\Abstracts;
 
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
 use Illuminate\Support\Facades\Log;
@@ -81,7 +82,17 @@ abstract class WebsocketAbstract
      */
     public function receive(): mixed
     {
-        while ($this->client?->isConnected()) {
+        if (!$this->client?->isConnected()) {
+            throw new PlatformException(__('enjin-platform::error.websocket.client_not_connected'));
+        }
+
+        $start = now();
+
+        while (true) {
+            if (now()->diffInSeconds($start) >= 30) {
+                throw new PlatformException(__('enjin-platform::error.websocket.receive_timeout', ['seconds' => 30]));
+            }
+
             $message = $this->client->receive();
 
             if ($message instanceof Ping || $message instanceof Pong) {
@@ -92,10 +103,12 @@ abstract class WebsocketAbstract
                 return $message->getPayload();
             }
 
+            if (!$this->client->isConnected()) {
+                throw new PlatformException(__('enjin-platform::error.websocket.connection_lost'));
+            }
+
             return null;
         }
-
-        return null;
     }
 
     /**
@@ -124,7 +137,7 @@ abstract class WebsocketAbstract
                 ->addMiddleware(new CloseHandler())
                 ->addMiddleware(new PingResponder())
                 ->setPersistent(true)
-                ->setTimeout(20);
+                ->setTimeout(30);
             Log::info('Websocket client created.', ['host' => $this->host]);
         }
 

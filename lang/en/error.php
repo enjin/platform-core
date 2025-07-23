@@ -62,4 +62,7 @@ return [
     'too_many_requests' =>  'Too many requests. Retry in :num seconds.',
     'snapshot_email_not_configured' => 'The TOKEN_HOLDER_SNAPSHOT_EMAIL is not configured.',
     'dispatch_query_error' => "There's an error with the query. Please check the query and try again.",
+    'websocket.client_not_connected' => 'WebSocket client is not connected to the server.',
+    'websocket.receive_timeout' => 'WebSocket response timed out after :seconds seconds.',
+    'websocket.connection_lost' => 'WebSocket connection was lost before receiving a valid message.',
 ];
