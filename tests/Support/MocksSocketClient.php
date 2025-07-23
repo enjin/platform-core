@@ -50,7 +50,7 @@ trait MocksSocketClient
 
             $mock->shouldReceive('setTimeout')
                 ->once()
-                ->withArgs([20])
+                ->withArgs([30])
                 ->andReturnSelf();
 
             $mock->shouldReceive('addMiddleware')
@@ -90,7 +90,7 @@ trait MocksSocketClient
 
             $mock->shouldReceive('setTimeout')
                 ->zeroOrMoreTimes()
-                ->withArgs([20])
+                ->withArgs([30])
                 ->andReturnSelf();
 
             $mock->shouldReceive('addMiddleware')
