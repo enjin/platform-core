@@ -54,8 +54,6 @@ class HotSync implements ShouldQueue
                     $startKey = Arr::last($keys);
                 }
 
-                $websocket->close();
-
                 collect($storageValues)->each(function ($storageValue) use ($storageKey): void {
                     ParseChainData::dispatch($storageKey, $storageValue);
                 });
