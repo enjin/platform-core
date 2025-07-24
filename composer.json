@@ -42,7 +42,7 @@
     "kevinrob/guzzle-cache-middleware": "^6.0",
     "laravel/pail": "^1.2",
     "mll-lab/laravel-graphiql": "^4.0.1",
-    "phrity/websocket": "^1.7",
+    "phrity/websocket": "^3.5",
     "rebing/graphql-laravel": "^9.9",
     "revolt/event-loop": "^1.0",
     "simplesoftwareio/simple-qrcode": "^4.2",
