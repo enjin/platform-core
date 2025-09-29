@@ -183,9 +183,9 @@ class RelayWatcher extends Command
     protected function getBlockNumber($blockHash): int
     {
         while (true) {
-            $block = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
-            if ($block) {
-                return HexConverter::hexToUInt(Arr::get($block, 'block.header.number'));
+            $response = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
+            if ($block = Arr::get($response, 'block.header.number')) {
+                return HexConverter::hexToUInt($block);
             }
 
             usleep(100000);
