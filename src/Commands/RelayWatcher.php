@@ -88,7 +88,7 @@ class RelayWatcher extends Command
     {
         while (true) {
             $blockHash = $this->rpc->callMethod('chain_getBlockHash', [$blockNumber]);
-            if ($blockHash) {
+            if (is_string($blockHash) && str_starts_with($blockHash, '0x')) {
                 return $blockHash;
             }
             usleep(100000);

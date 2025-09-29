@@ -87,7 +87,7 @@ class BlockProcessor
     {
         while (true) {
             $blockHash = $this->persistedClient->callMethod('chain_getBlockHash', [$blockNumber]);
-            if ($blockHash) {
+            if (is_string($blockHash) && str_starts_with($blockHash, '0x')) {
                 return $blockHash;
             }
             usleep(100000);
@@ -212,8 +212,8 @@ class BlockProcessor
             $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
             $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", $syncTime->diffInMilliseconds(now()) / 1000));
         } catch (Throwable $exception) {
-            $this->error("Failed processing block #{$blockNumber}");
-            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
+            $this->error("Failed processing block #{$blockNumber}: {$exception->getMessage()}");
+            $block->fill(['synced' => false, 'failed' => true, 'exception' => $exception->getMessage()])->save();
         }
 
         return $block;
