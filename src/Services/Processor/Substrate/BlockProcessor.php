@@ -213,7 +213,7 @@ class BlockProcessor
             $this->info(sprintf("Process completed for block #{$blockNumber} in %s seconds", $syncTime->diffInMilliseconds(now()) / 1000));
         } catch (Throwable $exception) {
             $this->error("Failed processing block #{$blockNumber}: {$exception->getMessage()}");
-            $block->fill(['synced' => false, 'failed' => true, 'exception' => $exception->getMessage()])->save();
+            $block->fill(['synced' => true, 'failed' => true, 'exception' => $exception->getMessage()])->save();
         }
 
         return $block;
