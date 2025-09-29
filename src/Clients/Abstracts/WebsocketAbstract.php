@@ -136,7 +136,6 @@ abstract class WebsocketAbstract
             $this->client
                 ->addMiddleware(new CloseHandler())
                 ->addMiddleware(new PingResponder())
-                ->setPersistent(true)
                 ->setTimeout(30);
             Log::info('Websocket client created.', ['host' => $this->host]);
         }
