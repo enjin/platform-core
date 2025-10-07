@@ -5,14 +5,11 @@ namespace Enjin\Platform\Clients\Implementations;
 use Arr;
 use Enjin\Platform\Clients\Abstracts\JsonHttpAbstract;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 
 class SubstrateHttpClient extends JsonHttpAbstract
 {
     protected string $url;
-    protected ?PendingRequest $client = null;
 
     /**
      * Create a new http client instance.
@@ -22,25 +19,6 @@ class SubstrateHttpClient extends JsonHttpAbstract
         $host = $url ?? currentMatrixUrl();
 
         $this->url = str_replace('wss', 'https', $host);
-    }
-
-    /**
-     * Get the http client instance with keep-alive.
-     */
-    protected function getClient(): PendingRequest
-    {
-        if (!$this->client) {
-            $this->client = Http::withHeaders([
-                'Connection' => 'keep-alive',
-                'Keep-Alive' => 'timeout=60, max=1000',
-            ])
-            ->retry(3, 500)
-            ->timeout(60)
-            ->asJson()
-            ->acceptJson();
-        }
-
-        return $this->client;
     }
 
     /**
