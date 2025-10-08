@@ -3,6 +3,7 @@
 namespace Enjin\Platform\Services\Processor\Substrate;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\StorageKey;
@@ -34,20 +35,20 @@ class BlockProcessor
 
     protected Codec $codec;
     protected bool $hasCheckedSubBlocks = false;
-    protected Substrate $persistedClient;
+    protected SubstrateHttpClient $httpClient;
 
     public function __construct()
     {
         $this->input = new ArgvInput();
         $this->output = new BufferedConsoleOutput();
         $this->codec = new Codec();
-        $this->persistedClient = new Substrate(new SubstrateSocketClient());
+        $this->httpClient = new SubstrateHttpClient();
     }
 
     public function latestBlock(): ?int
     {
         try {
-            if ($currentBlock = $this->persistedClient->callMethod('chain_getHeader')) {
+            if ($currentBlock = $this->httpClient->jsonRpc('chain_getHeader', [])) {
                 return (int) HexConverter::hexToUInt($currentBlock['number']);
             }
         } catch (Throwable $e) {
@@ -86,7 +87,7 @@ class BlockProcessor
     public function getHashWhenBlockIsFinalized(int $blockNumber): string
     {
         while (true) {
-            $blockHash = $this->persistedClient->callMethod('chain_getBlockHash', [$blockNumber]);
+            $blockHash = $this->httpClient->jsonRpc('chain_getBlockHash', [$blockNumber]);
             if (is_string($blockHash) && str_starts_with($blockHash, '0x')) {
                 return $blockHash;
             }
@@ -152,6 +153,9 @@ class BlockProcessor
         $this->info('Connected to: ' . currentMatrix()->value);
 
         $lastBlock = $this->latestBlock();
+        if ($lastBlock === null) {
+            throw new PlatformException('Failed to fetch latest block from chain. Please check connection.');
+        }
         $this->info("Current block on-chain: {$lastBlock}");
 
         $lastSyncedBlock = $this->lastSyncedBlock();
@@ -260,7 +264,7 @@ class BlockProcessor
             $syncTime = now();
             $block = Block::updateOrCreate(
                 ['number' => $blockNumber],
-                ['hash' => $this->persistedClient->callMethod('chain_getBlockHash', [$blockNumber])],
+                ['hash' => $this->httpClient->jsonRpc('chain_getBlockHash', [$blockNumber])],
             );
 
             PlatformBlockIngesting::dispatch($block);
@@ -297,7 +301,7 @@ class BlockProcessor
         $syncTime = now();
 
         $data = $this->runOrWaitIfEmpty(
-            fn () => $this->persistedClient->callMethod('state_getStorage', [StorageKey::events()->value, $block->hash]),
+            fn () => $this->httpClient->jsonRpc('state_getStorage', [StorageKey::events()->value, $block->hash]),
             'events',
             $block->number
         );
@@ -324,7 +328,7 @@ class BlockProcessor
         $syncTime = now();
 
         $data = $this->runOrWaitIfEmpty(
-            fn () => $this->persistedClient->callMethod('chain_getBlock', [$block->hash]),
+            fn () => $this->httpClient->jsonRpc('chain_getBlock', [$block->hash]),
             'extrinsics',
             $block->number
         );
