@@ -46,6 +46,6 @@ class MaxBigInt implements ValidationRule
 
         $this->message = 'enjin-platform::validation.max_big_int';
 
-        return bccomp($this->max, $value) >= 0;
+        return bccomp((string) $this->max, $value) >= 0;
     }
 }

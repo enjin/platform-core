@@ -99,7 +99,6 @@ class TransferKeepAliveTest extends TransferAllowDeathTest
     {
         $reflection = new \ReflectionObject(Http::getFacadeRoot());
         $property = $reflection->getProperty('stubCallbacks');
-        $property->setAccessible(true);
         $property->setValue(Http::getFacadeRoot(), collect());
     }
 }
