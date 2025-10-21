@@ -5,7 +5,6 @@ namespace Enjin\Platform\Clients\Implementations;
 use Arr;
 use Enjin\Platform\Clients\Abstracts\JsonHttpAbstract;
 use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\HandlerStack;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -14,7 +13,7 @@ class SubstrateHttpClient extends JsonHttpAbstract
 {
     protected string $url;
     protected ?PendingRequest $client = null;
-    protected static ?HandlerStack $sharedHandler = null;
+    protected static ?CurlHandler $sharedHandler = null;
 
     /**
      * Create a new http client instance.
@@ -45,10 +44,8 @@ class SubstrateHttpClient extends JsonHttpAbstract
     #[\Override]
     protected function getClient(): PendingRequest
     {
-        self::$sharedHandler ??= HandlerStack::create(new CurlHandler());
+        self::$sharedHandler ??= new CurlHandler();
 
-        return $this->client ??= parent::getClient()->withOptions([
-            'handler' => self::$sharedHandler,
-        ]);
+        return $this->client ??= parent::getClient()->setHandler(self::$sharedHandler);
     }
 }
