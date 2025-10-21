@@ -9,3 +9,4 @@
 .*.cache
 coverage.xml
 composer.lock
+.DS_Store

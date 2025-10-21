@@ -2,9 +2,16 @@
 
 namespace Enjin\Platform\Clients\Abstracts;
 
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
+use Illuminate\Support\Facades\Log;
 use WebSocket\Client;
+use WebSocket\Message\Ping;
+use WebSocket\Message\Pong;
+use WebSocket\Message\Text;
+use WebSocket\Middleware\CloseHandler;
+use WebSocket\Middleware\PingResponder;
 
 abstract class WebsocketAbstract
 {
@@ -44,9 +51,9 @@ abstract class WebsocketAbstract
      */
     public function sendRaw(string $payload): ?array
     {
-        $this->client()->send($payload);
+        $this->client()->text($payload);
 
-        return JSON::decode($this->client->receive(), true);
+        return JSON::decode($this->receive(), true);
     }
 
     /**
@@ -75,7 +82,33 @@ abstract class WebsocketAbstract
      */
     public function receive(): mixed
     {
-        return $this->client()->receive();
+        if (!$this->client?->isConnected()) {
+            throw new PlatformException(__('enjin-platform::error.websocket.client_not_connected'));
+        }
+
+        $start = now();
+
+        while (true) {
+            if (now()->diffInSeconds($start) >= 30) {
+                throw new PlatformException(__('enjin-platform::error.websocket.receive_timeout', ['seconds' => 30]));
+            }
+
+            $message = $this->client->receive();
+
+            if ($message instanceof Ping || $message instanceof Pong) {
+                continue;
+            }
+
+            if ($message instanceof Text) {
+                return $message->getPayload();
+            }
+
+            if (!$this->client->isConnected()) {
+                throw new PlatformException(__('enjin-platform::error.websocket.connection_lost'));
+            }
+
+            return null;
+        }
     }
 
     /**
@@ -83,7 +116,7 @@ abstract class WebsocketAbstract
      */
     public function close(): void
     {
-        if ($this->client) {
+        if ($this->client?->isConnected()) {
             try {
                 $this->client->close();
             } catch (\Throwable) {
@@ -96,11 +129,15 @@ abstract class WebsocketAbstract
      */
     protected function client(): Client
     {
-        if (!$this->client || !$this->client->isConnected()) {
+        if (!$this->client) {
             $this->client = app(Client::class, [
                 'uri' => $this->host,
-                'options' => ['timeout' => 20],
             ]);
+            $this->client
+                ->addMiddleware(new CloseHandler())
+                ->addMiddleware(new PingResponder())
+                ->setTimeout(30);
+            Log::info('Websocket client created.', ['host' => $this->host]);
         }
 
         return $this->client;

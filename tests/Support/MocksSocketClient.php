@@ -6,6 +6,7 @@ use Enjin\Platform\Support\JSON;
 use Enjin\Platform\Support\Util;
 use Mockery;
 use WebSocket\Client;
+use WebSocket\Message\Text;
 
 trait MocksSocketClient
 {
@@ -30,11 +31,11 @@ trait MocksSocketClient
         app()->bind(Client::class, function () use ($expectedRpcRequest, $responseJson, $anyParam) {
             $mock = Mockery::mock(Client::class);
             if ($anyParam) {
-                $mock->shouldReceive('send')
+                $mock->shouldReceive('text')
                     ->once()
                     ->withAnyArgs();
             } else {
-                $mock->shouldReceive('send')
+                $mock->shouldReceive('text')
                     ->once()
                     ->with(Mockery::on(function ($rpcRequest) use ($expectedRpcRequest) {
                         $this->assertRpcResponseEquals($expectedRpcRequest, $rpcRequest);
@@ -45,7 +46,21 @@ trait MocksSocketClient
 
             $mock->shouldReceive('receive')
                 ->once()
-                ->andReturn($responseJson);
+                ->andReturn(new Text($responseJson));
+
+            $mock->shouldReceive('setTimeout')
+                ->once()
+                ->withArgs([30])
+                ->andReturnSelf();
+
+            $mock->shouldReceive('addMiddleware')
+                ->twice()
+                ->withAnyArgs()
+                ->andReturnSelf();
+
+            $mock->shouldReceive('isConnected')
+                ->zeroOrMoreTimes()
+                ->andReturn(true);
 
             return $mock;
         });
@@ -60,13 +75,23 @@ trait MocksSocketClient
                 ->zeroOrMoreTimes()
                 ->andReturn(true);
 
-            $mock->shouldReceive('send')
+            $mock->shouldReceive('text')
                 ->zeroOrMoreTimes()
                 ->withAnyArgs();
 
             $mock->shouldReceive('receive')
                 ->zeroOrMoreTimes()
-                ->andReturnValues($responseSequence);
+                ->andReturnValues(array_map(fn ($response) => new Text($response), $responseSequence));
+
+            $mock->shouldReceive('setTimeout')
+                ->zeroOrMoreTimes()
+                ->withArgs([30])
+                ->andReturnSelf();
+
+            $mock->shouldReceive('addMiddleware')
+                ->zeroOrMoreTimes()
+                ->withAnyArgs()
+                ->andReturnSelf();
 
             return $mock;
         });

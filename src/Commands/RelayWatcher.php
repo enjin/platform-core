@@ -4,6 +4,7 @@ namespace Enjin\Platform\Commands;
 
 use Cache;
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
 use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Global\TransactionState;
@@ -33,7 +34,7 @@ class RelayWatcher extends Command
 
     protected Codec $codec;
 
-    protected Substrate $rpc;
+    protected SubstrateHttpClient $httpClient;
 
     public function __construct(protected DecoderService $decoder)
     {
@@ -41,7 +42,7 @@ class RelayWatcher extends Command
 
         $this->description = 'Watches managed wallet at relay chain to auto teleport their ENJ';
         $this->codec = new Codec();
-        $this->rpc = new Substrate(new SubstrateSocketClient(currentRelayUrl()));
+        $this->httpClient = new SubstrateHttpClient(currentRelayUrl());
         $this->decoder->setNetwork(currentRelay()->value);
     }
 
@@ -87,10 +88,8 @@ class RelayWatcher extends Command
     public function getHashWhenBlockIsFinalized(int $blockNumber): string
     {
         while (true) {
-            $blockHash = $this->rpc->callMethod('chain_getBlockHash', [$blockNumber]);
-            if ($blockHash) {
-                $this->rpc->getClient()->close();
-
+            $blockHash = $this->httpClient->jsonRpc('chain_getBlockHash', [$blockNumber]);
+            if (is_string($blockHash) && str_starts_with($blockHash, '0x')) {
                 return $blockHash;
             }
             usleep(100000);
@@ -117,7 +116,7 @@ class RelayWatcher extends Command
 
     protected function fetchExtrinsics(string $blockHash, $blockNumber): void
     {
-        $data = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
+        $data = $this->httpClient->jsonRpc('chain_getBlock', [$blockHash]);
 
         if ($extrinsics = Arr::get($data, 'block.extrinsics')) {
             for ($i = 0; $i < count($extrinsics); $i++) {
@@ -185,9 +184,9 @@ class RelayWatcher extends Command
     protected function getBlockNumber($blockHash): int
     {
         while (true) {
-            $block = $this->rpc->callMethod('chain_getBlock', [$blockHash]);
-            if ($block) {
-                return HexConverter::hexToUInt(Arr::get($block, 'block.header.number'));
+            $response = $this->httpClient->jsonRpc('chain_getBlock', [$blockHash]);
+            if ($block = Arr::get($response, 'block.header.number')) {
+                return HexConverter::hexToUInt($block);
             }
 
             usleep(100000);
