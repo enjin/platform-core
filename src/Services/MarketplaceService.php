@@ -38,7 +38,7 @@ class MarketplaceService
         $royaltyCount = 0;
 
         if (currentSpec() >= 1020) {
-            $listing = MarketplaceListing::firstWhere('id', $listingId);
+            $listing = MarketplaceListing::firstWhere('listing_chain_id', $listingId);
             $makeCollection = Collection::firstWhere('collection_chain_id', $listing?->make_collection_chain_id);
             $makeToken = Token::firstWhere(['collection_id' => $makeCollection?->id, 'token_chain_id' => $listing?->make_token_chain_id]);
             if ($makeCollection?->royalty_wallet_id !== null || $makeToken?->royalty_wallet_id !== null) {

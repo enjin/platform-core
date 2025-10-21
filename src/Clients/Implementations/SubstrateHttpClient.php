@@ -26,16 +26,6 @@ class SubstrateHttpClient extends JsonHttpAbstract
         $this->url = str_replace('wss', 'https', $host);
     }
 
-    #[\Override]
-    protected function getClient(): PendingRequest
-    {
-        self::$sharedHandler ??= HandlerStack::create(new CurlHandler());
-
-        return $this->client ??= parent::getClient()->withOptions([
-            'handler' => self::$sharedHandler,
-        ]);
-    }
-
     /**
      * @throws ConnectionException
      * @throws RequestException
@@ -50,5 +40,15 @@ class SubstrateHttpClient extends JsonHttpAbstract
         ]);
 
         return Arr::get($this->getResponse($response), 'result');
+    }
+
+    #[\Override]
+    protected function getClient(): PendingRequest
+    {
+        self::$sharedHandler ??= HandlerStack::create(new CurlHandler());
+
+        return $this->client ??= parent::getClient()->withOptions([
+            'handler' => self::$sharedHandler,
+        ]);
     }
 }

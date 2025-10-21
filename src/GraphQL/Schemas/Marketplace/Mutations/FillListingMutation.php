@@ -5,6 +5,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Marketplace\Mutations;
 use Closure;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Facades\TransactionSerializer;
+use Enjin\Platform\Services\MarketplaceService;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\StoresTransactions;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasSkippableRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\HasTransactionDeposit;
@@ -96,9 +97,12 @@ class FillListingMutation extends MarketplaceMutation implements PlatformBlockch
     #[\Override]
     public static function getEncodableParams(...$params): array
     {
+        $rawListingId = Arr::get($params, 'listingId', 0);
+
         return [
-            'listingId' => HexConverter::unPrefix(Arr::get($params, 'listingId', 0)),
+            'listingId' => HexConverter::unPrefix($rawListingId),
             'amount' => gmp_init(Arr::get($params, 'amount', 0)),
+            'royaltyBeneficiaryCount' => app(MarketplaceService::class)->getRoyaltyBeneficiaryCount($rawListingId),
         ];
     }
 
