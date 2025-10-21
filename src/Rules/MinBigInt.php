@@ -45,6 +45,6 @@ class MinBigInt implements ValidationRule
 
         $this->message = 'enjin-platform::validation.min_big_int';
 
-        return bccomp($this->min, $value) <= 0;
+        return bccomp((string) $this->min, $value) <= 0;
     }
 }
