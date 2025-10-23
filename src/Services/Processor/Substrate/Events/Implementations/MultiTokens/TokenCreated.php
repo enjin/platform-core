@@ -100,7 +100,7 @@ class TokenCreated extends SubstrateEvent
         return Token::create([
             'collection_id' => $collection->id,
             'token_chain_id' => $event->tokenId,
-            'supply' => $this->getValue($createToken, ['initial_supply', 'amount']) ?? 0,
+            'supply' => 0, // Initial supply is set to 0 and increased by the mint event
             'cap' => $cap?->name,
             'cap_supply' => $capSupply ?? $collapsingSupply,
             'is_frozen' => $isFrozen,
