@@ -3,6 +3,7 @@
 namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Enums\Global\TransactionState;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
@@ -79,7 +80,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
     /**
      * Resolve the mutation's request.
      */
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, TransactionService $transactionService, Substrate $substrate): mixed
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, TransactionService $transactionService, Substrate $substrate, SubstrateHttpClient $httpClient): mixed
     {
         $payload = Arr::get($args, 'signingPayloadJson');
 
@@ -96,7 +97,7 @@ class SendTransactionMutation extends Mutation implements PlatformGraphQlMutatio
             $payload->tip
         );
 
-        $response = $substrate->callMethod('author_submitExtrinsic', [$extrinsic], true);
+        $response = $httpClient->jsonRpc('author_submitExtrinsic', [$extrinsic], true);
         if (Arr::exists($response, 'error')) {
             throw new PlatformException($response['error']['message']);
         }
