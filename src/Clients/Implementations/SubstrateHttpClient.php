@@ -2,12 +2,12 @@
 
 namespace Enjin\Platform\Clients\Implementations;
 
-use Arr;
 use Enjin\Platform\Clients\Abstracts\JsonHttpAbstract;
 use GuzzleHttp\Handler\CurlHandler;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Arr;
 
 class SubstrateHttpClient extends JsonHttpAbstract
 {
@@ -29,7 +29,7 @@ class SubstrateHttpClient extends JsonHttpAbstract
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function jsonRpc(string $method, array $params): mixed
+    public function jsonRpc(string $method, array $params, bool $raw = false): mixed
     {
         $response = $this->getClient()->post($this->url, [
             'jsonrpc' => '2.0',
@@ -38,7 +38,9 @@ class SubstrateHttpClient extends JsonHttpAbstract
             'id' => mt_rand(1, 999999999),
         ]);
 
-        return Arr::get($this->getResponse($response), 'result');
+        $fullResponse = $this->getResponse($response);
+
+        return $raw ? $fullResponse : Arr::get($fullResponse, 'result');
     }
 
     #[\Override]

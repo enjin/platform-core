@@ -9,9 +9,11 @@ use Enjin\Platform\Models\Transaction;
 use Enjin\Platform\Support\SS58Address;
 use Enjin\Platform\Tests\Feature\GraphQL\TestCaseGraphQL;
 use Enjin\Platform\Tests\Support\MocksSocketClient;
+use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Facades\Enjin\Platform\Services\Blockchain\Implementations\Substrate;
 use Faker\Generator;
 use Illuminate\Support\Facades\Event;
+use Mockery;
 
 class SendTransactionTest extends TestCaseGraphQL
 {
@@ -278,15 +280,13 @@ class SendTransactionTest extends TestCaseGraphQL
             $json['result'] = $response;
         }
 
-        $this->mockWebsocketClient(
-            'author_submitExtrinsic',
-            [
-                $extrinsic,
-            ],
-            json_encode(
-                $json,
-                JSON_THROW_ON_ERROR
-            )
-        );
+        // Mock the HTTP client instead of WebSocket client
+        $mockHttpClient = Mockery::mock(SubstrateHttpClient::class);
+        $mockHttpClient->shouldReceive('jsonRpc')
+            ->once()
+            ->with('author_submitExtrinsic', [$extrinsic], true)
+            ->andReturn($json);
+
+        app()->bind(SubstrateHttpClient::class, fn () => $mockHttpClient);
     }
 }
