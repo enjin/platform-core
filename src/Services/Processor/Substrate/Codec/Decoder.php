@@ -355,7 +355,8 @@ class Decoder
      */
     public function tankStorageData(string $data): array
     {
-        $decoded = $this->codec->process('TankStorageData', new ScaleBytes($data));
+        $type = currentSpec() >= 1030 ? 'TankStorageDataV1030' : 'TankStorageData';
+        $decoded = $this->codec->process($type, new ScaleBytes($data));
 
         return [
             'owner' => ($owner = Arr::get($decoded, 'owner')) !== null ? HexConverter::prefix($owner) : null,
