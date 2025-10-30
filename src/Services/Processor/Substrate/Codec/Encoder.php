@@ -124,6 +124,17 @@ class Encoder
         static::$callIndexKeys = $keys;
     }
 
+    public static function getCallName(int $palletIndex, int $functionIndex): string
+    {
+        $result = array_search([$palletIndex, $functionIndex], static::$overrideCallIndex);
+
+        if ($result === false) {
+            throw new PlatformException('Unsupported call index: ' . $palletIndex . '.' . $functionIndex);
+        }
+
+        return $result;
+    }
+
     public function methodSupported($method): bool
     {
         return array_key_exists($method, static::$callIndexKeys);

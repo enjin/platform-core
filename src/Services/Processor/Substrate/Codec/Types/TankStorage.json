@@ -16,11 +16,27 @@
     "coveragePolicy": "CoveragePolicy",
     "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
   },
+  "TankStorageDataV1030": {
+    "owner": "AccountId",
+    "name": "Bytes",
+    "ruleSets": "BTreeMap<u32, DispatchRuleSetV1030>",
+    "totalReserved": "Compact<u128>",
+    "accountCount": "Compact<u32>",
+    "userAccountManagement": "Option<UserAccountManagement>",
+    "isFrozen": "bool",
+    "coveragePolicy": "CoveragePolicy",
+    "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
+  },
   "UserAccountManagement": {
     "tankReservesAccountCreationDeposit": "bool"
   },
   "DispatchRuleSet": {
     "rules": "BTreeMap<DispatchRuleKind, DispatchRuleStorage>",
+    "isFrozen": "bool",
+    "requireAccount": "bool"
+  },
+  "DispatchRuleSetV1030": {
+    "rules": "BTreeMap<DispatchRuleKind, DispatchRuleStorageV1030>",
     "isFrozen": "bool",
     "requireAccount": "bool"
   },
@@ -49,6 +65,21 @@
       "RequireToken": "RequireTokenRuleStorage",
       "PermittedCalls": "PermittedCallsRuleStorage",
       "PermittedExtrinsics": "PermittedExtrinsicsRuleStorage",
+      "WhitelistedPallets": "Vec<Bytes>",
+      "RequireSignature": "[u8; 32]",
+      "MinimumInfusion": "u128"
+    }
+  },
+  "DispatchRuleStorageV1030": {
+    "_enum": {
+      "WhitelistedCallers": "Vec<AccountId>",
+      "WhitelistedCollections": "Vec<u128>",
+      "MaxFuelBurnPerTransaction": "u128",
+      "UserFuelBudget": "UserFuelBudgetRuleStorage",
+      "TankFuelBudget": "TankFuelBudgetRuleStorage",
+      "RequireToken": "RequireTokenRuleStorage",
+      "PermittedCalls": "PermittedCallsRuleStorage",
+      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorageV1030",
       "WhitelistedPallets": "Vec<Bytes>",
       "RequireSignature": "[u8; 32]",
       "MinimumInfusion": "u128"
@@ -98,8 +129,15 @@
   "PermittedExtrinsicsRuleStorage": {
     "extrinsics": "Vec<ExtrinsicInfo>"
   },
+  "PermittedExtrinsicsRuleStorageV1030": {
+    "extrinsics": "Vec<ExtrinsicInfoV1030>"
+  },
   "ExtrinsicInfo": {
     "palletName": "Bytes",
     "extrinsicName": "Bytes"
+  },
+  "ExtrinsicInfoV1030": {
+    "palletIndex": "u8",
+    "functionIndex": "u8"
   }
 }

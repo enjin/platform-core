@@ -5,6 +5,7 @@ namespace Enjin\Platform\Models\Substrate;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Facades\TransactionSerializer;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Mutations\BatchTransferBalanceMutation;
+use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Encoder as BaseEncoder;
 use Enjin\Platform\Interfaces\PlatformBlockchainTransaction;
 use Enjin\Platform\Package;
@@ -26,6 +27,12 @@ class PermittedExtrinsicsParams extends FuelTankRules
                     return $extrinsic;
                 }
 
+                // V1030+: Uses palletIndex/functionIndex (u8 integers)
+                if (isset($extrinsic['palletIndex'], $extrinsic['functionIndex'])) {
+                    return Encoder::getCallName($extrinsic['palletIndex'], $extrinsic['functionIndex']);
+                }
+
+                // Pre-V1030: Uses palletName/extrinsicName (Bytes)
                 if (($palletName = Arr::get($extrinsic, 'palletName')) && ($methodName = Arr::get($extrinsic, 'extrinsicName'))) {
                     return HexConverter::hexToString($palletName) . '.' . HexConverter::hexToString($methodName);
                 }
