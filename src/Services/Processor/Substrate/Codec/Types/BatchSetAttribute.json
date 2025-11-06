@@ -7,6 +7,12 @@
     "callIndex": "(u8, u8)",
     "collectionId": "Compact<u128>",
     "tokenId": "Option<u128>",
+    "attributes": "Vec<Attribute>"
+  },
+  "BatchSetAttributeV1022": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Option<u128>",
     "attributes": "Vec<Attribute>",
     "depositor": "Option<MultiAddress>"
   }

@@ -3,13 +3,19 @@
     "callIndex": "(u8, u8)",
     "recipient": "MultiAddress",
     "collectionId": "Compact<u128>",
-    "params": "TransferParamsOfV1020"
+    "params": "TransferParamsOf"
+  },
+  "TransferV1022": {
+    "callIndex": "(u8, u8)",
+    "recipient": "MultiAddress",
+    "collectionId": "Compact<u128>",
+    "params": "TransferParamsOfV1022"
   },
   "TransferV1013": {
     "callIndex": "(u8, u8)",
     "recipient": "MultiAddress",
     "collectionId": "Compact<u128>",
-    "params": "TransferParamsOf"
+    "params": "TransferParamsOfV1013"
   },
   "TransferParamsOf": {
     "_enum": {
@@ -17,13 +23,28 @@
       "Operator": "OperatorTransferParams"
     }
   },
-  "TransferParamsOfV1020": {
+  "TransferParamsOfV1022": {
     "_enum": {
-      "Simple": "SimpleTransferParams",
-      "Operator": "OperatorTransferParamsV1020"
+      "Simple": "SimpleTransferParamsV1022",
+      "Operator": "OperatorTransferParamsV1022"
+    }
+  },
+  "TransferParamsOfV1013": {
+    "_enum": {
+      "Simple": "SimpleTransferParamsV1013",
+      "Operator": "OperatorTransferParamsV1013"
     }
   },
   "SimpleTransferParams": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>"
+  },
+  "SimpleTransferParamsV1022": {
+    "tokenId": "Compact<u128>",
+    "amount": "Compact<u128>",
+    "depositor": "Option<AccountId>"
+  },
+  "SimpleTransferParamsV1013": {
     "tokenId": "Compact<u128>",
     "amount": "Compact<u128>",
     "depositor": "Option<AccountId>"
@@ -32,13 +53,19 @@
     "tokenId": "Compact<u128>",
     "source": "AccountId",
     "amount": "Compact<u128>",
-    "depositor": "Option<AccountId>"
+    "operatorPaysDeposit": "bool"
   },
-  "OperatorTransferParamsV1020": {
+  "OperatorTransferParamsV1022": {
     "tokenId": "Compact<u128>",
     "source": "AccountId",
     "amount": "Compact<u128>",
     "operatorPaysDeposit": "bool",
+    "depositor": "Option<AccountId>"
+  },
+  "OperatorTransferParamsV1013": {
+    "tokenId": "Compact<u128>",
+    "source": "AccountId",
+    "amount": "Compact<u128>",
     "depositor": "Option<AccountId>"
   }
 }

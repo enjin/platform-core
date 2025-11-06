@@ -5,20 +5,29 @@
   },
   "CreateCollection": {
     "callIndex": "(u8, u8)",
-    "descriptor": "CollectionDescriptorV1020"
+    "descriptor": "CollectionDescriptor"
+  },
+  "CreateCollectionV1022": {
+    "callIndex": "(u8, u8)",
+    "descriptor": "CollectionDescriptorV1022"
   },
   "CreateCollectionV1013": {
     "callIndex": "(u8, u8)",
-    "descriptor": "CollectionDescriptor"
+    "descriptor": "CollectionDescriptorV1013"
   },
   "CollectionDescriptor": {
-    "policy": "CollectionPolicyDescriptor",
+    "policy": "CollectionPolicyDescriptorV1020",
+    "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
+    "attributes": "Vec<Attribute>"
+  },
+  "CollectionDescriptorV1022": {
+    "policy": "CollectionPolicyDescriptorV1020",
     "depositor": "Option<AccountId>",
     "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
     "attributes": "Vec<Attribute>"
   },
-  "CollectionDescriptorV1020": {
-    "policy": "CollectionPolicyDescriptorV1020",
+  "CollectionDescriptorV1013": {
+    "policy": "CollectionPolicyDescriptor",
     "depositor": "Option<AccountId>",
     "explicitRoyaltyCurrencies": "Vec<MultiTokensAssetId>",
     "attributes": "Vec<Attribute>"
