@@ -913,9 +913,9 @@ class EncodingTest extends TestCase
             )
         ));
 
-        // Call index: 2804 (28 = pallet, 04 = call)
+        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            '0x280400c8d44f8b5174b4854c1d8899fcc21fb77d05dafd6a64ac8bbdde2bcdab7228570' . '0400fd03b67a03000100000000000000000000000000',
+            "0x{$callIndex}00c8d44f8b5174b4854c1d8899fcc21fb77d05dafd6a64ac8bbdde2bcdab7228570" . '0400fd03b67a03000100000000000000000000000000',
             $data
         );
     }
