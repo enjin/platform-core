@@ -163,7 +163,7 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
             default => new ListingDataParams(ListingType::FIXED_PRICE),
         };
 
-        $encodable = [
+        return [
             'makeAssetId' => $makeAsset->toEncodable(),
             'takeAssetId' => $takeAsset->toEncodable(),
             'amount' => gmp_init($amount),
@@ -172,13 +172,8 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
             'salt' => HexConverter::stringToHexPrefixed($salt),
             'usesWhitelist' => false,
             'listingData' => $listingData->toEncodable(),
+            'depositor' => null,
         ];
-
-        if (currentSpec() < 1030) {
-            $encodable['depositor'] = null;
-        }
-
-        return $encodable;
     }
 
     protected function makeOrTakeRuleExist(?string $collectionId = null, ?bool $isMake = true): array

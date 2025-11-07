@@ -52,7 +52,7 @@ class CreateListingTest extends TestCaseGraphQL
 
         $this->assertEquals(
             $response['encodedData'],
-            TransactionSerializer::encode($this->method . (currentSpec() >= 1030 ? '' : 'V1022'), CreateListingMutation::getEncodableParams(...$params))
+            TransactionSerializer::encode($this->method . (currentSpec() >= 1020 ? '' : 'V1013'), CreateListingMutation::getEncodableParams(...$params))
         );
 
         $this->assertNull(Arr::get($response, 'wallet.account.publicKey'));
