@@ -39,7 +39,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000000000000000000000",
             $data
         );
     }
@@ -61,7 +61,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100b67a030000000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000100b67a03000000000000000000000000",
             $data
         );
     }
@@ -82,7 +82,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000010000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000001000000000000000000",
             $data
         );
     }
@@ -104,7 +104,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000101b67a030000000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000101b67a03000000000000000000000000",
             $data
         );
     }
@@ -125,7 +125,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000000000000000000000000",
             $data
         );
     }
@@ -146,7 +146,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000000010000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000001000000000000000000",
             $data
         );
     }
@@ -172,7 +172,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000001000452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300000001000452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0208af2f00000000000000000000",
             $data
         );
     }
@@ -198,7 +198,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f00c90f04000000000004106e616d652844656d6f20546f6b656e000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e411f00c90f04000000000004106e616d652844656d6f20546f6b656e00000000000000",
             $data
         );
     }
@@ -221,7 +221,7 @@ class MintTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a030000000101000000000000000000",
+            "0x{$callIndex}0052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000010100000000000000000000",
             $data
         );
     }
