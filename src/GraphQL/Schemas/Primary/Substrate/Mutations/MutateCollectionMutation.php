@@ -113,7 +113,7 @@ class MutateCollectionMutation extends Mutation implements PlatformBlockchainTra
         }
 
         $encodedData = $serializationService->encode(
-            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+            $this->getMutationName() . (currentSpec() >= 1030 ? '' : 'V1022'),
             static::getEncodableParams(
                 collectionId: $args['collectionId'],
                 owner: Arr::get($args, 'mutation.owner') !== null

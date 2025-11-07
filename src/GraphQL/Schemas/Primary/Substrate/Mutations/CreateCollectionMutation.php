@@ -113,7 +113,7 @@ class CreateCollectionMutation extends Mutation implements PlatformBlockchainTra
             $this->storeTransaction(
                 $args,
                 $serializationService->encode(
-                    $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    $this->getMutationName() . (currentSpec() >= 1030 ? '' : 'V1022'),
                     static::getEncodableParams(...$blockchainService->getCollectionPolicies($args))
                 )
             ),

@@ -128,7 +128,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
 
         $continueOnFailure = $args['continueOnFailure'];
         $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' :
-            $this->getMutationName() . (currentSpec() >= 1020 ? '' : 'V1013'), static::getEncodableParams(
+            $this->getMutationName() . (currentSpec() >= 1030 ? '' : 'V1022'), static::getEncodableParams(
                 collectionId: $args['collectionId'],
                 recipients: $recipients->toArray(),
                 continueOnFailure: $continueOnFailure
@@ -150,7 +150,7 @@ class BatchTransferMutation extends Mutation implements PlatformBlockchainTransa
         if ($continueOnFailure) {
             $encodedData = collect($recipients)->map(
                 fn ($recipient) => $serializationService->encode(
-                    'Transfer' . (currentSpec() >= 1020 ? '' : 'V1013'),
+                    'Transfer' . (currentSpec() >= 1030 ? '' : 'V1022'),
                     [
                         'recipient' => [
                             'Id' => HexConverter::unPrefix($recipient['accountId']),
