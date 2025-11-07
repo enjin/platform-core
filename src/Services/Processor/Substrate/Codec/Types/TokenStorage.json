@@ -47,7 +47,7 @@
     "totalTokenAccountDeposit": "Compact<u128>",
     "attributeCount": "Compact<u32>",
     "accountCount": "Compact<u32>",
-    "marketBehavior": "Option<TokenMarketBehaviorV1020>",
+    "marketBehavior": "Option<TokenMarketBehavior>",
     "listingForbidden": "bool",
     "metadata": "TokenMetadata",
     "infusion": "u128",
@@ -68,19 +68,9 @@
   },
   "TokenMarketBehavior": {
     "_enum": {
-      "HasRoyalty": "RoyaltyPolicyDescriptor",
-      "IsCurrency": "Null"
-    }
-  },
-  "TokenMarketBehaviorV1020": {
-    "_enum": {
       "HasRoyalty": "DefaultRoyalty",
       "IsCurrency": "Null"
     }
-  },
-  "RoyaltyPolicyDescriptor": {
-    "beneficiary": "AccountId",
-    "percentage": "Compact<Perbill>"
   },
   "TokenCreationDeposit": {
     "depositor": "Option<AccountId>",
