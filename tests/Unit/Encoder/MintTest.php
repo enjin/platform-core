@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Tests\Unit\Encoder;
 
+use Enjin\Platform\Enums\Global\PlatformCache;
 use Enjin\Platform\Enums\Substrate\FreezeStateType;
 use Enjin\Platform\Enums\Substrate\TokenMintCapType;
 use Enjin\Platform\Facades\TransactionSerializer;
@@ -11,6 +12,7 @@ use Enjin\Platform\Models\Substrate\RoyaltyPolicyParams;
 use Enjin\Platform\Models\Substrate\TokenMarketBehaviorParams;
 use Enjin\Platform\Services\Processor\Substrate\Codec\Codec;
 use Enjin\Platform\Tests\TestCase;
+use Illuminate\Support\Facades\Cache;
 
 class MintTest extends TestCase
 {

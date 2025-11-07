@@ -54,7 +54,7 @@
     "initialSupply": "Compact<u128>",
     "accountDepositCount": "Option<Compact<u32>>",
     "cap": "Option<TokenCap>",
-    "behavior": "Option<TokenMarketBehavior>",
+    "behavior": "Option<TokenMarketBehaviorV1020>",
     "listingForbidden": "bool",
     "freezeState": "Option<FreezeState>",
     "attributes": "Vec<Attribute>",
