@@ -100,6 +100,7 @@ class CreateTokenParams
                 'anyoneCanInfuse' => $this->anyoneCanInfuse,
                 'metadata' => $this->metadata->toEncodable(),
                 'privilegedParams' => null,
+                'groups' => [],
             ],
         ];
     }
