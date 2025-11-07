@@ -48,7 +48,7 @@ class MintTest extends TestCase
 
     public function test_it_decodes_with_account_deposit_count()
     {
-        $data = $this->codec->decoder()->mint('0x280400b63ff0add4c15b95c6feedc900305b1f125c907c89149b5fd92f5eb4e5ea7c12411f0091012802093d000000000000000000000000');
+        $data = $this->codec->decoder()->mint('0x280400b63ff0add4c15b95c6feedc900305b1f125c907c89149b5fd92f5eb4e5ea7c12411f009101280102093d00000000000000000000000000');
 
         $this->assertEquals([
             'recipientId' => '0xb63ff0add4c15b95c6feedc900305b1f125c907c89149b5fd92f5eb4e5ea7c12',
