@@ -909,7 +909,10 @@ class EncodingTest extends TestCase
             collectionId: '1',
             createTokenParams: new CreateTokenParams(
                 tokenId: '255',
-                initialSupply: '57005'
+                initialSupply: '57005',
+                cap: null,
+                behavior: null,
+                listingForbidden: null
             )
         ));
 

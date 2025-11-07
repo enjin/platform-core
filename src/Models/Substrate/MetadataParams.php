@@ -46,8 +46,8 @@ class MetadataParams
     public function toEncodable(): array
     {
         return [
-            'name' => $this->name ? HexConverter::stringToHexPrefixed($this->name) : '',
-            'symbol' => $this->symbol ? HexConverter::stringToHexPrefixed($this->symbol) : '',
+            'name' => $this->name ? HexConverter::stringToHexPrefixed($this->name) : '0x',
+            'symbol' => $this->symbol ? HexConverter::stringToHexPrefixed($this->symbol) : '0x',
             'decimalCount' => $this->decimalCount,
         ];
     }
