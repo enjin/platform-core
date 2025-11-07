@@ -563,7 +563,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.batch_mint', true);
         $this->assertEquals(
-            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e00fd03b67a03000100000000000000000000000000",
+            "0x{$callIndex}411f0452e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e00fd03b67a030000000000000000000000000000",
             $data
         );
     }
@@ -871,7 +871,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
-            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300010000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300010000000000000000000000000000",
+            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000000000000000000000000",
             $data
         );
     }
@@ -897,7 +897,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MatrixUtility.batch', true);
         $this->assertEquals(
-            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300010000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a0300010000000000000000000000000001",
+            "0x{$callIndex}0828040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000000000000000000000028040052e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e0400fd03b67a03000000000000000000000000000001",
             $data
         );
     }
@@ -918,7 +918,7 @@ class EncodingTest extends TestCase
 
         $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
         $this->assertEquals(
-            "0x{$callIndex}00c8d44f8b5174b4854c1d8899fcc21fb77d05dafd6a64ac8bbdde2bcdab7228570" . '0400fd03b67a03000100000000000000000000000000',
+            "0x{$callIndex}00c8d44f8b5174b4854c1d8899fcc21fb77d05dafd6a64ac8bbdde2bcdab7228570" . '0400fd03b67a030000000000000000000000000000',
             $data
         );
     }

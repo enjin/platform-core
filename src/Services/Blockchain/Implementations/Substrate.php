@@ -257,7 +257,7 @@ class Substrate implements BlockchainServiceInterface
     {
         $data = [
             'tokenId' => $this->encodeTokenId($args),
-            'accountDepositCount' => $args['accountDepositCount'],
+            'accountDepositCount' => currentSpec() >= 1030 ? $args['accountDepositCount'] : ($args['accountDepositCount'] ?? 0),
             'initialSupply' => $args['initialSupply'],
             'listingForbidden' => $args['listingForbidden'],
             'attributes' => Arr::get($args, 'attributes', []),
