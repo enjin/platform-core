@@ -62,7 +62,7 @@
     "anyoneCanInfuse": "bool",
     "metadata": "CreateTokenMetadata",
     "privilegedParams": "Option<PrivilegedCreateTokenParams>",
-    "groups": "Vec<TokenGroup>"
+    "groups": "Vec<u128>"
   },
   "CreateTokenParamsV1022": {
     "tokenId": "Compact<u128>",
@@ -91,10 +91,6 @@
     "anyoneCanInfuse": "bool",
     "metadata": "CreateTokenMetadata",
     "privilegedParams": "Option<PrivilegedCreateTokenParamsV1022>"
-  },
-  "TokenGroup": {
-    "groupId": "Compact<u128>",
-    "name": "Bytes"
   },
   "TokenCap": {
     "_enum": {
