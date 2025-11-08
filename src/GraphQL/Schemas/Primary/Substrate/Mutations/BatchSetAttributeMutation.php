@@ -102,12 +102,13 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
         TransactionService $transactionService
     ): mixed {
         $continueOnFailure = $args['continueOnFailure'];
-        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' : $this->getMutationName(), static::getEncodableParams(
-            collectionId: $args['collectionId'],
-            tokenId: $this->encodeTokenId($args),
-            attributes: $args['attributes'],
-            continueOnFailure: $continueOnFailure
-        ));
+        $encodedData = $serializationService->encode($continueOnFailure ? 'Batch' :
+            $this->getMutationName() . (currentSpec() >= 1030 ? '' : 'V1022'), static::getEncodableParams(
+                collectionId: $args['collectionId'],
+                tokenId: $this->encodeTokenId($args),
+                attributes: $args['attributes'],
+                continueOnFailure: $continueOnFailure
+            ));
 
         return Transaction::lazyLoadSelectFields(
             $this->storeTransaction($args, $encodedData),
@@ -125,13 +126,16 @@ class BatchSetAttributeMutation extends Mutation implements PlatformBlockchainTr
 
         if ($continueOnFailure) {
             $encodedData = collect($attributes)->map(
-                fn ($attribute) => $serializationService->encode('SetAttribute', [
-                    'collectionId' => gmp_init($collectionId),
-                    'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
-                    'key' => HexConverter::stringToHexPrefixed($attribute['key']),
-                    'value' => HexConverter::stringToHexPrefixed($attribute['value']),
-                    'depositor' => null, // This is an internal input used by the blockchain internally
-                ])
+                fn ($attribute) => $serializationService->encode(
+                    'SetAttribute' . (currentSpec() >= 1030 ? '' : 'V1022'),
+                    [
+                        'collectionId' => gmp_init($collectionId),
+                        'tokenId' => $tokenId !== null ? gmp_init($tokenId) : null,
+                        'key' => HexConverter::stringToHexPrefixed($attribute['key']),
+                        'value' => HexConverter::stringToHexPrefixed($attribute['value']),
+                        'depositor' => null, // This is an internal input used by the blockchain internally
+                    ]
+                )
             );
 
             return [

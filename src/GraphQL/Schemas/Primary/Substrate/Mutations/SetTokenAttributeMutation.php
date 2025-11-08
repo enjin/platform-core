@@ -118,7 +118,7 @@ class SetTokenAttributeMutation extends Mutation implements PlatformBlockchainTr
     #[\Override]
     public function getMethodName(): string
     {
-        return 'SetAttribute';
+        return 'SetAttribute' . (currentSpec() >= 1030 ? '' : 'V1022');
     }
 
     public static function getEncodableParams(...$params): array

@@ -106,7 +106,7 @@ class SetCollectionAttributeMutation extends Mutation implements PlatformBlockch
     #[\Override]
     public function getMethodName(): string
     {
-        return 'SetAttribute';
+        return 'SetAttribute' . (currentSpec() >= 1030 ? '' : 'V1022');
     }
 
     public static function getEncodableParams(...$params): array
