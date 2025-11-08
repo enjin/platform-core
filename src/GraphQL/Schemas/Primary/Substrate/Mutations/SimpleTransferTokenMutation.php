@@ -122,7 +122,7 @@ class SimpleTransferTokenMutation extends Mutation implements PlatformBlockchain
     #[\Override]
     public function getMethodName(): string
     {
-        return 'Transfer';
+        return 'Transfer' . (currentSpec() >= 1030 ? '' : 'V1022');
     }
 
     public static function getEncodableParams(...$params): array
