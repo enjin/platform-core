@@ -355,7 +355,7 @@ class Decoder
      */
     public function tankStorageData(string $data): array
     {
-        $type = currentSpec() >= 1030 ? 'TankStorageDataV1030' : 'TankStorageData';
+        $type = currentSpec() >= 1030 ? 'TankStorageData' : 'TankStorageDataV1022';
         $decoded = $this->codec->process($type, new ScaleBytes($data));
 
         return [

@@ -16,10 +16,10 @@
     "coveragePolicy": "CoveragePolicy",
     "accountRules": "BTreeMap<AccountRuleKind, AccountRuleStorage>"
   },
-  "TankStorageDataV1030": {
+  "TankStorageDataV1022": {
     "owner": "AccountId",
     "name": "Bytes",
-    "ruleSets": "BTreeMap<u32, DispatchRuleSetV1030>",
+    "ruleSets": "BTreeMap<u32, DispatchRuleSetV1022>",
     "totalReserved": "Compact<u128>",
     "accountCount": "Compact<u32>",
     "userAccountManagement": "Option<UserAccountManagement>",
@@ -35,8 +35,8 @@
     "isFrozen": "bool",
     "requireAccount": "bool"
   },
-  "DispatchRuleSetV1030": {
-    "rules": "BTreeMap<DispatchRuleKind, DispatchRuleStorageV1030>",
+  "DispatchRuleSetV1022": {
+    "rules": "BTreeMap<DispatchRuleKind, DispatchRuleStorageV1022>",
     "isFrozen": "bool",
     "requireAccount": "bool"
   },
@@ -70,7 +70,7 @@
       "MinimumInfusion": "u128"
     }
   },
-  "DispatchRuleStorageV1030": {
+  "DispatchRuleStorageV1022": {
     "_enum": {
       "WhitelistedCallers": "Vec<AccountId>",
       "WhitelistedCollections": "Vec<u128>",
@@ -79,7 +79,7 @@
       "TankFuelBudget": "TankFuelBudgetRuleStorage",
       "RequireToken": "RequireTokenRuleStorage",
       "PermittedCalls": "PermittedCallsRuleStorage",
-      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorageV1030",
+      "PermittedExtrinsics": "PermittedExtrinsicsRuleStorageV1022",
       "WhitelistedPallets": "Vec<Bytes>",
       "RequireSignature": "[u8; 32]",
       "MinimumInfusion": "u128"
@@ -129,15 +129,15 @@
   "PermittedExtrinsicsRuleStorage": {
     "extrinsics": "Vec<ExtrinsicInfo>"
   },
-  "PermittedExtrinsicsRuleStorageV1030": {
-    "extrinsics": "Vec<ExtrinsicInfoV1030>"
+  "PermittedExtrinsicsRuleStorageV1022": {
+    "extrinsics": "Vec<ExtrinsicInfoV1022>"
   },
   "ExtrinsicInfo": {
-    "palletName": "Bytes",
-    "extrinsicName": "Bytes"
-  },
-  "ExtrinsicInfoV1030": {
     "palletIndex": "u8",
     "functionIndex": "u8"
+  },
+  "ExtrinsicInfoV1022": {
+    "palletName": "Bytes",
+    "extrinsicName": "Bytes"
   }
 }
