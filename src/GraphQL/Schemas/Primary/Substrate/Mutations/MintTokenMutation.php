@@ -42,7 +42,6 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     use HasSkippableRules;
     use HasTokenIdFieldRules;
     use HasTransactionDeposit;
-    use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
 
