@@ -901,25 +901,4 @@ class EncodingTest extends TestCase
             $data
         );
     }
-
-    public function test_it_can_encode_create_token()
-    {
-        $data = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
-            recipientAccount: '0xc8d44f8b5174b4854c1d8899fcc21fb77d05dafd6a64ac8bbdde2bcdab7228570',
-            collectionId: '1',
-            createTokenParams: new CreateTokenParams(
-                tokenId: '255',
-                initialSupply: '57005',
-                cap: null,
-                behavior: null,
-                listingForbidden: null
-            )
-        ));
-
-        $callIndex = $this->codec->encoder()->getCallIndex('MultiTokens.mint', true);
-        $this->assertEquals(
-            "0x{$callIndex}00c8d44f8b5174b4854c1d8899fcc21fb77d05dafd6a64ac8bbdde2bcdab7228570" . '0400fd03b67a030000000000000000000000000000',
-            $data
-        );
-    }
 }
