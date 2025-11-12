@@ -8,6 +8,17 @@
         "startBlock": "Option<u32>",
         "salt": "Bytes",
         "usesWhitelist": "bool",
+        "listingData": "ListingData"
+    },
+    "CreateListingV1022": {
+        "callIndex": "(u8, u8)",
+        "makeAssetId": "MultiTokensAssetId",
+        "takeAssetId": "MultiTokensAssetId",
+        "amount": "Compact<u128>",
+        "price": "Compact<u128>",
+        "startBlock": "Option<u32>",
+        "salt": "Bytes",
+        "usesWhitelist": "bool",
         "listingData": "ListingData",
         "depositor": "Option<AccountId>"
     },

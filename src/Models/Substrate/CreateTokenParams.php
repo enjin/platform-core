@@ -15,7 +15,7 @@ class CreateTokenParams
     public function __construct(
         public string $tokenId,
         public string $initialSupply,
-        public ?int $accountDepositCount = 0,
+        public ?int $accountDepositCount = null,
         public ?TokenMintCapType $cap = null,
         public ?string $capSupply = null,
         public ?TokenMarketBehaviorParams $behavior = null,
@@ -82,7 +82,7 @@ class CreateTokenParams
             'CreateToken' => [
                 'tokenId' => gmp_init($this->tokenId),
                 'initialSupply' => gmp_init($this->initialSupply),
-                'accountDepositCount' => $this->accountDepositCount,
+                'accountDepositCount' => $this->accountDepositCount !== null ? gmp_init($this->accountDepositCount) : null,
                 'cap' => $this->cap ? [
                     $this->cap->value => gmp_init($this->capSupply),
                 ] : null,
@@ -100,6 +100,7 @@ class CreateTokenParams
                 'anyoneCanInfuse' => $this->anyoneCanInfuse,
                 'metadata' => $this->metadata->toEncodable(),
                 'privilegedParams' => null,
+                'groups' => [],
             ],
         ];
     }

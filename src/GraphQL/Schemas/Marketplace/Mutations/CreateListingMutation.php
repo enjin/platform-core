@@ -112,7 +112,7 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
         ResolveInfo $resolveInfo,
         Closure $getSelectFields,
     ) {
-        $encodedData = TransactionSerializer::encode($this->getMutationName(), static::getEncodableParams(
+        $encodedData = TransactionSerializer::encode($this->getMethodName(), static::getEncodableParams(
             makeAssetId: new MultiTokensTokenAssetIdParams(
                 Arr::get($args, 'makeAssetId.collectionId'),
                 $this->encodeTokenId(Arr::get($args, 'makeAssetId'))
@@ -131,6 +131,15 @@ class CreateListingMutation extends MarketplaceMutation implements PlatformBlock
             DB::transaction(fn () => $this->storeTransaction($args, $encodedData)),
             $resolveInfo
         );
+    }
+
+    /**
+     * Get the serialization service method name.
+     */
+    #[\Override]
+    public function getMethodName(): string
+    {
+        return 'CreateListing' . (currentSpec() >= 1030 ? '' : 'V1022');
     }
 
     #[\Override]

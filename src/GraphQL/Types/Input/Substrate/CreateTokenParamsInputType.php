@@ -45,7 +45,7 @@ class CreateTokenParamsInputType extends InputType implements PlatformGraphQlTyp
             'accountDepositCount' => [
                 'type' => GraphQL::type('Int'),
                 'description' => __('enjin-platform::input_type.create_token_params.field.accountDepositCount'),
-                'defaultValue' => 0,
+                'defaultValue' => null,
                 'rules' => ['bail', 'nullable', 'integer', 'min:0', 'max:4294967295'],
             ],
             'cap' => [

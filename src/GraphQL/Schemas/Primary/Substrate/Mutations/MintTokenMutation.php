@@ -42,7 +42,6 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     use HasSkippableRules;
     use HasTokenIdFieldRules;
     use HasTransactionDeposit;
-    use HasTransactionDeposit;
     use InPrimarySubstrateSchema;
     use StoresTransactions;
 
@@ -125,7 +124,7 @@ class MintTokenMutation extends Mutation implements PlatformBlockchainTransactio
     #[\Override]
     public function getMethodName(): string
     {
-        return 'Mint';
+        return 'Mint' . (currentSpec() >= 1030 ? '' : 'V1022');
     }
 
     public static function getEncodableParams(...$params): array

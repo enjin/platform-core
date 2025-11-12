@@ -32,7 +32,7 @@
   "BehaviorParamOfV1020": {
     "_enum": {
       "NoMutation": "Null",
-      "SomeMutation": "Option<TokenMarketBehaviorV1020>"
+      "SomeMutation": "Option<TokenMarketBehavior>"
     }
   }
 }
