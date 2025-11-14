@@ -28,8 +28,8 @@ class Infused extends SubstrateEvent
         // Fails if it doesn't find the token
         $token = $this->getToken($collection->id, $this->event->tokenId);
 
-        $collection->update(['total_infusion' => $this->increaseInfusedValue($collection->total_infusion, $this->event->amount, $token->supply)]);
-        $token->update(['infusion' => $this->increaseInfusedValue($token->infusion, $this->event->amount, $token->supply)]);
+        $collection->update(['total_infusion' => $this->increaseInfusedValue($collection->total_infusion, $this->event->amount)]);
+        $token->update(['infusion' => $this->increaseInfusedValue($token->infusion, $this->event->amount)]);
     }
 
     public function log(): void
@@ -51,10 +51,8 @@ class Infused extends SubstrateEvent
         );
     }
 
-    protected function increaseInfusedValue(string $current, string $amount, string $supply): string
+    protected function increaseInfusedValue(string $current, string $amount): string
     {
-        $totalInfused = gmp_mul(gmp_init($supply), gmp_init($amount));
-
-        return gmp_strval(gmp_add(gmp_init($current), $totalInfused));
+        return gmp_strval(gmp_add(gmp_init($current), gmp_init($amount)));
     }
 }
