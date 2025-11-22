@@ -4,7 +4,7 @@ The core package for the Enjin Platform.
 
 [![License: LGPL 3.0](https://img.shields.io/badge/license-LGPL_3.0-purple)](https://opensource.org/license/lgpl-3-0/)
 [![codecov](https://codecov.io/gh/enjin/platform-core/branch/master/graph/badge.svg)](https://codecov.io/gh/enjin/platform-core)
-[![Tests](https://github.com/enjin/platform-core/actions/workflows/run_tests.yml/badge.svg)](https://github.com/enjin/platform-core/actions?query=workflow%3ARun%20Tests)
+[![Tests](https://github.com/enjin/platform-core/actions/workflows/run_tests.yml/badge.svg)](https://github.com/enjin/platform-core/actions)
 
 
 Enjin Platform is the most powerful and advanced open-source framework for building NFT Platforms.
