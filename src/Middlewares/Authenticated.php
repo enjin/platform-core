@@ -73,14 +73,11 @@ class Authenticated
                                 ->first();
                         }
 
-                        if (!in_array(
-                            $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value,
-                            $this->except
-                        )) {
-                            return false;
-                        }
-
-                        return true;
+                        return $definition?->selectionSet?->selections?->count() === 1
+                            && in_array(
+                                $definition?->selectionSet?->selections?->offsetGet(0)?->name?->value,
+                                $this->except
+                            );
                     });
             }
         }
