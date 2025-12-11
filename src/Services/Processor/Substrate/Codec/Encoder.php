@@ -199,7 +199,7 @@ class Encoder
         $mode = HexConverter::unPrefix($mode);
         $metadataHash = HexConverter::unPrefix($metadataHash);
 
-        return HexConverter::prefix($call . $era . $nonce . $tip . $mode . $specVersion . $txVersion . $genesisHash . $blockHash . $metadataHash);
+        return HexConverter::prefix($call . $era . $mode . $nonce . $tip . $specVersion . $txVersion . $genesisHash . $blockHash . $metadataHash);
     }
 
     public function signingPayloadJSON(
@@ -260,9 +260,9 @@ class Encoder
         $extrinsic .= '00' . HexConverter::unPrefix(SS58Address::getPublicKey($signer)); // MultiAddress
         $extrinsic .= HexConverter::unPrefix($signature);
         $extrinsic .= HexConverter::unPrefix($era);
+        $extrinsic .= HexConverter::unPrefix($mode);
         $extrinsic .= HexConverter::unPrefix($nonce);
         $extrinsic .= HexConverter::unPrefix($tip);
-        $extrinsic .= HexConverter::unPrefix($mode);
         $extrinsic .= HexConverter::unPrefix($call);
 
         return $this->sequenceLength($extrinsic) . $extrinsic;
@@ -278,7 +278,7 @@ class Encoder
         $tip = '00';
         $mode = '00';
 
-        $extrinsic = $extraByte . $signer . $signature . $era . $nonce . $tip . $mode;
+        $extrinsic = $extraByte . $signer . $signature . $era . $mode . $nonce . $tip;
         $extrinsic .= HexConverter::unPrefix($call);
 
         return $this->sequenceLength($extrinsic) . $extrinsic;
