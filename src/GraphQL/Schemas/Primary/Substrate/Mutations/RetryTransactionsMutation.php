@@ -70,11 +70,16 @@ class RetryTransactionsMutation extends Mutation implements PlatformGraphQlMutat
         Closure $getSelectFields
     ): mixed {
         return DB::transaction(function () use ($args) {
-            $txs = ($ids = Arr::get($args, 'ids'))
-                ? Transaction::whereIn('id', $ids)->get()
-                : Transaction::whereIn('idempotency_key', Arr::get($args, 'idempotencyKeys'))->get();
+            $query = Transaction::query()
+                ->where('state', '!=', TransactionState::FINALIZED->name);
 
-            $txs->each(function ($tx): void {
+            if ($ids = Arr::get($args, 'ids')) {
+                $query->whereIn('id', $ids);
+            } else {
+                $query->whereIn('idempotency_key', Arr::get($args, 'idempotencyKeys'));
+            }
+
+            $query->get()->each(function ($tx): void {
                 $tx->update([
                     'state' => TransactionState::PENDING->name,
                     'transaction_chain_hash' => null,
