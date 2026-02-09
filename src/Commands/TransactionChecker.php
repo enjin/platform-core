@@ -149,9 +149,7 @@ class TransactionChecker extends Command
             }
         }
 
-        if (!empty($hashes)) {
-            $this->info(sprintf('Could not find %d transactions in the searched blocks. They will be rechecked on the next run.', count($hashes)));
-        }
+        $this->setAbandonedState($hashes);
         $this->displayOverview($counter, $hashes);
     }
 
