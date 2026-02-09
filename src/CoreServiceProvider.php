@@ -120,6 +120,7 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app[Kernel::class]->pushMiddleware(Telemetry::class);
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('platform:send-telemetry-event')->daily();
+            $schedule->command('platform:transaction-checker')->everyThirtyMinutes()->withoutOverlapping();
         });
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::syncing());
