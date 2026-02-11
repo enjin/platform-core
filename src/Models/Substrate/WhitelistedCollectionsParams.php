@@ -20,7 +20,7 @@ class WhitelistedCollectionsParams extends FuelTankRules
     {
         return new self(
             collections: array_map(
-                fn ($collection) => gmp_strval($collection),
+                gmp_strval(...),
                 Arr::get($params, 'WhitelistedCollections', []),
             ),
         );

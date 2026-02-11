@@ -87,7 +87,7 @@ class MarkAndListPendingTransactionsMutation extends Mutation implements Platfor
                 $args['accounts'] ?? false,
                 fn (Builder $query) => $query->whereIn(
                     'wallet_public_key',
-                    array_map(fn ($wallet) => SS58Address::getPublicKey($wallet), $args['accounts'])
+                    array_map(SS58Address::getPublicKey(...), $args['accounts'])
                 ),
                 fn (Builder $query) =>  $query->where('managed', true)
             )->cursorPaginateWithTotal('id', $args['first'], false);

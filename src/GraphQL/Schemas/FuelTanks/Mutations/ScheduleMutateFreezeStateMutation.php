@@ -105,7 +105,7 @@ class ScheduleMutateFreezeStateMutation extends FuelTanksMutation implements Pla
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
-        $ruleSetId = Arr::get($params, 'ruleSetId', null);
+        $ruleSetId = Arr::get($params, 'ruleSetId');
         $isFrozen = Arr::get($params, 'isFrozen', false);
 
         return [

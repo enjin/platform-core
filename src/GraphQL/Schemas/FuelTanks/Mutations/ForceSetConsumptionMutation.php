@@ -120,10 +120,10 @@ class ForceSetConsumptionMutation extends FuelTanksMutation implements PlatformB
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());
-        $userId = Arr::get($params, 'userId', null);
+        $userId = Arr::get($params, 'userId');
         $ruleSetId = Arr::get($params, 'ruleSetId', 0);
         $totalConsumed = Arr::get($params, 'totalConsumed', 0);
-        $lastResetBlock = Arr::get($params, 'lastResetBlock', null);
+        $lastResetBlock = Arr::get($params, 'lastResetBlock');
 
         return [
             'tankId' => [

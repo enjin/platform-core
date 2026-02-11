@@ -117,7 +117,7 @@ class ApproveCollectionMutation extends Mutation implements PlatformBlockchainTr
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
-            'expiration' => Arr::get($params, 'expiration', null),
+            'expiration' => Arr::get($params, 'expiration'),
         ];
     }
 
