@@ -117,7 +117,7 @@ class RemoveAllAttributesMutation extends Mutation implements PlatformBlockchain
 
     public static function getEncodableParams(...$params): array
     {
-        $tokenId = Arr::get($params, 'tokenId', null);
+        $tokenId = Arr::get($params, 'tokenId');
 
         return [
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),

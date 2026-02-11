@@ -15,7 +15,7 @@ class WhitelistedCallersParams extends FuelTankRules
     public function __construct(?array $callers = [])
     {
         $this->callers = array_map(
-            fn ($caller) => SS58Address::getPublicKey($caller),
+            SS58Address::getPublicKey(...),
             $callers
         );
         sort($this->callers);

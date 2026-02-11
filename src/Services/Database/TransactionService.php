@@ -71,7 +71,6 @@ class TransactionService
         TransactionUpdated::safeBroadcast(
             event: null,
             transaction: $transaction->refresh(),
-            extra: null,
         );
 
         return $transaction->wasChanged();

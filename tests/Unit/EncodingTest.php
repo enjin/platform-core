@@ -611,9 +611,7 @@ class EncodingTest extends TestCase
     public function test_it_can_encode_freeze_collection()
     {
         $params = new FreezeTypeParams(
-            type: FreezeType::COLLECTION,
-            token: null,
-            account: null
+            type: FreezeType::COLLECTION
         );
 
         $data = TransactionSerializer::encode('Freeze', FreezeMutation::getEncodableParams(
@@ -632,8 +630,7 @@ class EncodingTest extends TestCase
     {
         $params = new FreezeTypeParams(
             type: FreezeType::TOKEN,
-            token: '255',
-            account: null
+            token: '255'
         );
 
         $data = TransactionSerializer::encode('Freeze', FreezeMutation::getEncodableParams(
@@ -712,9 +709,7 @@ class EncodingTest extends TestCase
     public function test_it_can_encode_thaw_collection()
     {
         $params = new FreezeTypeParams(
-            type: FreezeType::COLLECTION,
-            token: null,
-            account: null
+            type: FreezeType::COLLECTION
         );
 
         $data = TransactionSerializer::encode('Thaw', ThawMutation::getEncodableParams(
@@ -733,8 +728,7 @@ class EncodingTest extends TestCase
     {
         $params = new FreezeTypeParams(
             type: FreezeType::TOKEN,
-            token: '255',
-            account: null
+            token: '255'
         );
 
         $data = TransactionSerializer::encode('Thaw', ThawMutation::getEncodableParams(

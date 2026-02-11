@@ -39,7 +39,7 @@ class ExtrinsicProcessor
         return $errors;
     }
 
-    protected function processExtrinsic(PolkadartExtrinsic $extrinsic, int $index)
+    protected function processExtrinsic(PolkadartExtrinsic $extrinsic, int $index): void
     {
         if (empty($extrinsic->signer)) {
             return;

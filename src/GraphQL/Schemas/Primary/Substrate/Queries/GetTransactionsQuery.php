@@ -80,7 +80,7 @@ class GetTransactionsQuery extends Query implements PlatformGraphQlQuery
 
         return Transaction::loadSelectFields($resolveInfo, 'GetTransactions')
             ->when(!empty($args['accounts']), function (Builder $query) use ($args) {
-                $publicKeys = array_map(fn ($wallet) => SS58Address::getPublicKey($wallet), $args['accounts']);
+                $publicKeys = array_map(SS58Address::getPublicKey(...), $args['accounts']);
 
                 return $query->whereIn('wallet_public_key', $publicKeys);
             })

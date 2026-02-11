@@ -146,7 +146,7 @@ class ApproveTokenMutation extends Mutation implements PlatformBlockchainTransac
             'operator' => HexConverter::unPrefix(Arr::get($params, 'operator', Account::daemonPublicKey())),
             'amount' => gmp_init(Arr::get($params, 'amount', 0)),
             'currentAmount' => gmp_init(Arr::get($params, 'currentAmount', 0)),
-            'expiration' => Arr::get($params, 'expiration', null),
+            'expiration' => Arr::get($params, 'expiration'),
         ];
     }
 

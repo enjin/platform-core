@@ -14,8 +14,6 @@ class TransactionUpdated extends PlatformBroadcastEvent
 
     /**
      * Create a new event instance.
-     *
-     * @return void
      */
     public function __construct($event, ?Model $transaction = null, ?array $extra = null)
     {
