@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -99,8 +100,8 @@ class CoreServiceProvider extends PackageServiceProvider
     /**
      * Bootstrap any application services.
      */
-    #[\Override]
-    public function boot()
+    #[Override]
+    public function boot(): void
     {
         parent::boot();
 
@@ -120,7 +121,6 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app[Kernel::class]->pushMiddleware(Telemetry::class);
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('platform:send-telemetry-event')->daily();
-            $schedule->command('platform:transaction-checker')->everyThirtyMinutes()->withoutOverlapping();
         });
 
         Event::listen(PlatformSyncing::class, fn () => BlockProcessor::syncing());
@@ -172,8 +172,8 @@ class CoreServiceProvider extends PackageServiceProvider
         }));
     }
 
-    #[\Override]
-    public function booted(Closure $callback)
+    #[Override]
+    public function booted(Closure $callback): void
     {
         parent::booted($callback);
     }
