@@ -15,7 +15,7 @@ class EventProcessor
     public function run(): array
     {
         Log::info("Processing Events from block #{$this->block->number}");
-        $events = array_filter($this->block->events ?? []);
+        $events = array_filter(is_array($this->block->events) ? $this->block->events : []);
         $errors = [];
 
         foreach ($events as $event) {
