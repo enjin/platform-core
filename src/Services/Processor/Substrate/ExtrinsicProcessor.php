@@ -25,7 +25,7 @@ class ExtrinsicProcessor
     public function run(): array
     {
         Log::info("Processing Extrinsics from block #{$this->block->number}");
-        $extrinsics = $this->block->extrinsics ?? [];
+        $extrinsics = is_array($this->block->extrinsics) ? $this->block->extrinsics : [];
         $errors = [];
 
         foreach ($extrinsics as $index => $extrinsic) {
@@ -50,7 +50,7 @@ class ExtrinsicProcessor
         ])->orderBy('created_at', 'desc')->first();
 
         if ($transaction) {
-            if ($this->block->events === null) {
+            if (!is_array($this->block->events)) {
                 Log::info('Fetching events for block #' . $this->block->number);
                 $rpc = new SubstrateSocketClient();
                 $blockHash = $this->block->hash;
@@ -79,7 +79,7 @@ class ExtrinsicProcessor
     protected function updateTransaction($transaction, int $index): void
     {
         $extrinsicId = "{$this->block->number}-{$index}";
-        $resultEvent = collect($this->block->events)->firstWhere(
+        $resultEvent = collect($this->block->events)->filter()->firstWhere(
             fn ($event) => (($event instanceof ExtrinsicSuccess) || ($event instanceof ExtrinsicFailed))
                 && $event->extrinsicIndex == $index
         );
@@ -95,7 +95,7 @@ class ExtrinsicProcessor
     {
         Event::where('transaction_id', $transaction->id)->delete();
 
-        $eventsWithTransaction = collect($this->block->events)->filter(fn ($event) => $event->extrinsicIndex == $index)
+        $eventsWithTransaction = collect($this->block->events)->filter(fn ($event) => $event !== null && $event->extrinsicIndex == $index)
             ->map(fn ($event) => [
                 'transaction_id' => $transaction->id,
                 'phase' => '2',
