@@ -165,7 +165,7 @@ class GraphQlServiceProvider extends ServiceProvider
         GraphQL::addType(UploadType::class);
     }
 
-    protected function registerGraphQlHttpMiddleware()
+    protected function registerGraphQlHttpMiddleware(): void
     {
         $httpMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlHttpMiddleware::class);
 
@@ -190,7 +190,7 @@ class GraphQlServiceProvider extends ServiceProvider
             });
     }
 
-    protected function registerGraphQlExecutionMiddleware()
+    protected function registerGraphQlExecutionMiddleware(): void
     {
         $executionMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlExecutionMiddleware::class);
 
@@ -215,7 +215,7 @@ class GraphQlServiceProvider extends ServiceProvider
             });
     }
 
-    protected function registerExternalResolverMiddleware()
+    protected function registerExternalResolverMiddleware(): void
     {
         $resolverMiddlewares = Package::getClassesThatImplementInterface(PlatformGraphQlResolverMiddleware::class)
             ->map(function ($resolverMiddleware) {
@@ -265,7 +265,7 @@ class GraphQlServiceProvider extends ServiceProvider
     /**
      * Set the network for the graphql.
      */
-    private function setNetwork()
+    private function setNetwork(): void
     {
         $segments = request()->segments();
         $network = array_values(array_intersect($segments, array_keys(config('enjin-platform.chains.supported'))));
