@@ -21,6 +21,8 @@ return [
     'approve_token.description' => 'Approve another account to make transfers from a token account. You can also specify a block number where this approval will expire and the amount of tokens this account will be able to transfer.',
     'args.signingAccount' => 'The wallet used to sign and broadcast the transaction. By default, this is the wallet daemon. To sign from a Managed Wallet, see [Using Managed Wallets](https://docs.enjin.io/docs/using-managed-wallets).',
     'args.skipValidation' => 'Bypasses platform validation checks that prevent likely-to-fail transactions. Use cautiously. Defaults to false.',
+    'batch_all.args.calls' => 'An array of hex-encoded call data. Each element is a pre-encoded extrinsic call (e.g. from Transfer, Mint, or other mutations). All calls execute atomically—if any fails, the entire batch is reverted.',
+    'batch_all.description' => 'Execute multiple extrinsic calls atomically using Substrate utility.batchAll. If any call fails, the entire transaction is reverted. Use this when you need all-or-nothing execution across different operations.',
     'batch_mint.args.collectionId' => 'The collection ID',
     'batch_mint.args.recipients' => 'A list of recipients, each with configuration for creating new tokens or specifying existing tokens and amounts to mint.',
     'batch_mint.description' => 'Batch multiple token creation or mints into a single transaction, combining the creation of new tokens and minting additional supply for existing tokens as needed.',
