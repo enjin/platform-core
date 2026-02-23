@@ -128,6 +128,16 @@ class TransactionChecker extends Command
                 $block->events = $this->fetchEvents($block, $client);
                 $block->extrinsics = $extrinsics;
 
+                foreach ($block->extrinsics ?? [] as $extrinsic) {
+                    if ($extrinsic->module === 'Timestamp' && $extrinsic->call === 'set') {
+                        $block->timestamp = Carbon::createFromTimestampMs(Arr::get($extrinsic->params, 'now'));
+
+                        break;
+                    }
+                }
+
+                $block->save();
+
                 $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
                 if (!empty($hasExtrinsicErrors)) {
                     $this->error(json_encode($hasExtrinsicErrors));
