@@ -225,6 +225,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The websocket client timeout
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the timeout for internal websocket clients
+    | connecting to the Substrate nodes (value in seconds).
+    |
+    */
+    'websocket_client_timeout' => env('ENJIN_WEBSOCKET_CLIENT_TIMEOUT', 30),
+
+    /*
+    |--------------------------------------------------------------------------
     | The ingest sync wait timeout
     |--------------------------------------------------------------------------
     |
