@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate;
 
+use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
@@ -348,6 +349,14 @@ class BlockProcessor
             'blocks',
             $block->number
         );
+
+        foreach ($block->extrinsics ?? [] as $extrinsic) {
+            if ($extrinsic->module === 'Timestamp' && $extrinsic->call === 'set') {
+                $block->timestamp = Carbon::createFromTimestampMs(Arr::get($extrinsic->params, 'now'));
+
+                break;
+            }
+        }
 
         $this->info(sprintf('Ingested extrinsics for block #%s in %s seconds', $block->number, $syncTime->diffInMilliseconds(now()) / 1000));
 
