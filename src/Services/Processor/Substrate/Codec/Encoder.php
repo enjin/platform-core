@@ -25,6 +25,7 @@ class Encoder
 
     protected static array $callIndexKeys = [
         'Batch' => 'MatrixUtility.batch',
+        'BatchAll' => 'Utility.batch_all',
         'TransferKeepAlive' => 'Balances.transfer_keep_alive',
         'TransferAllowDeath' => 'Balances.transfer_allow_death',
         'TransferAllBalance' => 'Balances.transfer_all',
@@ -93,6 +94,7 @@ class Encoder
 
     protected static array $overrideCallIndex = [
         'MatrixUtility.batch' => [57, 0],
+        'Utility.batch_all' => [52, 1],
         'Balances.transfer_allow_death' => [10, 0],
         'Balances.transfer_keep_alive' => [10, 3],
         'Balances.transfer_all' => [10, 4],
@@ -286,6 +288,9 @@ class Encoder
 
     public function getEncoded(string $type, array $params): string
     {
+        if ($type == 'BatchAll') {
+            return static::batchAll($params['calls']);
+        }
         if ($type == 'Batch' || (isset($params['continueOnFailure']) && $params['continueOnFailure'] === true)) {
             return static::batch($params['calls'], $params['continueOnFailure']);
         }
@@ -319,6 +324,17 @@ class Encoder
         $calls = str_replace('0x', '', implode('', $calls));
         $continueOnFailure = $continueOnFailure ? '01' : '00';
         $encoded = $callIndex . $numberOfCalls . $calls . $continueOnFailure;
+
+        return HexConverter::prefix($encoded);
+    }
+
+    public function batchAll(array $calls): string
+    {
+        $idx = static::getCallIndex('Utility.batch_all');
+        $callIndex = is_array($idx) ? sprintf('%02x%02x', $idx[0], $idx[1]) : str_replace('0x', '', (string) $idx);
+        $numberOfCalls = $this->scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
+        $calls = str_replace('0x', '', implode('', $calls));
+        $encoded = $callIndex . $numberOfCalls . $calls;
 
         return HexConverter::prefix($encoded);
     }
