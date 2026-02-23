@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('blocks', function (Blueprint $table) {
-            $table->timestamp('timestamp')->nullable()->after('hash');
+            $table->timestamp('timestamp')->nullable()->after('extrinsics');
         });
     }
 
