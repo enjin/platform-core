@@ -39,18 +39,18 @@ class TokenGroupToken extends BaseModel
     }
 
     /**
-     * The token group relationship.
-     */
-    public function tokenGroup(): BelongsTo
-    {
-        return $this->belongsTo(TokenGroup::class);
-    }
-
-    /**
      * The token relationship.
      */
     public function token(): BelongsTo
     {
         return $this->belongsTo(Token::class);
+    }
+
+    /**
+     * The token group relationship.
+     */
+    public function tokenGroup(): BelongsTo
+    {
+        return $this->belongsTo(TokenGroup::class);
     }
 }
