@@ -2,13 +2,16 @@
 
 namespace Enjin\Platform\Models\Laravel;
 
+use Enjin\Platform\Database\Factories\TokenGroupTokenFactory;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TokenGroupToken extends BaseModel
 {
     use EagerLoadSelectFields;
+    use HasFactory;
 
     /**
      * The attributes that aren't mass assignable.
@@ -29,6 +32,11 @@ class TokenGroupToken extends BaseModel
         'created_at',
         'updated_at',
     ];
+
+    protected static function newFactory(): TokenGroupTokenFactory
+    {
+        return TokenGroupTokenFactory::new();
+    }
 
     /**
      * The token group relationship.

@@ -3,15 +3,18 @@
 namespace Enjin\Platform\Models\Laravel;
 
 use Enjin\BlockchainTools\HexConverter;
+use Enjin\Platform\Database\Factories\TokenGroupFactory;
 use Enjin\Platform\Models\BaseModel;
 use Enjin\Platform\Models\Laravel\Traits\EagerLoadSelectFields;
 use Enjin\Platform\Models\Laravel\Traits\TokenGroup as TokenGroupMethods;
 use Facades\Enjin\Platform\Services\Database\MetadataService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TokenGroup extends BaseModel
 {
     use EagerLoadSelectFields;
+    use HasFactory;
     use TokenGroupMethods;
 
     /**
@@ -58,6 +61,11 @@ class TokenGroup extends BaseModel
             get: fn () => $this->attributes['metadata']
                 ?? MetadataService::getCache($this->fetchUriAttribute($this)?->value_string ?? ''),
         );
+    }
+
+    protected static function newFactory(): TokenGroupFactory
+    {
+        return TokenGroupFactory::new();
     }
 
     private function fetchUriAttribute(self $model): ?\Enjin\Platform\Models\Laravel\Attribute
