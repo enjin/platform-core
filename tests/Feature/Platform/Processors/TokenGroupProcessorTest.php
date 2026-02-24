@@ -5,7 +5,7 @@ namespace Enjin\Platform\Tests\Feature\Platform\Processors;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Laravel\Block;
+use Enjin\Platform\Models\Block;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenGroup;
 use Enjin\Platform\Models\TokenGroupToken;
@@ -24,26 +24,23 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupDestroyed as TokenGroupDestroyedProcessor;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupRemoved as TokenGroupRemovedProcessor;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupsUpdated as TokenGroupsUpdatedProcessor;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Enjin\Platform\Tests\TestCase;
 
 class TokenGroupProcessorTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected bool $fakeEvents = true;
 
-    protected static bool $initialized = false;
-
-    protected Block $block;
+    protected Model $block;
     protected Codec $codec;
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-
-        if (!static::$initialized) {
-            $this->artisan('migrate:fresh');
-            static::$initialized = true;
-        }
 
         $this->block = Block::factory()->create();
         $this->codec = $this->createMock(Codec::class);
