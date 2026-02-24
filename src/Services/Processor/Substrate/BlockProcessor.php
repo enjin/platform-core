@@ -208,10 +208,21 @@ class BlockProcessor
 
             $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
             $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
-            if ($hasEventErrors || $hasExtrinsicErrors) {
-                $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
 
-                throw new Exception($errors);
+            $errors = [];
+            if ($hasEventErrors) {
+                $errors = array_merge($errors, $hasEventErrors);
+            }
+            if ($hasExtrinsicErrors) {
+                $errors = array_merge($errors, $hasExtrinsicErrors);
+            }
+
+            if ($block->number > 0 && empty($block->timestamp)) {
+                $errors[] = 'Missing Extrinsic Timestamp::set';
+            }
+
+            if (!empty($errors)) {
+                throw new Exception(implode(';', $errors));
             }
 
             $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
