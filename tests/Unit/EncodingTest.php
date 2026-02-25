@@ -869,6 +869,39 @@ class EncodingTest extends TestCase
         );
     }
 
+    public function test_it_can_encode_batch_mint_with_batch_all()
+    {
+        $recipient1 = [
+            'accountId' => '0x52e3c0eb993523286d19954c7e3ada6f791fa3f32764e44b9c1df0c2723bc15e',
+            'params' => new CreateTokenParams(
+                tokenId: '255',
+                initialSupply: '57005',
+            ),
+        ];
+
+        $recipient2 = [
+            'accountId' => '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d',
+            'params' => new MintParams(
+                tokenId: '1',
+                amount: '1',
+            ),
+        ];
+
+        $batchMintCall = TransactionSerializer::encode('BatchMint', BatchMintMutation::getEncodableParams(
+            collectionId: '2000',
+            recipients: [$recipient1, $recipient2],
+        ));
+
+        $data = $this->codec->encoder()->batchAll(
+            calls: [$batchMintCall],
+        );
+
+        $batchAllCallIndex = $this->codec->encoder()->getCallIndex('Utility.batch_all', true);
+        $batchMintCallIndex = $this->codec->encoder()->getCallIndex('MultiTokens.batch_mint', true);
+        $this->assertStringStartsWith("0x{$batchAllCallIndex}", $data);
+        $this->assertStringContainsString($batchMintCallIndex, $data);
+    }
+
     public function test_it_can_encode_matrix_utility_batch()
     {
         $call = TransactionSerializer::encode('Mint', CreateTokenMutation::getEncodableParams(
