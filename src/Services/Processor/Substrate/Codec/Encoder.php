@@ -94,7 +94,6 @@ class Encoder
 
     protected static array $overrideCallIndex = [
         'MatrixUtility.batch' => [57, 0],
-        'Utility.batch_all' => [52, 1],
         'Balances.transfer_allow_death' => [10, 0],
         'Balances.transfer_keep_alive' => [10, 3],
         'Balances.transfer_all' => [10, 4],
@@ -330,8 +329,7 @@ class Encoder
 
     public function batchAll(array $calls): string
     {
-        $idx = static::getCallIndex('Utility.batch_all');
-        $callIndex = is_array($idx) ? sprintf('%02x%02x', $idx[0], $idx[1]) : str_replace('0x', '', (string) $idx);
+        $callIndex = static::$callIndexes['Utility.batch_all'];
         $numberOfCalls = $this->scaleInstance->createTypeByTypeString('Compact')->encode(count($calls));
         $calls = str_replace('0x', '', implode('', $calls));
         $encoded = $callIndex . $numberOfCalls . $calls;
