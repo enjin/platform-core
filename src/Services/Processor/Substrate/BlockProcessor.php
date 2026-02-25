@@ -351,6 +351,27 @@ class BlockProcessor
             $block->number
         );
 
+        $chainBlockNumber = Arr::get($data, 'block.header.number');
+        if ($chainBlockNumber !== null) {
+            $chainBlockNumber = (int) HexConverter::hexToUInt($chainBlockNumber);
+
+            if ($chainBlockNumber !== $block->number) {
+                $this->warn("Block #{$block->number}: hash {$block->hash} points to block #{$chainBlockNumber} on chain. Re-fetching correct hash.");
+
+                $newHash = $this->httpClient->jsonRpc('chain_getBlockHash', [$block->number]);
+                if (is_string($newHash) && str_starts_with($newHash, '0x')) {
+                    $block->hash = $newHash;
+                    $block->save();
+
+                    $data = $this->runOrWaitIfEmpty(
+                        fn () => $this->httpClient->jsonRpc('chain_getBlock', [$block->hash]),
+                        'extrinsics',
+                        $block->number
+                    );
+                }
+            }
+        }
+
         if (empty($extrinsics = Arr::get($data, 'block.extrinsics'))) {
             return $block;
         }
