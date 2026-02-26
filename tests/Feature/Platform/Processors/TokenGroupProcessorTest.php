@@ -24,13 +24,10 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupDestroyed as TokenGroupDestroyedProcessor;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupRemoved as TokenGroupRemovedProcessor;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupsUpdated as TokenGroupsUpdatedProcessor;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Enjin\Platform\Tests\TestCase;
 
 class TokenGroupProcessorTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected bool $fakeEvents = true;
 
     protected Block $block;
