@@ -5,7 +5,7 @@ namespace Enjin\Platform\Tests\Feature\Platform\Processors;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Models\Attribute;
 use Enjin\Platform\Models\Collection;
-use Enjin\Platform\Models\Block;
+use Enjin\Platform\Models\Laravel\Block;
 use Enjin\Platform\Models\Token;
 use Enjin\Platform\Models\TokenGroup;
 use Enjin\Platform\Models\TokenGroupToken;
@@ -24,7 +24,6 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupDestroyed as TokenGroupDestroyedProcessor;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupRemoved as TokenGroupRemovedProcessor;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupsUpdated as TokenGroupsUpdatedProcessor;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Enjin\Platform\Tests\TestCase;
 
@@ -34,7 +33,7 @@ class TokenGroupProcessorTest extends TestCase
 
     protected bool $fakeEvents = true;
 
-    protected Model $block;
+    protected Block $block;
     protected Codec $codec;
 
     #[\Override]
