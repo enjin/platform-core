@@ -1,0 +1,8 @@
+{
+  "SetTokenGroups": {
+    "callIndex": "(u8, u8)",
+    "collectionId": "Compact<u128>",
+    "tokenId": "Compact<u128>",
+    "tokenGroups": "Vec<Compact<u128>>"
+  }
+}
