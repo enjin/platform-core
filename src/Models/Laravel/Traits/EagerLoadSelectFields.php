@@ -828,15 +828,6 @@ trait EagerLoadSelectFields
 
                 break;
             case 'tokenGroup':
-                $relations = static::loadTokenGroup(
-                    $selections,
-                    $attribute . '.fields',
-                    $args,
-                    $key
-                );
-                $withs = array_merge($withs, $relations[1]);
-
-                break;
             case 'tokenGroups':
                 $relations = static::loadTokenGroup(
                     $selections,

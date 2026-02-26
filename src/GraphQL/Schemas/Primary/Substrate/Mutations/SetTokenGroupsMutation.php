@@ -115,7 +115,7 @@ class SetTokenGroupsMutation extends Mutation implements PlatformBlockchainTrans
             'collectionId' => gmp_init(Arr::get($params, 'collectionId', 0)),
             'tokenId' => gmp_init(Arr::get($params, 'tokenId', 0)),
             'tokenGroups' => array_map(
-                fn ($id) => gmp_init($id),
+                gmp_init(...),
                 Arr::get($params, 'tokenGroups', [])
             ),
         ];
