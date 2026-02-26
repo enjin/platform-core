@@ -33,11 +33,6 @@ class TokenGroupToken extends BaseModel
         'updated_at',
     ];
 
-    protected static function newFactory(): TokenGroupTokenFactory
-    {
-        return TokenGroupTokenFactory::new();
-    }
-
     /**
      * The token relationship.
      */
@@ -52,5 +47,10 @@ class TokenGroupToken extends BaseModel
     public function tokenGroup(): BelongsTo
     {
         return $this->belongsTo(TokenGroup::class);
+    }
+
+    protected static function newFactory(): TokenGroupTokenFactory
+    {
+        return TokenGroupTokenFactory::new();
     }
 }
