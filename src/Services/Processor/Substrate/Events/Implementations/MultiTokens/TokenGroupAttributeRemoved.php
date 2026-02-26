@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens;
 
+use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Events\Substrate\MultiTokens\TokenGroupAttributeRemoved as TokenGroupAttributeRemovedEvent;
 use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\Models\Laravel\Attribute;

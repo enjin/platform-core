@@ -84,6 +84,8 @@ class TokenGroupProcessorTest extends TestCase
 
     public function test_token_group_created_does_nothing_for_unsynced_collection(): void
     {
+        config(['enjin-platform.sync.all' => false]);
+
         $event = $this->makeTokenGroupCreatedEvent('99999999', '1');
 
         $countBefore = TokenGroup::count();
