@@ -38,6 +38,8 @@ class TokenGroupProcessorTest extends TestCase
     {
         parent::setUp();
 
+        config(['enjin-platform.sync.all' => true]);
+
         $this->block = Block::create([
             'number' => fake()->numberBetween(1, 1000000),
             'hash' => '0x' . fake()->sha256(),
@@ -74,7 +76,7 @@ class TokenGroupProcessorTest extends TestCase
         $this->runProcessor(new TokenGroupCreatedProcessor($event, $this->block, $this->codec));
         $this->runProcessor(new TokenGroupCreatedProcessor($event, $this->block, $this->codec));
 
-        $this->assertDatabaseCount('token_groups', TokenGroup::where([
+        $this->assertEquals(1, TokenGroup::where([
             'collection_id' => $collection->id,
             'token_group_chain_id' => $groupChainId,
         ])->count());

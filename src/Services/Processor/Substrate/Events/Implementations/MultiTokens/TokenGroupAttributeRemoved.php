@@ -35,7 +35,7 @@ class TokenGroupAttributeRemoved extends SubstrateEvent
 
         Attribute::where([
             'token_group_id' => $tokenGroup->id,
-            'key' => $this->event->key,
+            'key' => HexConverter::prefix($this->event->key),
         ])->delete();
     }
 
