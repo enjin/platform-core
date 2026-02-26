@@ -41,7 +41,10 @@ class TokenGroupProcessorTest extends TestCase
     {
         parent::setUp();
 
-        $this->block = Block::factory()->create();
+        $this->block = Block::create([
+            'number' => fake()->numberBetween(1, 1000000),
+            'hash' => '0x' . fake()->sha256(),
+        ]);
         $this->codec = $this->createMock(Codec::class);
     }
 
