@@ -48,7 +48,7 @@ abstract class ModelResolver extends Model
     {
         $class = static::resolveClassFqn(static::class);
 
-        return (new $class)->$method(...$parameters);
+        return (new $class())->{$method}(...$parameters);
     }
 
     /**
