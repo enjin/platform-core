@@ -5,6 +5,7 @@ namespace Enjin\Platform\Models\Laravel\Traits;
 use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\Collection;
 use Enjin\Platform\Models\Laravel\TokenAccount;
+use Enjin\Platform\Models\Laravel\TokenGroupToken;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -49,5 +50,13 @@ trait Token
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class, 'token_id');
+    }
+
+    /**
+     * The token group tokens relationship.
+     */
+    public function tokenGroupTokens(): HasMany
+    {
+        return $this->hasMany(TokenGroupToken::class);
     }
 }

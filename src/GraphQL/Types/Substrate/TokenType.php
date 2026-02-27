@@ -162,6 +162,12 @@ class TokenType extends Type implements PlatformGraphQlType
                 ],
                 'is_relation' => true,
             ],
+            'tokenGroups' => [
+                'type' => GraphQL::type('[TokenGroupToken]'),
+                'description' => __('enjin-platform::type.token.field.tokenGroups'),
+                'alias' => 'tokenGroupTokens',
+                'is_relation' => true,
+            ],
 
             // Computed
             'metadata' => [
