@@ -5,6 +5,7 @@ namespace Enjin\Platform\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Override;
 use ReflectionClass;
 
 abstract class ModelResolver extends Model
@@ -33,7 +34,7 @@ abstract class ModelResolver extends Model
     /**
      * Dynamically pass methods to the model.
      */
-    #[\Override]
+    #[Override]
     public function __call($method, $parameters)
     {
         return $this->model->{$method}(...$parameters);
@@ -42,12 +43,12 @@ abstract class ModelResolver extends Model
     /**
      * Dynamically pass static methods to the model.
      */
-    #[\Override]
+    #[Override]
     public static function __callStatic($method, $parameters)
     {
         $class = static::resolveClassFqn(static::class);
 
-        return $class::$method(...$parameters);
+        return (new $class)->$method(...$parameters);
     }
 
     /**
