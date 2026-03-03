@@ -219,7 +219,10 @@ class Sync extends Command
                                 $blockHash,
                             ]
                         );
-                        $storageValues[] = Arr::get($storage, '0.changes');
+                        $changes = Arr::get($storage, '0.changes');
+                        if ($changes !== null) {
+                            $storageValues[] = $changes;
+                        }
                         $total += count($keys);
                         $startKey = Arr::last($keys);
                     }
