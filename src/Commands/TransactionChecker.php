@@ -57,7 +57,7 @@ class TransactionChecker extends Command
             ->take(100)
             ->get();
 
-        $maxBlockToCheck = $syncedBlocks->last()->number;
+        $maxBlockToCheck = $syncedBlocks?->last()?->number ?? 0;
 
         $transactions = collect(Transaction::whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
             ->where('network', currentMatrix()->name)
