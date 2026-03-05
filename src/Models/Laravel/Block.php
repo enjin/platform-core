@@ -30,6 +30,7 @@ class Block extends BaseModel
     public $fillable = [
         'number',
         'hash',
+        'timestamp',
         'synced',
         'failed',
         'exception',
@@ -41,12 +42,34 @@ class Block extends BaseModel
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'timestamp' => 'datetime',
+        'synced' => 'boolean',
+        'failed' => 'boolean',
+        'retried' => 'boolean',
+    ];
+
+    /**
      * Get the prunable model query.
      */
     public function prunable(): Builder
     {
         if (!empty($days = config('enjin-platform.prune_blocks'))) {
-            return static::where('created_at', '<=', now()->subDays($days));
+            $cutoff = now()->subDays($days);
+
+            return static::where(function (Builder $query) use ($cutoff): void {
+                $query->where(function (Builder $query) use ($cutoff): void {
+                    $query->whereNotNull('timestamp')
+                        ->where('timestamp', '<=', $cutoff);
+                })->orWhere(function (Builder $query) use ($cutoff): void {
+                    $query->whereNull('timestamp')
+                        ->where('created_at', '<=', $cutoff);
+                });
+            });
         }
 
         return static::where('id', 0);

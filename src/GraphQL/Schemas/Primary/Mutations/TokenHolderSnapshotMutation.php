@@ -88,9 +88,12 @@ class TokenHolderSnapshotMutation extends Mutation implements PlatformGraphQlMut
 
         $timestamp = '';
         if ($blockOrTimestamp = Arr::get($args, 'blockOrTimestamp')) {
-            $timestamp = strlen((string) $blockOrTimestamp) === 26
-                ? Carbon::createFromTimestamp($timestamp)->toDateTimeString()
-                : Block::where('number', $blockOrTimestamp)->value('created_at')?->toDateTimeString();
+            if (strlen((string) $blockOrTimestamp) === 26) {
+                $timestamp = Carbon::createFromTimestamp($blockOrTimestamp)->toDateTimeString();
+            } else {
+                $block = Block::where('number', $blockOrTimestamp)->first(['timestamp', 'created_at']);
+                $timestamp = ($block?->timestamp ?? $block?->created_at)?->toDateTimeString();
+            }
         }
 
         $tokens = Token::with(['accounts', 'accounts.wallet'])

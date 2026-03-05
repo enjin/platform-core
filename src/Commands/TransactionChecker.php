@@ -57,7 +57,7 @@ class TransactionChecker extends Command
             ->take(100)
             ->get();
 
-        $maxBlockToCheck = $syncedBlocks->last()->number;
+        $maxBlockToCheck = $syncedBlocks?->last()?->number ?? 0;
 
         $transactions = collect(Transaction::whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
             ->where('network', currentMatrix()->name)
@@ -127,6 +127,16 @@ class TransactionChecker extends Command
             if (count(array_intersect($hashes, $hashesFromThisBlock)) > 0) {
                 $block->events = $this->fetchEvents($block, $client);
                 $block->extrinsics = $extrinsics;
+
+                foreach ($block->extrinsics ?? [] as $extrinsic) {
+                    if ($extrinsic->module === 'Timestamp' && $extrinsic->call === 'set') {
+                        $block->timestamp = Carbon::createFromTimestampMs(Arr::get($extrinsic->params, 'now'));
+
+                        break;
+                    }
+                }
+
+                $block->save();
 
                 $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
                 if (!empty($hasExtrinsicErrors)) {

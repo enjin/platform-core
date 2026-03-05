@@ -89,8 +89,9 @@ abstract class WebsocketAbstract
         $start = now();
 
         while (true) {
-            if (now()->diffInSeconds($start) >= 30) {
-                throw new PlatformException(__('enjin-platform::error.websocket.receive_timeout', ['seconds' => 30]));
+            $timeout = config('enjin-platform.websocket_client_timeout', 30);
+            if (now()->diffInSeconds($start) >= $timeout) {
+                throw new PlatformException(__('enjin-platform::error.websocket.receive_timeout', ['seconds' => $timeout]));
             }
 
             $message = $this->client->receive();
@@ -136,7 +137,7 @@ abstract class WebsocketAbstract
             $this->client
                 ->addMiddleware(new CloseHandler())
                 ->addMiddleware(new PingResponder())
-                ->setTimeout(30);
+                ->setTimeout(config('enjin-platform.websocket_client_timeout', 30));
             Log::info('Websocket client created.', ['host' => $this->host]);
         }
 
