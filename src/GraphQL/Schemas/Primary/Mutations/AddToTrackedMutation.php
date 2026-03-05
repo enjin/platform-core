@@ -4,6 +4,7 @@ namespace Enjin\Platform\GraphQL\Schemas\Primary\Mutations;
 
 use Closure;
 use Enjin\Platform\Enums\Global\ModelType;
+use Enjin\Platform\Exceptions\PlatformException;
 use Enjin\Platform\GraphQL\Schemas\Primary\Substrate\Traits\HasContextSensitiveRules;
 use Enjin\Platform\GraphQL\Schemas\Primary\Traits\InPrimarySchema;
 use Enjin\Platform\Interfaces\PlatformGraphQlMutation;
@@ -14,6 +15,7 @@ use Enjin\Platform\Services\Database\SyncableService;
 use Enjin\Platform\Support\Hex;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Support\Facades\RateLimiter;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 
@@ -77,6 +79,14 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
      */
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields, CollectionService $collectionService, SyncableService $syncableService): mixed
     {
+        $key = 'AddToTrackedRequest:' . request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            throw new PlatformException(
+                __('enjin-platform::error.too_many_requests', ['num' => RateLimiter::availableIn($key)])
+            );
+        }
+        RateLimiter::hit($key, 60);
+
         collect($args['chainIds'])->each(function ($id) use ($args, $syncableService): void {
             $syncable = $syncableService->getWithTrashed($id, ModelType::getEnumCase($args['type']));
 
@@ -101,7 +111,7 @@ class AddToTrackedMutation extends Mutation implements PlatformGraphQlMutation
     protected function rules(array $args = []): array
     {
         return [
-            'chainIds' => ['required', 'array', $args['hotSync'] ? 'max:10' : 'max:1000'],
+            'chainIds' => ['required', 'array', 'max:1'],
             ...$this->getContextSensitiveRules(ModelType::getEnumCase($args['type'])->name),
         ];
     }
