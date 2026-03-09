@@ -21,13 +21,6 @@ use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiToke
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenBurned;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenCreated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenDestroyed;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupAdded;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupAttributeRemoved;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupAttributeSet;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupCreated;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupDestroyed;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupRemoved;
-use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenGroupsUpdated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\TokenMutated;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Transferred;
 use Enjin\Platform\Services\Processor\Substrate\Events\Implementations\MultiTokens\Unapproved;
@@ -62,13 +55,6 @@ enum MultiTokensEventType: string
     case TOKEN_MUTATED = 'TokenMutated';
     case RESERVED = 'Reserved';
     case UNRESERVED = 'Unreserved';
-    case TOKEN_GROUP_CREATED = 'TokenGroupCreated';
-    case TOKEN_GROUP_DESTROYED = 'TokenGroupDestroyed';
-    case TOKEN_GROUP_ADDED = 'TokenGroupAdded';
-    case TOKEN_GROUP_REMOVED = 'TokenGroupRemoved';
-    case TOKEN_GROUP_ATTRIBUTE_SET = 'TokenGroupAttributeSet';
-    case TOKEN_GROUP_ATTRIBUTE_REMOVED = 'TokenGroupAttributeRemoved';
-    case TOKEN_GROUPS_UPDATED = 'TokenGroupsUpdated';
 
     /**
      * Get the processor for the event.
@@ -99,13 +85,6 @@ enum MultiTokensEventType: string
             self::TOKEN_MUTATED => new TokenMutated($event, $block, $codec),
             self::RESERVED => new Reserved($event, $block, $codec),
             self::UNRESERVED => new Unreserved($event, $block, $codec),
-            self::TOKEN_GROUP_CREATED => new TokenGroupCreated($event, $block, $codec),
-            self::TOKEN_GROUP_DESTROYED => new TokenGroupDestroyed($event, $block, $codec),
-            self::TOKEN_GROUP_ADDED => new TokenGroupAdded($event, $block, $codec),
-            self::TOKEN_GROUP_REMOVED => new TokenGroupRemoved($event, $block, $codec),
-            self::TOKEN_GROUP_ATTRIBUTE_SET => new TokenGroupAttributeSet($event, $block, $codec),
-            self::TOKEN_GROUP_ATTRIBUTE_REMOVED => new TokenGroupAttributeRemoved($event, $block, $codec),
-            self::TOKEN_GROUPS_UPDATED => new TokenGroupsUpdated($event, $block, $codec),
         };
     }
 }

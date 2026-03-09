@@ -1,8 +1,0 @@
-{
-  "SetTokenGroupAttribute": {
-    "callIndex": "(u8, u8)",
-    "tokenGroupId": "Compact<u128>",
-    "key": "Bytes",
-    "value": "Bytes"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "DestroyTokenGroup": {
-    "callIndex": "(u8, u8)",
-    "tokenGroupId": "Compact<u128>"
-  }
-}

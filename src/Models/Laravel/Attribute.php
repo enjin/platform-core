@@ -27,7 +27,6 @@ class Attribute extends BaseModel
     public $fillable = [
         'collection_id',
         'token_id',
-        'token_group_id',
         'key',
         'value',
         'created_at',
@@ -57,14 +56,6 @@ class Attribute extends BaseModel
                 SyncMetadata::dispatch($model->id);
             }
         });
-    }
-
-    /**
-     * Determine whether this attribute belongs to a token group.
-     */
-    public function isTokenGroupAttribute(): bool
-    {
-        return !is_null($this->token_group_id);
     }
 
     /**

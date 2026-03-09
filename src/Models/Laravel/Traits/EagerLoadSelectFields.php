@@ -12,8 +12,6 @@ use Enjin\Platform\GraphQL\Types\Substrate\EventType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountApprovalType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountNamedReserveType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenAccountType;
-use Enjin\Platform\GraphQL\Types\Substrate\TokenGroupTokenType;
-use Enjin\Platform\GraphQL\Types\Substrate\TokenGroupType;
 use Enjin\Platform\GraphQL\Types\Substrate\TokenType;
 use Enjin\Platform\GraphQL\Types\Substrate\TransactionType;
 use Enjin\Platform\GraphQL\Types\Substrate\WalletType;
@@ -524,17 +522,6 @@ trait EagerLoadSelectFields
                 );
 
                 break;
-            case 'GetTokenGroup':
-            case 'GetTokenGroups':
-                [$select, $with, $withCount] = static::loadTokenGroup(
-                    $queryPlan,
-                    $query == 'GetTokenGroups' ? 'edges.fields.node.fields' : '',
-                    [],
-                    null,
-                    true
-                );
-
-                break;
         }
 
 
@@ -827,41 +814,6 @@ trait EagerLoadSelectFields
                 );
 
                 break;
-            case 'tokenGroup':
-            case 'tokenGroups':
-                $relations = static::loadTokenGroup(
-                    $selections,
-                    $attribute . '.fields',
-                    $args,
-                    $key
-                );
-                $withs = array_merge($withs, $relations[1]);
-
-                break;
-            case 'tokenGroupTokens':
-                $fields = Arr::get($selections, $attribute . '.fields', []);
-                $select = array_filter([
-                    'id',
-                    'token_group_id',
-                    'token_id',
-                    ...TokenGroupTokenType::getSelectFields($fieldKeys = array_keys($fields)),
-                ]);
-                $withs = array_merge($withs, [$key => fn ($query) => $query->select(array_unique($select))]);
-
-                foreach (TokenGroupTokenType::getRelationFields($fieldKeys) as $relation) {
-                    $withs = array_merge(
-                        $withs,
-                        static::getRelationQuery(
-                            TokenGroupTokenType::class,
-                            $relation,
-                            $fields,
-                            $key,
-                            $withs
-                        )
-                    );
-                }
-
-                break;
         }
 
         return $withs;
@@ -911,53 +863,6 @@ trait EagerLoadSelectFields
                 $with,
                 static::getRelationQuery(
                     FuelTankType::class,
-                    $relation,
-                    $fields,
-                    $key,
-                    $with
-                )
-            );
-        }
-
-        return [$select, $with, $withCount];
-    }
-
-    /**
-     * Load token group's select and relationship fields.
-     */
-    public static function loadTokenGroup(
-        array $selections,
-        string $attribute,
-        array $args = [],
-        ?string $key = null,
-        bool $isParent = false
-    ): array {
-        $fields = Arr::get($selections, $attribute, $selections);
-        $select = array_filter([
-            'id',
-            'collection_id',
-            ...TokenGroupType::getSelectFields($fieldKeys = array_keys($fields)),
-        ]);
-
-        $with = [];
-        $withCount = [];
-
-        if (!$isParent) {
-            $with = [
-                $key => fn ($query) => $query->select(array_unique($select)),
-            ];
-        }
-
-        $relations = array_filter([
-            ...(isset($fields['metadata']) ? ['attributes'] : []),
-            ...TokenGroupType::getRelationFields($fieldKeys),
-        ]);
-
-        foreach (array_unique($relations) as $relation) {
-            $with = array_merge(
-                $with,
-                static::getRelationQuery(
-                    TokenGroupType::class,
                     $relation,
                     $fields,
                     $key,
