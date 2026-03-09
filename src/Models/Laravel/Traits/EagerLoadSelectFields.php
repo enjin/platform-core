@@ -608,7 +608,7 @@ trait EagerLoadSelectFields
             case 'attributes':
                 $withs = array_merge(
                     $withs,
-                    [$key => fn ($query) => $query->select(['id', 'key', 'value', 'collection_id', 'token_id', 'token_group_id'])]
+                    [$key => fn ($query) => $query->select(['id', 'key', 'value', 'collection_id', 'token_id'])]
                 );
 
                 break;
