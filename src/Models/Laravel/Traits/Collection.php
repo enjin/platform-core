@@ -6,7 +6,6 @@ use Enjin\Platform\Models\Laravel\Attribute;
 use Enjin\Platform\Models\Laravel\CollectionAccount;
 use Enjin\Platform\Models\Laravel\CollectionRoyaltyCurrency;
 use Enjin\Platform\Models\Laravel\Token;
-use Enjin\Platform\Models\Laravel\TokenGroup;
 use Enjin\Platform\Models\Laravel\Wallet;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -67,13 +66,5 @@ trait Collection
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class, 'collection_id')->whereNull('token_id');
-    }
-
-    /**
-     * The token groups relationship.
-     */
-    public function tokenGroups(): HasMany
-    {
-        return $this->hasMany(TokenGroup::class);
     }
 }

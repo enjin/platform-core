@@ -43,11 +43,6 @@ class AttributeType extends Type implements PlatformGraphQlType
                 'description' => __('enjin-platform::mutation.batch_set_attribute.args.value'),
                 'alias' => 'value_string',
             ],
-            'tokenGroup' => [
-                'type' => GraphQL::type('TokenGroup'),
-                'description' => __('enjin-platform::type.attribute.field.tokenGroup'),
-                'is_relation' => true,
-            ],
         ];
     }
 }

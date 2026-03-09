@@ -153,11 +153,6 @@ class CollectionType extends Type implements PlatformGraphQlType
                 ],
                 'is_relation' => true,
             ],
-            'tokenGroups' => [
-                'type' => GraphQL::type('[TokenGroup]'),
-                'description' => __('enjin-platform::type.collection_type.field.tokenGroups'),
-                'is_relation' => true,
-            ],
 
             // Deprecated
             'forceSingleMint' => [

@@ -1,8 +1,0 @@
-{
-  "AddTokenToGroup": {
-    "callIndex": "(u8, u8)",
-    "collectionId": "Compact<u128>",
-    "tokenId": "Compact<u128>",
-    "tokenGroupId": "Compact<u128>"
-  }
-}
