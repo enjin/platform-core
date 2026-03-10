@@ -59,7 +59,7 @@ class TransactionChecker extends Command
 
         $maxBlockToCheck = $syncedBlocks?->last()?->number ?? 0;
 
-        $transactions = collect(Transaction::whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
+        $transactions = collect(Transaction::whereIn('state', [TransactionState::BROADCAST->name, TransactionState::EXECUTED->name])
             ->where('network', currentMatrix()->name)
             ->whereNotNull(['signed_at_block', 'transaction_chain_hash'])
             // We only check transactions older than 100 blocks because ingest
@@ -166,10 +166,10 @@ class TransactionChecker extends Command
     protected function setAbandonedState($hashes): void
     {
         Transaction::whereIn('transaction_chain_hash', $hashes)
-            ->whereIn('state', [TransactionState::BROADCAST, TransactionState::EXECUTED])
+            ->whereIn('state', [TransactionState::BROADCAST->name, TransactionState::EXECUTED->name])
             ->where('network', currentMatrix()->name)
             ->update([
-                'state' => TransactionState::ABANDONED,
+                'state' => TransactionState::ABANDONED->name,
             ]);
 
     }

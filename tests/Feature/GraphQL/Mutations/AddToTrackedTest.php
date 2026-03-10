@@ -21,6 +21,7 @@ class AddToTrackedTest extends TestCaseGraphQL
     protected function setUp(): void
     {
         parent::setUp();
+        \Illuminate\Support\Facades\RateLimiter::clear('AddToTrackedRequest:127.0.0.1');
     }
 
     // Data Providers
@@ -47,10 +48,13 @@ class AddToTrackedTest extends TestCaseGraphQL
                 fn () => Queue::assertPushed(HotSync::class),
             ],
             'track multiple collections' => [
-                self::getInputData(chainIds: [
-                    (string) fake()->unique()->numberBetween(2000),
-                    (string) fake()->unique()->numberBetween(2000),
-                ]),
+                self::getInputData(
+                    chainIds: [
+                        (string) fake()->unique()->numberBetween(2000),
+                        (string) fake()->unique()->numberBetween(2000),
+                    ],
+                    hotSync: false
+                ),
                 fn () => Queue::assertPushed(HotSync::class),
             ],
             'track multiple collections without hot sync' => [
@@ -87,10 +91,10 @@ class AddToTrackedTest extends TestCaseGraphQL
             'too many chain ids supplied with hot sync' => [
                 [
                     'type' => ModelType::COLLECTION->name,
-                    'chainIds' => array_map(fn () => (string) fake()->unique()->numberBetween(2000), array_fill(0, 11, null)),
+                    'chainIds' => array_map(fn () => (string) fake()->unique()->numberBetween(2000), array_fill(0, 2, null)),
                 ],
                 'chainIds',
-                'The chain ids field must not have more than 10 items.',
+                'The chain ids field must not have more than 1 items.',
             ],
             'too many chain ids supplied without hot sync' => [
                 [
@@ -141,6 +145,8 @@ class AddToTrackedTest extends TestCaseGraphQL
         $deletedSyncable = Syncable::where('syncable_id', $data['chainIds'][0])->first();
         $deletedSyncable->delete();
         $this->assertTrue($deletedSyncable->trashed());
+
+        \Illuminate\Support\Facades\RateLimiter::clear('AddToTrackedRequest:127.0.0.1');
 
         $response = $this->graphql($this->method, $data);
         $restoredSyncable = Syncable::withTrashed()->where('syncable_id', $data['chainIds'][0])->first();
