@@ -69,7 +69,7 @@ trait HasTokenIdFieldArrayRules
         return Rule::forEach(fn ($value, $attribute) => [
             'bail',
             'filled',
-            new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
+            new RequiredIf((bool) Arr::get($args, str_replace('.tokenId', '', $attribute))),
             ...$extraRules,
         ]);
     }
@@ -82,7 +82,7 @@ trait HasTokenIdFieldArrayRules
         return Rule::forEach(fn ($value, $attribute) => [
             'bail',
             'filled',
-            new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
+            new RequiredIf((bool) Arr::get($args, str_replace('.tokenId', '', $attribute))),
             new TokenEncodeExistInCollection(),
             ...$extraRules,
         ]);
@@ -96,7 +96,7 @@ trait HasTokenIdFieldArrayRules
         return Rule::forEach(fn ($value, $attribute) => [
             'bail',
             'filled',
-            new RequiredIf(Arr::get($args, str_replace('.tokenId', '', $attribute))),
+            new RequiredIf((bool) Arr::get($args, str_replace('.tokenId', '', $attribute))),
             new TokenEncodeDoesNotExistInCollection(),
             ...$extraRules,
         ]);

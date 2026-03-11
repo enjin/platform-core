@@ -2,6 +2,7 @@
 
 namespace Enjin\Platform\Services\Processor\Substrate;
 
+use Carbon\Carbon;
 use Enjin\BlockchainTools\HexConverter;
 use Enjin\Platform\Clients\Implementations\SubstrateHttpClient;
 use Enjin\Platform\Clients\Implementations\SubstrateSocketClient;
@@ -207,10 +208,21 @@ class BlockProcessor
 
             $hasEventErrors = (new EventProcessor($block, $this->codec))->run();
             $hasExtrinsicErrors = (new ExtrinsicProcessor($block, $this->codec))->run();
-            if ($hasEventErrors || $hasExtrinsicErrors) {
-                $errors = implode(';', [...$hasEventErrors, ...$hasExtrinsicErrors]);
 
-                throw new Exception($errors);
+            $errors = [];
+            if ($hasEventErrors) {
+                $errors = array_merge($errors, $hasEventErrors);
+            }
+            if ($hasExtrinsicErrors) {
+                $errors = array_merge($errors, $hasExtrinsicErrors);
+            }
+
+            if ($block->number > 0 && empty($block->timestamp)) {
+                $errors[] = 'Missing Extrinsic Timestamp::set';
+            }
+
+            if (!empty($errors)) {
+                throw new Exception(implode(';', $errors));
             }
 
             $block->fill(['synced' => true, 'failed' => false, 'exception' => null])->save();
@@ -339,6 +351,27 @@ class BlockProcessor
             $block->number
         );
 
+        $chainBlockNumber = Arr::get($data, 'block.header.number');
+        if ($chainBlockNumber !== null) {
+            $chainBlockNumber = (int) HexConverter::hexToUInt($chainBlockNumber);
+
+            if ($chainBlockNumber !== $block->number) {
+                $this->warn("Block #{$block->number}: hash {$block->hash} points to block #{$chainBlockNumber} on chain. Re-fetching correct hash.");
+
+                $newHash = $this->httpClient->jsonRpc('chain_getBlockHash', [$block->number]);
+                if (is_string($newHash) && str_starts_with($newHash, '0x')) {
+                    $block->hash = $newHash;
+                    $block->save();
+
+                    $data = $this->runOrWaitIfEmpty(
+                        fn () => $this->httpClient->jsonRpc('chain_getBlock', [$block->hash]),
+                        'extrinsics',
+                        $block->number
+                    );
+                }
+            }
+        }
+
         if (empty($extrinsics = Arr::get($data, 'block.extrinsics'))) {
             return $block;
         }
@@ -348,6 +381,14 @@ class BlockProcessor
             'blocks',
             $block->number
         );
+
+        foreach ($block->extrinsics ?? [] as $extrinsic) {
+            if ($extrinsic->module === 'Timestamp' && $extrinsic->call === 'set') {
+                $block->timestamp = Carbon::createFromTimestampMs(Arr::get($extrinsic->params, 'now'));
+
+                break;
+            }
+        }
 
         $this->info(sprintf('Ingested extrinsics for block #%s in %s seconds', $block->number, $syncTime->diffInMilliseconds(now()) / 1000));
 

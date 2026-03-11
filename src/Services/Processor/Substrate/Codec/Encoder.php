@@ -140,6 +140,11 @@ class Encoder
         $result = array_search([$palletIndex, $functionIndex], static::$overrideCallIndex);
 
         if ($result === false) {
+            $hexKey = sprintf('%02x%02x', $palletIndex, $functionIndex);
+            $result = array_search($hexKey, static::$callIndexes);
+        }
+
+        if ($result === false) {
             throw new PlatformException('Unsupported call index: ' . $palletIndex . '.' . $functionIndex);
         }
 
