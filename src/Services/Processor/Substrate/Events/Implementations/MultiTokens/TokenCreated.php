@@ -97,30 +97,34 @@ class TokenCreated extends SubstrateEvent
         $symbol = is_array($symbol = $this->getValue($createToken, 'metadata.symbol')) ? HexConverter::bytesToHexPrefixed($symbol) : $symbol;
         $privilegedParams = $this->getValue($createToken, 'privileged_params');
 
-        return Token::create([
-            'collection_id' => $collection->id,
-            'token_chain_id' => $event->tokenId,
-            'supply' => 0, // Initial supply is set to 0 and increased by the mint event
-            'cap' => $cap?->name,
-            'cap_supply' => $capSupply ?? $collapsingSupply,
-            'is_frozen' => $isFrozen,
-            'royalty_wallet_id' => $beneficiary?->id,
-            'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
-            'is_currency' => $isCurrency,
-            'listing_forbidden' => Arr::get($createToken, 'listing_forbidden') ?? false,
-            'requires_deposit' => $privilegedParams === null ? true : Arr::get($privilegedParams, 'requires_deposit', true),
-            'creation_depositor' => null,
-            'creation_deposit_amount' => 0, // TODO: Implement this
-            'owner_deposit' => 0, // TODO: Implement this
-            'total_token_account_deposit' => 0, // TODO: Implement this
-            'attribute_count' => 0, // This will be increased in the AttributeSet event
-            'account_count' => $this->getValue($createToken, 'account_deposit_count') ?? 1,
-            'infusion' => $this->getValue($createToken, 'infusion') ?? 0,
-            'anyone_can_infuse' => Arr::get($createToken, 'anyone_can_infuse') ?? false,
-            'decimal_count' => $this->getValue($createToken, 'metadata.decimal_count') ?? 0,
-            'name' => $name === '0x' ? null : $name,
-            'symbol' => $symbol === '0x' ? null : $symbol,
-        ]);
+        return Token::firstOrCreate(
+            [
+                'collection_id' => $collection->id,
+                'token_chain_id' => $event->tokenId,
+            ],
+            [
+                'supply' => 0, // Initial supply is set to 0 and increased by the mint event
+                'cap' => $cap?->name,
+                'cap_supply' => $capSupply ?? $collapsingSupply,
+                'is_frozen' => $isFrozen,
+                'royalty_wallet_id' => $beneficiary?->id,
+                'royalty_percentage' => $percentage ? $percentage / 10 ** 7 : null,
+                'is_currency' => $isCurrency,
+                'listing_forbidden' => Arr::get($createToken, 'listing_forbidden') ?? false,
+                'requires_deposit' => $privilegedParams === null ? true : Arr::get($privilegedParams, 'requires_deposit', true),
+                'creation_depositor' => null,
+                'creation_deposit_amount' => 0, // TODO: Implement this
+                'owner_deposit' => 0, // TODO: Implement this
+                'total_token_account_deposit' => 0, // TODO: Implement this
+                'attribute_count' => 0, // This will be increased in the AttributeSet event
+                'account_count' => $this->getValue($createToken, 'account_deposit_count') ?? 1,
+                'infusion' => $this->getValue($createToken, 'infusion') ?? 0,
+                'anyone_can_infuse' => Arr::get($createToken, 'anyone_can_infuse') ?? false,
+                'decimal_count' => $this->getValue($createToken, 'metadata.decimal_count') ?? 0,
+                'name' => $name === '0x' ? null : $name,
+                'symbol' => $symbol === '0x' ? null : $symbol,
+            ]
+        );
     }
 
     public function log(): void

@@ -30,6 +30,8 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Override;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 
 class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTransaction
@@ -44,7 +46,7 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
     /**
      * Get the mutation's attributes.
      */
-    #[\Override]
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -64,7 +66,7 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
     /**
      * Get the mutation's arguments definition.
      */
-    #[\Override]
+    #[Override]
     public function args(): array
     {
         return [
@@ -110,7 +112,7 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
         return Transaction::lazyLoadSelectFields($transaction, $resolveInfo);
     }
 
-    public static function getEncodedCall($args)
+    public static function getEncodedCall($args): string
     {
         $result = GraphQL::queryAndReturnResult(
             Arr::get($args, 'dispatch.query'),
@@ -119,6 +121,8 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
         )->toArray();
 
         if (Arr::get($result, 'errors.0.message')) {
+            Log::error('Dispatch query failed: ' . Arr::get($result, 'errors.0.message'));
+
             throw new FuelTanksException(__('enjin-platform::exception.dispatch_query_error'));
         }
 
@@ -158,7 +162,7 @@ class DispatchMutation extends FuelTanksMutation implements PlatformBlockchainTr
         );
     }
 
-    #[\Override]
+    #[Override]
     public static function getEncodableParams(...$params): array
     {
         $tankId = Arr::get($params, 'tankId', Account::daemonPublicKey());

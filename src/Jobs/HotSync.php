@@ -49,7 +49,10 @@ class HotSync implements ShouldQueue
                     }
 
                     $storage = $websocket->send('state_queryStorageAt', [$keys]);
-                    $storageValues[] = Arr::get($storage, '0.changes');
+                    $changes = Arr::get($storage, '0.changes');
+                    if ($changes !== null) {
+                        $storageValues[] = $changes;
+                    }
 
                     $startKey = Arr::last($keys);
                 }
