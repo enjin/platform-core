@@ -47,16 +47,6 @@ class AddToTrackedTest extends TestCaseGraphQL
                 self::getInputData(),
                 fn () => Queue::assertPushed(HotSync::class),
             ],
-            'track multiple collections' => [
-                self::getInputData(
-                    chainIds: [
-                        (string) fake()->unique()->numberBetween(2000),
-                        (string) fake()->unique()->numberBetween(2000),
-                    ],
-                    hotSync: false
-                ),
-                fn () => Queue::assertPushed(HotSync::class),
-            ],
             'track multiple collections without hot sync' => [
                 self::getInputData(
                     chainIds: [
